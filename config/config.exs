@@ -9,7 +9,10 @@ import Config
 
 config :pinchflat,
   ecto_repos: [Pinchflat.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  backend_executables: %{
+    yt_dlp: "false"
+  }
 
 # Configures the endpoint
 config :pinchflat, PinchflatWeb.Endpoint,

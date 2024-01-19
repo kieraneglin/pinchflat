@@ -10,14 +10,23 @@ defmodule Pinchflat.DownloaderBackends.YtDlp.CommandRunner do
 
   TODO: look into using a behavior for this (if I ever add other backends)
   """
-  def run(url, command_options, config_options \\ []) do
-    default_command = System.find_executable("yt-dlp")
-    base_command = Keyword.get(config_options, :base_command, default_command)
+  def run(url, command_options) do
+    command = Application.get_env(:pinchflat, :backend_executables)[:yt_dlp]
     formatted_command_options = parse_options(command_options) ++ [url]
 
-    case System.cmd(base_command, formatted_command_options, stderr_to_stdout: true) do
+    case System.cmd(command, formatted_command_options, stderr_to_stdout: true) do
       {output, 0} -> {:ok, output}
       {output, status} -> {:error, output, status}
+    end
+  end
+
+  @doc """
+  Runs a yt-dlp command and returns the output as a JSON object
+  """
+  def run_json(url, command_options) do
+    case run(url, command_options ++ [:dump_json]) do
+      {:ok, output} -> {:ok, Phoenix.json_library().decode!(output)}
+      res -> res
     end
   end
 
