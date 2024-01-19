@@ -23,6 +23,6 @@ echo "\nPostgres is available: continuing with database setup..."
 mix ecto.create
 mix ecto.migrate
 
-# Start the phoenix web server
+# Start the phoenix web server (interactive)
 echo "\n Launching Phoenix web server..."
-mix phx.server
+iex -S mix phx.server
