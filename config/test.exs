@@ -1,5 +1,9 @@
 import Config
 
+config :pinchflat,
+  # Specifying backend data here makes mocking and local testing SUPER easy
+  yt_dlp_executable: Path.join([File.cwd!(), "/test/support/scripts/yt-dlp-mocks/repeater.sh"])
+
 # Configure your database
 #
 # The MIX_TEST_PARTITION environment variable can be used

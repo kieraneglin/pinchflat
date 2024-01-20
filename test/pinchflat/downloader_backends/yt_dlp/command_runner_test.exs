@@ -3,16 +3,11 @@ defmodule Pinchflat.DownloaderBackends.YtDlp.CommandRunnerTest do
 
   alias Pinchflat.DownloaderBackends.YtDlp.CommandRunner, as: Runner
 
-  @cmd Path.join([File.cwd!(), "/test/support/scripts/mock-yt-dlp-repeater.sh"])
+  @original_executable Application.compile_env(:pinchflat, :yt_dlp_executable)
   @video_url "https://www.youtube.com/watch?v=9bZkp7q19f0"
-  @original_executables Application.compile_env(:pinchflat, :backend_executables)
 
   setup do
-    Application.put_env(:pinchflat, :backend_executables, %{@original_executables | yt_dlp: @cmd})
-
-    on_exit(fn ->
-      Application.put_env(:pinchflat, :backend_executables, @original_executables)
-    end)
+    on_exit(&reset_executable/0)
   end
 
   describe "run/2" do
@@ -59,35 +54,19 @@ defmodule Pinchflat.DownloaderBackends.YtDlp.CommandRunnerTest do
     end
 
     test "it returns the output and status when the command fails" do
-      Application.put_env(:pinchflat, :backend_executables, %{
-        @original_executables
-        | yt_dlp: "/bin/false"
-      })
-
-      assert {:error, "", 1} = Runner.run(@video_url, [])
+      wrap_executable("/bin/false", fn ->
+        assert {:error, "", 1} = Runner.run(@video_url, [])
+      end)
     end
   end
 
-  describe "run_json/2" do
-    test "it returns decoded JSON when the command succeeds" do
-      assert {:ok, output} = Runner.run_json(@video_url, [])
+  defp wrap_executable(new_executable, fun) do
+    Application.put_env(:pinchflat, :yt_dlp_executable, new_executable)
+    fun.()
+    reset_executable()
+  end
 
-      assert is_map(output)
-    end
-
-    test "it adds the --dump-json flag automatically" do
-      assert {:ok, %{"args" => output}} = Runner.run_json(@video_url, [])
-
-      assert String.contains?(output, "--dump-json")
-    end
-
-    test "it returns errors when the command fails" do
-      Application.put_env(:pinchflat, :backend_executables, %{
-        @original_executables
-        | yt_dlp: "/bin/false"
-      })
-
-      assert {:error, "", 1} = Runner.run_json(@video_url, [])
-    end
+  def reset_executable do
+    Application.put_env(:pinchflat, :yt_dlp_executable, @original_executable)
   end
 end
