@@ -50,22 +50,22 @@ jobs:
       # See https://github.com/actions/runner/issues/241 and https://github.com/docker/compose/issues/8537
       - name: Install Elixir and JS deps
         run: |
-          docker compose exec -T yarn install && cd assets && yarn install
-          docker compose exec -T mix deps.get
+          docker compose exec -T phx yarn install && cd assets && yarn install
+          docker compose exec -T phx mix deps.get
 
       - name: Create and Migrate database
         run: |
-          docker compose exec -T mix ecto.create
-          docker compose exec -T mix ecto.migrate
+          docker compose exec -T phx mix ecto.create
+          docker compose exec -T phx mix ecto.migrate
 
       - name: Check JS formatting
-        run: docker compose exec -T yarn run prettier . --check
+        run: docker compose exec -T phx yarn run prettier . --check
 
       - name: Check Elixir formatting
-        run: docker compose exec -T mix format --check-formatted
+        run: docker compose exec -T phx mix format --check-formatted
 
       - name: Check Credo
-        run: docker compose exec -T mix credo
+        run: docker compose exec -T phx mix credo
 
       - name: Run Elixir tests
-        run: docker compose exec -T mix test
+        run: docker compose exec -T phx mix test
