@@ -9,7 +9,10 @@ import Config
 
 config :pinchflat,
   ecto_repos: [Pinchflat.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  # Specifying backend data here makes mocking and local testing SUPER easy
+  yt_dlp_executable: System.find_executable("yt-dlp"),
+  yt_dlp_runner: Pinchflat.DownloaderBackends.YtDlp.CommandRunner
 
 # Configures the endpoint
 config :pinchflat, PinchflatWeb.Endpoint,
