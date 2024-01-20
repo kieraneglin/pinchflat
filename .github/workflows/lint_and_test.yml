@@ -1,0 +1,71 @@
+name: Perform linting and run tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build, Lint, and Test
+    runs-on: ubuntu-latest
+    if: "! contains(toJSON(github.event.commits.*.message), '[skip ci]')"
+    env:
+      COMPOSE_FILE: ./docker-compose.ci.yml
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Create and populate ENV file
+        run: |
+          echo MIX_ENV=test >> .env
+          echo POSTGRES_HOST=postgres >> .env
+          echo POSTGRES_USER=postgres >> .env
+          echo POSTGRES_PASSWORD=postgres >> .env
+
+      - name: Pull prebuilt images
+        run: docker compose pull
+
+      - name: Setup Docker layer caching
+        uses: jpribyl/action-docker-layer-caching@v0.1.1
+        continue-on-error: true
+        with:
+          key: ci-docker-cache-{hash}
+          restore-keys: |
+            ci-docker-cache-
+            layer-ci-docker-cache-
+
+      - name: Build and Run Docker image
+        run: docker compose up --detach
+
+      # NOTE: All exec commands use the -T flag to compensate for
+      # a bug in the GitHub Actions runner where its stdin/stderr
+      # will erroneously report that it's a TTY.
+      # Aside from handling this bug the -T flag is not required
+      # See https://github.com/actions/runner/issues/241 and https://github.com/docker/compose/issues/8537
+      - name: Install Elixir and JS deps
+        run: |
+          docker compose exec -T phx yarn install && cd assets && yarn install && cd ..
+          docker compose exec -T phx mix deps.get
+
+      - name: Create and Migrate database
+        run: |
+          docker compose exec -T phx mix ecto.create
+          docker compose exec -T phx mix ecto.migrate
+
+      - name: Check JS formatting
+        run: docker compose exec -T phx yarn run prettier . --check
+
+      - name: Check Elixir formatting
+        run: docker compose exec -T phx mix format --check-formatted
+
+      - name: Check Credo
+        run: docker compose exec -T phx mix credo
+
+      - name: Run Elixir tests
+        run: docker compose exec -T phx mix test

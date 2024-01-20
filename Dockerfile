@@ -12,7 +12,7 @@ RUN bash nodesource_setup.sh
 RUN apt-get install nodejs
 RUN npm install -g yarn
 
-# Install Phoenix packages
+# Install baseline Elixir packages
 RUN mix local.hex --force
 RUN mix local.rebar --force
 
@@ -27,5 +27,7 @@ COPY . ./
 # Needs permissions to be updated AFTER the copy step
 RUN chmod +x ./docker-run.sh
 
-# # Compile the project.
+# Install Elixir deps
+RUN mix deps.get
+
 EXPOSE 4008
