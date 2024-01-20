@@ -1,10 +1,10 @@
-defmodule Pinchflat.DownloaderBackends.YtDlp.CommandRunner do
+defmodule Pinchflat.Downloader.Backends.YtDlp.CommandRunner do
   @moduledoc """
   Runs yt-dlp commands using the `System.cmd/3` function
   """
 
   alias Pinchflat.Utils.StringUtils
-  alias Pinchflat.DownloaderBackends.BackendCommandRunner
+  alias Pinchflat.Downloader.Backends.BackendCommandRunner
 
   @behaviour BackendCommandRunner
 
