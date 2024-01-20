@@ -12,11 +12,5 @@ services:
       - '.:/app'
     ports:
       - '4008:4008'
-    depends_on:
-      - postgres
-    command:
-      - ./docker-run.sh
-    stdin_open: true
-    tty: true
-    env_file:
-      - .env
+    command: tail -F /dev/null
+    env_file: .env

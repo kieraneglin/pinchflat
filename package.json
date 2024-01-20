@@ -1,0 +1,6 @@
+{
+  "description": "Prettier is used for linting of all files so this package has to live in the root of the project. Use the other package.json files for dependencies.",
+  "devDependencies": {
+    "prettier": "3.2.4"
+  }
+}
