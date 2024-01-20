@@ -3,10 +3,10 @@ name: Perform linting and run tests
 on:
   push:
     branches:
-      - master
+      - ke/add-ci
   pull_request:
     branches:
-      - master
+      - ke/add-ci
   workflow_dispatch:
 
 jobs:
