@@ -1,7 +1,7 @@
 defmodule Pinchflat.RenderedString.Base do
   @moduledoc """
   A base module for parsing rendered strings, designed as a macro to be used
-  in other modules.
+  in other modules. See https://elixirforum.com/t/help-to-parse-a-template-with-nimbleparsec/47980
 
   NOTE: if the needs here get any more complicated, look into using a Liquid
   template parser. No need to reinvent the wheel any more than I already have.
