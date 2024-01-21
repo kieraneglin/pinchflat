@@ -1,4 +1,4 @@
-defmodule Pinchflat.DownloaderBackends.YtDlp.VideoCollection do
+defmodule Pinchflat.Downloader.Backends.YtDlp.VideoCollection do
   @moduledoc """
   Contains utilities for working with collections of videos (ie: channels, playlists)
   """
