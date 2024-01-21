@@ -1,5 +1,8 @@
 import Config
 
+config :pinchflat,
+  media_directory: Path.join([System.tmp_dir!(), "yt-dlp"])
+
 # Configure your database
 config :pinchflat, Pinchflat.Repo,
   username: System.get_env("POSTGRES_USER"),
