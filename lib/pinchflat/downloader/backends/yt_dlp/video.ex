@@ -10,6 +10,7 @@ defmodule Pinchflat.Downloader.Backends.YtDlp.Video do
 
   The video will be moved to its final destination... elsewhere
   # TODO: update these docs when I figure out a module to move videos
+  # TODO: test
   # NOTE: maybe instead of moving it to the tempdir, I can just download it
           to the final destination by using the `output` option. The
           parser could be updated to generate a value for the output option.
@@ -17,15 +18,9 @@ defmodule Pinchflat.Downloader.Backends.YtDlp.Video do
           newer users can use the easier liquid-like syntax.
   """
   def download(url, command_opts \\ []) do
-    default_output_path = Path.join([base_directory(), "%(id)s", "%(id)s.%(ext)s"])
-    default_opts = [output: default_output_path]
-    opts = Keyword.merge(default_opts, command_opts)
-
-    backend_runner().run(url, opts)
-  end
-
-  defp base_directory do
-    Application.get_env(:pinchflat, :media_directory)
+    # TODO: if this stays this simple, consider not abstracting it
+    #       HOWEVER - this module does provide clarity of intent so maybe keep?
+    backend_runner().run(url, command_opts)
   end
 
   defp backend_runner do
