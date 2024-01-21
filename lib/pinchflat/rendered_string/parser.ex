@@ -10,7 +10,8 @@ defmodule Pinchflat.RenderedString.Parser do
   @doc """
   Parses a string into a rendered string, using the provided variables.
 
-  The variable keys MUST be strings.
+  Variable identifiers are surrounded by {{ and }}. The variable keys MUST be strings.
+  If an identifier is not found in the provided variables, it will be removed from the string.
   """
   def parse(string, variables) do
     # `do_parse` comes from `RenderedString.Base`
