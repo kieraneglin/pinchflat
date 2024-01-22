@@ -28,40 +28,35 @@ defmodule Pinchflat.Profiles.Options.YtDlp.OutputPathBuilder do
 
   defp standard_yt_dlp_option_map do
     %{
-      "id" => "%(id)s",
-      "ext" => "%(ext)s",
-      "title" => "%(title)s",
-      "fulltitle" => "%(fulltitle)s",
-      "uploader" => "%(uploader)s",
-      "creator" => "%(creator)s",
-      "upload_date" => "%(upload_date)s",
-      "release_date" => "%(release_date)s",
-      "duration" => "%(duration)s",
+      # Uppercase "S" means "safe" - ie: filepath-safe
+      "id" => "%(id)S",
+      "ext" => "%(ext)S",
+      "title" => "%(title)S",
+      "fulltitle" => "%(fulltitle)S",
+      "uploader" => "%(uploader)S",
+      "creator" => "%(creator)S",
+      "upload_date" => "%(upload_date)S",
+      "release_date" => "%(release_date)S",
+      "duration" => "%(duration)S",
       # For videos classified as an episode of a series:
-      "series" => "%(series)s",
-      "season" => "%(season)s",
-      "season_number" => "%(season_number)s",
-      "episode" => "%(episode)s",
-      "episode_number" => "%(episode_number)s",
-      "episode_id" => "%(episode_id)s",
+      "series" => "%(series)S",
+      "season" => "%(season)S",
+      "season_number" => "%(season_number)S",
+      "episode" => "%(episode)S",
+      "episode_number" => "%(episode_number)S",
+      "episode_id" => "%(episode_id)S",
       # For videos classified as music:
-      "track" => "%(track)s",
-      "track_number" => "%(track_number)s",
-      "artist" => "%(artist)s",
-      "album" => "%(album)s",
-      "album_type" => "%(album_type)s",
-      "genre" => "%(genre)s"
+      "track" => "%(track)S",
+      "track_number" => "%(track_number)S",
+      "artist" => "%(artist)S",
+      "album" => "%(album)S",
+      "album_type" => "%(album_type)S",
+      "genre" => "%(genre)S"
     }
   end
 
   defp custom_yt_dlp_option_map do
     %{
-      # Filepath-safe versions of some standard options
-      "safe_id" => "%(id)S",
-      "safe_title" => "%(title)S",
-      "safe_fulltitle" => "%(fulltitle)S",
-      "safe_uploader" => "%(uploader)S",
-      "safe_creator" => "%(creator)S",
       # Individual parts of the upload date
       "upload_year" => "%(upload_date>%Y)s",
       "upload_month" => "%(upload_date>%m)s",
