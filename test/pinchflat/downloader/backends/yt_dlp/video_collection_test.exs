@@ -17,7 +17,7 @@ defmodule Pinchflat.Downloader.Backends.YtDlp.VideoCollectionTest do
 
     test "it passes the expected default args" do
       expect(CommandRunnerMock, :run, fn _url, opts ->
-        assert opts == [:simulate, :skip_download, :get_id]
+        assert opts == [:simulate, :skip_download, {:print, :id}]
 
         {:ok, ""}
       end)
@@ -27,7 +27,7 @@ defmodule Pinchflat.Downloader.Backends.YtDlp.VideoCollectionTest do
 
     test "it passes the expected custom args" do
       expect(CommandRunnerMock, :run, fn _url, opts ->
-        assert opts == [:custom_arg, :simulate, :skip_download, :get_id]
+        assert opts == [:custom_arg, :simulate, :skip_download, {:print, :id}]
 
         {:ok, ""}
       end)

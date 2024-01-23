@@ -8,10 +8,11 @@ defmodule Pinchflat.Downloader.Backends.YtDlp.Video do
   final destination. Returns the parsed JSON output from yt-dlp.
   """
   def download(url, command_opts \\ []) do
-    opts = [:no_simulate, :dump_json] ++ command_opts
+    opts = [:no_simulate, print: "%()j"] ++ command_opts
 
     case backend_runner().run(url, opts) do
-      {:ok, output} -> Phoenix.json_library().decode(output)
+      # TODO: test that I changed this to a ! method
+      {:ok, output} -> {:ok, Phoenix.json_library().decode!(output)}
       err -> err
     end
   end

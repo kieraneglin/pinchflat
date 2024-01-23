@@ -20,6 +20,8 @@ defmodule Pinchflat.Profiles.Options.YtDlp.OptionBuilder do
     # NOTE: I'll be hardcoding most things for now (esp. options to help me test) -
     # add more configuration later as I build out the models. Walk before you can run!
 
+    # NOTE: Looks like you can put different media types in different directories.
+    # see: https://github.com/yt-dlp/yt-dlp#output-template
     {:ok,
      [
        :write_thumbnail,

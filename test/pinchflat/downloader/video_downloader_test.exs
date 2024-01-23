@@ -16,7 +16,7 @@ defmodule Pinchflat.Downloader.VideoDownloaderTest do
     test "it calls the backend runner with the arguments built from the media profile" do
       expect(CommandRunnerMock, :run, fn @video_url, opts ->
         assert :no_simulate in opts
-        assert :dump_json in opts
+        assert {:print, "%()j"} in opts
         assert {:output, "/tmp/yt-dlp/videos/%(title)S.%(ext)s"} in opts
 
         {:ok, "{}"}

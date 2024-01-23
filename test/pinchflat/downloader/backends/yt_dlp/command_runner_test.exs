@@ -4,7 +4,7 @@ defmodule Pinchflat.Downloader.Backends.YtDlp.CommandRunnerTest do
   alias Pinchflat.Downloader.Backends.YtDlp.CommandRunner, as: Runner
 
   @original_executable Application.compile_env(:pinchflat, :yt_dlp_executable)
-  @video_url "https://www.youtube.com/watch?v=9bZkp7q19f0"
+  @video_url "https://www.youtube.com/watch?v=-LHXuyzpex0"
 
   setup do
     on_exit(&reset_executable/0)

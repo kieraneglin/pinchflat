@@ -11,7 +11,7 @@ defmodule Pinchflat.Downloader.Backends.YtDlp.VideoTest do
   describe "download/2" do
     test "it calls the backend runner with the expected arguments" do
       expect(CommandRunnerMock, :run, fn @video_url, opts ->
-        assert opts == [:no_simulate, :dump_json]
+        assert opts == [:no_simulate, {:print, "%()j"}]
 
         {:ok, "{}"}
       end)
@@ -21,7 +21,7 @@ defmodule Pinchflat.Downloader.Backends.YtDlp.VideoTest do
 
     test "it passes along additional options" do
       expect(CommandRunnerMock, :run, fn _url, opts ->
-        assert opts == [:no_simulate, :dump_json, :custom_arg]
+        assert opts == [:no_simulate, {:print, "%()j"}, :custom_arg]
 
         {:ok, "{}"}
       end)
