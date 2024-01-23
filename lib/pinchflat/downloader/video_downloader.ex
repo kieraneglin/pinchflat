@@ -15,6 +15,8 @@ defmodule Pinchflat.Downloader.VideoDownloader do
 
   @doc """
   Downloads a single video based on the settings in the given media profile.
+
+  Returns {:ok, %ChannelDetails{}} | {:error, any, ...}.
   """
   def download_for_media_profile(url, %MediaProfile{} = media_profile, backend \\ :yt_dlp) do
     option_builder = option_builder(backend)

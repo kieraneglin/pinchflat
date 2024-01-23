@@ -35,6 +35,12 @@ defmodule Pinchflat.Downloader.Backends.YtDlp.VideoTest do
       assert {:ok, %{"title" => "Test"}} = Video.download(@video_url)
     end
 
+    test "it returns an error if the output is not JSON" do
+      expect(CommandRunnerMock, :run, fn _url, _opts -> {:ok, "Not JSON"} end)
+
+      assert {:error, %Jason.DecodeError{}} = Video.download(@video_url)
+    end
+
     test "it directly passes along any errors" do
       expect(CommandRunnerMock, :run, fn _url, _opts -> {:error, "Big issue", 1} end)
 

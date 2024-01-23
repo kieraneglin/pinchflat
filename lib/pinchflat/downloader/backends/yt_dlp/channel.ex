@@ -3,27 +3,26 @@ defmodule Pinchflat.Downloader.Backends.YtDlp.Channel do
   Contains utilities for working with a channel's videos
   """
 
-  # TODO: convert to `use`
-  import Pinchflat.Downloader.Backends.YtDlp.VideoCollection
-  alias __MODULE__
+  use Pinchflat.Downloader.Backends.YtDlp.VideoCollection
+  alias Pinchflat.Downloader.ChannelDetails
 
-  defstruct [:id, :name]
+  @doc """
+  Gets a channel's ID and name from its URL.
 
-  def new(id, name) do
-    %__MODULE__{id: id, name: name}
-  end
+  yt-dlp does not _really_ have channel-specific functions, so
+  instead we're fetching just the first video (using playlist_end: 1)
+  and parsing the channel ID and name from _its_ metadata
 
+  Returns {:ok, %ChannelDetails{}} | {:error, any, ...}.
+  """
   def get_channel_info(channel_url) do
     opts = [print: "%(.{channel,channel_id})j", playlist_end: 1]
 
-    case backend_runner().run(channel_url, opts) do
-      {:ok, output} ->
-        result = Phoenix.json_library().decode!(output)
-
-        {:ok, Channel.new(result["channel_id"], result["channel"])}
-
-      res ->
-        res
+    with {:ok, output} <- backend_runner().run(channel_url, opts),
+         {:ok, parsed_json} <- Phoenix.json_library().decode(output) do
+      {:ok, ChannelDetails.new(parsed_json["channel_id"], parsed_json["channel"])}
+    else
+      err -> err
     end
   end
 
