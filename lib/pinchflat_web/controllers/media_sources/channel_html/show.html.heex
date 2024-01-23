@@ -1,0 +1,16 @@
+<.header>
+  Channel <%= @channel.id %>
+  <:subtitle>This is a channel record from your database.</:subtitle>
+  <:actions>
+    <.link href={~p"/media_sources/channels/#{@channel}/edit"}>
+      <.button>Edit channel</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Name"><%= @channel.name %></:item>
+  <:item title="Channel"><%= @channel.channel_id %></:item>
+</.list>
+
+<.back navigate={~p"/media_sources/channels"}>Back to channels</.back>
