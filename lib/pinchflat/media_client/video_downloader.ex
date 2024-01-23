@@ -1,4 +1,4 @@
-defmodule Pinchflat.Downloader.VideoDownloader do
+defmodule Pinchflat.MediaClient.VideoDownloader do
   @moduledoc """
   This is the integration layer for actually downloading videos.
   It takes into account the media profile's settings in order
@@ -10,7 +10,7 @@ defmodule Pinchflat.Downloader.VideoDownloader do
 
   alias Pinchflat.Profiles.MediaProfile
 
-  alias Pinchflat.Downloader.Backends.YtDlp.Video, as: YtDlpVideo
+  alias Pinchflat.MediaClient.Backends.YtDlp.Video, as: YtDlpVideo
   alias Pinchflat.Profiles.Options.YtDlp.OptionBuilder, as: YtDlpOptionBuilder
 
   @doc """

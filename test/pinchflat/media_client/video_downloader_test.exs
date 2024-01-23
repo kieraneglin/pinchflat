@@ -1,9 +1,9 @@
-defmodule Pinchflat.Downloader.VideoDownloaderTest do
+defmodule Pinchflat.MediaClient.VideoDownloaderTest do
   use ExUnit.Case, async: true
   import Mox
 
   alias Pinchflat.Profiles.MediaProfile
-  alias Pinchflat.Downloader.VideoDownloader
+  alias Pinchflat.MediaClient.VideoDownloader
 
   @video_url "https://www.youtube.com/watch?v=TiZPUDkDYbk"
   @media_profile %MediaProfile{

@@ -1,8 +1,8 @@
-defmodule Pinchflat.Downloader.Backends.YtDlp.VideoTest do
+defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoTest do
   use ExUnit.Case, async: true
   import Mox
 
-  alias Pinchflat.Downloader.Backends.YtDlp.Video
+  alias Pinchflat.MediaClient.Backends.YtDlp.Video
 
   @video_url "https://www.youtube.com/watch?v=TiZPUDkDYbk"
 

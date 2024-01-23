@@ -1,10 +1,10 @@
-defmodule Pinchflat.Downloader.Backends.YtDlp.Channel do
+defmodule Pinchflat.MediaClient.Backends.YtDlp.Channel do
   @moduledoc """
   Contains utilities for working with a channel's videos
   """
 
-  use Pinchflat.Downloader.Backends.YtDlp.VideoCollection
-  alias Pinchflat.Downloader.ChannelDetails
+  use Pinchflat.MediaClient.Backends.YtDlp.VideoCollection
+  alias Pinchflat.MediaClient.ChannelDetails
 
   @doc """
   Gets a channel's ID and name from its URL.

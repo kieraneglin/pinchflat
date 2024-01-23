@@ -1,4 +1,4 @@
-defmodule Pinchflat.Downloader.ChannelDetails do
+defmodule Pinchflat.MediaClient.ChannelDetails do
   @moduledoc """
   This is the integration layer for actually working with channels.
 
@@ -8,7 +8,7 @@ defmodule Pinchflat.Downloader.ChannelDetails do
   @enforce_keys [:id, :name]
   defstruct [:id, :name]
 
-  alias Pinchflat.Downloader.Backends.YtDlp.Channel, as: YtDlpChannel
+  alias Pinchflat.MediaClient.Backends.YtDlp.Channel, as: YtDlpChannel
 
   @doc false
   def new(id, name) do

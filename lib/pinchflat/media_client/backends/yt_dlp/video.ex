@@ -1,4 +1,4 @@
-defmodule Pinchflat.Downloader.Backends.YtDlp.Video do
+defmodule Pinchflat.MediaClient.Backends.YtDlp.Video do
   @moduledoc """
   Contains utilities for working with singular videos
   """

@@ -1,8 +1,8 @@
-defmodule Pinchflat.Downloader.ChannelDetailsTest do
+defmodule Pinchflat.MediaClient.ChannelDetailsTest do
   use ExUnit.Case, async: true
   import Mox
 
-  alias Pinchflat.Downloader.ChannelDetails
+  alias Pinchflat.MediaClient.ChannelDetails
 
   @channel_url "https://www.youtube.com/c/TheUselessTrials"
 

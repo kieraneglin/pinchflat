@@ -1,7 +1,7 @@
-defmodule Pinchflat.Downloader.Backends.YtDlp.CommandRunnerTest do
+defmodule Pinchflat.MediaClient.Backends.YtDlp.CommandRunnerTest do
   use ExUnit.Case, async: true
 
-  alias Pinchflat.Downloader.Backends.YtDlp.CommandRunner, as: Runner
+  alias Pinchflat.MediaClient.Backends.YtDlp.CommandRunner, as: Runner
 
   @original_executable Application.compile_env(:pinchflat, :yt_dlp_executable)
   @video_url "https://www.youtube.com/watch?v=-LHXuyzpex0"

@@ -1,4 +1,4 @@
-defmodule Pinchflat.Downloader.Backends.YtDlp.OutputPathBuilderTest do
+defmodule Pinchflat.MediaClient.Backends.YtDlp.OutputPathBuilderTest do
   use ExUnit.Case, async: true
 
   alias Pinchflat.Profiles.Options.YtDlp.OutputPathBuilder
