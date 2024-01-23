@@ -11,7 +11,7 @@ defmodule Pinchflat.Downloader.Backends.YtDlp.CommandRunner do
   @doc """
   Runs a yt-dlp command and returns the string output
 
-  # TODO: deduplicate command opts, keeping the last one on conflict
+  # IDEA: deduplicate command opts, keeping the last one on conflict
           although possibly not needed (and a LOT easier) if yt-dlp
           just ignores duplicate options (ie: look into that)
   """

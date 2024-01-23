@@ -2,20 +2,19 @@ defmodule Pinchflat.Profiles.Options.YtDlp.OptionBuilder do
   @moduledoc """
   Builds the options for yt-dlp based on the given media profile.
 
-  TODO: probably make this a behaviour so I can add other backends later
+  IDEA: consider making this a behaviour so I can add other backends later
   """
 
+  alias Pinchflat.Profiles.MediaProfile
   alias Pinchflat.Profiles.Options.YtDlp.OutputPathBuilder
 
   @doc """
   Builds the options for yt-dlp based on the given media profile.
 
-  TODO: add a guard to ensure argument is a media profile
-  TODO: consider adding the ability to pass in a second argument to override
+  IDEA: consider adding the ability to pass in a second argument to override
         these options
-  TODO: test
   """
-  def build(media_profile) do
+  def build(%MediaProfile{} = media_profile) do
     {:ok, output_path} = OutputPathBuilder.build(media_profile.output_path_template)
 
     # NOTE: I'll be hardcoding most things for now (esp. options to help me test) -

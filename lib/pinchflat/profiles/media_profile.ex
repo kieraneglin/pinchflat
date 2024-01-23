@@ -1,4 +1,8 @@
 defmodule Pinchflat.Profiles.MediaProfile do
+  @moduledoc """
+  A media profile is a set of settings that can be applied to many media sources
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
 

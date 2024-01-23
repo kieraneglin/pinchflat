@@ -4,23 +4,16 @@ defmodule Pinchflat.Downloader.Backends.YtDlp.Video do
   """
 
   @doc """
-  Downloads a single video (and possible metadata) to the tmp directory.
-  Videos are downloaded in the following format:
-    `tmp/yt-dlp/<video_id>/<video_id>.<ext>`
-
-  The video will be moved to its final destination... elsewhere
-  # TODO: update these docs when I figure out a module to move videos
-  # TODO: test
-  # NOTE: maybe instead of moving it to the tempdir, I can just download it
-          to the final destination by using the `output` option. The
-          parser could be updated to generate a value for the output option.
-          This way, advanced users can just the yt-dlp output syntax and
-          newer users can use the easier liquid-like syntax.
+  Downloads a single video (and possible metadata) directly to its
+  final destination. Returns the parsed JSON output from yt-dlp.
   """
   def download(url, command_opts \\ []) do
-    # TODO: if this stays this simple, consider not abstracting it
-    #       HOWEVER - this module does provide clarity of intent so maybe keep?
-    backend_runner().run(url, command_opts)
+    opts = [:no_simulate, :dump_json] ++ command_opts
+
+    case backend_runner().run(url, opts) do
+      {:ok, output} -> Phoenix.json_library().decode(output)
+      err -> err
+    end
   end
 
   defp backend_runner do

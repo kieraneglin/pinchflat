@@ -8,16 +8,15 @@ defmodule Pinchflat.Downloader.VideoDownloader do
   it open-ish for future expansion (just in case).
   """
 
+  alias Pinchflat.Profiles.MediaProfile
+
   alias Pinchflat.Downloader.Backends.YtDlp.Video, as: YtDlpVideo
   alias Pinchflat.Profiles.Options.YtDlp.OptionBuilder, as: YtDlpOptionBuilder
 
   @doc """
   Downloads a single video based on the settings in the given media profile.
-
-  # TODO: implement media profiles - so far this is a glorified mock
-  # TODO: test
   """
-  def download_for_media_profile(url, media_profile, backend \\ :yt_dlp) do
+  def download_for_media_profile(url, %MediaProfile{} = media_profile, backend \\ :yt_dlp) do
     option_builder = option_builder(backend)
     video_backend = video_backend(backend)
     {:ok, options} = option_builder.build(media_profile)
@@ -25,13 +24,13 @@ defmodule Pinchflat.Downloader.VideoDownloader do
     video_backend.download(url, options)
   end
 
-  def option_builder(backend) do
+  defp option_builder(backend) do
     case backend do
       :yt_dlp -> YtDlpOptionBuilder
     end
   end
 
-  def video_backend(backend) do
+  defp video_backend(backend) do
     case backend do
       :yt_dlp -> YtDlpVideo
     end
