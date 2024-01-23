@@ -12,7 +12,9 @@ config :pinchflat,
   generators: [timestamp_type: :utc_datetime],
   # Specifying backend data here makes mocking and local testing SUPER easy
   yt_dlp_executable: System.find_executable("yt-dlp"),
-  yt_dlp_runner: Pinchflat.Downloader.Backends.YtDlp.CommandRunner
+  yt_dlp_runner: Pinchflat.Downloader.Backends.YtDlp.CommandRunner,
+  # TODO: figure this out
+  media_directory: :not_implemented
 
 # Configures the endpoint
 config :pinchflat, PinchflatWeb.Endpoint,

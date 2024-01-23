@@ -1,7 +1,7 @@
 defmodule Pinchflat.Utils.StringUtilsTest do
   use ExUnit.Case, async: true
 
-  alias Pinchflat.Utils.StringUtils, as: StringUtils
+  alias Pinchflat.Utils.StringUtils
 
   describe "to_kebab_case/1" do
     test "converts a space-delimited string to kebab-case" do
