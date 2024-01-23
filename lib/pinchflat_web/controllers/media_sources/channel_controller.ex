@@ -1,6 +1,7 @@
 defmodule PinchflatWeb.MediaSources.ChannelController do
   use PinchflatWeb, :controller
 
+  alias Pinchflat.Profiles
   alias Pinchflat.MediaSource
   alias Pinchflat.MediaSource.Channel
 
@@ -10,12 +11,14 @@ defmodule PinchflatWeb.MediaSources.ChannelController do
   end
 
   def new(conn, _params) do
+    media_profiles = Profiles.list_media_profiles()
     changeset = MediaSource.change_channel(%Channel{})
-    render(conn, :new, changeset: changeset)
+
+    render(conn, :new, changeset: changeset, media_profiles: media_profiles)
   end
 
   def create(conn, %{"channel" => channel_params}) do
-    case MediaSource.create_channel(channel_params) do
+    case MediaSource.create_channel_from_url(channel_params["channel_url"], channel_params) do
       {:ok, channel} ->
         conn
         |> put_flash(:info, "Channel created successfully.")

@@ -7,6 +7,7 @@ defmodule Pinchflat.MediaSource do
   alias Pinchflat.Repo
 
   alias Pinchflat.MediaSource.Channel
+  alias Pinchflat.MediaClient.ChannelDetails
 
   @doc """
   Returns the list of channels. Returns [%Channel{}, ...]
@@ -29,6 +30,31 @@ defmodule Pinchflat.MediaSource do
     %Channel{}
     |> Channel.changeset(attrs)
     |> Repo.insert()
+  end
+
+  @doc """
+  Creates a channel from a given Channel URL and additional attrs.
+
+  Returns {:ok, %Channel{}} | {:error, %Ecto.Changeset{}} | {:error, binary()}
+
+  IDEA: maybe instead of creating a channel from a URL, instead the form should
+  extract details from the URL and automatically update based on that. So the
+  actual submission would be a normal form object
+  """
+  def create_channel_from_url(channel_url, attrs) do
+    case ChannelDetails.get_channel_details(channel_url) do
+      {:ok, %ChannelDetails{} = channel_details} ->
+        record_attrs =
+          Map.merge(attrs, %{
+            name: channel_details.name,
+            channel_id: channel_details.id
+          })
+
+        create_channel(record_attrs)
+
+      {:error, runner_error, _status_code} ->
+        {:error, runner_error}
+    end
   end
 
   @doc """

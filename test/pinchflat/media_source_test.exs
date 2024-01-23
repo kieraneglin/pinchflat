@@ -2,26 +2,29 @@ defmodule Pinchflat.MediaSourceTest do
   use Pinchflat.DataCase
 
   alias Pinchflat.MediaSource
+  alias Pinchflat.MediaSource.Channel
 
-  describe "channels" do
-    alias Pinchflat.MediaSource.Channel
+  import Pinchflat.ProfilesFixtures
+  import Pinchflat.MediaSourceFixtures
 
-    import Pinchflat.ProfilesFixtures
-    import Pinchflat.MediaSourceFixtures
+  @invalid_channel_attrs %{name: nil, channel_id: nil}
 
-    @invalid_attrs %{name: nil, channel_id: nil}
-
-    test "list_channels/0 returns all channels" do
+  describe "list_channels/0" do
+    test "it returns all channels" do
       channel = channel_fixture()
       assert MediaSource.list_channels() == [channel]
     end
+  end
 
-    test "get_channel!/1 returns the channel with given id" do
+  describe "get_channel!/1" do
+    test "it returns the channel with given id" do
       channel = channel_fixture()
       assert MediaSource.get_channel!(channel.id) == channel
     end
+  end
 
-    test "create_channel/1 with valid data creates a channel" do
+  describe "create_channel/1" do
+    test "creates a channel with valid data" do
       valid_attrs = %{
         name: "some name",
         channel_id: "some channel_id",
@@ -33,11 +36,11 @@ defmodule Pinchflat.MediaSourceTest do
       assert channel.channel_id == "some channel_id"
     end
 
-    test "create_channel/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = MediaSource.create_channel(@invalid_attrs)
+    test "creation with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = MediaSource.create_channel(@invalid_channel_attrs)
     end
 
-    test "create_channel/1 enforces uniqueness of channel_id scoped to the media_profile" do
+    test "creation enforces uniqueness of channel_id scoped to the media_profile" do
       valid_once_attrs = %{
         name: "some name",
         channel_id: "abc123",
@@ -48,24 +51,67 @@ defmodule Pinchflat.MediaSourceTest do
       assert {:error, %Ecto.Changeset{}} = MediaSource.create_channel(valid_once_attrs)
     end
 
-    test "create_channel/1 lets you duplicate channel_ids as long as the media profile is different" do
+    test "creation lets you duplicate channel_ids as long as the media profile is different" do
       valid_attrs = %{
         name: "some name",
         channel_id: "abc123"
       }
 
-      assert {:ok, %Channel{}} =
-               MediaSource.create_channel(
-                 Map.merge(valid_attrs, %{media_profile_id: media_profile_fixture().id})
-               )
+      channel_1_attrs = Map.merge(valid_attrs, %{media_profile_id: media_profile_fixture().id})
+      channel_2_attrs = Map.merge(valid_attrs, %{media_profile_id: media_profile_fixture().id})
 
-      assert {:ok, %Channel{}} =
-               MediaSource.create_channel(
-                 Map.merge(valid_attrs, %{media_profile_id: media_profile_fixture().id})
-               )
+      assert {:ok, %Channel{}} = MediaSource.create_channel(channel_1_attrs)
+      assert {:ok, %Channel{}} = MediaSource.create_channel(channel_2_attrs)
+    end
+  end
+
+  describe "create_channel_from_url/2" do
+    import Mox
+
+    setup :verify_on_exit!
+
+    test "it creates a channel with valid data" do
+      channel_url = "https://www.youtube.com/c/TheUselessTrials"
+      valid_attrs = %{media_profile_id: media_profile_fixture().id}
+
+      expect(YtDlpRunnerMock, :run, fn ^channel_url, _opts ->
+        {:ok, "{\"channel\": \"TheUselessTrials\", \"channel_id\": \"UCQH2\"}"}
+      end)
+
+      assert {:ok, %Channel{} = channel} =
+               MediaSource.create_channel_from_url(channel_url, valid_attrs)
+
+      assert channel.name == "TheUselessTrials"
+      assert channel.channel_id == "UCQH2"
     end
 
-    test "update_channel/2 with valid data updates the channel" do
+    test "it returns an error string if the runner returns an error" do
+      channel_url = "https://www.youtube.com/c/TheUselessTrials"
+      valid_attrs = %{media_profile_id: media_profile_fixture().id}
+
+      expect(YtDlpRunnerMock, :run, fn ^channel_url, _opts ->
+        {:error, "Big issue", 1}
+      end)
+
+      assert {:error, "Big issue"} =
+               MediaSource.create_channel_from_url(channel_url, valid_attrs)
+    end
+
+    test "creation with invalid data returns error changeset" do
+      channel_url = "https://www.youtube.com/c/TheUselessTrials"
+      invalid_attrs = %{media_profile_id: nil}
+
+      expect(YtDlpRunnerMock, :run, fn ^channel_url, _opts ->
+        {:ok, "{\"channel\": \"TheUselessTrials\", \"channel_id\": \"UCQH2\"}"}
+      end)
+
+      assert {:error, %Ecto.Changeset{}} =
+               MediaSource.create_channel_from_url(channel_url, invalid_attrs)
+    end
+  end
+
+  describe "update_channel/2" do
+    test "updates with valid data updates the channel" do
       channel = channel_fixture()
       update_attrs = %{name: "some updated name", channel_id: "some updated channel_id"}
 
@@ -74,19 +120,24 @@ defmodule Pinchflat.MediaSourceTest do
       assert channel.channel_id == "some updated channel_id"
     end
 
-    test "update_channel/2 with invalid data returns error changeset" do
+    test "updates with invalid data returns error changeset" do
       channel = channel_fixture()
-      assert {:error, %Ecto.Changeset{}} = MediaSource.update_channel(channel, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               MediaSource.update_channel(channel, @invalid_channel_attrs)
+
       assert channel == MediaSource.get_channel!(channel.id)
     end
+  end
 
-    test "delete_channel/1 deletes the channel" do
+  describe "delete_channel/1" do
+    test "it deletes the channel" do
       channel = channel_fixture()
       assert {:ok, %Channel{}} = MediaSource.delete_channel(channel)
       assert_raise Ecto.NoResultsError, fn -> MediaSource.get_channel!(channel.id) end
     end
 
-    test "change_channel/1 returns a channel changeset" do
+    test "it returns a channel changeset" do
       channel = channel_fixture()
       assert %Ecto.Changeset{} = MediaSource.change_channel(channel)
     end
