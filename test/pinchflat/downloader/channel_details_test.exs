@@ -17,7 +17,7 @@ defmodule Pinchflat.Downloader.ChannelDetailsTest do
 
   describe "get_channel_details/2" do
     test "it passes the expected arguments to the backend" do
-      expect(CommandRunnerMock, :run, fn @channel_url, opts ->
+      expect(YtDlpRunnerMock, :run, fn @channel_url, opts ->
         assert opts == [{:print, "%(.{channel,channel_id})j"}, {:playlist_end, 1}]
 
         {:ok, "{\"channel\": \"TheUselessTrials\", \"channel_id\": \"UCQH2\"}"}
@@ -27,7 +27,7 @@ defmodule Pinchflat.Downloader.ChannelDetailsTest do
     end
 
     test "it returns a struct composed of the returned data" do
-      expect(CommandRunnerMock, :run, fn _url, _opts ->
+      expect(YtDlpRunnerMock, :run, fn _url, _opts ->
         {:ok, "{\"channel\": \"TheUselessTrials\", \"channel_id\": \"UCQH2\"}"}
       end)
 
