@@ -1,0 +1,16 @@
+<.header>
+  Media profile <%= @media_profile.id %>
+  <:subtitle>This is a media_profile record from your database.</:subtitle>
+  <:actions>
+    <.link href={~p"/media_profiles/#{@media_profile}/edit"}>
+      <.button>Edit media_profile</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Name"><%= @media_profile.name %></:item>
+  <:item title="Output path template"><%= @media_profile.output_path_template %></:item>
+</.list>
+
+<.back navigate={~p"/media_profiles"}>Back to media_profiles</.back>
