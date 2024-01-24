@@ -1,4 +1,4 @@
-defmodule Pinchflat.Downloader.Backends.BackendCommandRunner do
+defmodule Pinchflat.MediaClient.Backends.BackendCommandRunner do
   @moduledoc """
   A behaviour for running CLI commands against a downloader backend
   """

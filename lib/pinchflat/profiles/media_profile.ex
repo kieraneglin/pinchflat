@@ -6,9 +6,13 @@ defmodule Pinchflat.Profiles.MediaProfile do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Pinchflat.MediaSource.Channel
+
   schema "media_profiles" do
     field :name, :string
     field :output_path_template, :string
+
+    has_many :channels, Channel
 
     timestamps(type: :utc_datetime)
   end

@@ -1,0 +1,12 @@
+<.header>
+  Edit Channel <%= @channel.id %>
+  <:subtitle>Use this form to manage channel records in your database.</:subtitle>
+</.header>
+
+<.channel_form
+  changeset={@changeset}
+  media_profiles={@media_profiles}
+  action={~p"/media_sources/channels/#{@channel}"}
+/>
+
+<.back navigate={~p"/media_sources/channels"}>Back to channels</.back>
