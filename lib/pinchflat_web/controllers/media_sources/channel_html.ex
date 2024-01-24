@@ -8,6 +8,7 @@ defmodule PinchflatWeb.MediaSources.ChannelHTML do
   """
   attr :changeset, Ecto.Changeset, required: true
   attr :action, :string, required: true
+  attr :media_profiles, :list, required: true
 
   def channel_form(assigns)
 end

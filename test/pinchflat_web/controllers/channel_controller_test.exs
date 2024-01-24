@@ -1,5 +1,6 @@
 defmodule PinchflatWeb.ChannelControllerTest do
   use PinchflatWeb.ConnCase
+  import Mox
 
   import Pinchflat.ProfilesFixtures
   import Pinchflat.MediaSourceFixtures
@@ -11,15 +12,18 @@ defmodule PinchflatWeb.ChannelControllerTest do
       :ok,
       %{
         create_attrs: %{
-          name: "some name",
-          channel_id: "some channel_id",
-          media_profile_id: media_profile.id
+          media_profile_id: media_profile.id,
+          original_url: "https://www.youtube.com/channel/abc123"
         },
-        update_attrs: %{name: "some updated name", channel_id: "some updated channel_id"},
-        invalid_attrs: %{name: nil, channel_id: nil, media_profile_id: nil}
+        update_attrs: %{
+          original_url: "https://www.youtube.com/channel/321xyz"
+        },
+        invalid_attrs: %{original_url: nil, media_profile_id: nil}
       }
     }
   end
+
+  setup :verify_on_exit!
 
   describe "index" do
     test "lists all channels", %{conn: conn} do
@@ -37,6 +41,7 @@ defmodule PinchflatWeb.ChannelControllerTest do
 
   describe "create channel" do
     test "redirects to show when data is valid", %{conn: conn, create_attrs: create_attrs} do
+      expect(YtDlpRunnerMock, :run, 1, &runner_function_mock/2)
       conn = post(conn, ~p"/media_sources/channels", channel: create_attrs)
 
       assert %{id: id} = redirected_params(conn)
@@ -65,11 +70,13 @@ defmodule PinchflatWeb.ChannelControllerTest do
     setup [:create_channel]
 
     test "redirects when data is valid", %{conn: conn, channel: channel, update_attrs: update_attrs} do
+      expect(YtDlpRunnerMock, :run, 1, &runner_function_mock/2)
+
       conn = put(conn, ~p"/media_sources/channels/#{channel}", channel: update_attrs)
       assert redirected_to(conn) == ~p"/media_sources/channels/#{channel}"
 
       conn = get(conn, ~p"/media_sources/channels/#{channel}")
-      assert html_response(conn, 200) =~ "some updated name"
+      assert html_response(conn, 200) =~ "https://www.youtube.com/channel/321xyz"
     end
 
     test "renders errors when data is invalid", %{
@@ -98,5 +105,15 @@ defmodule PinchflatWeb.ChannelControllerTest do
   defp create_channel(_) do
     channel = channel_fixture()
     %{channel: channel}
+  end
+
+  defp runner_function_mock(_url, _opts) do
+    {
+      :ok,
+      Phoenix.json_library().encode!(%{
+        channel: "some name",
+        channel_id: "some_channel_id_#{:rand.uniform(1_000_000)}"
+      })
+    }
   end
 end

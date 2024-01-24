@@ -9,8 +9,9 @@
 </.header>
 
 <.list>
-  <:item title="Name"><%= @channel.name %></:item>
-  <:item title="Channel"><%= @channel.channel_id %></:item>
+  <:item title="Channel Name"><%= @channel.name %></:item>
+  <:item title="Channel ID"><%= @channel.channel_id %></:item>
+  <:item title="Original URL"><%= @channel.original_url %></:item>
 </.list>
 
 <.back navigate={~p"/media_sources/channels"}>Back to channels</.back>

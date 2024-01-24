@@ -3,20 +3,10 @@
   <:subtitle>Use this form to manage channel records in your database.</:subtitle>
 </.header>
 
-<.simple_form :let={f} for={@changeset} action={~p"/media_sources/channels"}>
-  <.error :if={@changeset.action}>
-    Oops, something went wrong! Please check the errors below.
-  </.error>
-  <.input
-    field={f[:media_profile_id]}
-    options={Enum.map(@media_profiles, &{&1.name, &1.id})}
-    type="select"
-    label="Media Profile"
-  />
-  <.input field={f[:channel_url]} type="text" label="Channel URL" />
-  <:actions>
-    <.button>Save Channel</.button>
-  </:actions>
-</.simple_form>
+<.channel_form
+  changeset={@changeset}
+  media_profiles={@media_profiles}
+  action={~p"/media_sources/channels"}
+/>
 
 <.back navigate={~p"/media_sources/channels"}>Back to channels</.back>

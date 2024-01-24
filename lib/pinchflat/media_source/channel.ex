@@ -8,9 +8,15 @@ defmodule Pinchflat.MediaSource.Channel do
 
   alias Pinchflat.Profiles.MediaProfile
 
+  @required_fields ~w(name channel_id original_url media_profile_id)a
+  @allowed_fields @required_fields
+
   schema "channels" do
     field :name, :string
     field :channel_id, :string
+    # This should only be used for user reference going forward
+    # as the channel_id should be used for all API calls
+    field :original_url, :string
 
     belongs_to :media_profile, MediaProfile
 
@@ -20,8 +26,8 @@ defmodule Pinchflat.MediaSource.Channel do
   @doc false
   def changeset(channel, attrs) do
     channel
-    |> cast(attrs, [:name, :channel_id, :media_profile_id])
-    |> validate_required([:name, :channel_id, :media_profile_id])
+    |> cast(attrs, @allowed_fields)
+    |> validate_required(@required_fields)
     |> unique_constraint([:channel_id, :media_profile_id])
   end
 end
