@@ -9,12 +9,13 @@ defmodule Pinchflat.MediaSource.Channel do
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Profiles.MediaProfile
 
-  @required_fields ~w(name channel_id original_url media_profile_id)a
-  @allowed_fields @required_fields
+  @allowed_fields ~w(name channel_id index_frequency_minutes original_url media_profile_id)a
+  @required_fields @allowed_fields -- ~w(index_frequency_minutes)a
 
   schema "channels" do
     field :name, :string
     field :channel_id, :string
+    field :index_frequency_minutes, :integer
     # This should only be used for user reference going forward
     # as the channel_id should be used for all API calls
     field :original_url, :string

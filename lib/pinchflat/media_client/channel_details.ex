@@ -25,7 +25,9 @@ defmodule Pinchflat.MediaClient.ChannelDetails do
   end
 
   @doc """
-  TODO: test
+  Returns a list of video IDs for the given channel URL, using the given backend.
+
+  Returns {:ok, list(binary())} | {:error, any, ...}.
   """
   def get_video_ids(channel_url, backend \\ :yt_dlp) do
     channel_module(backend).get_video_ids(channel_url)

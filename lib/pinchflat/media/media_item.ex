@@ -1,4 +1,8 @@
 defmodule Pinchflat.Media.MediaItem do
+  @moduledoc """
+  The MediaItem schema.
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
 

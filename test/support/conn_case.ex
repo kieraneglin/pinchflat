@@ -28,6 +28,7 @@ defmodule PinchflatWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import PinchflatWeb.ConnCase
+      import Pinchflat.TestingHelperMethods
     end
   end
 

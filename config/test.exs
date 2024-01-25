@@ -5,7 +5,7 @@ config :pinchflat,
   yt_dlp_executable: Path.join([File.cwd!(), "/test/support/scripts/yt-dlp-mocks/repeater.sh"]),
   media_directory: Path.join([System.tmp_dir!(), "yt-dlp"])
 
-config :pinchflat, Oban, testing: :inline
+config :pinchflat, Oban, testing: :manual
 
 # Configure your database
 #

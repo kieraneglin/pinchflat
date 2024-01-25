@@ -7,6 +7,7 @@ defmodule Pinchflat.MediaSource do
   alias Pinchflat.Repo
 
   alias Pinchflat.Media
+  alias Pinchflat.Tasks.ChannelTasks
   alias Pinchflat.MediaSource.Channel
   alias Pinchflat.MediaClient.ChannelDetails
 
@@ -25,12 +26,16 @@ defmodule Pinchflat.MediaSource do
   def get_channel!(id), do: Repo.get!(Channel, id)
 
   @doc """
-  Creates a channel. Returns {:ok, %Channel{}} | {:error, %Ecto.Changeset{}}
+  Creates a channel. May attempt to pull additional channel details from the
+  original_url (if provided). Will attempt to start indexing the channel's
+  media if successfully inserted.
+
+  Returns {:ok, %Channel{}} | {:error, %Ecto.Changeset{}}
   """
   def create_channel(attrs \\ %{}) do
     %Channel{}
     |> change_channel_from_url(attrs)
-    |> Repo.insert()
+    |> commit_and_start_indexing()
   end
 
   @doc """
@@ -38,8 +43,6 @@ defmodule Pinchflat.MediaSource do
   media ID in the source.
 
   Returns [%MediaItem{}, ...] | [%Ecto.Changeset{}, ...]
-
-  TODO: test
   """
   def index_media_items(%Channel{} = channel) do
     {:ok, media_ids} = ChannelDetails.get_video_ids(channel.original_url)
@@ -56,12 +59,19 @@ defmodule Pinchflat.MediaSource do
   end
 
   @doc """
-  Updates a channel. Returns {:ok, %Channel{}} | {:error, %Ecto.Changeset{}}
+  Updates a channel. May attempt to pull additional channel details from the
+  original_url (if changed). May attempt to start indexing the channel's
+  media if the indexing frequency has been changed.
+
+  TODO: ensure that indexing is cancelled/rescheduled if the indexing frequency
+  has been changed.
+
+  Returns {:ok, %Channel{}} | {:error, %Ecto.Changeset{}}
   """
   def update_channel(%Channel{} = channel, attrs) do
     channel
     |> change_channel_from_url(attrs)
-    |> Repo.update()
+    |> commit_and_start_indexing()
   end
 
   @doc """
@@ -117,6 +127,33 @@ defmodule Pinchflat.MediaSource do
           "could not fetch channel details from URL",
           error: runner_error
         )
+    end
+  end
+
+  defp commit_and_start_indexing(changeset) do
+    case Repo.insert_or_update(changeset) do
+      {:ok, %Channel{} = channel} ->
+        maybe_run_indexing_task(changeset, channel)
+
+        {:ok, channel}
+
+      err ->
+        err
+    end
+  end
+
+  defp maybe_run_indexing_task(changeset, channel) do
+    case changeset.data do
+      # If the changeset is new (not persisted), start indexing no matter what
+      %{__meta__: %{state: :built}} ->
+        ChannelTasks.kickoff_indexing_task(channel)
+
+      # If the record has been persisted, only run indexing if the
+      # indexing frequency has been changed
+      %{__meta__: %{state: :loaded}} ->
+        if Map.has_key?(changeset.changes, :index_frequency_minutes) do
+          ChannelTasks.kickoff_indexing_task(channel)
+        end
     end
   end
 end

@@ -35,4 +35,24 @@ defmodule Pinchflat.MediaClient.ChannelDetailsTest do
       assert %ChannelDetails{id: "UCQH2", name: "TheUselessTrials"} = res
     end
   end
+
+  describe "get_video_ids/2" do
+    test "it passes the expected arguments to the backend" do
+      expect(YtDlpRunnerMock, :run, fn @channel_url, opts ->
+        assert opts == [:simulate, :skip_download, {:print, :id}]
+
+        {:ok, ""}
+      end)
+
+      assert {:ok, _} = ChannelDetails.get_video_ids(@channel_url)
+    end
+
+    test "it returns a list of strings" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts ->
+        {:ok, "video1\nvideo2\nvideo3"}
+      end)
+
+      assert {:ok, ["video1", "video2", "video3"]} = ChannelDetails.get_video_ids(@channel_url)
+    end
+  end
 end
