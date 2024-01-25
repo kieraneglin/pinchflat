@@ -27,6 +27,11 @@ config :pinchflat, PinchflatWeb.Endpoint,
   pubsub_server: Pinchflat.PubSub,
   live_view: [signing_salt: "/t5878kO"]
 
+config :pinchflat, Oban,
+  repo: Pinchflat.Repo,
+  plugins: [Oban.Plugins.Pruner],
+  queues: [default: 10]
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
