@@ -53,7 +53,8 @@ defmodule Pinchflat.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:mox, "~> 1.0", only: :test},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:nimble_parsec, "~> 1.4"}
+      {:nimble_parsec, "~> 1.4"},
+      {:faker, "~> 0.17", only: :test}
     ]
   end
 

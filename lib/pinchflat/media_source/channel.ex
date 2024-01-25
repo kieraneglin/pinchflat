@@ -6,6 +6,7 @@ defmodule Pinchflat.MediaSource.Channel do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Pinchflat.Media.MediaItem
   alias Pinchflat.Profiles.MediaProfile
 
   @required_fields ~w(name channel_id original_url media_profile_id)a
@@ -19,6 +20,8 @@ defmodule Pinchflat.MediaSource.Channel do
     field :original_url, :string
 
     belongs_to :media_profile, MediaProfile
+
+    has_many :media_items, MediaItem
 
     timestamps(type: :utc_datetime)
   end
