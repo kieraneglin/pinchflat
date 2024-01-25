@@ -30,7 +30,8 @@ config :pinchflat, PinchflatWeb.Endpoint,
 config :pinchflat, Oban,
   repo: Pinchflat.Repo,
   plugins: [Oban.Plugins.Pruner],
-  queues: [default: 10]
+  # TODO: consider making this an env var or something?
+  queues: [default: 10, media_indexing: 2, media_fetching: 2]
 
 # Configures the mailer
 #
