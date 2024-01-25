@@ -15,7 +15,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.Channel do
 
   Returns {:ok, %ChannelDetails{}} | {:error, any, ...}.
   """
-  def get_channel_info(channel_url) do
+  def get_channel_details(channel_url) do
     opts = [print: "%(.{channel,channel_id})j", playlist_end: 1]
 
     with {:ok, output} <- backend_runner().run(channel_url, opts),

@@ -6,6 +6,7 @@ defmodule Pinchflat.MediaSource do
   import Ecto.Query, warn: false
   alias Pinchflat.Repo
 
+  alias Pinchflat.Media
   alias Pinchflat.MediaSource.Channel
   alias Pinchflat.MediaClient.ChannelDetails
 
@@ -30,6 +31,28 @@ defmodule Pinchflat.MediaSource do
     %Channel{}
     |> change_channel_from_url(attrs)
     |> Repo.insert()
+  end
+
+  @doc """
+  Given a media source, creates (indexes) the media by creating media_items for each
+  media ID in the source.
+
+  Returns [%MediaItem{}, ...] | [%Ecto.Changeset{}, ...]
+
+  TODO: test
+  """
+  def index_media_items(%Channel{} = channel) do
+    {:ok, media_ids} = ChannelDetails.get_video_ids(channel.original_url)
+
+    media_ids
+    |> Enum.map(fn media_id ->
+      attrs = %{channel_id: channel.id, media_id: media_id}
+
+      case Media.create_media_item(attrs) do
+        {:ok, media_item} -> media_item
+        {:error, changeset} -> changeset
+      end
+    end)
   end
 
   @doc """

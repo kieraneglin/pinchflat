@@ -21,7 +21,14 @@ defmodule Pinchflat.MediaClient.ChannelDetails do
   Returns {:ok, map()} | {:error, any, ...}.
   """
   def get_channel_details(channel_url, backend \\ :yt_dlp) do
-    channel_module(backend).get_channel_info(channel_url)
+    channel_module(backend).get_channel_details(channel_url)
+  end
+
+  @doc """
+  TODO: test
+  """
+  def get_video_ids(channel_url, backend \\ :yt_dlp) do
+    channel_module(backend).get_video_ids(channel_url)
   end
 
   defp channel_module(backend) do

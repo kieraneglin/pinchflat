@@ -7,6 +7,8 @@ defmodule Pinchflat.Media.MediaItem do
   @required_fields ~w(media_id channel_id)a
   @allowed_fields ~w(title media_id video_filepath channel_id)a
 
+  # TODO: consider making an attached `metadata` model to store the JSON response from whatever backend is used
+
   schema "media_items" do
     field :title, :string
     field :media_id, :string
@@ -22,5 +24,6 @@ defmodule Pinchflat.Media.MediaItem do
     media_item
     |> cast(attrs, @allowed_fields)
     |> validate_required(@required_fields)
+    |> unique_constraint([:media_id, :channel_id])
   end
 end

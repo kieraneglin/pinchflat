@@ -12,6 +12,6 @@ defmodule Pinchflat.Repo.Migrations.CreateMediaItems do
     end
 
     create index(:media_items, [:channel_id])
-    create unique_index(:media_items, [:channel_id, :media_id])
+    create unique_index(:media_items, [:media_id, :channel_id])
   end
 end
