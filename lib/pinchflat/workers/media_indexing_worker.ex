@@ -3,9 +3,11 @@ defmodule Pinchflat.Workers.MediaIndexingWorker do
 
   use Oban.Worker,
     queue: :media_indexing,
-    unique: [period: :infinity, states: [:available, :scheduled]]
+    unique: [period: :infinity, states: [:available, :scheduled, :retryable]],
+    tags: ["media_source", "media_indexing"]
 
   alias __MODULE__
+  alias Pinchflat.Tasks
   alias Pinchflat.MediaSource
 
   @impl Oban.Worker
@@ -23,7 +25,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorker do
     actually run every 1 hour and 30 minutes. The tradeoff of not inundating
     the API with requests and also not overlapping jobs is worth it, IMO.
 
-  Returns :ok | {:ok, %Oban.Job{}}. Not that it matters.
+  Returns :ok | {:ok, %Task{}}. Not that it matters.
   """
   def perform(%Oban.Job{args: %{"id" => channel_id}}) do
     channel = MediaSource.get_channel!(channel_id)
@@ -41,6 +43,6 @@ defmodule Pinchflat.Workers.MediaIndexingWorker do
     channel
     |> Map.take([:id])
     |> MediaIndexingWorker.new(schedule_in: channel.index_frequency_minutes * 60)
-    |> Oban.insert()
+    |> Tasks.create_job_with_task(channel)
   end
 end

@@ -6,6 +6,7 @@ defmodule Pinchflat.MediaSource do
   import Ecto.Query, warn: false
   alias Pinchflat.Repo
 
+  alias Pinchflat.Tasks
   alias Pinchflat.Media
   alias Pinchflat.Tasks.ChannelTasks
   alias Pinchflat.MediaSource.Channel
@@ -63,8 +64,8 @@ defmodule Pinchflat.MediaSource do
   original_url (if changed). May attempt to start indexing the channel's
   media if the indexing frequency has been changed.
 
-  TODO: ensure that indexing is cancelled/rescheduled if the indexing frequency
-  has been changed.
+  Existing indexing tasks will be cancelled if the indexing frequency has been
+  changed (logic in `ChannelTasks.kickoff_indexing_task`)
 
   Returns {:ok, %Channel{}} | {:error, %Ecto.Changeset{}}
   """
@@ -75,9 +76,12 @@ defmodule Pinchflat.MediaSource do
   end
 
   @doc """
-  Deletes a channel. Returns {:ok, %Channel{}} | {:error, %Ecto.Changeset{}}
+  Deletes a channel and it's associated tasks (of any state).
+
+  Returns {:ok, %Channel{}} | {:error, %Ecto.Changeset{}}
   """
   def delete_channel(%Channel{} = channel) do
+    Tasks.delete_tasks_for(channel)
     Repo.delete(channel)
   end
 

@@ -1,6 +1,7 @@
 defmodule Pinchflat.MediaSourceTest do
   use Pinchflat.DataCase
   import Mox
+  import Pinchflat.TasksFixtures
   import Pinchflat.ProfilesFixtures
   import Pinchflat.MediaSourceFixtures
 
@@ -217,6 +218,14 @@ defmodule Pinchflat.MediaSourceTest do
     test "it returns a channel changeset" do
       channel = channel_fixture()
       assert %Ecto.Changeset{} = MediaSource.change_channel(channel)
+    end
+
+    test "deletion also deletes all associated tasks" do
+      channel = channel_fixture()
+      task = task_fixture(channel_id: channel.id)
+
+      assert {:ok, %Channel{}} = MediaSource.delete_channel(channel)
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
     end
   end
 

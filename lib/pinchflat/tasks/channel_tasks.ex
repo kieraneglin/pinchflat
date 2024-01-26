@@ -3,17 +3,16 @@ defmodule Pinchflat.Tasks.ChannelTasks do
   This module contains methods for managing tasks (workers) related to channels.
   """
 
+  alias Pinchflat.Tasks
   alias Pinchflat.MediaSource.Channel
   alias Pinchflat.Workers.MediaIndexingWorker
 
   @doc """
-  Starts tasks for indexing a channel's media.
-
-  TODO: modify so that updates cancel/reschedule existing tasks as-needed
-  TODO: modify so that deletion cancels existing tasks (or maybe can do from Postgres?)
-  TODO: modify so that starting a worker adds a Task record (not implemented yet)
+  Starts tasks for indexing a channel's media. Returns {:ok, :should_not_index} | {:ok, %Task{}}.
   """
   def kickoff_indexing_task(%Channel{} = channel) do
+    Tasks.delete_pending_tasks_for(channel)
+
     if channel.index_frequency_minutes <= 0 do
       {:ok, :should_not_index}
     else
@@ -21,7 +20,7 @@ defmodule Pinchflat.Tasks.ChannelTasks do
       |> Map.take([:id])
       # Schedule this one immediately, but future ones will be on an interval
       |> MediaIndexingWorker.new()
-      |> Oban.insert()
+      |> Tasks.create_job_with_task(channel)
     end
   end
 end

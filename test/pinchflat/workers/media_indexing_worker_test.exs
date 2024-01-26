@@ -4,6 +4,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
   import Mox
   import Pinchflat.MediaSourceFixtures
 
+  alias Pinchflat.Tasks
   alias Pinchflat.Workers.MediaIndexingWorker
 
   setup :verify_on_exit!
@@ -45,6 +46,17 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
         args: %{"id" => channel.id},
         scheduled_at: now_plus(channel.index_frequency_minutes, :minutes)
       )
+    end
+
+    test "it creates a task for the rescheduled job" do
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts -> {:ok, ""} end)
+
+      channel = channel_fixture(index_frequency_minutes: 10)
+      task_count_fetcher = fn -> Enum.count(Tasks.list_tasks()) end
+
+      assert_changed([from: 0, to: 1], task_count_fetcher, fn ->
+        perform_job(MediaIndexingWorker, %{id: channel.id})
+      end)
     end
 
     test "it creates the basic media_item records" do

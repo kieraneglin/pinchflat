@@ -11,8 +11,7 @@ defmodule Pinchflat.Media.MediaItem do
   @required_fields ~w(media_id channel_id)a
   @allowed_fields ~w(title media_id video_filepath channel_id)a
 
-  # TODO: consider making an attached `metadata` model to store the JSON response from whatever backend is used
-  # TODO: make a tasks model to track the jobs spawned
+  # IDEA: consider making an attached `metadata` model to store the JSON response from whatever backend is used
 
   schema "media_items" do
     field :title, :string
