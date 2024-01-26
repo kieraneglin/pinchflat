@@ -1,12 +1,14 @@
 defmodule Pinchflat.MediaSourceTest do
   use Pinchflat.DataCase
   import Mox
-
-  alias Pinchflat.MediaSource
-  alias Pinchflat.MediaSource.Channel
-
+  import Pinchflat.TasksFixtures
   import Pinchflat.ProfilesFixtures
   import Pinchflat.MediaSourceFixtures
+
+  alias Pinchflat.MediaSource
+  alias Pinchflat.Media.MediaItem
+  alias Pinchflat.MediaSource.Channel
+  alias Pinchflat.Workers.MediaIndexingWorker
 
   @invalid_channel_attrs %{name: nil, channel_id: nil}
 
@@ -82,6 +84,72 @@ defmodule Pinchflat.MediaSourceTest do
       assert {:ok, %Channel{}} = MediaSource.create_channel(channel_1_attrs)
       assert {:ok, %Channel{}} = MediaSource.create_channel(channel_2_attrs)
     end
+
+    test "creation will schedule the indexing task" do
+      expect(YtDlpRunnerMock, :run, &runner_function_mock/2)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123"
+      }
+
+      assert {:ok, %Channel{} = channel} = MediaSource.create_channel(valid_attrs)
+
+      assert_enqueued(worker: MediaIndexingWorker, args: %{"id" => channel.id})
+    end
+  end
+
+  describe "index_media_items/1" do
+    setup do
+      stub(YtDlpRunnerMock, :run, fn _url, _opts -> {:ok, "video1\nvideo2\nvideo3"} end)
+
+      {:ok, [channel: channel_fixture()]}
+    end
+
+    test "it creates a media_item record for each media ID returned", %{channel: channel} do
+      assert media_items = MediaSource.index_media_items(channel)
+
+      assert Enum.count(media_items) == 3
+      assert ["video1", "video2", "video3"] == Enum.map(media_items, & &1.media_id)
+      assert Enum.all?(media_items, fn %MediaItem{} -> true end)
+    end
+
+    test "it attaches all media_items to the given channel", %{channel: channel} do
+      channel_id = channel.id
+      assert media_items = MediaSource.index_media_items(channel)
+
+      assert Enum.count(media_items) == 3
+      assert Enum.all?(media_items, fn %MediaItem{channel_id: ^channel_id} -> true end)
+    end
+
+    test "it won't duplicate media_items based on media_id and channel", %{channel: channel} do
+      _first_run = MediaSource.index_media_items(channel)
+      _duplicate_run = MediaSource.index_media_items(channel)
+
+      media_items = Repo.preload(channel, :media_items).media_items
+      assert Enum.count(media_items) == 3
+    end
+
+    test "it can duplicate media_ids for different channels", %{channel: channel} do
+      other_channel = channel_fixture()
+
+      media_items = MediaSource.index_media_items(channel)
+      media_items_other_channel = MediaSource.index_media_items(other_channel)
+
+      assert Enum.count(media_items) == 3
+      assert Enum.count(media_items_other_channel) == 3
+
+      assert Enum.map(media_items, & &1.media_id) ==
+               Enum.map(media_items_other_channel, & &1.media_id)
+    end
+
+    test "it returns a list of media_items or changesets", %{channel: channel} do
+      first_run = MediaSource.index_media_items(channel)
+      duplicate_run = MediaSource.index_media_items(channel)
+
+      assert Enum.all?(first_run, fn %MediaItem{} -> true end)
+      assert Enum.all?(duplicate_run, fn %Ecto.Changeset{} -> true end)
+    end
   end
 
   describe "update_channel/2" do
@@ -113,6 +181,23 @@ defmodule Pinchflat.MediaSourceTest do
       assert {:ok, %Channel{}} = MediaSource.update_channel(channel, update_attrs)
     end
 
+    test "updating the index frequency will re-schedule the indexing task" do
+      channel = channel_fixture()
+      update_attrs = %{index_frequency_minutes: 123}
+
+      assert {:ok, %Channel{} = channel} = MediaSource.update_channel(channel, update_attrs)
+      assert channel.index_frequency_minutes == 123
+      assert_enqueued(worker: MediaIndexingWorker, args: %{"id" => channel.id})
+    end
+
+    test "not updating the index frequency will not re-schedule the indexing task" do
+      channel = channel_fixture()
+      update_attrs = %{name: "some updated name"}
+
+      assert {:ok, %Channel{}} = MediaSource.update_channel(channel, update_attrs)
+      refute_enqueued(worker: MediaIndexingWorker, args: %{"id" => channel.id})
+    end
+
     test "updates with invalid data returns error changeset" do
       channel = channel_fixture()
 
@@ -133,6 +218,14 @@ defmodule Pinchflat.MediaSourceTest do
     test "it returns a channel changeset" do
       channel = channel_fixture()
       assert %Ecto.Changeset{} = MediaSource.change_channel(channel)
+    end
+
+    test "deletion also deletes all associated tasks" do
+      channel = channel_fixture()
+      task = task_fixture(channel_id: channel.id)
+
+      assert {:ok, %Channel{}} = MediaSource.delete_channel(channel)
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
     end
   end
 

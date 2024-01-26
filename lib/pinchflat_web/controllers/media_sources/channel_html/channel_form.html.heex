@@ -12,6 +12,13 @@
 
   <.input field={f[:original_url]} type="text" label="Channel URL" />
 
+  <.input
+    field={f[:index_frequency_minutes]}
+    options={friendly_index_frequencies()}
+    type="select"
+    label="Index Frequency"
+  />
+
   <:actions>
     <.button>Save Channel</.button>
   </:actions>

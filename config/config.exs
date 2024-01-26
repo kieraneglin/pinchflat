@@ -27,6 +27,13 @@ config :pinchflat, PinchflatWeb.Endpoint,
   pubsub_server: Pinchflat.PubSub,
   live_view: [signing_salt: "/t5878kO"]
 
+config :pinchflat, Oban,
+  repo: Pinchflat.Repo,
+  # Keep old jobs for 30 days for display in the UI
+  plugins: [{Oban.Plugins.Pruner, max_age: 30 * 24 * 60 * 60}],
+  # TODO: consider making this an env var or something?
+  queues: [default: 10, media_indexing: 2, media_fetching: 2]
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails

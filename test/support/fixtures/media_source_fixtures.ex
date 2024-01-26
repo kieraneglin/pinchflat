@@ -18,8 +18,9 @@ defmodule Pinchflat.MediaSourceFixtures do
         Enum.into(attrs, %{
           name: "Channel ##{:rand.uniform(1_000_000)}",
           channel_id: Base.encode16(:crypto.hash(:md5, "#{:rand.uniform(1_000_000)}")),
-          original_url: "https://www.youtube.com/channel/#{:rand.uniform(1_000_000)}",
-          media_profile_id: ProfilesFixtures.media_profile_fixture().id
+          original_url: "https://www.youtube.com/channel/#{Faker.String.base64(12)}",
+          media_profile_id: ProfilesFixtures.media_profile_fixture().id,
+          index_frequency_minutes: 60
         })
       )
       |> Repo.insert()
