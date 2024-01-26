@@ -148,11 +148,11 @@ defmodule Pinchflat.MediaSource do
 
   defp maybe_run_indexing_task(changeset, channel) do
     case changeset.data do
-      # If the changeset is new (not persisted), start indexing no matter what
+      # If the changeset is new (not persisted), attempt indexing no matter what
       %{__meta__: %{state: :built}} ->
         ChannelTasks.kickoff_indexing_task(channel)
 
-      # If the record has been persisted, only run indexing if the
+      # If the record has been persisted, only attempt indexing if the
       # indexing frequency has been changed
       %{__meta__: %{state: :loaded}} ->
         if Map.has_key?(changeset.changes, :index_frequency_minutes) do
