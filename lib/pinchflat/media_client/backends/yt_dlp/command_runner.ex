@@ -13,9 +13,9 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.CommandRunner do
 
   Returns {:ok, binary()} | {:error, output, status}.
 
-  # IDEA: deduplicate command opts, keeping the last one on conflict
-          although possibly not needed (and a LOT easier) if yt-dlp
-          just ignores duplicate options (ie: look into that)
+  IDEA: Indexing takes a long time, but the output is actually streamed to stdout.
+  Maybe we could listen to that stream instead so we can index videos as they're discovered.
+  See: https://stackoverflow.com/a/49061086/5665799
   """
   @impl BackendCommandRunner
   def run(url, command_opts) do
