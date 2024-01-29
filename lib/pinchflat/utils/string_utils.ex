@@ -11,4 +11,13 @@ defmodule Pinchflat.Utils.StringUtils do
     |> String.replace(~r/[\s_]/, "-")
     |> String.downcase()
   end
+
+  @doc """
+  TODO: test
+  """
+  def random_string(length \\ 32) do
+    :crypto.strong_rand_bytes(length)
+    |> Base.encode16(case: :lower)
+    |> String.slice(0..(length - 1))
+  end
 end

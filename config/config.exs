@@ -14,7 +14,8 @@ config :pinchflat,
   yt_dlp_executable: System.find_executable("yt-dlp"),
   yt_dlp_runner: Pinchflat.MediaClient.Backends.YtDlp.CommandRunner,
   # TODO: figure this out
-  media_directory: :not_implemented
+  media_directory: :not_implemented,
+  metadata_directory: Path.join([System.tmp_dir!(), "pinchflat", "metadata"])
 
 # Configures the endpoint
 config :pinchflat, PinchflatWeb.Endpoint,

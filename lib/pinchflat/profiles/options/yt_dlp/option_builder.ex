@@ -24,15 +24,10 @@ defmodule Pinchflat.Profiles.Options.YtDlp.OptionBuilder do
     # see: https://github.com/yt-dlp/yt-dlp#output-template
     {:ok,
      [
-       :write_thumbnail,
-       :write_subs,
        :embed_metadata,
        :embed_thumbnail,
        :embed_subs,
-       :write_info_json,
-       :write_auto_subs,
        :no_progress,
-       convert_thumbnails: "jpg",
        sub_langs: "en.*",
        output: Path.join(base_directory(), output_path)
      ]}

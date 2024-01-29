@@ -3,6 +3,8 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.CommandRunner do
   Runs yt-dlp commands using the `System.cmd/3` function
   """
 
+  require Logger
+
   alias Pinchflat.Utils.StringUtils
   alias Pinchflat.MediaClient.Backends.BackendCommandRunner
 
@@ -20,7 +22,9 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.CommandRunner do
   @impl BackendCommandRunner
   def run(url, command_opts) do
     command = backend_executable()
-    formatted_command_opts = parse_options(command_opts) ++ [url]
+    formatted_command_opts = [url] ++ parse_options(command_opts)
+
+    Logger.debug("[yt-dlp] called with: #{Enum.join(formatted_command_opts, " ")}")
 
     case System.cmd(command, formatted_command_opts, stderr_to_stdout: true) do
       {output, 0} -> {:ok, output}
@@ -55,7 +59,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.CommandRunner do
   end
 
   defp parse_option(arg, acc) when is_binary(arg) do
-    [arg | acc]
+    acc ++ [arg]
   end
 
   defp backend_executable do

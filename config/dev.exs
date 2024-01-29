@@ -1,7 +1,8 @@
 import Config
 
 config :pinchflat,
-  media_directory: Path.join([System.tmp_dir!(), "yt-dlp"])
+  media_directory: Path.join([File.cwd!(), "tmp", "videos"]),
+  metadata_directory: Path.join([File.cwd!(), "tmp", "metadata"])
 
 # Configure your database
 config :pinchflat, Pinchflat.Repo,
