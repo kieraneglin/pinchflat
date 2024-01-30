@@ -4,8 +4,8 @@ defmodule Pinchflat.Media do
   """
 
   import Ecto.Query, warn: false
-  alias Pinchflat.Repo
 
+  alias Pinchflat.Repo
   alias Pinchflat.Media.MediaItem
 
   @doc """
