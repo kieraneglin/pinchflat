@@ -17,6 +17,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MetadataParser do
   """
   def parse_for_media_item(metadata) do
     %{
+      title: metadata["title"],
       video_filepath: metadata["filepath"],
       metadata: %{
         client_response: metadata
