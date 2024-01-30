@@ -33,7 +33,7 @@ defmodule Pinchflat.MediaSource do
 
   Returns {:ok, %Channel{}} | {:error, %Ecto.Changeset{}}
   """
-  def create_channel(attrs \\ %{}) do
+  def create_channel(attrs) do
     %Channel{}
     |> change_channel_from_url(attrs)
     |> commit_and_start_indexing()
@@ -101,7 +101,7 @@ defmodule Pinchflat.MediaSource do
   This means that it'll go for it even if a changeset is otherwise invalid. This
   is pretty easy to change, but for MVP I'm not concerned.
   """
-  def change_channel_from_url(%Channel{} = channel, attrs \\ %{}) do
+  def change_channel_from_url(%Channel{} = channel, attrs) do
     case change_channel(channel, attrs) do
       %Ecto.Changeset{changes: %{original_url: _}} = changeset ->
         add_channel_details_to_changeset(channel, changeset)

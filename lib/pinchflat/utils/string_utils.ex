@@ -5,6 +5,8 @@ defmodule Pinchflat.Utils.StringUtils do
 
   @doc """
   Converts a string to kebab-case (ie: `hello world` -> `hello-world`)
+
+  Returns binary()
   """
   def to_kebab_case(string) do
     string
@@ -13,7 +15,9 @@ defmodule Pinchflat.Utils.StringUtils do
   end
 
   @doc """
-  TODO: test
+  Returns a random string of the given length. Base 16 encoded, lower case.
+
+  Returns binary()
   """
   def random_string(length \\ 32) do
     :crypto.strong_rand_bytes(length)

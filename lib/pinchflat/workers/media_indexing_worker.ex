@@ -25,6 +25,11 @@ defmodule Pinchflat.Workers.MediaIndexingWorker do
     actually run every 1 hour and 30 minutes. The tradeoff of not inundating
     the API with requests and also not overlapping jobs is worth it, IMO.
 
+  NOTE: Since indexing can take a LONG time, I should check what happens if an
+  application restart occurs while a job is running. Will the job be lost?
+
+  IDEA: Should I use paging and do indexing in chunks? Is that even faster?
+
   Returns :ok | {:ok, %Task{}}. Not that it matters.
   """
   def perform(%Oban.Job{args: %{"id" => channel_id}}) do

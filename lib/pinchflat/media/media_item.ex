@@ -7,11 +7,10 @@ defmodule Pinchflat.Media.MediaItem do
   import Ecto.Changeset
 
   alias Pinchflat.MediaSource.Channel
+  alias Pinchflat.Media.MediaMetadata
 
   @required_fields ~w(media_id channel_id)a
   @allowed_fields ~w(title media_id video_filepath channel_id)a
-
-  # IDEA: consider making an attached `metadata` model to store the JSON response from whatever backend is used
 
   schema "media_items" do
     field :title, :string
@@ -20,6 +19,8 @@ defmodule Pinchflat.Media.MediaItem do
 
     belongs_to :channel, Channel
 
+    has_one :metadata, MediaMetadata, on_replace: :update
+
     timestamps(type: :utc_datetime)
   end
 
@@ -27,6 +28,7 @@ defmodule Pinchflat.Media.MediaItem do
   def changeset(media_item, attrs) do
     media_item
     |> cast(attrs, @allowed_fields)
+    |> cast_assoc(:metadata, with: &MediaMetadata.changeset/2, required: false)
     |> validate_required(@required_fields)
     |> unique_constraint([:media_id, :channel_id])
   end

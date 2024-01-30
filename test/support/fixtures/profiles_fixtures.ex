@@ -12,7 +12,7 @@ defmodule Pinchflat.ProfilesFixtures do
       attrs
       |> Enum.into(%{
         name: "Media Profile ##{:rand.uniform(1_000_000)}",
-        output_path_template: "/video/{{title}}.{{ext}}"
+        output_path_template: "{{title}}.{{ext}}"
       })
       |> Pinchflat.Profiles.create_media_profile()
 

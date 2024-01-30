@@ -18,27 +18,14 @@ defmodule Pinchflat.MediaClient.VideoDownloader do
   alias Pinchflat.MediaClient.Backends.YtDlp.MetadataParser, as: YtDlpMetadataParser
 
   @doc """
-  Downloads a single video based on the settings in the given media profile.
+  Downloads a video for a media item, updating the media item based on the metadata
+  returned by the backend. Also saves the entire metadata response to the associated
+  media_metadata record.
 
-  Returns {:ok, map()} | {:error, any, ...}.
-  """
-  def download_for_media_profile(url, %MediaProfile{} = media_profile, backend \\ :yt_dlp) do
-    option_builder = option_builder(backend)
-    video_backend = video_backend(backend)
-    {:ok, options} = option_builder.build(media_profile)
-
-    video_backend.download(url, options)
-  end
-
-  @doc """
-  TODO: test
-  TODO: consider removing the above function? I don't know if it's actually useful
-  TODO: save metadata filepath to media item record
-  TODO: consider saving the output JSON to the database instead of the filesystem.
-        reason: would make updating metadata easier (no orphans). Also queryable.
+  Returns {:ok, %MediaItem{}} | {:error, any, ...any}
   """
   def download_for_media_item(%MediaItem{} = media_item, backend \\ :yt_dlp) do
-    item_with_preloads = Repo.preload(media_item, channel: :media_profile)
+    item_with_preloads = Repo.preload(media_item, [:metadata, channel: :media_profile])
     media_profile = item_with_preloads.channel.media_profile
 
     case download_for_media_profile(media_item.media_id, media_profile, backend) do
@@ -46,11 +33,21 @@ defmodule Pinchflat.MediaClient.VideoDownloader do
         parser = metadata_parser(backend)
         parsed_attrs = parser.parse_for_media_item(parsed_json)
 
-        Media.update_media_item(media_item, parsed_attrs)
+        # Don't forgor to use preloaded associations or updates to
+        # associations won't work!
+        Media.update_media_item(item_with_preloads, parsed_attrs)
 
       err ->
         err
     end
+  end
+
+  defp download_for_media_profile(url, %MediaProfile{} = media_profile, backend) do
+    option_builder = option_builder(backend)
+    video_backend = video_backend(backend)
+    {:ok, options} = option_builder.build(media_profile)
+
+    video_backend.download(url, options)
   end
 
   defp option_builder(backend) do

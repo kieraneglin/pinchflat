@@ -56,7 +56,7 @@ defmodule Pinchflat.Tasks do
   @doc """
   Creates a task. Returns {:ok, %Task{}} | {:error, %Ecto.Changeset{}}.
   """
-  def create_task(attrs \\ %{}) do
+  def create_task(attrs) do
     %Task{}
     |> Task.changeset(attrs)
     |> Repo.insert()

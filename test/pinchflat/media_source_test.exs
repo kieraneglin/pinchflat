@@ -30,7 +30,7 @@ defmodule Pinchflat.MediaSourceTest do
 
   describe "create_channel/1" do
     test "creates a channel and adds name + ID from runner response" do
-      expect(YtDlpRunnerMock, :run, &runner_function_mock/2)
+      expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
@@ -47,7 +47,7 @@ defmodule Pinchflat.MediaSourceTest do
     end
 
     test "creation enforces uniqueness of channel_id scoped to the media_profile" do
-      expect(YtDlpRunnerMock, :run, 2, fn _url, _opts ->
+      expect(YtDlpRunnerMock, :run, 2, fn _url, _opts, _ot ->
         {:ok,
          Phoenix.json_library().encode!(%{
            channel: "some name",
@@ -65,7 +65,7 @@ defmodule Pinchflat.MediaSourceTest do
     end
 
     test "creation lets you duplicate channel_ids as long as the media profile is different" do
-      expect(YtDlpRunnerMock, :run, 2, fn _url, _opts ->
+      expect(YtDlpRunnerMock, :run, 2, fn _url, _opts, _ot ->
         {:ok,
          Phoenix.json_library().encode!(%{
            channel: "some name",
@@ -86,7 +86,7 @@ defmodule Pinchflat.MediaSourceTest do
     end
 
     test "creation will schedule the indexing task" do
-      expect(YtDlpRunnerMock, :run, &runner_function_mock/2)
+      expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
@@ -101,7 +101,7 @@ defmodule Pinchflat.MediaSourceTest do
 
   describe "index_media_items/1" do
     setup do
-      stub(YtDlpRunnerMock, :run, fn _url, _opts -> {:ok, "video1\nvideo2\nvideo3"} end)
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, "video1\nvideo2\nvideo3"} end)
 
       {:ok, [channel: channel_fixture()]}
     end
@@ -162,7 +162,7 @@ defmodule Pinchflat.MediaSourceTest do
     end
 
     test "updating the original_url will re-fetch the channel details" do
-      expect(YtDlpRunnerMock, :run, &runner_function_mock/2)
+      expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
 
       channel = channel_fixture()
       update_attrs = %{original_url: "https://www.youtube.com/channel/abc123"}
@@ -173,7 +173,7 @@ defmodule Pinchflat.MediaSourceTest do
     end
 
     test "not updating the original_url will not re-fetch the channel details" do
-      expect(YtDlpRunnerMock, :run, 0, &runner_function_mock/2)
+      expect(YtDlpRunnerMock, :run, 0, &runner_function_mock/3)
 
       channel = channel_fixture()
       update_attrs = %{name: "some updated name"}
@@ -239,14 +239,14 @@ defmodule Pinchflat.MediaSourceTest do
 
   describe "change_channel_from_url/2" do
     test "it returns a changeset" do
-      stub(YtDlpRunnerMock, :run, &runner_function_mock/2)
+      stub(YtDlpRunnerMock, :run, &runner_function_mock/3)
       channel = channel_fixture()
 
-      assert %Ecto.Changeset{} = MediaSource.change_channel_from_url(channel)
+      assert %Ecto.Changeset{} = MediaSource.change_channel_from_url(channel, %{})
     end
 
     test "it does not fetch channel details if the original_url isn't in the changeset" do
-      expect(YtDlpRunnerMock, :run, 0, &runner_function_mock/2)
+      expect(YtDlpRunnerMock, :run, 0, &runner_function_mock/3)
 
       changeset = MediaSource.change_channel_from_url(%Channel{}, %{name: "some updated name"})
 
@@ -254,7 +254,7 @@ defmodule Pinchflat.MediaSourceTest do
     end
 
     test "it fetches channel details if the original_url is in the changeset" do
-      expect(YtDlpRunnerMock, :run, &runner_function_mock/2)
+      expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
 
       changeset =
         MediaSource.change_channel_from_url(%Channel{}, %{
@@ -265,7 +265,7 @@ defmodule Pinchflat.MediaSourceTest do
     end
 
     test "it adds channel details to the changeset, keeping the orignal details" do
-      expect(YtDlpRunnerMock, :run, &runner_function_mock/2)
+      expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
 
       media_profile = media_profile_fixture()
       media_profile_id = media_profile.id
@@ -287,7 +287,7 @@ defmodule Pinchflat.MediaSourceTest do
     end
 
     test "it adds an error to the changeset if the runner fails" do
-      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts ->
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot ->
         {:error, "some error", 1}
       end)
 
@@ -301,7 +301,7 @@ defmodule Pinchflat.MediaSourceTest do
     end
   end
 
-  defp runner_function_mock(_url, _opts) do
+  defp runner_function_mock(_url, _opts, _ot) do
     {
       :ok,
       Phoenix.json_library().encode!(%{

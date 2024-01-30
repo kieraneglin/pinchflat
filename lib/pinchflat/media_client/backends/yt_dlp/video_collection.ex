@@ -16,9 +16,9 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollection do
       """
       def get_video_ids(url, command_opts \\ []) do
         runner = Application.get_env(:pinchflat, :yt_dlp_runner)
-        opts = command_opts ++ [:simulate, :skip_download, print: :id]
+        opts = command_opts ++ [:simulate, :skip_download]
 
-        case runner.run(url, opts) do
+        case runner.run(url, opts, "%(id)s") do
           {:ok, output} -> {:ok, String.split(output, "\n", trim: true)}
           res -> res
         end

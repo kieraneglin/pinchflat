@@ -11,7 +11,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
 
   describe "perform/1" do
     test "it does not do any indexing if the channel shouldn't be indexed" do
-      expect(YtDlpRunnerMock, :run, 0, fn _url, _opts -> {:ok, ""} end)
+      expect(YtDlpRunnerMock, :run, 0, fn _url, _opts, _ot -> {:ok, ""} end)
 
       channel = channel_fixture(index_frequency_minutes: -1)
 
@@ -19,7 +19,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
     end
 
     test "it does not reschedule if the channel shouldn't be indexed" do
-      expect(YtDlpRunnerMock, :run, 0, fn _url, _opts -> {:ok, ""} end)
+      expect(YtDlpRunnerMock, :run, 0, fn _url, _opts, _ot -> {:ok, ""} end)
 
       channel = channel_fixture(index_frequency_minutes: -1)
       perform_job(MediaIndexingWorker, %{id: channel.id})
@@ -28,7 +28,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
     end
 
     test "it indexes the channel if it should be indexed" do
-      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts -> {:ok, ""} end)
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot -> {:ok, ""} end)
 
       channel = channel_fixture(index_frequency_minutes: 10)
 
@@ -36,7 +36,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
     end
 
     test "it reschedules the job based on the index frequency" do
-      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts -> {:ok, ""} end)
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot -> {:ok, ""} end)
 
       channel = channel_fixture(index_frequency_minutes: 10)
       perform_job(MediaIndexingWorker, %{id: channel.id})
@@ -49,7 +49,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
     end
 
     test "it creates a task for the rescheduled job" do
-      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts -> {:ok, ""} end)
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot -> {:ok, ""} end)
 
       channel = channel_fixture(index_frequency_minutes: 10)
       task_count_fetcher = fn -> Enum.count(Tasks.list_tasks()) end
@@ -60,7 +60,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
     end
 
     test "it creates the basic media_item records" do
-      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts -> {:ok, "video1\nvideo2"} end)
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot -> {:ok, "video1\nvideo2"} end)
 
       channel = channel_fixture(index_frequency_minutes: 10)
 

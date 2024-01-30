@@ -110,6 +110,12 @@ defmodule Pinchflat.TasksTest do
 
       assert task.channel_id == channel.id
     end
+
+    test "it returns an error if the job fails to enqueue" do
+      channel = channel_fixture()
+
+      assert {:error, %Ecto.Changeset{}} = Tasks.create_job_with_task(%Ecto.Changeset{}, channel)
+    end
   end
 
   describe "delete_task/1" do

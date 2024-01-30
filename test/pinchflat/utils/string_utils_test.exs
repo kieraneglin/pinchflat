@@ -12,4 +12,19 @@ defmodule Pinchflat.Utils.StringUtilsTest do
       assert StringUtils.to_kebab_case("hello_world") == "hello-world"
     end
   end
+
+  describe "random_string/1" do
+    test "generates a random string" do
+      assert is_binary(StringUtils.random_string())
+      assert StringUtils.random_string() != StringUtils.random_string()
+    end
+
+    test "has a defined default length" do
+      assert String.length(StringUtils.random_string()) == 32
+    end
+
+    test "can generate a string of a given length" do
+      assert String.length(StringUtils.random_string(64)) == 64
+    end
+  end
 end

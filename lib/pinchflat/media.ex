@@ -25,7 +25,7 @@ defmodule Pinchflat.Media do
   @doc """
   Creates a media_item. Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}.
   """
-  def create_media_item(attrs \\ %{}) do
+  def create_media_item(attrs) do
     %MediaItem{}
     |> MediaItem.changeset(attrs)
     |> Repo.insert()

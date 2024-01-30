@@ -9,6 +9,18 @@ defmodule Pinchflat.MediaTest do
 
   @invalid_attrs %{title: nil, media_id: nil, video_filepath: nil}
 
+  describe "schema" do
+    test "media_metadata is deleted when media_item is deleted" do
+      media_item = media_item_fixture(%{metadata: %{client_response: %{foo: "bar"}}})
+      metadata = media_item.metadata
+      assert {:ok, %MediaItem{}} = Media.delete_media_item(media_item)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Repo.reload!(metadata)
+      end
+    end
+  end
+
   describe "list_media_items/0" do
     test "it returns all media_items" do
       media_item = media_item_fixture()

@@ -41,7 +41,7 @@ defmodule PinchflatWeb.ChannelControllerTest do
 
   describe "create channel" do
     test "redirects to show when data is valid", %{conn: conn, create_attrs: create_attrs} do
-      expect(YtDlpRunnerMock, :run, 1, &runner_function_mock/2)
+      expect(YtDlpRunnerMock, :run, 1, &runner_function_mock/3)
       conn = post(conn, ~p"/media_sources/channels", channel: create_attrs)
 
       assert %{id: id} = redirected_params(conn)
@@ -70,7 +70,7 @@ defmodule PinchflatWeb.ChannelControllerTest do
     setup [:create_channel]
 
     test "redirects when data is valid", %{conn: conn, channel: channel, update_attrs: update_attrs} do
-      expect(YtDlpRunnerMock, :run, 1, &runner_function_mock/2)
+      expect(YtDlpRunnerMock, :run, 1, &runner_function_mock/3)
 
       conn = put(conn, ~p"/media_sources/channels/#{channel}", channel: update_attrs)
       assert redirected_to(conn) == ~p"/media_sources/channels/#{channel}"
@@ -107,7 +107,7 @@ defmodule PinchflatWeb.ChannelControllerTest do
     %{channel: channel}
   end
 
-  defp runner_function_mock(_url, _opts) do
+  defp runner_function_mock(_url, _opts, _ot) do
     {
       :ok,
       Phoenix.json_library().encode!(%{
