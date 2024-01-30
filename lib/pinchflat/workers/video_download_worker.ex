@@ -11,7 +11,9 @@ defmodule Pinchflat.Workers.VideoDownloadWorker do
 
   @impl Oban.Worker
   @doc """
-  TODO: test
+  For a given media item, download the video and save the metadata.
+
+  Returns {:ok, %MediaItem{}} | {:error, any, ...any}
   """
   def perform(%Oban.Job{args: %{"id" => media_item_id}}) do
     media_item = Media.get_media_item!(media_item_id)
