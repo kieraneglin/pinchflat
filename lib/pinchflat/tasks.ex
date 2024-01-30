@@ -7,6 +7,7 @@ defmodule Pinchflat.Tasks do
   alias Pinchflat.Repo
 
   alias Pinchflat.Tasks.Task
+  alias Pinchflat.Media.MediaItem
   alias Pinchflat.MediaSource.Channel
 
   @doc """
@@ -54,7 +55,10 @@ defmodule Pinchflat.Tasks do
   def get_task!(id), do: Repo.get!(Task, id)
 
   @doc """
-  Creates a task. Returns {:ok, %Task{}} | {:error, %Ecto.Changeset{}}.
+  Creates a task.
+
+  Accepts map() | %Oban.Job{}, %Channel{} | %Oban.Job{}, %MediaItem{}.
+  Returns {:ok, %Task{}} | {:error, %Ecto.Changeset{}}.
   """
   def create_task(attrs) do
     %Task{}
@@ -62,23 +66,30 @@ defmodule Pinchflat.Tasks do
     |> Repo.insert()
   end
 
-  # This one's function signature is designed to help simplify
+  # This function's signature is designed to help simplify
   # usage of `create_job_with_task/2`
-  def create_task(%Oban.Job{} = job, %Channel{} = channel) do
+  def create_task(%Oban.Job{} = job, attached_record) do
+    attached_record_attr =
+      case attached_record do
+        %Channel{} = channel -> %{channel_id: channel.id}
+        %MediaItem{} = media_item -> %{media_item_id: media_item.id}
+      end
+
     %Task{}
-    |> Task.changeset(%{job_id: job.id, channel_id: channel.id})
+    |> Task.changeset(Map.merge(%{job_id: job.id}, attached_record_attr))
     |> Repo.insert()
   end
 
   @doc """
   Creates a job from given attrs, creating a task with an attached record
-  if successful.
+  if successful. Returns an error if the job already exists.
 
-  Returns {:ok, %Task{}} | {:error, %Ecto.Changeset{}}.
+  Returns {:ok, %Task{}} | {:error, :duplicate_job} | {:error, %Ecto.Changeset{}}.
   """
   def create_job_with_task(job_attrs, task_attached_record) do
-    case Oban.insert(job_attrs) do
+    case Repo.insert_unique_job(job_attrs) do
       {:ok, job} -> create_task(job, task_attached_record)
+      {:duplicate, _} -> {:error, :duplicate_job}
       err -> err
     end
   end
@@ -99,8 +110,12 @@ defmodule Pinchflat.Tasks do
 
   Returns :ok
   """
-  def delete_tasks_for(%Channel{} = channel) do
-    tasks = list_tasks_for(:channel_id, channel.id)
+  def delete_tasks_for(attached_record) do
+    tasks =
+      case attached_record do
+        %Channel{} = channel -> list_tasks_for(:channel_id, channel.id)
+        %MediaItem{} = media_item -> list_tasks_for(:media_item_id, media_item.id)
+      end
 
     Enum.each(tasks, fn task ->
       delete_task(task)
@@ -112,8 +127,12 @@ defmodule Pinchflat.Tasks do
 
   Returns :ok
   """
-  def delete_pending_tasks_for(%Channel{} = channel) do
-    tasks = list_pending_tasks_for(:channel_id, channel.id)
+  def delete_pending_tasks_for(attached_record) do
+    tasks =
+      case attached_record do
+        %Channel{} = channel -> list_pending_tasks_for(:channel_id, channel.id)
+        %MediaItem{} = media_item -> list_pending_tasks_for(:media_item_id, media_item.id)
+      end
 
     Enum.each(tasks, fn task ->
       delete_task(task)

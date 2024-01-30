@@ -1,6 +1,7 @@
 defmodule Pinchflat.MediaTest do
   use Pinchflat.DataCase
 
+  import Pinchflat.TasksFixtures
   import Pinchflat.MediaFixtures
   import Pinchflat.MediaSourceFixtures
 
@@ -25,6 +26,27 @@ defmodule Pinchflat.MediaTest do
     test "it returns all media_items" do
       media_item = media_item_fixture()
       assert Media.list_media_items() == [media_item]
+    end
+  end
+
+  describe "list_pending_media_items_for/1" do
+    test "it returns pending media_items for a given channel" do
+      channel = channel_fixture()
+      media_item = media_item_fixture(%{channel_id: channel.id, video_filepath: nil})
+
+      assert Media.list_pending_media_items_for(channel) == [media_item]
+    end
+
+    test "it does not return media_items with video_filepath" do
+      channel = channel_fixture()
+
+      _media_item =
+        media_item_fixture(%{
+          channel_id: channel.id,
+          video_filepath: "/video/#{Faker.File.file_name(:video)}"
+        })
+
+      assert Media.list_pending_media_items_for(channel) == []
     end
   end
 
@@ -84,6 +106,14 @@ defmodule Pinchflat.MediaTest do
       media_item = media_item_fixture()
       assert {:ok, %MediaItem{}} = Media.delete_media_item(media_item)
       assert_raise Ecto.NoResultsError, fn -> Media.get_media_item!(media_item.id) end
+    end
+
+    test "it also deletes attached tasks" do
+      media_item = media_item_fixture()
+      task = task_fixture(%{media_item_id: media_item.id})
+
+      assert {:ok, %MediaItem{}} = Media.delete_media_item(media_item)
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
     end
   end
 

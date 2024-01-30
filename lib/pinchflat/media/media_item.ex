@@ -6,6 +6,7 @@ defmodule Pinchflat.Media.MediaItem do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Pinchflat.Tasks.Task
   alias Pinchflat.MediaSource.Channel
   alias Pinchflat.Media.MediaMetadata
 
@@ -20,6 +21,8 @@ defmodule Pinchflat.Media.MediaItem do
     belongs_to :channel, Channel
 
     has_one :metadata, MediaMetadata, on_replace: :update
+
+    has_many :tasks, Task
 
     timestamps(type: :utc_datetime)
   end

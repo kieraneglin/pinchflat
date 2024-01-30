@@ -2,6 +2,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
   use Pinchflat.DataCase
 
   import Mox
+  import Pinchflat.MediaFixtures
   import Pinchflat.MediaSourceFixtures
 
   alias Pinchflat.Tasks
@@ -36,13 +37,23 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
       perform_job(MediaIndexingWorker, %{id: channel.id})
     end
 
-    test "it kicks off a download job for each new media item" do
+    test "it kicks off a download job for each pending media item" do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, "video1"} end)
 
       channel = channel_fixture(index_frequency_minutes: 10)
       perform_job(MediaIndexingWorker, %{id: channel.id})
 
       assert [_] = all_enqueued(worker: VideoDownloadWorker)
+    end
+
+    test "it starts a job for any pending media item even if it's from another run" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, "video1"} end)
+
+      channel = channel_fixture(index_frequency_minutes: 10)
+      media_item_fixture(%{channel_id: channel.id, video_filepath: nil})
+      perform_job(MediaIndexingWorker, %{id: channel.id})
+
+      assert [_, _] = all_enqueued(worker: VideoDownloadWorker)
     end
 
     test "it does not kick off a job for media items that could not be saved" do

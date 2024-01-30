@@ -7,9 +7,9 @@ defmodule Pinchflat.Workers.MediaIndexingWorker do
     tags: ["media_source", "media_indexing"]
 
   alias __MODULE__
+  alias Pinchflat.Media
   alias Pinchflat.Tasks
   alias Pinchflat.MediaSource
-  alias Pinchflat.Media.MediaItem
   alias Pinchflat.Workers.VideoDownloadWorker
 
   @impl Oban.Worker
@@ -48,24 +48,33 @@ defmodule Pinchflat.Workers.MediaIndexingWorker do
   end
 
   defp index_media_and_reschedule(channel) do
-    channel
-    |> MediaSource.index_media_items()
-    |> Enum.each(fn media_item_or_changeset ->
-      case media_item_or_changeset do
-        %MediaItem{} = media_item ->
-          media_item
-          |> Map.take([:id])
-          |> VideoDownloadWorker.new()
-          |> Oban.insert()
-
-        _ ->
-          nil
-      end
-    end)
+    MediaSource.index_media_items(channel)
+    enqueue_video_downloads(channel)
 
     channel
     |> Map.take([:id])
     |> MediaIndexingWorker.new(schedule_in: channel.index_frequency_minutes * 60)
     |> Tasks.create_job_with_task(channel)
+    |> case do
+      {:ok, task} -> {:ok, task}
+      {:error, :duplicate_job} -> {:ok, :job_exists}
+    end
+  end
+
+  # NOTE: this starts a download for each media item that is pending,
+  # not just the ones that were indexed in this job run. This should ensure
+  # that any stragglers are caught if, for some reason, they weren't enqueued
+  # or somehow got de-queued.
+  #
+  # I'm not sure of a case where this would happen, but it's cheap insurance.
+  defp enqueue_video_downloads(channel) do
+    channel
+    |> Media.list_pending_media_items_for()
+    |> Enum.each(fn media_item ->
+      media_item
+      |> Map.take([:id])
+      |> VideoDownloadWorker.new()
+      |> Tasks.create_job_with_task(media_item)
+    end)
   end
 end
