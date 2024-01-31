@@ -2,6 +2,7 @@ defmodule Pinchflat.TasksTest do
   use Pinchflat.DataCase
   import Pinchflat.JobFixtures
   import Pinchflat.TasksFixtures
+  import Pinchflat.MediaFixtures
   import Pinchflat.MediaSourceFixtures
 
   alias Pinchflat.Tasks
@@ -92,14 +93,24 @@ defmodule Pinchflat.TasksTest do
       assert task.job_id == job.id
       assert task.channel_id == channel.id
     end
+
+    test "accepts a job and media item" do
+      job = job_fixture()
+      media_item = media_item_fixture()
+
+      assert {:ok, %Task{} = task} = Tasks.create_task(job, media_item)
+
+      assert task.job_id == job.id
+      assert task.media_item_id == media_item.id
+    end
   end
 
   describe "create_job_with_task/2" do
     test "it enqueues the given job" do
-      channel = channel_fixture()
+      media_item = media_item_fixture()
 
       refute_enqueued(worker: TestJobWorker)
-      assert {:ok, %Task{}} = Tasks.create_job_with_task(TestJobWorker.new(%{}), channel)
+      assert {:ok, %Task{}} = Tasks.create_job_with_task(TestJobWorker.new(%{}), media_item)
       assert_enqueued(worker: TestJobWorker)
     end
 
@@ -109,6 +120,20 @@ defmodule Pinchflat.TasksTest do
       assert {:ok, %Task{} = task} = Tasks.create_job_with_task(TestJobWorker.new(%{}), channel)
 
       assert task.channel_id == channel.id
+    end
+
+    test "it returns an error if the job already exists" do
+      channel = channel_fixture()
+      job = TestJobWorker.new(%{foo: "bar"}, unique: [period: :infinity])
+
+      assert {:ok, %Task{}} = Tasks.create_job_with_task(job, channel)
+      assert {:error, :duplicate_job} = Tasks.create_job_with_task(job, channel)
+    end
+
+    test "it returns an error if the job fails to enqueue" do
+      channel = channel_fixture()
+
+      assert {:error, %Ecto.Changeset{}} = Tasks.create_job_with_task(%Ecto.Changeset{}, channel)
     end
   end
 
@@ -137,6 +162,14 @@ defmodule Pinchflat.TasksTest do
       assert :ok = Tasks.delete_tasks_for(channel)
       assert_raise Ecto.NoResultsError, fn -> Tasks.get_task!(task.id) end
     end
+
+    test "it deletes the tasks attached to a media_item" do
+      media_item = media_item_fixture()
+      task = task_fixture(media_item_id: media_item.id)
+
+      assert :ok = Tasks.delete_tasks_for(media_item)
+      assert_raise Ecto.NoResultsError, fn -> Tasks.get_task!(task.id) end
+    end
   end
 
   describe "delete_pending_tasks_for/1" do
@@ -155,6 +188,17 @@ defmodule Pinchflat.TasksTest do
 
       assert :ok = Tasks.delete_pending_tasks_for(channel)
       assert Tasks.get_task!(task.id)
+    end
+
+    test "it works on media_items" do
+      media_item = media_item_fixture()
+      pending_task = task_fixture(media_item_id: media_item.id)
+      cancelled_task = Repo.preload(task_fixture(media_item_id: media_item.id), :job)
+      :ok = Oban.cancel_job(cancelled_task.job)
+
+      assert :ok = Tasks.delete_pending_tasks_for(media_item)
+      assert Tasks.get_task!(cancelled_task.id)
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(pending_task) end
     end
   end
 

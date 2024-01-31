@@ -25,7 +25,7 @@ defmodule Pinchflat.Profiles do
   @doc """
   Creates a media_profile. Returns {:ok, %MediaProfile{}} | {:error, %Ecto.Changeset{}}
   """
-  def create_media_profile(attrs \\ %{}) do
+  def create_media_profile(attrs) do
     %MediaProfile{}
     |> MediaProfile.changeset(attrs)
     |> Repo.insert()

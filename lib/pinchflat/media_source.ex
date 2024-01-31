@@ -33,7 +33,7 @@ defmodule Pinchflat.MediaSource do
 
   Returns {:ok, %Channel{}} | {:error, %Ecto.Changeset{}}
   """
-  def create_channel(attrs \\ %{}) do
+  def create_channel(attrs) do
     %Channel{}
     |> change_channel_from_url(attrs)
     |> commit_and_start_indexing()
@@ -101,7 +101,7 @@ defmodule Pinchflat.MediaSource do
   This means that it'll go for it even if a changeset is otherwise invalid. This
   is pretty easy to change, but for MVP I'm not concerned.
   """
-  def change_channel_from_url(%Channel{} = channel, attrs \\ %{}) do
+  def change_channel_from_url(%Channel{} = channel, attrs) do
     case change_channel(channel, attrs) do
       %Ecto.Changeset{changes: %{original_url: _}} = changeset ->
         add_channel_details_to_changeset(channel, changeset)
@@ -148,11 +148,11 @@ defmodule Pinchflat.MediaSource do
 
   defp maybe_run_indexing_task(changeset, channel) do
     case changeset.data do
-      # If the changeset is new (not persisted), start indexing no matter what
+      # If the changeset is new (not persisted), attempt indexing no matter what
       %{__meta__: %{state: :built}} ->
         ChannelTasks.kickoff_indexing_task(channel)
 
-      # If the record has been persisted, only run indexing if the
+      # If the record has been persisted, only attempt indexing if the
       # indexing frequency has been changed
       %{__meta__: %{state: :loaded}} ->
         if Map.has_key?(changeset.changes, :index_frequency_minutes) do

@@ -17,8 +17,9 @@ defmodule Pinchflat.MediaClient.ChannelDetailsTest do
 
   describe "get_channel_details/2" do
     test "it passes the expected arguments to the backend" do
-      expect(YtDlpRunnerMock, :run, fn @channel_url, opts ->
-        assert opts == [{:print, "%(.{channel,channel_id})j"}, {:playlist_end, 1}]
+      expect(YtDlpRunnerMock, :run, fn @channel_url, opts, ot ->
+        assert opts == [playlist_end: 1]
+        assert ot == "%(.{channel,channel_id})j"
 
         {:ok, "{\"channel\": \"TheUselessTrials\", \"channel_id\": \"UCQH2\"}"}
       end)
@@ -27,7 +28,7 @@ defmodule Pinchflat.MediaClient.ChannelDetailsTest do
     end
 
     test "it returns a struct composed of the returned data" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts ->
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
         {:ok, "{\"channel\": \"TheUselessTrials\", \"channel_id\": \"UCQH2\"}"}
       end)
 
@@ -38,8 +39,9 @@ defmodule Pinchflat.MediaClient.ChannelDetailsTest do
 
   describe "get_video_ids/2" do
     test "it passes the expected arguments to the backend" do
-      expect(YtDlpRunnerMock, :run, fn @channel_url, opts ->
-        assert opts == [:simulate, :skip_download, {:print, :id}]
+      expect(YtDlpRunnerMock, :run, fn @channel_url, opts, ot ->
+        assert opts == [:simulate, :skip_download]
+        assert ot == "%(id)s"
 
         {:ok, ""}
       end)
@@ -48,7 +50,7 @@ defmodule Pinchflat.MediaClient.ChannelDetailsTest do
     end
 
     test "it returns a list of strings" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts ->
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
         {:ok, "video1\nvideo2\nvideo3"}
       end)
 

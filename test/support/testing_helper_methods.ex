@@ -27,4 +27,17 @@ defmodule Pinchflat.TestingHelperMethods do
     assert before_res == from
     assert after_res == to
   end
+
+  def render_metadata(metadata_name) do
+    json_filepath =
+      Path.join([
+        File.cwd!(),
+        "test",
+        "support",
+        "files",
+        "#{metadata_name}.json"
+      ])
+
+    File.read!(json_filepath)
+  end
 end

@@ -4,15 +4,31 @@ defmodule Pinchflat.Media do
   """
 
   import Ecto.Query, warn: false
-  alias Pinchflat.Repo
 
+  alias Pinchflat.Repo
+  alias Pinchflat.Tasks
   alias Pinchflat.Media.MediaItem
+  alias Pinchflat.MediaSource.Channel
 
   @doc """
   Returns the list of media_items. Returns [%MediaItem{}, ...].
   """
   def list_media_items do
     Repo.all(MediaItem)
+  end
+
+  @doc """
+  Returns a list of pending media_items for a given channel, where
+  pending means the `video_filepath` is `nil`.
+
+  Returns [%MediaItem{}, ...].
+  """
+  def list_pending_media_items_for(%Channel{} = channel) do
+    from(
+      m in MediaItem,
+      where: m.channel_id == ^channel.id and is_nil(m.video_filepath)
+    )
+    |> Repo.all()
   end
 
   @doc """
@@ -25,7 +41,7 @@ defmodule Pinchflat.Media do
   @doc """
   Creates a media_item. Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}.
   """
-  def create_media_item(attrs \\ %{}) do
+  def create_media_item(attrs) do
     %MediaItem{}
     |> MediaItem.changeset(attrs)
     |> Repo.insert()
@@ -41,9 +57,12 @@ defmodule Pinchflat.Media do
   end
 
   @doc """
-  Deletes a media_item. Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}.
+  Deletes a media_item and its associated tasks.
+
+  Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}.
   """
   def delete_media_item(%MediaItem{} = media_item) do
+    Tasks.delete_tasks_for(media_item)
     Repo.delete(media_item)
   end
 

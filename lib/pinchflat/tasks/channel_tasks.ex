@@ -8,7 +8,9 @@ defmodule Pinchflat.Tasks.ChannelTasks do
   alias Pinchflat.Workers.MediaIndexingWorker
 
   @doc """
-  Starts tasks for indexing a channel's media. Returns {:ok, :should_not_index} | {:ok, %Task{}}.
+  Starts tasks for indexing a channel's media.
+
+  Returns {:ok, :should_not_index} | {:ok, %Task{}}.
   """
   def kickoff_indexing_task(%Channel{} = channel) do
     Tasks.delete_pending_tasks_for(channel)
@@ -21,6 +23,11 @@ defmodule Pinchflat.Tasks.ChannelTasks do
       # Schedule this one immediately, but future ones will be on an interval
       |> MediaIndexingWorker.new()
       |> Tasks.create_job_with_task(channel)
+      |> case do
+        # This should never return {:error, :duplicate_job} since we just deleted
+        # any pending tasks. I'm being assertive about it so it's obvious if I'm wrong
+        {:ok, task} -> {:ok, task}
+      end
     end
   end
 end

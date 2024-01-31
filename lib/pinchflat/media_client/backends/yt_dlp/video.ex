@@ -4,15 +4,15 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.Video do
   """
 
   @doc """
-  Downloads a single video (and possible metadata) directly to its
+  Downloads a single video (and possibly its metadata) directly to its
   final destination. Returns the parsed JSON output from yt-dlp.
 
   Returns {:ok, map()} | {:error, any, ...}.
   """
   def download(url, command_opts \\ []) do
-    opts = [:no_simulate, print: "%()j"] ++ command_opts
+    opts = [:no_simulate] ++ command_opts
 
-    with {:ok, output} <- backend_runner().run(url, opts),
+    with {:ok, output} <- backend_runner().run(url, opts, "after_move:%()j"),
          {:ok, parsed_json} <- Phoenix.json_library().decode(output) do
       {:ok, parsed_json}
     else
