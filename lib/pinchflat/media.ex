@@ -19,14 +19,14 @@ defmodule Pinchflat.Media do
 
   @doc """
   Returns a list of pending media_items for a given channel, where
-  pending means the `video_filepath` is `nil`.
+  pending means the `media_filepath` is `nil`.
 
   Returns [%MediaItem{}, ...].
   """
   def list_pending_media_items_for(%Channel{} = channel) do
     from(
       m in MediaItem,
-      where: m.channel_id == ^channel.id and is_nil(m.video_filepath)
+      where: m.channel_id == ^channel.id and is_nil(m.media_filepath)
     )
     |> Repo.all()
   end

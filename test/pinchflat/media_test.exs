@@ -8,7 +8,7 @@ defmodule Pinchflat.MediaTest do
   alias Pinchflat.Media
   alias Pinchflat.Media.MediaItem
 
-  @invalid_attrs %{title: nil, media_id: nil, video_filepath: nil}
+  @invalid_attrs %{title: nil, media_id: nil, media_filepath: nil}
 
   describe "schema" do
     test "media_metadata is deleted when media_item is deleted" do
@@ -32,18 +32,18 @@ defmodule Pinchflat.MediaTest do
   describe "list_pending_media_items_for/1" do
     test "it returns pending media_items for a given channel" do
       channel = channel_fixture()
-      media_item = media_item_fixture(%{channel_id: channel.id, video_filepath: nil})
+      media_item = media_item_fixture(%{channel_id: channel.id, media_filepath: nil})
 
       assert Media.list_pending_media_items_for(channel) == [media_item]
     end
 
-    test "it does not return media_items with video_filepath" do
+    test "it does not return media_items with media_filepath" do
       channel = channel_fixture()
 
       _media_item =
         media_item_fixture(%{
           channel_id: channel.id,
-          video_filepath: "/video/#{Faker.File.file_name(:video)}"
+          media_filepath: "/video/#{Faker.File.file_name(:video)}"
         })
 
       assert Media.list_pending_media_items_for(channel) == []
@@ -62,14 +62,14 @@ defmodule Pinchflat.MediaTest do
       valid_attrs = %{
         media_id: Faker.String.base64(12),
         title: Faker.Commerce.product_name(),
-        video_filepath: "/video/#{Faker.File.file_name(:video)}",
+        media_filepath: "/video/#{Faker.File.file_name(:video)}",
         channel_id: channel_fixture().id
       }
 
       assert {:ok, %MediaItem{} = media_item} = Media.create_media_item(valid_attrs)
       assert media_item.title == valid_attrs.title
       assert media_item.media_id == valid_attrs.media_id
-      assert media_item.video_filepath == valid_attrs.video_filepath
+      assert media_item.media_filepath == valid_attrs.media_filepath
     end
 
     test "creating with invalid data returns error changeset" do
@@ -84,14 +84,14 @@ defmodule Pinchflat.MediaTest do
       update_attrs = %{
         media_id: Faker.String.base64(12),
         title: Faker.Commerce.product_name(),
-        video_filepath: "/video/#{Faker.File.file_name(:video)}",
+        media_filepath: "/video/#{Faker.File.file_name(:video)}",
         channel_id: channel_fixture().id
       }
 
       assert {:ok, %MediaItem{} = media_item} = Media.update_media_item(media_item, update_attrs)
       assert media_item.title == update_attrs.title
       assert media_item.media_id == update_attrs.media_id
-      assert media_item.video_filepath == update_attrs.video_filepath
+      assert media_item.media_filepath == update_attrs.media_filepath
     end
 
     test "updating with invalid data returns error changeset" do

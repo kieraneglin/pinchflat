@@ -10,7 +10,7 @@ defmodule Pinchflat.MediaClient.VideoDownloaderTest do
   setup do
     media_item =
       Repo.preload(
-        media_item_fixture(%{title: nil, video_filepath: nil}),
+        media_item_fixture(%{title: nil, media_filepath: nil}),
         [:metadata, channel: :media_profile]
       )
 
@@ -33,10 +33,11 @@ defmodule Pinchflat.MediaClient.VideoDownloaderTest do
         {:ok, render_metadata(:media_metadata)}
       end)
 
-      assert %{video_filepath: nil, title: nil} = media_item
+      assert %{media_filepath: nil, title: nil, subtitle_filepaths: []} = media_item
       assert {:ok, updated_media_item} = VideoDownloader.download_for_media_item(media_item)
-      assert updated_media_item.video_filepath
+      assert updated_media_item.media_filepath
       assert updated_media_item.title
+      assert length(updated_media_item.subtitle_filepaths) > 0
     end
 
     test "it saves the metadata to the database", %{media_item: media_item} do
