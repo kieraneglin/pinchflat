@@ -29,5 +29,7 @@ RUN chmod +x ./docker-run.sh
 
 # Install Elixir deps
 RUN mix deps.get
+# Gives us iex shell history
+ENV ERL_AFLAGS="-kernel shell_history enabled"
 
 EXPOSE 4008

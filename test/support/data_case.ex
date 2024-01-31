@@ -20,10 +20,13 @@ defmodule Pinchflat.DataCase do
     quote do
       alias Pinchflat.Repo
 
+      use Oban.Testing, repo: Repo
+
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
       import Pinchflat.DataCase
+      import Pinchflat.TestingHelperMethods
     end
   end
 

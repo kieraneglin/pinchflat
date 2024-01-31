@@ -1,0 +1,30 @@
+<.header>
+  Listing Media profiles
+  <:actions>
+    <.link href={~p"/media_profiles/new"}>
+      <.button>New Media profile</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="media_profiles"
+  rows={@media_profiles}
+  row_click={&JS.navigate(~p"/media_profiles/#{&1}")}
+>
+  <:col :let={media_profile} label="Name"><%= media_profile.name %></:col>
+  <:col :let={media_profile} label="Output path template">
+    <%= media_profile.output_path_template %>
+  </:col>
+  <:action :let={media_profile}>
+    <div class="sr-only">
+      <.link navigate={~p"/media_profiles/#{media_profile}"}>Show</.link>
+    </div>
+    <.link navigate={~p"/media_profiles/#{media_profile}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={media_profile}>
+    <.link href={~p"/media_profiles/#{media_profile}"} method="delete" data-confirm="Are you sure?">
+      Delete
+    </.link>
+  </:action>
+</.table>

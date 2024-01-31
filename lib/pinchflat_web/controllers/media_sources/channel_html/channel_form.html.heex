@@ -1,0 +1,25 @@
+<.simple_form :let={f} for={@changeset} action={@action}>
+  <.error :if={@changeset.action}>
+    Oops, something went wrong! Please check the errors below.
+  </.error>
+
+  <.input
+    field={f[:media_profile_id]}
+    options={Enum.map(@media_profiles, &{&1.name, &1.id})}
+    type="select"
+    label="Media Profile"
+  />
+
+  <.input field={f[:original_url]} type="text" label="Channel URL" />
+
+  <.input
+    field={f[:index_frequency_minutes]}
+    options={friendly_index_frequencies()}
+    type="select"
+    label="Index Frequency"
+  />
+
+  <:actions>
+    <.button>Save Channel</.button>
+  </:actions>
+</.simple_form>
