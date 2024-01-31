@@ -36,10 +36,14 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MetadataParser do
 
   defp parse_subtitle_metadata(metadata) do
     subtitle_map = metadata["requested_subtitles"] || %{}
+    # IDEA: if needed, consider filtering out subtitles that don't exist on-disk
+    subtitle_filepaths =
+      subtitle_map
+      |> Enum.map(fn {lang, attrs} -> [lang, attrs["filepath"]] end)
+      |> Enum.sort(fn [lang_a, _], [lang_b, _] -> lang_a < lang_b end)
 
     %{
-      # IDEA: if needed, consider filtering out subtitles that don't exist on-disk
-      subtitles: Enum.map(subtitle_map, fn {lang, attrs} -> [lang, attrs["filepath"]] end)
+      subtitle_filepaths: subtitle_filepaths
     }
   end
 end

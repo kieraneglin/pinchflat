@@ -47,10 +47,24 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaParserTest do
     test "extracts the subtitle filepaths", %{metadata: metadata} do
       result = Parser.parse_for_media_item(metadata)
 
-      assert [["de", german_filepath], ["en", english_filepath]] = result.subtitles
+      assert [["de", german_filepath], ["en", english_filepath]] = result.subtitle_filepaths
 
       assert String.ends_with?(english_filepath, ".en.srt")
       assert String.ends_with?(german_filepath, ".de.srt")
+    end
+
+    test "sorts the subtitle filepaths by language", %{metadata: metadata} do
+      metadata =
+        Map.put(metadata, "requested_subtitles", %{
+          "en" => %{"filepath" => "en.srt"},
+          "za" => %{"filepath" => "za.srt"},
+          "de" => %{"filepath" => "de.srt"},
+          "al" => %{"filepath" => "al.srt"}
+        })
+
+      result = Parser.parse_for_media_item(metadata)
+
+      assert [["al", _], ["de", _], ["en", _], ["za", _]] = result.subtitle_filepaths
     end
 
     test "doesn't freak out if the video has no subtitles", %{metadata: metadata} do
@@ -58,7 +72,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaParserTest do
 
       result = Parser.parse_for_media_item(metadata)
 
-      assert result.subtitles == []
+      assert result.subtitle_filepaths == []
     end
 
     test "doesn't freak out if the requested_subtitles key is missing", %{metadata: metadata} do
@@ -66,7 +80,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaParserTest do
 
       result = Parser.parse_for_media_item(metadata)
 
-      assert result.subtitles == []
+      assert result.subtitle_filepaths == []
     end
   end
 end
