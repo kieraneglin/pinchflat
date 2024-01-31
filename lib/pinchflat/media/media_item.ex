@@ -11,12 +11,12 @@ defmodule Pinchflat.Media.MediaItem do
   alias Pinchflat.Media.MediaMetadata
 
   @required_fields ~w(media_id channel_id)a
-  @allowed_fields ~w(title media_id video_filepath channel_id subtitle_filepaths)a
+  @allowed_fields ~w(title media_id media_filepath channel_id subtitle_filepaths)a
 
   schema "media_items" do
     field :title, :string
     field :media_id, :string
-    field :video_filepath, :string
+    field :media_filepath, :string
     # This is an array of [iso-2 language, filepath] pairs. Probably could
     # be an associated record, but I don't see the benefit right now.
     # Will very likely revisit because I can't leave well-enough alone.

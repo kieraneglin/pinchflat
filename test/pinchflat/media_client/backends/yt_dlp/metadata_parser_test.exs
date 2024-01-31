@@ -26,8 +26,8 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaParserTest do
     test "it extracts the video filepath", %{metadata: metadata} do
       result = Parser.parse_for_media_item(metadata)
 
-      assert String.contains?(result.video_filepath, "bwRHIkYqYJo")
-      assert String.ends_with?(result.video_filepath, ".mkv")
+      assert String.contains?(result.media_filepath, "bwRHIkYqYJo")
+      assert String.ends_with?(result.media_filepath, ".mkv")
     end
 
     test "it extracts the title", %{metadata: metadata} do
