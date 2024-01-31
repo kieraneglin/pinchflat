@@ -16,12 +16,30 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MetadataParser do
   Returns map()
   """
   def parse_for_media_item(metadata) do
-    %{
-      title: metadata["title"],
-      video_filepath: metadata["filepath"],
+    metadata_attrs = %{
       metadata: %{
         client_response: metadata
       }
+    }
+
+    metadata_attrs
+    |> Map.merge(parse_media_metadata(metadata))
+    |> Map.merge(parse_subtitle_metadata(metadata))
+  end
+
+  defp parse_media_metadata(metadata) do
+    %{
+      title: metadata["title"],
+      video_filepath: metadata["filepath"]
+    }
+  end
+
+  defp parse_subtitle_metadata(metadata) do
+    subtitle_map = metadata["requested_subtitles"] || %{}
+
+    %{
+      # IDEA: if needed, consider filtering out subtitles that don't exist on-disk
+      subtitles: Enum.map(subtitle_map, fn {lang, attrs} -> [lang, attrs["filepath"]] end)
     }
   end
 end
