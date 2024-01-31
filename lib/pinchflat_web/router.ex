@@ -18,6 +18,12 @@ defmodule PinchflatWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    resources "/media_profiles", MediaProfiles.MediaProfileController
+
+    scope "/media_sources", MediaSources do
+      resources "/channels", ChannelController
+    end
   end
 
   # Other scopes may use custom stacks.

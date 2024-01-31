@@ -1,0 +1,8 @@
+<.header>
+  Edit Media profile <%= @media_profile.id %>
+  <:subtitle>Use this form to manage media_profile records in your database.</:subtitle>
+</.header>
+
+<.media_profile_form changeset={@changeset} action={~p"/media_profiles/#{@media_profile}"} />
+
+<.back navigate={~p"/media_profiles"}>Back to media_profiles</.back>

@@ -12,7 +12,10 @@ config :pinchflat,
   generators: [timestamp_type: :utc_datetime],
   # Specifying backend data here makes mocking and local testing SUPER easy
   yt_dlp_executable: System.find_executable("yt-dlp"),
-  yt_dlp_runner: Pinchflat.DownloaderBackends.YtDlp.CommandRunner
+  yt_dlp_runner: Pinchflat.MediaClient.Backends.YtDlp.CommandRunner,
+  # TODO: figure this out
+  media_directory: :not_implemented,
+  metadata_directory: Path.join([System.tmp_dir!(), "pinchflat", "metadata"])
 
 # Configures the endpoint
 config :pinchflat, PinchflatWeb.Endpoint,
@@ -24,6 +27,13 @@ config :pinchflat, PinchflatWeb.Endpoint,
   ],
   pubsub_server: Pinchflat.PubSub,
   live_view: [signing_salt: "/t5878kO"]
+
+config :pinchflat, Oban,
+  repo: Pinchflat.Repo,
+  # Keep old jobs for 30 days for display in the UI
+  plugins: [{Oban.Plugins.Pruner, max_age: 30 * 24 * 60 * 60}],
+  # TODO: consider making this an env var or something?
+  queues: [default: 10, media_indexing: 2, media_fetching: 2]
 
 # Configures the mailer
 #
