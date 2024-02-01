@@ -9,8 +9,14 @@
 </.header>
 
 <.list>
-  <:item title="Name"><%= @media_profile.name %></:item>
-  <:item title="Output path template"><%= @media_profile.output_path_template %></:item>
+  <:item
+    :for={
+      attr <- ~w(name output_path_template download_subs download_auto_subs embed_subs sub_langs)a
+    }
+    title={attr}
+  >
+    <%= Map.get(@media_profile, attr) %>
+  </:item>
 </.list>
 
 <.back navigate={~p"/media_profiles"}>Back to media_profiles</.back>

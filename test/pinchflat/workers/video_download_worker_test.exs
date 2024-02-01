@@ -11,7 +11,7 @@ defmodule Pinchflat.Workers.VideoDownloadWorkerTest do
   setup do
     media_item =
       Repo.preload(
-        media_item_fixture(%{video_filepath: nil}),
+        media_item_fixture(%{media_filepath: nil}),
         [:metadata, channel: :media_profile]
       )
 
@@ -24,9 +24,9 @@ defmodule Pinchflat.Workers.VideoDownloadWorkerTest do
         {:ok, render_metadata(:media_metadata)}
       end)
 
-      assert media_item.video_filepath == nil
+      assert media_item.media_filepath == nil
       perform_job(VideoDownloadWorker, %{id: media_item.id})
-      assert Repo.reload(media_item).video_filepath != nil
+      assert Repo.reload(media_item).media_filepath != nil
     end
 
     test "it saves the metadata to the media_item", %{media_item: media_item} do

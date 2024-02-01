@@ -50,7 +50,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, "video1"} end)
 
       channel = channel_fixture(index_frequency_minutes: 10)
-      media_item_fixture(%{channel_id: channel.id, video_filepath: nil})
+      media_item_fixture(%{channel_id: channel.id, media_filepath: nil})
       perform_job(MediaIndexingWorker, %{id: channel.id})
 
       assert [_, _] = all_enqueued(worker: VideoDownloadWorker)
