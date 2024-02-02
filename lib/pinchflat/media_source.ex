@@ -115,7 +115,7 @@ defmodule Pinchflat.MediaSource do
     %Ecto.Changeset{changes: changes} = changeset
 
     case SourceDetails.get_source_details(changes.original_url) do
-      {:ok, %SourceDetails{} = source_details} ->
+      {:ok, source_details} ->
         change_source(
           source,
           Map.merge(changes, %{

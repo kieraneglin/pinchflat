@@ -12,3 +12,39 @@ alias Pinchflat.Profiles
 alias Pinchflat.MediaSource
 
 alias Pinchflat.MediaClient.{SourceDetails, VideoDownloader}
+
+defmodule IexHelpers do
+  def playlist_url do
+    "https://www.youtube.com/playlist?list=PLmqC3wPkeL8kSlTCcSMDD63gmSi7evcXS"
+  end
+
+  def channel_url do
+    "https://www.youtube.com/c/TheUselessTrials"
+  end
+
+  def video_url do
+    "https://www.youtube.com/watch?v=bR52O78ZIUw"
+  end
+
+  def details(type) do
+    source =
+      case type do
+        :playlist -> playlist_url()
+        :channel -> channel_url()
+      end
+
+    SourceDetails.get_source_details(source)
+  end
+
+  def ids(type) do
+    source =
+      case type do
+        :playlist -> playlist_url()
+        :channel -> channel_url()
+      end
+
+    SourceDetails.get_video_ids(source)
+  end
+end
+
+import IexHelpers

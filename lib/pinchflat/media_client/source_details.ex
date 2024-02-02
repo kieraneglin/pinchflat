@@ -5,15 +5,8 @@ defmodule Pinchflat.MediaClient.SourceDetails do
   Technically hardcodes the yt-dlp backend for now, but should leave
   it open-ish for future expansion (just in case).
   """
-  @enforce_keys [:id, :name]
-  defstruct [:id, :name]
 
   alias Pinchflat.MediaClient.Backends.YtDlp.VideoCollection, as: YtDlpSource
-
-  @doc false
-  def new(id, name) do
-    %__MODULE__{id: id, name: name}
-  end
 
   @doc """
   Gets a source's ID and name from its URL, using the given backend.
