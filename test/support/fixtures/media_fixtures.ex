@@ -16,7 +16,7 @@ defmodule Pinchflat.MediaFixtures do
         media_id: Faker.String.base64(12),
         title: Faker.Commerce.product_name(),
         media_filepath: "/video/#{Faker.File.file_name(:video)}",
-        channel_id: MediaSourceFixtures.channel_fixture().id
+        source_id: MediaSourceFixtures.source_fixture().id
       })
       |> Pinchflat.Media.create_media_item()
 

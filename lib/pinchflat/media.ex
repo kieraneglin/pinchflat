@@ -8,7 +8,7 @@ defmodule Pinchflat.Media do
   alias Pinchflat.Repo
   alias Pinchflat.Tasks
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.MediaSource.Channel
+  alias Pinchflat.MediaSource.Source
 
   @doc """
   Returns the list of media_items. Returns [%MediaItem{}, ...].
@@ -18,15 +18,15 @@ defmodule Pinchflat.Media do
   end
 
   @doc """
-  Returns a list of pending media_items for a given channel, where
+  Returns a list of pending media_items for a given source, where
   pending means the `media_filepath` is `nil`.
 
   Returns [%MediaItem{}, ...].
   """
-  def list_pending_media_items_for(%Channel{} = channel) do
+  def list_pending_media_items_for(%Source{} = source) do
     from(
       m in MediaItem,
-      where: m.channel_id == ^channel.id and is_nil(m.media_filepath)
+      where: m.source_id == ^source.id and is_nil(m.media_filepath)
     )
     |> Repo.all()
   end

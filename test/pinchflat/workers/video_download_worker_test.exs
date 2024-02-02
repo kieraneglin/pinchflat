@@ -12,7 +12,7 @@ defmodule Pinchflat.Workers.VideoDownloadWorkerTest do
     media_item =
       Repo.preload(
         media_item_fixture(%{media_filepath: nil}),
-        [:metadata, channel: :media_profile]
+        [:metadata, source: :media_profile]
       )
 
     {:ok, %{media_item: media_item}}

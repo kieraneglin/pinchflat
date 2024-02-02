@@ -30,23 +30,23 @@ defmodule Pinchflat.MediaTest do
   end
 
   describe "list_pending_media_items_for/1" do
-    test "it returns pending media_items for a given channel" do
-      channel = channel_fixture()
-      media_item = media_item_fixture(%{channel_id: channel.id, media_filepath: nil})
+    test "it returns pending media_items for a given source" do
+      source = source_fixture()
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil})
 
-      assert Media.list_pending_media_items_for(channel) == [media_item]
+      assert Media.list_pending_media_items_for(source) == [media_item]
     end
 
     test "it does not return media_items with media_filepath" do
-      channel = channel_fixture()
+      source = source_fixture()
 
       _media_item =
         media_item_fixture(%{
-          channel_id: channel.id,
+          source_id: source.id,
           media_filepath: "/video/#{Faker.File.file_name(:video)}"
         })
 
-      assert Media.list_pending_media_items_for(channel) == []
+      assert Media.list_pending_media_items_for(source) == []
     end
   end
 
@@ -63,7 +63,7 @@ defmodule Pinchflat.MediaTest do
         media_id: Faker.String.base64(12),
         title: Faker.Commerce.product_name(),
         media_filepath: "/video/#{Faker.File.file_name(:video)}",
-        channel_id: channel_fixture().id
+        source_id: source_fixture().id
       }
 
       assert {:ok, %MediaItem{} = media_item} = Media.create_media_item(valid_attrs)
@@ -85,7 +85,7 @@ defmodule Pinchflat.MediaTest do
         media_id: Faker.String.base64(12),
         title: Faker.Commerce.product_name(),
         media_filepath: "/video/#{Faker.File.file_name(:video)}",
-        channel_id: channel_fixture().id
+        source_id: source_fixture().id
       }
 
       assert {:ok, %MediaItem{} = media_item} = Media.update_media_item(media_item, update_attrs)

@@ -22,7 +22,7 @@ defmodule PinchflatWeb.Router do
     resources "/media_profiles", MediaProfiles.MediaProfileController
 
     scope "/media_sources", MediaSources do
-      resources "/channels", ChannelController
+      resources "/sources", SourceController
     end
   end
 

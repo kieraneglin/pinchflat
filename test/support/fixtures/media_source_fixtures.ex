@@ -6,18 +6,19 @@ defmodule Pinchflat.MediaSourceFixtures do
 
   alias Pinchflat.Repo
   alias Pinchflat.ProfilesFixtures
-  alias Pinchflat.MediaSource.Channel
+  alias Pinchflat.MediaSource.Source
 
   @doc """
-  Generate a channel.
+  Generate a source.
   """
-  def channel_fixture(attrs \\ %{}) do
-    {:ok, channel} =
-      %Channel{}
-      |> Channel.changeset(
+  def source_fixture(attrs \\ %{}) do
+    {:ok, source} =
+      %Source{}
+      |> Source.changeset(
         Enum.into(attrs, %{
-          name: "Channel ##{:rand.uniform(1_000_000)}",
-          channel_id: Base.encode16(:crypto.hash(:md5, "#{:rand.uniform(1_000_000)}")),
+          name: "Source ##{:rand.uniform(1_000_000)}",
+          collection_id: Base.encode16(:crypto.hash(:md5, "#{:rand.uniform(1_000_000)}")),
+          collection_type: "channel",
           original_url: "https://www.youtube.com/channel/#{Faker.String.base64(12)}",
           media_profile_id: ProfilesFixtures.media_profile_fixture().id,
           index_frequency_minutes: 60
@@ -25,6 +26,6 @@ defmodule Pinchflat.MediaSourceFixtures do
       )
       |> Repo.insert()
 
-    channel
+    source
   end
 end
