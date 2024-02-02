@@ -12,32 +12,32 @@ defmodule Pinchflat.Tasks.ChannelTasksTest do
     test "it does not schedule a job if the interval is <= 0" do
       source = source_fixture(index_frequency_minutes: -1)
 
-      assert {:ok, :should_not_index} = ChannelTasks.kickoff_indexing_task(channel)
+      assert {:ok, :should_not_index} = ChannelTasks.kickoff_indexing_task(source)
 
-      refute_enqueued(worker: MediaIndexingWorker, args: %{"id" => channel.id})
+      refute_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
     end
 
     test "it schedules a job if the interval is > 0" do
       source = source_fixture(index_frequency_minutes: 1)
 
-      assert {:ok, _} = ChannelTasks.kickoff_indexing_task(channel)
+      assert {:ok, _} = ChannelTasks.kickoff_indexing_task(source)
 
-      assert_enqueued(worker: MediaIndexingWorker, args: %{"id" => channel.id})
+      assert_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
     end
 
     test "it creates and attaches a task if the interval is > 0" do
       source = source_fixture(index_frequency_minutes: 1)
 
-      assert {:ok, %Task{} = task} = ChannelTasks.kickoff_indexing_task(channel)
+      assert {:ok, %Task{} = task} = ChannelTasks.kickoff_indexing_task(source)
 
-      assert task.channel_id == channel.id
+      assert task.source_id == source.id
     end
 
-    test "it deletes any pending tasks for the channel" do
+    test "it deletes any pending tasks for the source" do
       source = source_fixture()
-      task = task_fixture(channel_id: channel.id)
+      task = task_fixture(source_id: source.id)
 
-      assert {:ok, _} = ChannelTasks.kickoff_indexing_task(channel)
+      assert {:ok, _} = ChannelTasks.kickoff_indexing_task(source)
 
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
     end
