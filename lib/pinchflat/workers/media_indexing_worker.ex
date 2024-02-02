@@ -37,24 +37,24 @@ defmodule Pinchflat.Workers.MediaIndexingWorker do
 
   Returns :ok | {:ok, %Task{}}
   """
-  def perform(%Oban.Job{args: %{"id" => channel_id}}) do
-    channel = MediaSource.get_source!(channel_id)
+  def perform(%Oban.Job{args: %{"id" => source_id}}) do
+    source = MediaSource.get_source!(source_id)
 
-    if channel.index_frequency_minutes <= 0 do
+    if source.index_frequency_minutes <= 0 do
       :ok
     else
-      index_media_and_reschedule(channel)
+      index_media_and_reschedule(source)
     end
   end
 
-  defp index_media_and_reschedule(channel) do
-    MediaSource.index_media_items(channel)
-    enqueue_video_downloads(channel)
+  defp index_media_and_reschedule(source) do
+    MediaSource.index_media_items(source)
+    enqueue_video_downloads(source)
 
-    channel
+    source
     |> Map.take([:id])
-    |> MediaIndexingWorker.new(schedule_in: channel.index_frequency_minutes * 60)
-    |> Tasks.create_job_with_task(channel)
+    |> MediaIndexingWorker.new(schedule_in: source.index_frequency_minutes * 60)
+    |> Tasks.create_job_with_task(source)
     |> case do
       {:ok, task} -> {:ok, task}
       {:error, :duplicate_job} -> {:ok, :job_exists}
@@ -67,8 +67,8 @@ defmodule Pinchflat.Workers.MediaIndexingWorker do
   # or somehow got de-queued.
   #
   # I'm not sure of a case where this would happen, but it's cheap insurance.
-  defp enqueue_video_downloads(channel) do
-    channel
+  defp enqueue_video_downloads(source) do
+    source
     |> Media.list_pending_media_items_for()
     |> Enum.each(fn media_item ->
       media_item

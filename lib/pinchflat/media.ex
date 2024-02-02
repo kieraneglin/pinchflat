@@ -23,10 +23,10 @@ defmodule Pinchflat.Media do
 
   Returns [%MediaItem{}, ...].
   """
-  def list_pending_media_items_for(%Channel{} = channel) do
+  def list_pending_media_items_for(%Channel{} = source) do
     from(
       m in MediaItem,
-      where: m.channel_id == ^channel.id and is_nil(m.media_filepath)
+      where: m.source_id == ^source.id and is_nil(m.media_filepath)
     )
     |> Repo.all()
   end
