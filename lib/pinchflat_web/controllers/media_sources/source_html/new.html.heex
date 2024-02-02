@@ -1,0 +1,12 @@
+<.header>
+  New Source
+  <:subtitle>Use this form to manage source records in your database.</:subtitle>
+</.header>
+
+<.source_form
+  changeset={@changeset}
+  media_profiles={@media_profiles}
+  action={~p"/media_sources/sources"}
+/>
+
+<.back navigate={~p"/media_sources/sources"}>Back to sources</.back>
