@@ -11,4 +11,4 @@ alias Pinchflat.Media
 alias Pinchflat.Profiles
 alias Pinchflat.MediaSource
 
-alias Pinchflat.MediaClient.{ChannelDetails, VideoDownloader}
+alias Pinchflat.MediaClient.{SourceDetails, VideoDownloader}

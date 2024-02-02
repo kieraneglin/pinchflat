@@ -301,7 +301,7 @@ defmodule Pinchflat.MediaSourceTest do
         })
 
       assert %Ecto.Changeset{} = changeset
-      assert errors_on(changeset).original_url == ["could not fetch channel details from URL"]
+      assert errors_on(changeset).original_url == ["could not fetch source details from URL"]
     end
   end
 

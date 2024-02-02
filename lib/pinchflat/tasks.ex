@@ -71,7 +71,7 @@ defmodule Pinchflat.Tasks do
   def create_task(%Oban.Job{} = job, attached_record) do
     attached_record_attr =
       case attached_record do
-        %Source{} = channel -> %{source_id: channel.id}
+        %Source{} = source -> %{source_id: source.id}
         %MediaItem{} = media_item -> %{media_item_id: media_item.id}
       end
 

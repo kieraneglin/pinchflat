@@ -4,7 +4,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.Channel do
   """
 
   use Pinchflat.MediaClient.Backends.YtDlp.VideoCollection
-  alias Pinchflat.MediaClient.ChannelDetails
+  alias Pinchflat.MediaClient.SourceDetails
 
   @doc """
   Gets a channel's ID and name from its URL.
@@ -13,14 +13,14 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.Channel do
   instead we're fetching just the first video (using playlist_end: 1)
   and parsing the channel ID and name from _its_ metadata
 
-  Returns {:ok, %ChannelDetails{}} | {:error, any, ...}.
+  Returns {:ok, %SourceDetails{}} | {:error, any, ...}.
   """
   def get_source_details(channel_url) do
     opts = [:skip_download, playlist_end: 1]
 
     with {:ok, output} <- backend_runner().run(channel_url, opts, "%(.{channel,channel_id})j"),
          {:ok, parsed_json} <- Phoenix.json_library().decode(output) do
-      {:ok, ChannelDetails.new(parsed_json["channel_id"], parsed_json["channel"])}
+      {:ok, SourceDetails.new(parsed_json["channel_id"], parsed_json["channel"])}
     else
       err -> err
     end

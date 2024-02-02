@@ -18,7 +18,7 @@ defmodule Pinchflat.Media do
   end
 
   @doc """
-  Returns a list of pending media_items for a given channel, where
+  Returns a list of pending media_items for a given source, where
   pending means the `media_filepath` is `nil`.
 
   Returns [%MediaItem{}, ...].

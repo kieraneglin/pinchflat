@@ -2,7 +2,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.ChannelTest do
   use ExUnit.Case, async: true
   import Mox
 
-  alias Pinchflat.MediaClient.ChannelDetails
+  alias Pinchflat.MediaClient.SourceDetails
   alias Pinchflat.MediaClient.Backends.YtDlp.Channel
 
   @channel_url "https://www.youtube.com/c/TheUselessTrials"
@@ -10,13 +10,13 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.ChannelTest do
   setup :verify_on_exit!
 
   describe "get_source_details/1" do
-    test "it returns a %ChannelDetails{} with data on success" do
+    test "it returns a %SourceDetails{} with data on success" do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
         {:ok, "{\"channel\": \"TheUselessTrials\", \"channel_id\": \"UCQH2\"}"}
       end)
 
       assert {:ok, res} = Channel.get_source_details(@channel_url)
-      assert %ChannelDetails{id: "UCQH2", name: "TheUselessTrials"} = res
+      assert %SourceDetails{id: "UCQH2", name: "TheUselessTrials"} = res
     end
 
     test "it passes the expected args to the backend runner" do

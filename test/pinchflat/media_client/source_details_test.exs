@@ -1,8 +1,8 @@
-defmodule Pinchflat.MediaClient.ChannelDetailsTest do
+defmodule Pinchflat.MediaClient.SourceDetailsTest do
   use ExUnit.Case, async: true
   import Mox
 
-  alias Pinchflat.MediaClient.ChannelDetails
+  alias Pinchflat.MediaClient.SourceDetails
 
   @channel_url "https://www.youtube.com/c/TheUselessTrials"
 
@@ -10,8 +10,8 @@ defmodule Pinchflat.MediaClient.ChannelDetailsTest do
 
   describe "new/2" do
     test "it returns a struct with the given values" do
-      assert %ChannelDetails{id: "UCQH2", name: "TheUselessTrials"} =
-               ChannelDetails.new("UCQH2", "TheUselessTrials")
+      assert %SourceDetails{id: "UCQH2", name: "TheUselessTrials"} =
+               SourceDetails.new("UCQH2", "TheUselessTrials")
     end
   end
 
@@ -24,7 +24,7 @@ defmodule Pinchflat.MediaClient.ChannelDetailsTest do
         {:ok, "{\"channel\": \"TheUselessTrials\", \"channel_id\": \"UCQH2\"}"}
       end)
 
-      assert {:ok, _} = ChannelDetails.get_source_details(@channel_url)
+      assert {:ok, _} = SourceDetails.get_source_details(@channel_url)
     end
 
     test "it returns a struct composed of the returned data" do
@@ -32,8 +32,8 @@ defmodule Pinchflat.MediaClient.ChannelDetailsTest do
         {:ok, "{\"channel\": \"TheUselessTrials\", \"channel_id\": \"UCQH2\"}"}
       end)
 
-      assert {:ok, res} = ChannelDetails.get_source_details(@channel_url)
-      assert %ChannelDetails{id: "UCQH2", name: "TheUselessTrials"} = res
+      assert {:ok, res} = SourceDetails.get_source_details(@channel_url)
+      assert %SourceDetails{id: "UCQH2", name: "TheUselessTrials"} = res
     end
   end
 
@@ -46,7 +46,7 @@ defmodule Pinchflat.MediaClient.ChannelDetailsTest do
         {:ok, ""}
       end)
 
-      assert {:ok, _} = ChannelDetails.get_video_ids(@channel_url)
+      assert {:ok, _} = SourceDetails.get_video_ids(@channel_url)
     end
 
     test "it returns a list of strings" do
@@ -54,7 +54,7 @@ defmodule Pinchflat.MediaClient.ChannelDetailsTest do
         {:ok, "video1\nvideo2\nvideo3"}
       end)
 
-      assert {:ok, ["video1", "video2", "video3"]} = ChannelDetails.get_video_ids(@channel_url)
+      assert {:ok, ["video1", "video2", "video3"]} = SourceDetails.get_video_ids(@channel_url)
     end
   end
 end
