@@ -21,7 +21,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.ChannelTest do
 
     test "it passes the expected args to the backend runner" do
       expect(YtDlpRunnerMock, :run, fn @channel_url, opts, ot ->
-        assert opts == [playlist_end: 1]
+        assert opts == [:skip_download, playlist_end: 1]
         assert ot == "%(.{channel,channel_id})j"
 
         {:ok, "{}"}

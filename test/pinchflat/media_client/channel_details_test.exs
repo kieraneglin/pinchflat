@@ -18,7 +18,7 @@ defmodule Pinchflat.MediaClient.ChannelDetailsTest do
   describe "get_channel_details/2" do
     test "it passes the expected arguments to the backend" do
       expect(YtDlpRunnerMock, :run, fn @channel_url, opts, ot ->
-        assert opts == [playlist_end: 1]
+        assert opts == [:skip_download, playlist_end: 1]
         assert ot == "%(.{channel,channel_id})j"
 
         {:ok, "{\"channel\": \"TheUselessTrials\", \"channel_id\": \"UCQH2\"}"}
