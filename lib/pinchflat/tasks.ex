@@ -71,7 +71,7 @@ defmodule Pinchflat.Tasks do
   def create_task(%Oban.Job{} = job, attached_record) do
     attached_record_attr =
       case attached_record do
-        %Channel{} = channel -> %{channel_id: channel.id}
+        %Channel{} = channel -> %{source_id: channel.id}
         %MediaItem{} = media_item -> %{media_item_id: media_item.id}
       end
 
@@ -113,7 +113,7 @@ defmodule Pinchflat.Tasks do
   def delete_tasks_for(attached_record) do
     tasks =
       case attached_record do
-        %Channel{} = channel -> list_tasks_for(:channel_id, channel.id)
+        %Channel{} = source -> list_tasks_for(:source_id, source.id)
         %MediaItem{} = media_item -> list_tasks_for(:media_item_id, media_item.id)
       end
 
@@ -130,7 +130,7 @@ defmodule Pinchflat.Tasks do
   def delete_pending_tasks_for(attached_record) do
     tasks =
       case attached_record do
-        %Channel{} = channel -> list_pending_tasks_for(:channel_id, channel.id)
+        %Channel{} = source -> list_pending_tasks_for(:source_id, source.id)
         %MediaItem{} = media_item -> list_pending_tasks_for(:media_item_id, media_item.id)
       end
 

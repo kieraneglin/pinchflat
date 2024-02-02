@@ -6,19 +6,19 @@ defmodule PinchflatWeb.MediaSources.ChannelController do
   alias Pinchflat.MediaSource.Channel
 
   def index(conn, _params) do
-    channels = MediaSource.list_channels()
+    channels = MediaSource.list_sources()
 
     render(conn, :index, channels: channels)
   end
 
   def new(conn, _params) do
-    changeset = MediaSource.change_channel(%Channel{})
+    changeset = MediaSource.change_source(%Channel{})
 
     render(conn, :new, changeset: changeset, media_profiles: media_profiles())
   end
 
   def create(conn, %{"channel" => channel_params}) do
-    case MediaSource.create_channel(channel_params) do
+    case MediaSource.create_source(channel_params) do
       {:ok, channel} ->
         conn
         |> put_flash(:info, "Channel created successfully.")
@@ -30,22 +30,22 @@ defmodule PinchflatWeb.MediaSources.ChannelController do
   end
 
   def show(conn, %{"id" => id}) do
-    channel = MediaSource.get_channel!(id)
+    channel = MediaSource.get_source!(id)
 
     render(conn, :show, channel: channel)
   end
 
   def edit(conn, %{"id" => id}) do
-    channel = MediaSource.get_channel!(id)
-    changeset = MediaSource.change_channel(channel)
+    channel = MediaSource.get_source!(id)
+    changeset = MediaSource.change_source(channel)
 
     render(conn, :edit, channel: channel, changeset: changeset, media_profiles: media_profiles())
   end
 
   def update(conn, %{"id" => id, "channel" => channel_params}) do
-    channel = MediaSource.get_channel!(id)
+    channel = MediaSource.get_source!(id)
 
-    case MediaSource.update_channel(channel, channel_params) do
+    case MediaSource.update_source(channel, channel_params) do
       {:ok, channel} ->
         conn
         |> put_flash(:info, "Channel updated successfully.")
@@ -61,8 +61,8 @@ defmodule PinchflatWeb.MediaSources.ChannelController do
   end
 
   def delete(conn, %{"id" => id}) do
-    channel = MediaSource.get_channel!(id)
-    {:ok, _channel} = MediaSource.delete_channel(channel)
+    channel = MediaSource.get_source!(id)
+    {:ok, _channel} = MediaSource.delete_source(channel)
 
     conn
     |> put_flash(:info, "Channel deleted successfully.")

@@ -86,7 +86,7 @@ defmodule Pinchflat.TasksTest do
 
     test "accepts a job and channel" do
       job = job_fixture()
-      channel = channel_fixture()
+      source = source_fixture()
 
       assert {:ok, %Task{} = task} = Tasks.create_task(job, channel)
 
@@ -115,7 +115,7 @@ defmodule Pinchflat.TasksTest do
     end
 
     test "it creates a task record if successful" do
-      channel = channel_fixture()
+      source = source_fixture()
 
       assert {:ok, %Task{} = task} = Tasks.create_job_with_task(TestJobWorker.new(%{}), channel)
 
@@ -123,7 +123,7 @@ defmodule Pinchflat.TasksTest do
     end
 
     test "it returns an error if the job already exists" do
-      channel = channel_fixture()
+      source = source_fixture()
       job = TestJobWorker.new(%{foo: "bar"}, unique: [period: :infinity])
 
       assert {:ok, %Task{}} = Tasks.create_job_with_task(job, channel)
@@ -131,7 +131,7 @@ defmodule Pinchflat.TasksTest do
     end
 
     test "it returns an error if the job fails to enqueue" do
-      channel = channel_fixture()
+      source = source_fixture()
 
       assert {:error, %Ecto.Changeset{}} = Tasks.create_job_with_task(%Ecto.Changeset{}, channel)
     end
@@ -156,7 +156,7 @@ defmodule Pinchflat.TasksTest do
 
   describe "delete_tasks_for/1" do
     test "it deletes tasks attached to a channel" do
-      channel = channel_fixture()
+      source = source_fixture()
       task = task_fixture(channel_id: channel.id)
 
       assert :ok = Tasks.delete_tasks_for(channel)
@@ -174,7 +174,7 @@ defmodule Pinchflat.TasksTest do
 
   describe "delete_pending_tasks_for/1" do
     test "it deletes pending tasks attached to a channel" do
-      channel = channel_fixture()
+      source = source_fixture()
       task = task_fixture(channel_id: channel.id)
 
       assert :ok = Tasks.delete_pending_tasks_for(channel)
@@ -182,7 +182,7 @@ defmodule Pinchflat.TasksTest do
     end
 
     test "it does not delete non-pending tasks" do
-      channel = channel_fixture()
+      source = source_fixture()
       task = Repo.preload(task_fixture(channel_id: channel.id), :job)
       :ok = Oban.cancel_job(task.job)
 

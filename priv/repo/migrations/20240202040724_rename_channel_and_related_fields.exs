@@ -9,6 +9,7 @@ defmodule Pinchflat.Repo.Migrations.RenameChannelAndRelatedFields do
       add :collection_id, :string, null: false
       add :original_url, :string, null: false
       add :media_profile_id, references(:media_profiles, on_delete: :restrict), null: false
+      add :index_frequency_minutes, :integer, default: 60 * 24, null: false
 
       timestamps(type: :utc_datetime)
     end

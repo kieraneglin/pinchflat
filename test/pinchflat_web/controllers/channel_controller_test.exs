@@ -58,7 +58,7 @@ defmodule PinchflatWeb.ChannelControllerTest do
   end
 
   describe "edit channel" do
-    setup [:create_channel]
+    setup [:create_source]
 
     test "renders form for editing chosen channel", %{conn: conn, channel: channel} do
       conn = get(conn, ~p"/media_sources/channels/#{channel}/edit")
@@ -67,7 +67,7 @@ defmodule PinchflatWeb.ChannelControllerTest do
   end
 
   describe "update channel" do
-    setup [:create_channel]
+    setup [:create_source]
 
     test "redirects when data is valid", %{conn: conn, channel: channel, update_attrs: update_attrs} do
       expect(YtDlpRunnerMock, :run, 1, &runner_function_mock/3)
@@ -90,7 +90,7 @@ defmodule PinchflatWeb.ChannelControllerTest do
   end
 
   describe "delete channel" do
-    setup [:create_channel]
+    setup [:create_source]
 
     test "deletes chosen channel", %{conn: conn, channel: channel} do
       conn = delete(conn, ~p"/media_sources/channels/#{channel}")
@@ -102,8 +102,8 @@ defmodule PinchflatWeb.ChannelControllerTest do
     end
   end
 
-  defp create_channel(_) do
-    channel = channel_fixture()
+  defp create_source(_) do
+    source = source_fixture()
     %{channel: channel}
   end
 

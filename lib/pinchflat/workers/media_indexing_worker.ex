@@ -38,7 +38,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorker do
   Returns :ok | {:ok, %Task{}}
   """
   def perform(%Oban.Job{args: %{"id" => channel_id}}) do
-    channel = MediaSource.get_channel!(channel_id)
+    channel = MediaSource.get_source!(channel_id)
 
     if channel.index_frequency_minutes <= 0 do
       :ok

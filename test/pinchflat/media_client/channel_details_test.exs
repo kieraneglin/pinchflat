@@ -15,7 +15,7 @@ defmodule Pinchflat.MediaClient.ChannelDetailsTest do
     end
   end
 
-  describe "get_channel_details/2" do
+  describe "get_source_details/2" do
     test "it passes the expected arguments to the backend" do
       expect(YtDlpRunnerMock, :run, fn @channel_url, opts, ot ->
         assert opts == [:skip_download, playlist_end: 1]
@@ -24,7 +24,7 @@ defmodule Pinchflat.MediaClient.ChannelDetailsTest do
         {:ok, "{\"channel\": \"TheUselessTrials\", \"channel_id\": \"UCQH2\"}"}
       end)
 
-      assert {:ok, _} = ChannelDetails.get_channel_details(@channel_url)
+      assert {:ok, _} = ChannelDetails.get_source_details(@channel_url)
     end
 
     test "it returns a struct composed of the returned data" do
@@ -32,7 +32,7 @@ defmodule Pinchflat.MediaClient.ChannelDetailsTest do
         {:ok, "{\"channel\": \"TheUselessTrials\", \"channel_id\": \"UCQH2\"}"}
       end)
 
-      assert {:ok, res} = ChannelDetails.get_channel_details(@channel_url)
+      assert {:ok, res} = ChannelDetails.get_source_details(@channel_url)
       assert %ChannelDetails{id: "UCQH2", name: "TheUselessTrials"} = res
     end
   end

@@ -10,8 +10,8 @@ defmodule Pinchflat.Media.MediaItem do
   alias Pinchflat.MediaSource.Channel
   alias Pinchflat.Media.MediaMetadata
 
-  @required_fields ~w(media_id channel_id)a
-  @allowed_fields ~w(title media_id media_filepath channel_id subtitle_filepaths)a
+  @required_fields ~w(media_id source_id)a
+  @allowed_fields ~w(title media_id media_filepath source_id subtitle_filepaths)a
 
   schema "media_items" do
     field :title, :string
@@ -22,7 +22,7 @@ defmodule Pinchflat.Media.MediaItem do
     # Will very likely revisit because I can't leave well-enough alone.
     field :subtitle_filepaths, {:array, {:array, :string}}, default: []
 
-    belongs_to :channel, Channel
+    belongs_to :channel, Channel, foreign_key: :source_id
 
     has_one :metadata, MediaMetadata, on_replace: :update
 
@@ -37,6 +37,6 @@ defmodule Pinchflat.Media.MediaItem do
     |> cast(attrs, @allowed_fields)
     |> cast_assoc(:metadata, with: &MediaMetadata.changeset/2, required: false)
     |> validate_required(@required_fields)
-    |> unique_constraint([:media_id, :channel_id])
+    |> unique_constraint([:media_id, :source_id])
   end
 end

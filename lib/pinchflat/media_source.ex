@@ -15,7 +15,7 @@ defmodule Pinchflat.MediaSource do
   @doc """
   Returns the list of channels. Returns [%Channel{}, ...]
   """
-  def list_channels do
+  def list_sources do
     Repo.all(Channel)
   end
 
@@ -24,7 +24,7 @@ defmodule Pinchflat.MediaSource do
 
   Returns %Channel{}. Raises `Ecto.NoResultsError` if the Channel does not exist.
   """
-  def get_channel!(id), do: Repo.get!(Channel, id)
+  def get_source!(id), do: Repo.get!(Channel, id)
 
   @doc """
   Creates a channel. May attempt to pull additional channel details from the
@@ -33,9 +33,9 @@ defmodule Pinchflat.MediaSource do
 
   Returns {:ok, %Channel{}} | {:error, %Ecto.Changeset{}}
   """
-  def create_channel(attrs) do
+  def create_source(attrs) do
     %Channel{}
-    |> change_channel_from_url(attrs)
+    |> change_source_from_url(attrs)
     |> commit_and_start_indexing()
   end
 
@@ -45,12 +45,12 @@ defmodule Pinchflat.MediaSource do
 
   Returns [%MediaItem{}, ...] | [%Ecto.Changeset{}, ...]
   """
-  def index_media_items(%Channel{} = channel) do
-    {:ok, media_ids} = ChannelDetails.get_video_ids(channel.original_url)
+  def index_media_items(%Channel{} = source) do
+    {:ok, media_ids} = ChannelDetails.get_video_ids(source.original_url)
 
     media_ids
     |> Enum.map(fn media_id ->
-      attrs = %{channel_id: channel.id, media_id: media_id}
+      attrs = %{source_id: source.id, media_id: media_id}
 
       case Media.create_media_item(attrs) do
         {:ok, media_item} -> media_item
@@ -69,9 +69,9 @@ defmodule Pinchflat.MediaSource do
 
   Returns {:ok, %Channel{}} | {:error, %Ecto.Changeset{}}
   """
-  def update_channel(%Channel{} = channel, attrs) do
+  def update_source(%Channel{} = channel, attrs) do
     channel
-    |> change_channel_from_url(attrs)
+    |> change_source_from_url(attrs)
     |> commit_and_start_indexing()
   end
 
@@ -80,7 +80,7 @@ defmodule Pinchflat.MediaSource do
 
   Returns {:ok, %Channel{}} | {:error, %Ecto.Changeset{}}
   """
-  def delete_channel(%Channel{} = channel) do
+  def delete_source(%Channel{} = channel) do
     Tasks.delete_tasks_for(channel)
     Repo.delete(channel)
   end
@@ -88,7 +88,7 @@ defmodule Pinchflat.MediaSource do
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking channel changes.
   """
-  def change_channel(%Channel{} = channel, attrs \\ %{}) do
+  def change_source(%Channel{} = channel, attrs \\ %{}) do
     Channel.changeset(channel, attrs)
   end
 
@@ -101,26 +101,26 @@ defmodule Pinchflat.MediaSource do
   This means that it'll go for it even if a changeset is otherwise invalid. This
   is pretty easy to change, but for MVP I'm not concerned.
   """
-  def change_channel_from_url(%Channel{} = channel, attrs) do
-    case change_channel(channel, attrs) do
+  def change_source_from_url(%Channel{} = channel, attrs) do
+    case change_source(channel, attrs) do
       %Ecto.Changeset{changes: %{original_url: _}} = changeset ->
-        add_channel_details_to_changeset(channel, changeset)
+        add_source_details_to_changeset(channel, changeset)
 
       changeset ->
         changeset
     end
   end
 
-  defp add_channel_details_to_changeset(channel, changeset) do
+  defp add_source_details_to_changeset(channel, changeset) do
     %Ecto.Changeset{changes: changes} = changeset
 
-    case ChannelDetails.get_channel_details(changes.original_url) do
+    case ChannelDetails.get_source_details(changes.original_url) do
       {:ok, %ChannelDetails{} = channel_details} ->
-        change_channel(
+        change_source(
           channel,
           Map.merge(changes, %{
             name: channel_details.name,
-            channel_id: channel_details.id
+            collection_id: channel_details.id
           })
         )
 
