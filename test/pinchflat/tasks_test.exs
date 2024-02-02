@@ -21,11 +21,11 @@ defmodule Pinchflat.TasksTest do
     end
 
     test "it does not delete the other record when a job gets deleted" do
-      task = Repo.preload(task_fixture(), [:channel, :job])
+      task = Repo.preload(task_fixture(), [:source, :job])
 
       {:ok, _} = Repo.delete(task.job)
 
-      assert Repo.reload!(task.channel)
+      assert Repo.reload!(task.source)
     end
   end
 
@@ -40,14 +40,14 @@ defmodule Pinchflat.TasksTest do
     test "it lets you specify which record type/ID to join on" do
       task = task_fixture()
 
-      assert Tasks.list_tasks_for(:channel_id, task.channel_id) == [task]
+      assert Tasks.list_tasks_for(:source_id, task.source_id) == [task]
     end
 
     test "it lets you specify which job states to include" do
       task = task_fixture()
 
-      assert Tasks.list_tasks_for(:channel_id, task.channel_id, [:available]) == [task]
-      assert Tasks.list_tasks_for(:channel_id, task.channel_id, [:cancelled]) == []
+      assert Tasks.list_tasks_for(:source_id, task.source_id, [:available]) == [task]
+      assert Tasks.list_tasks_for(:source_id, task.source_id, [:cancelled]) == []
     end
   end
 
@@ -55,14 +55,14 @@ defmodule Pinchflat.TasksTest do
     test "it lists pending tasks" do
       task = task_fixture()
 
-      assert Tasks.list_pending_tasks_for(:channel_id, task.channel_id) == [task]
+      assert Tasks.list_pending_tasks_for(:source_id, task.source_id) == [task]
     end
 
     test "it does not list non-pending tasks" do
       task = Repo.preload(task_fixture(), :job)
       :ok = Oban.cancel_job(task.job)
 
-      assert Tasks.list_pending_tasks_for(:channel_id, task.channel_id) == []
+      assert Tasks.list_pending_tasks_for(:source_id, task.source_id) == []
     end
   end
 
@@ -84,14 +84,14 @@ defmodule Pinchflat.TasksTest do
       assert {:error, %Ecto.Changeset{}} = Tasks.create_task(@invalid_attrs)
     end
 
-    test "accepts a job and channel" do
+    test "accepts a job and source" do
       job = job_fixture()
       source = source_fixture()
 
-      assert {:ok, %Task{} = task} = Tasks.create_task(job, channel)
+      assert {:ok, %Task{} = task} = Tasks.create_task(job, source)
 
       assert task.job_id == job.id
-      assert task.channel_id == channel.id
+      assert task.source_id == source.id
     end
 
     test "accepts a job and media item" do
@@ -117,23 +117,23 @@ defmodule Pinchflat.TasksTest do
     test "it creates a task record if successful" do
       source = source_fixture()
 
-      assert {:ok, %Task{} = task} = Tasks.create_job_with_task(TestJobWorker.new(%{}), channel)
+      assert {:ok, %Task{} = task} = Tasks.create_job_with_task(TestJobWorker.new(%{}), source)
 
-      assert task.channel_id == channel.id
+      assert task.source_id == source.id
     end
 
     test "it returns an error if the job already exists" do
       source = source_fixture()
       job = TestJobWorker.new(%{foo: "bar"}, unique: [period: :infinity])
 
-      assert {:ok, %Task{}} = Tasks.create_job_with_task(job, channel)
-      assert {:error, :duplicate_job} = Tasks.create_job_with_task(job, channel)
+      assert {:ok, %Task{}} = Tasks.create_job_with_task(job, source)
+      assert {:error, :duplicate_job} = Tasks.create_job_with_task(job, source)
     end
 
     test "it returns an error if the job fails to enqueue" do
       source = source_fixture()
 
-      assert {:error, %Ecto.Changeset{}} = Tasks.create_job_with_task(%Ecto.Changeset{}, channel)
+      assert {:error, %Ecto.Changeset{}} = Tasks.create_job_with_task(%Ecto.Changeset{}, source)
     end
   end
 
@@ -155,11 +155,11 @@ defmodule Pinchflat.TasksTest do
   end
 
   describe "delete_tasks_for/1" do
-    test "it deletes tasks attached to a channel" do
+    test "it deletes tasks attached to a source" do
       source = source_fixture()
-      task = task_fixture(channel_id: channel.id)
+      task = task_fixture(source_id: source.id)
 
-      assert :ok = Tasks.delete_tasks_for(channel)
+      assert :ok = Tasks.delete_tasks_for(source)
       assert_raise Ecto.NoResultsError, fn -> Tasks.get_task!(task.id) end
     end
 
@@ -173,20 +173,20 @@ defmodule Pinchflat.TasksTest do
   end
 
   describe "delete_pending_tasks_for/1" do
-    test "it deletes pending tasks attached to a channel" do
+    test "it deletes pending tasks attached to a source" do
       source = source_fixture()
-      task = task_fixture(channel_id: channel.id)
+      task = task_fixture(source_id: source.id)
 
-      assert :ok = Tasks.delete_pending_tasks_for(channel)
+      assert :ok = Tasks.delete_pending_tasks_for(source)
       assert_raise Ecto.NoResultsError, fn -> Tasks.get_task!(task.id) end
     end
 
     test "it does not delete non-pending tasks" do
       source = source_fixture()
-      task = Repo.preload(task_fixture(channel_id: channel.id), :job)
+      task = Repo.preload(task_fixture(source_id: source.id), :job)
       :ok = Oban.cancel_job(task.job)
 
-      assert :ok = Tasks.delete_pending_tasks_for(channel)
+      assert :ok = Tasks.delete_pending_tasks_for(source)
       assert Tasks.get_task!(task.id)
     end
 

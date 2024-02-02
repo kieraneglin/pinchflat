@@ -104,7 +104,7 @@ defmodule PinchflatWeb.ChannelControllerTest do
 
   defp create_source(_) do
     source = source_fixture()
-    %{channel: channel}
+    %{channel: source}
   end
 
   defp runner_function_mock(_url, _opts, _ot) do

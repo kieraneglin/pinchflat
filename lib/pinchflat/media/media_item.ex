@@ -22,7 +22,7 @@ defmodule Pinchflat.Media.MediaItem do
     # Will very likely revisit because I can't leave well-enough alone.
     field :subtitle_filepaths, {:array, {:array, :string}}, default: []
 
-    belongs_to :channel, Channel, foreign_key: :source_id
+    belongs_to :source, Channel
 
     has_one :metadata, MediaMetadata, on_replace: :update
 

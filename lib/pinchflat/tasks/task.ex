@@ -11,7 +11,7 @@ defmodule Pinchflat.Tasks.Task do
 
   schema "tasks" do
     belongs_to :job, Oban.Job
-    belongs_to :channel, Channel, foreign_key: :source_id
+    belongs_to :source, Channel
     belongs_to :media_item, MediaItem
 
     timestamps(type: :utc_datetime)
