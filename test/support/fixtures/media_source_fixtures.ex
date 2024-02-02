@@ -12,11 +12,11 @@ defmodule Pinchflat.MediaSourceFixtures do
   Generate a source.
   """
   def source_fixture(attrs \\ %{}) do
-    {:ok, channel} =
+    {:ok, source} =
       %Source{}
       |> Source.changeset(
         Enum.into(attrs, %{
-          name: "Channel ##{:rand.uniform(1_000_000)}",
+          name: "Source ##{:rand.uniform(1_000_000)}",
           collection_id: Base.encode16(:crypto.hash(:md5, "#{:rand.uniform(1_000_000)}")),
           collection_type: "channel",
           original_url: "https://www.youtube.com/channel/#{Faker.String.base64(12)}",
@@ -26,6 +26,6 @@ defmodule Pinchflat.MediaSourceFixtures do
       )
       |> Repo.insert()
 
-    channel
+    source
   end
 end

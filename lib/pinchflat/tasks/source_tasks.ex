@@ -1,6 +1,6 @@
 defmodule Pinchflat.Tasks.SourceTasks do
   @moduledoc """
-  This module contains methods for managing tasks (workers) related to channels.
+  This module contains methods for managing tasks (workers) related to sources.
   """
 
   alias Pinchflat.Tasks

@@ -22,7 +22,7 @@ defmodule Pinchflat.MediaSource do
   @doc """
   Gets a single source.
 
-  Returns %Source{}. Raises `Ecto.NoResultsError` if the Channel does not exist.
+  Returns %Source{}. Raises `Ecto.NoResultsError` if the Source does not exist.
   """
   def get_source!(id), do: Repo.get!(Source, id)
 

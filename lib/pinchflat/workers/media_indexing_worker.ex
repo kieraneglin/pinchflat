@@ -14,10 +14,10 @@ defmodule Pinchflat.Workers.MediaIndexingWorker do
 
   @impl Oban.Worker
   @doc """
-  The ID is that of a channel _record_, not a YouTube channel ID. Indexes
-  the provided channel, kicks off downloads for each new MediaItem, and
+  The ID is that of a source _record_, not a YouTube channel/playlist ID. Indexes
+  the provided source, kicks off downloads for each new MediaItem, and
   reschedules the job to run again in the future (as determined by the
-  channel's `index_frequency_minutes` field).
+  souce's `index_frequency_minutes` field).
 
   README: Re-scheduling here works a little different than you may expect.
   The reschedule time is relative to the time the job has actually _completed_.
