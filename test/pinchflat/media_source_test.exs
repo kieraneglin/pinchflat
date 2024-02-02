@@ -29,7 +29,7 @@ defmodule Pinchflat.MediaSourceTest do
   end
 
   describe "create_source/1" do
-    test "creates a source and adds name + ID from runner response" do
+    test "creates a source and adds name + ID from runner response for channels" do
       expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
 
       valid_attrs = %{
@@ -39,20 +39,34 @@ defmodule Pinchflat.MediaSourceTest do
       }
 
       assert {:ok, %Source{} = source} = MediaSource.create_source(valid_attrs)
-      assert source.name == "some name"
-      assert String.starts_with?(source.collection_id, "some_source_id_")
+      assert source.collection_name == "some channel name"
+      assert String.starts_with?(source.collection_id, "some_channel_id_")
+    end
+
+    test "creates a source and adds name + ID for playlists" do
+      expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/playlist?list=abc123",
+        collection_type: "playlist"
+      }
+
+      assert {:ok, %Source{} = source} = MediaSource.create_source(valid_attrs)
+      assert source.collection_name == "some playlist name"
+      assert String.starts_with?(source.collection_id, "some_playlist_id_")
     end
 
     test "creation with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = MediaSource.create_source(@invalid_source_attrs)
     end
 
-    test "creation enforces uniqueness of source_id scoped to the media_profile" do
+    test "creation enforces uniqueness of collection_id scoped to the media_profile" do
       expect(YtDlpRunnerMock, :run, 2, fn _url, _opts, _ot ->
         {:ok,
          Phoenix.json_library().encode!(%{
-           channel: "some name",
-           channel_id: "some_source_id_12345678"
+           channel: "some channel name",
+           channel_id: "some_channel_id_12345678"
          })}
       end)
 
@@ -70,8 +84,8 @@ defmodule Pinchflat.MediaSourceTest do
       expect(YtDlpRunnerMock, :run, 2, fn _url, _opts, _ot ->
         {:ok,
          Phoenix.json_library().encode!(%{
-           channel: "some name",
-           channel_id: "some_source_id_12345678"
+           channel: "some channel name",
+           channel_id: "some_channel_id_12345678"
          })}
       end)
 
@@ -159,21 +173,32 @@ defmodule Pinchflat.MediaSourceTest do
   describe "update_source/2" do
     test "updates with valid data updates the source" do
       source = source_fixture()
-      update_attrs = %{name: "some updated name"}
+      update_attrs = %{collection_name: "some updated name"}
 
       assert {:ok, %Source{} = source} = MediaSource.update_source(source, update_attrs)
-      assert source.name == "some updated name"
+      assert source.collection_name == "some updated name"
     end
 
-    test "updating the original_url will re-fetch the source details" do
+    test "updating the original_url will re-fetch the source details for channels" do
       expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
 
       source = source_fixture()
       update_attrs = %{original_url: "https://www.youtube.com/channel/abc123"}
 
       assert {:ok, %Source{} = source} = MediaSource.update_source(source, update_attrs)
-      assert source.name == "some name"
-      assert String.starts_with?(source.collection_id, "some_source_id_")
+      assert source.collection_name == "some channel name"
+      assert String.starts_with?(source.collection_id, "some_channel_id_")
+    end
+
+    test "updating the original_url will re-fetch the source details for playlists" do
+      expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
+
+      source = source_fixture(collection_type: "playlist")
+      update_attrs = %{original_url: "https://www.youtube.com/playlist?list=abc123"}
+
+      assert {:ok, %Source{} = source} = MediaSource.update_source(source, update_attrs)
+      assert source.collection_name == "some playlist name"
+      assert String.starts_with?(source.collection_id, "some_playlist_id_")
     end
 
     test "not updating the original_url will not re-fetch the source details" do
@@ -275,16 +300,16 @@ defmodule Pinchflat.MediaSourceTest do
       media_profile_id = media_profile.id
 
       changeset =
-        MediaSource.change_source_from_url(%Source{}, %{
+        MediaSource.change_source_from_url(%Source{collection_type: :channel}, %{
           original_url: "https://www.youtube.com/channel/abc123",
           media_profile_id: media_profile.id
         })
 
       assert %Ecto.Changeset{} = changeset
-      assert String.starts_with?(changeset.changes.collection_id, "some_source_id_")
+      assert String.starts_with?(changeset.changes.collection_id, "some_channel_id_")
 
       assert %{
-               name: "some name",
+               collection_name: "some channel name",
                media_profile_id: ^media_profile_id,
                original_url: "https://www.youtube.com/channel/abc123"
              } = changeset.changes
@@ -309,8 +334,10 @@ defmodule Pinchflat.MediaSourceTest do
     {
       :ok,
       Phoenix.json_library().encode!(%{
-        channel: "some name",
-        channel_id: "some_source_id_#{:rand.uniform(1_000_000)}"
+        channel: "some channel name",
+        channel_id: "some_channel_id_#{:rand.uniform(1_000_000)}",
+        playlist_id: "some_playlist_id_#{:rand.uniform(1_000_000)}",
+        playlist_title: "some playlist name"
       })
     }
   end

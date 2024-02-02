@@ -40,7 +40,6 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollection do
     end
   end
 
-  # TODO: test
   defp format_source_details(response) do
     %{
       channel_id: response["channel_id"],

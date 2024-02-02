@@ -116,13 +116,7 @@ defmodule Pinchflat.MediaSource do
 
     case SourceDetails.get_source_details(changes.original_url) do
       {:ok, source_details} ->
-        change_source(
-          source,
-          Map.merge(changes, %{
-            name: source_details.name,
-            collection_id: source_details.id
-          })
-        )
+        add_source_details_by_collection_type(source, changeset, source_details)
 
       {:error, runner_error, _status_code} ->
         Ecto.Changeset.add_error(
@@ -134,15 +128,35 @@ defmodule Pinchflat.MediaSource do
     end
   end
 
+  defp add_source_details_by_collection_type(source, changeset, source_details) do
+    %Ecto.Changeset{changes: changes} = changeset
+    collection_type = source.collection_type || changes[:collection_type]
+
+    collection_changes =
+      case collection_type do
+        :channel ->
+          %{
+            collection_id: source_details.channel_id,
+            collection_name: source_details.channel_name
+          }
+
+        :playlist ->
+          %{
+            collection_id: source_details.playlist_id,
+            collection_name: source_details.playlist_name
+          }
+
+        _ ->
+          %{}
+      end
+
+    change_source(source, Map.merge(changes, collection_changes))
+  end
+
   defp commit_and_start_indexing(changeset) do
     case Repo.insert_or_update(changeset) do
-      {:ok, %Source{} = source} ->
-        maybe_run_indexing_task(changeset, source)
-
-        {:ok, source}
-
-      err ->
-        err
+      {:ok, %Source{} = source} -> maybe_run_indexing_task(changeset, source)
+      err -> err
     end
   end
 
@@ -159,5 +173,7 @@ defmodule Pinchflat.MediaSource do
           SourceTasks.kickoff_indexing_task(source)
         end
     end
+
+    {:ok, source}
   end
 end

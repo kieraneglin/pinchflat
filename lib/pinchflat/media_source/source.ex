@@ -9,11 +9,12 @@ defmodule Pinchflat.MediaSource.Source do
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Profiles.MediaProfile
 
-  @allowed_fields ~w(name collection_id collection_type index_frequency_minutes original_url media_profile_id)a
-  @required_fields @allowed_fields -- ~w(index_frequency_minutes)a
+  @allowed_fields ~w(collection_name collection_id collection_type index_frequency_minutes original_url media_profile_id)a
+  @required_fields @allowed_fields -- ~w(index_frequency_minutes friendly_name)a
 
   schema "sources" do
-    field :name, :string
+    field :friendly_name, :string
+    field :collection_name, :string
     field :collection_id, :string
     field :collection_type, Ecto.Enum, values: [:channel, :playlist]
     field :index_frequency_minutes, :integer

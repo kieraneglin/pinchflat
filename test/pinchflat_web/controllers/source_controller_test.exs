@@ -104,16 +104,17 @@ defmodule PinchflatWeb.SourceControllerTest do
   end
 
   defp create_source(_) do
-    source = source_fixture()
-    %{source: source}
+    %{source: source_fixture()}
   end
 
   defp runner_function_mock(_url, _opts, _ot) do
     {
       :ok,
       Phoenix.json_library().encode!(%{
-        channel: "some name",
-        channel_id: "some_source_id_#{:rand.uniform(1_000_000)}"
+        channel: "some channel name",
+        channel_id: "some_channel_id_#{:rand.uniform(1_000_000)}",
+        playlist_id: "some_playlist_id_#{:rand.uniform(1_000_000)}",
+        playlist_title: "some playlist name"
       })
     }
   end
