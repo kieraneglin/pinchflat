@@ -100,6 +100,8 @@ defmodule Pinchflat.MediaSource do
   Note that this fetches source details as long as the `original_url` is present.
   This means that it'll go for it even if a changeset is otherwise invalid. This
   is pretty easy to change, but for MVP I'm not concerned.
+
+  IDEA: Maybe I could discern `collection_type` based on the original URL?
   """
   def change_source_from_url(%Source{} = source, attrs) do
     case change_source(source, attrs) do

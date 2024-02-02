@@ -10,7 +10,13 @@
     label="Media Profile"
   />
 
-  <.input field={f[:collection_type]} type="text" label="Collection Type" />
+  <.input
+    field={f[:collection_type]}
+    options={friendly_collection_types()}
+    type="select"
+    label="Collection Type"
+  />
+
   <.input field={f[:original_url]} type="text" label="Source URL" />
 
   <.input

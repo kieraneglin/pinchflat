@@ -2,6 +2,7 @@ alias Pinchflat.Repo
 
 alias Pinchflat.Tasks.Task
 alias Pinchflat.Media.MediaItem
+alias Pinchflat.Tasks.SourceTasks
 alias Pinchflat.Media.MediaMetadata
 alias Pinchflat.MediaSource.Source
 alias Pinchflat.Profiles.MediaProfile
