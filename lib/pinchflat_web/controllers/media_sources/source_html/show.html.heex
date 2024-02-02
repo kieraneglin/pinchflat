@@ -9,9 +9,12 @@
 </.header>
 
 <.list>
-  <:item title="Collection Name"><%= @source.collection_name %></:item>
-  <:item title="Collection ID"><%= @source.collection_id %></:item>
-  <:item title="Original URL"><%= @source.original_url %></:item>
+  <:item
+    :for={attr <- ~w(collection_type collection_name collection_id original_url friendly_name)a}
+    title={attr}
+  >
+    <%= Map.get(@source, attr) %>
+  </:item>
 </.list>
 
 <.back navigate={~p"/media_sources/sources"}>Back to sources</.back>

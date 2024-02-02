@@ -3,6 +3,8 @@
     Oops, something went wrong! Please check the errors below.
   </.error>
 
+  <.input field={f[:friendly_name]} type="text" label="Friendly Name" />
+
   <.input
     field={f[:media_profile_id]}
     options={Enum.map(@media_profiles, &{&1.name, &1.id})}
