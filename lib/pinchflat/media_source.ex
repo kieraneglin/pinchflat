@@ -8,7 +8,7 @@ defmodule Pinchflat.MediaSource do
 
   alias Pinchflat.Tasks
   alias Pinchflat.Media
-  alias Pinchflat.Tasks.ChannelTasks
+  alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.MediaSource.Source
   alias Pinchflat.MediaClient.ChannelDetails
 
@@ -65,7 +65,7 @@ defmodule Pinchflat.MediaSource do
   media if the indexing frequency has been changed.
 
   Existing indexing tasks will be cancelled if the indexing frequency has been
-  changed (logic in `ChannelTasks.kickoff_indexing_task`)
+  changed (logic in `SourceTasks.kickoff_indexing_task`)
 
   Returns {:ok, %Source{}} | {:error, %Ecto.Changeset{}}
   """
@@ -150,13 +150,13 @@ defmodule Pinchflat.MediaSource do
     case changeset.data do
       # If the changeset is new (not persisted), attempt indexing no matter what
       %{__meta__: %{state: :built}} ->
-        ChannelTasks.kickoff_indexing_task(channel)
+        SourceTasks.kickoff_indexing_task(channel)
 
       # If the record has been persisted, only attempt indexing if the
       # indexing frequency has been changed
       %{__meta__: %{state: :loaded}} ->
         if Map.has_key?(changeset.changes, :index_frequency_minutes) do
-          ChannelTasks.kickoff_indexing_task(channel)
+          SourceTasks.kickoff_indexing_task(channel)
         end
     end
   end
