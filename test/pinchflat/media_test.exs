@@ -30,11 +30,11 @@ defmodule Pinchflat.MediaTest do
   end
 
   describe "list_pending_media_items_for/1" do
-    test "it returns pending media_items for a given channel" do
+    test "it returns pending media_items for a given source" do
       source = source_fixture()
-      media_item = media_item_fixture(%{channel_id: channel.id, media_filepath: nil})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil})
 
-      assert Media.list_pending_media_items_for(channel) == [media_item]
+      assert Media.list_pending_media_items_for(source) == [media_item]
     end
 
     test "it does not return media_items with media_filepath" do
@@ -42,11 +42,11 @@ defmodule Pinchflat.MediaTest do
 
       _media_item =
         media_item_fixture(%{
-          channel_id: channel.id,
+          source_id: source.id,
           media_filepath: "/video/#{Faker.File.file_name(:video)}"
         })
 
-      assert Media.list_pending_media_items_for(channel) == []
+      assert Media.list_pending_media_items_for(source) == []
     end
   end
 
