@@ -8,7 +8,7 @@ defmodule Pinchflat.MediaClient.SourceDetails do
   @enforce_keys [:id, :name]
   defstruct [:id, :name]
 
-  alias Pinchflat.MediaClient.Backends.YtDlp.Channel, as: YtDlpChannel
+  alias Pinchflat.MediaClient.Backends.YtDlp.VideoCollection, as: YtDlpSource
 
   @doc false
   def new(id, name) do
@@ -35,7 +35,7 @@ defmodule Pinchflat.MediaClient.SourceDetails do
 
   defp source_module(backend) do
     case backend do
-      :yt_dlp -> YtDlpChannel
+      :yt_dlp -> YtDlpSource
     end
   end
 end
