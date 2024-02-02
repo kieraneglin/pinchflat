@@ -3,7 +3,7 @@ defmodule PinchflatWeb.MediaSources.SourceController do
 
   alias Pinchflat.Profiles
   alias Pinchflat.MediaSource
-  alias Pinchflat.MediaSource.Channel
+  alias Pinchflat.MediaSource.Source
 
   def index(conn, _params) do
     sources = MediaSource.list_sources()
@@ -12,7 +12,7 @@ defmodule PinchflatWeb.MediaSources.SourceController do
   end
 
   def new(conn, _params) do
-    changeset = MediaSource.change_source(%Channel{})
+    changeset = MediaSource.change_source(%Source{})
 
     render(conn, :new, changeset: changeset, media_profiles: media_profiles())
   end
@@ -48,7 +48,7 @@ defmodule PinchflatWeb.MediaSources.SourceController do
     case MediaSource.update_source(source, source_params) do
       {:ok, source} ->
         conn
-        |> put_flash(:info, "Channel updated successfully.")
+        |> put_flash(:info, "Source updated successfully.")
         |> redirect(to: ~p"/media_sources/sources/#{source}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -65,7 +65,7 @@ defmodule PinchflatWeb.MediaSources.SourceController do
     {:ok, _source} = MediaSource.delete_source(source)
 
     conn
-    |> put_flash(:info, "Channel deleted successfully.")
+    |> put_flash(:info, "Source deleted successfully.")
     |> redirect(to: ~p"/media_sources/sources")
   end
 

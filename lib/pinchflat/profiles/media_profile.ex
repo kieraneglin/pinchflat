@@ -6,7 +6,7 @@ defmodule Pinchflat.Profiles.MediaProfile do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Pinchflat.MediaSource.Channel
+  alias Pinchflat.MediaSource.Source
 
   @allowed_fields ~w(
     name
@@ -27,7 +27,7 @@ defmodule Pinchflat.Profiles.MediaProfile do
     field :embed_subs, :boolean, default: true
     field :sub_langs, :string, default: "en"
 
-    has_many :channels, Channel
+    has_many :sources, Source
 
     timestamps(type: :utc_datetime)
   end

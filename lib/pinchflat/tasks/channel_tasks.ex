@@ -4,7 +4,7 @@ defmodule Pinchflat.Tasks.ChannelTasks do
   """
 
   alias Pinchflat.Tasks
-  alias Pinchflat.MediaSource.Channel
+  alias Pinchflat.MediaSource.Source
   alias Pinchflat.Workers.MediaIndexingWorker
 
   @doc """
@@ -12,7 +12,7 @@ defmodule Pinchflat.Tasks.ChannelTasks do
 
   Returns {:ok, :should_not_index} | {:ok, %Task{}}.
   """
-  def kickoff_indexing_task(%Channel{} = source) do
+  def kickoff_indexing_task(%Source{} = source) do
     Tasks.delete_pending_tasks_for(source)
 
     if source.index_frequency_minutes <= 0 do

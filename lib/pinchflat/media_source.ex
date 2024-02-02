@@ -9,32 +9,32 @@ defmodule Pinchflat.MediaSource do
   alias Pinchflat.Tasks
   alias Pinchflat.Media
   alias Pinchflat.Tasks.ChannelTasks
-  alias Pinchflat.MediaSource.Channel
+  alias Pinchflat.MediaSource.Source
   alias Pinchflat.MediaClient.ChannelDetails
 
   @doc """
-  Returns the list of channels. Returns [%Channel{}, ...]
+  Returns the list of channels. Returns [%Source{}, ...]
   """
   def list_sources do
-    Repo.all(Channel)
+    Repo.all(Source)
   end
 
   @doc """
   Gets a single channel.
 
-  Returns %Channel{}. Raises `Ecto.NoResultsError` if the Channel does not exist.
+  Returns %Source{}. Raises `Ecto.NoResultsError` if the Channel does not exist.
   """
-  def get_source!(id), do: Repo.get!(Channel, id)
+  def get_source!(id), do: Repo.get!(Source, id)
 
   @doc """
   Creates a channel. May attempt to pull additional channel details from the
   original_url (if provided). Will attempt to start indexing the channel's
   media if successfully inserted.
 
-  Returns {:ok, %Channel{}} | {:error, %Ecto.Changeset{}}
+  Returns {:ok, %Source{}} | {:error, %Ecto.Changeset{}}
   """
   def create_source(attrs) do
-    %Channel{}
+    %Source{}
     |> change_source_from_url(attrs)
     |> commit_and_start_indexing()
   end
@@ -45,7 +45,7 @@ defmodule Pinchflat.MediaSource do
 
   Returns [%MediaItem{}, ...] | [%Ecto.Changeset{}, ...]
   """
-  def index_media_items(%Channel{} = source) do
+  def index_media_items(%Source{} = source) do
     {:ok, media_ids} = ChannelDetails.get_video_ids(source.original_url)
 
     media_ids
@@ -67,9 +67,9 @@ defmodule Pinchflat.MediaSource do
   Existing indexing tasks will be cancelled if the indexing frequency has been
   changed (logic in `ChannelTasks.kickoff_indexing_task`)
 
-  Returns {:ok, %Channel{}} | {:error, %Ecto.Changeset{}}
+  Returns {:ok, %Source{}} | {:error, %Ecto.Changeset{}}
   """
-  def update_source(%Channel{} = channel, attrs) do
+  def update_source(%Source{} = channel, attrs) do
     channel
     |> change_source_from_url(attrs)
     |> commit_and_start_indexing()
@@ -78,9 +78,9 @@ defmodule Pinchflat.MediaSource do
   @doc """
   Deletes a channel and it's associated tasks (of any state).
 
-  Returns {:ok, %Channel{}} | {:error, %Ecto.Changeset{}}
+  Returns {:ok, %Source{}} | {:error, %Ecto.Changeset{}}
   """
-  def delete_source(%Channel{} = channel) do
+  def delete_source(%Source{} = channel) do
     Tasks.delete_tasks_for(channel)
     Repo.delete(channel)
   end
@@ -88,8 +88,8 @@ defmodule Pinchflat.MediaSource do
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking channel changes.
   """
-  def change_source(%Channel{} = channel, attrs \\ %{}) do
-    Channel.changeset(channel, attrs)
+  def change_source(%Source{} = channel, attrs \\ %{}) do
+    Source.changeset(channel, attrs)
   end
 
   @doc """
@@ -101,7 +101,7 @@ defmodule Pinchflat.MediaSource do
   This means that it'll go for it even if a changeset is otherwise invalid. This
   is pretty easy to change, but for MVP I'm not concerned.
   """
-  def change_source_from_url(%Channel{} = channel, attrs) do
+  def change_source_from_url(%Source{} = channel, attrs) do
     case change_source(channel, attrs) do
       %Ecto.Changeset{changes: %{original_url: _}} = changeset ->
         add_source_details_to_changeset(channel, changeset)
@@ -136,7 +136,7 @@ defmodule Pinchflat.MediaSource do
 
   defp commit_and_start_indexing(changeset) do
     case Repo.insert_or_update(changeset) do
-      {:ok, %Channel{} = channel} ->
+      {:ok, %Source{} = channel} ->
         maybe_run_indexing_task(changeset, channel)
 
         {:ok, channel}

@@ -6,15 +6,15 @@ defmodule Pinchflat.MediaSourceFixtures do
 
   alias Pinchflat.Repo
   alias Pinchflat.ProfilesFixtures
-  alias Pinchflat.MediaSource.Channel
+  alias Pinchflat.MediaSource.Source
 
   @doc """
   Generate a source.
   """
   def source_fixture(attrs \\ %{}) do
     {:ok, channel} =
-      %Channel{}
-      |> Channel.changeset(
+      %Source{}
+      |> Source.changeset(
         Enum.into(attrs, %{
           name: "Channel ##{:rand.uniform(1_000_000)}",
           collection_id: Base.encode16(:crypto.hash(:md5, "#{:rand.uniform(1_000_000)}")),

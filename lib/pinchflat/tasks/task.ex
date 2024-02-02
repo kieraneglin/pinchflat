@@ -7,11 +7,11 @@ defmodule Pinchflat.Tasks.Task do
   import Ecto.Changeset
 
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.MediaSource.Channel
+  alias Pinchflat.MediaSource.Source
 
   schema "tasks" do
     belongs_to :job, Oban.Job
-    belongs_to :source, Channel
+    belongs_to :source, Source
     belongs_to :media_item, MediaItem
 
     timestamps(type: :utc_datetime)

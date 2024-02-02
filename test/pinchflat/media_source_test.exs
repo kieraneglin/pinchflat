@@ -7,7 +7,7 @@ defmodule Pinchflat.MediaSourceTest do
 
   alias Pinchflat.MediaSource
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.MediaSource.Channel
+  alias Pinchflat.MediaSource.Source
   alias Pinchflat.Workers.MediaIndexingWorker
 
   @invalid_source_attrs %{name: nil, collection_id: nil}
@@ -38,7 +38,7 @@ defmodule Pinchflat.MediaSourceTest do
         collection_type: "channel"
       }
 
-      assert {:ok, %Channel{} = source} = MediaSource.create_source(valid_attrs)
+      assert {:ok, %Source{} = source} = MediaSource.create_source(valid_attrs)
       assert source.name == "some name"
       assert String.starts_with?(source.collection_id, "some_source_id_")
     end
@@ -62,7 +62,7 @@ defmodule Pinchflat.MediaSourceTest do
         collection_type: "channel"
       }
 
-      assert {:ok, %Channel{}} = MediaSource.create_source(valid_once_attrs)
+      assert {:ok, %Source{}} = MediaSource.create_source(valid_once_attrs)
       assert {:error, %Ecto.Changeset{}} = MediaSource.create_source(valid_once_attrs)
     end
 
@@ -84,8 +84,8 @@ defmodule Pinchflat.MediaSourceTest do
       source_1_attrs = Map.merge(valid_attrs, %{media_profile_id: media_profile_fixture().id})
       source_2_attrs = Map.merge(valid_attrs, %{media_profile_id: media_profile_fixture().id})
 
-      assert {:ok, %Channel{}} = MediaSource.create_source(source_1_attrs)
-      assert {:ok, %Channel{}} = MediaSource.create_source(source_2_attrs)
+      assert {:ok, %Source{}} = MediaSource.create_source(source_1_attrs)
+      assert {:ok, %Source{}} = MediaSource.create_source(source_2_attrs)
     end
 
     test "creation will schedule the indexing task" do
@@ -97,7 +97,7 @@ defmodule Pinchflat.MediaSourceTest do
         collection_type: "channel"
       }
 
-      assert {:ok, %Channel{} = source} = MediaSource.create_source(valid_attrs)
+      assert {:ok, %Source{} = source} = MediaSource.create_source(valid_attrs)
 
       assert_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
     end
@@ -161,7 +161,7 @@ defmodule Pinchflat.MediaSourceTest do
       source = source_fixture()
       update_attrs = %{name: "some updated name"}
 
-      assert {:ok, %Channel{} = source} = MediaSource.update_source(source, update_attrs)
+      assert {:ok, %Source{} = source} = MediaSource.update_source(source, update_attrs)
       assert source.name == "some updated name"
     end
 
@@ -171,7 +171,7 @@ defmodule Pinchflat.MediaSourceTest do
       source = source_fixture()
       update_attrs = %{original_url: "https://www.youtube.com/channel/abc123"}
 
-      assert {:ok, %Channel{} = source} = MediaSource.update_source(source, update_attrs)
+      assert {:ok, %Source{} = source} = MediaSource.update_source(source, update_attrs)
       assert source.name == "some name"
       assert String.starts_with?(source.collection_id, "some_source_id_")
     end
@@ -182,14 +182,14 @@ defmodule Pinchflat.MediaSourceTest do
       source = source_fixture()
       update_attrs = %{name: "some updated name"}
 
-      assert {:ok, %Channel{}} = MediaSource.update_source(source, update_attrs)
+      assert {:ok, %Source{}} = MediaSource.update_source(source, update_attrs)
     end
 
     test "updating the index frequency will re-schedule the indexing task" do
       source = source_fixture()
       update_attrs = %{index_frequency_minutes: 123}
 
-      assert {:ok, %Channel{} = source} = MediaSource.update_source(source, update_attrs)
+      assert {:ok, %Source{} = source} = MediaSource.update_source(source, update_attrs)
       assert source.index_frequency_minutes == 123
       assert_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
     end
@@ -198,7 +198,7 @@ defmodule Pinchflat.MediaSourceTest do
       source = source_fixture()
       update_attrs = %{name: "some updated name"}
 
-      assert {:ok, %Channel{}} = MediaSource.update_source(source, update_attrs)
+      assert {:ok, %Source{}} = MediaSource.update_source(source, update_attrs)
       refute_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
     end
 
@@ -215,7 +215,7 @@ defmodule Pinchflat.MediaSourceTest do
   describe "delete_source/1" do
     test "it deletes the source" do
       source = source_fixture()
-      assert {:ok, %Channel{}} = MediaSource.delete_source(source)
+      assert {:ok, %Source{}} = MediaSource.delete_source(source)
       assert_raise Ecto.NoResultsError, fn -> MediaSource.get_source!(source.id) end
     end
 
@@ -228,7 +228,7 @@ defmodule Pinchflat.MediaSourceTest do
       source = source_fixture()
       task = task_fixture(source_id: source.id)
 
-      assert {:ok, %Channel{}} = MediaSource.delete_source(source)
+      assert {:ok, %Source{}} = MediaSource.delete_source(source)
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
     end
   end
@@ -252,7 +252,7 @@ defmodule Pinchflat.MediaSourceTest do
     test "it does not fetch source details if the original_url isn't in the changeset" do
       expect(YtDlpRunnerMock, :run, 0, &runner_function_mock/3)
 
-      changeset = MediaSource.change_source_from_url(%Channel{}, %{name: "some updated name"})
+      changeset = MediaSource.change_source_from_url(%Source{}, %{name: "some updated name"})
 
       assert %Ecto.Changeset{} = changeset
     end
@@ -261,7 +261,7 @@ defmodule Pinchflat.MediaSourceTest do
       expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
 
       changeset =
-        MediaSource.change_source_from_url(%Channel{}, %{
+        MediaSource.change_source_from_url(%Source{}, %{
           original_url: "https://www.youtube.com/channel/abc123"
         })
 
@@ -275,7 +275,7 @@ defmodule Pinchflat.MediaSourceTest do
       media_profile_id = media_profile.id
 
       changeset =
-        MediaSource.change_source_from_url(%Channel{}, %{
+        MediaSource.change_source_from_url(%Source{}, %{
           original_url: "https://www.youtube.com/channel/abc123",
           media_profile_id: media_profile.id
         })
@@ -296,7 +296,7 @@ defmodule Pinchflat.MediaSourceTest do
       end)
 
       changeset =
-        MediaSource.change_source_from_url(%Channel{}, %{
+        MediaSource.change_source_from_url(%Source{}, %{
           original_url: "https://www.youtube.com/channel/abc123"
         })
 

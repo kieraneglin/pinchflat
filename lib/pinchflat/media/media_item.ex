@@ -7,7 +7,7 @@ defmodule Pinchflat.Media.MediaItem do
   import Ecto.Changeset
 
   alias Pinchflat.Tasks.Task
-  alias Pinchflat.MediaSource.Channel
+  alias Pinchflat.MediaSource.Source
   alias Pinchflat.Media.MediaMetadata
 
   @required_fields ~w(media_id source_id)a
@@ -22,7 +22,7 @@ defmodule Pinchflat.Media.MediaItem do
     # Will very likely revisit because I can't leave well-enough alone.
     field :subtitle_filepaths, {:array, {:array, :string}}, default: []
 
-    belongs_to :source, Channel
+    belongs_to :source, Source
 
     has_one :metadata, MediaMetadata, on_replace: :update
 

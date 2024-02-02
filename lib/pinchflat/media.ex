@@ -8,7 +8,7 @@ defmodule Pinchflat.Media do
   alias Pinchflat.Repo
   alias Pinchflat.Tasks
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.MediaSource.Channel
+  alias Pinchflat.MediaSource.Source
 
   @doc """
   Returns the list of media_items. Returns [%MediaItem{}, ...].
@@ -23,7 +23,7 @@ defmodule Pinchflat.Media do
 
   Returns [%MediaItem{}, ...].
   """
-  def list_pending_media_items_for(%Channel{} = source) do
+  def list_pending_media_items_for(%Source{} = source) do
     from(
       m in MediaItem,
       where: m.source_id == ^source.id and is_nil(m.media_filepath)
