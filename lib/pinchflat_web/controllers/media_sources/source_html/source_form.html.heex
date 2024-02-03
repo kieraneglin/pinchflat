@@ -10,7 +10,8 @@
     label="Media Profile"
   />
 
-  <.input field={f[:original_url]} type="text" label="Channel URL" />
+  <.input field={f[:collection_type]} type="text" label="Collection Type" />
+  <.input field={f[:original_url]} type="text" label="Source URL" />
 
   <.input
     field={f[:index_frequency_minutes]}
@@ -20,6 +21,6 @@
   />
 
   <:actions>
-    <.button>Save Channel</.button>
+    <.button>Save Source</.button>
   </:actions>
 </.simple_form>

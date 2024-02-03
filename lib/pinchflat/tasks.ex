@@ -8,7 +8,7 @@ defmodule Pinchflat.Tasks do
 
   alias Pinchflat.Tasks.Task
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.MediaSource.Channel
+  alias Pinchflat.MediaSource.Source
 
   @doc """
   Returns the list of tasks. Returns [%Task{}, ...]
@@ -57,7 +57,7 @@ defmodule Pinchflat.Tasks do
   @doc """
   Creates a task.
 
-  Accepts map() | %Oban.Job{}, %Channel{} | %Oban.Job{}, %MediaItem{}.
+  Accepts map() | %Oban.Job{}, %Source{} | %Oban.Job{}, %MediaItem{}.
   Returns {:ok, %Task{}} | {:error, %Ecto.Changeset{}}.
   """
   def create_task(attrs) do
@@ -71,7 +71,7 @@ defmodule Pinchflat.Tasks do
   def create_task(%Oban.Job{} = job, attached_record) do
     attached_record_attr =
       case attached_record do
-        %Channel{} = channel -> %{channel_id: channel.id}
+        %Source{} = source -> %{source_id: source.id}
         %MediaItem{} = media_item -> %{media_item_id: media_item.id}
       end
 
@@ -113,7 +113,7 @@ defmodule Pinchflat.Tasks do
   def delete_tasks_for(attached_record) do
     tasks =
       case attached_record do
-        %Channel{} = channel -> list_tasks_for(:channel_id, channel.id)
+        %Source{} = source -> list_tasks_for(:source_id, source.id)
         %MediaItem{} = media_item -> list_tasks_for(:media_item_id, media_item.id)
       end
 
@@ -130,7 +130,7 @@ defmodule Pinchflat.Tasks do
   def delete_pending_tasks_for(attached_record) do
     tasks =
       case attached_record do
-        %Channel{} = channel -> list_pending_tasks_for(:channel_id, channel.id)
+        %Source{} = source -> list_pending_tasks_for(:source_id, source.id)
         %MediaItem{} = media_item -> list_pending_tasks_for(:media_item_id, media_item.id)
       end
 

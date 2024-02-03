@@ -8,34 +8,34 @@ defmodule Pinchflat.MediaSource do
 
   alias Pinchflat.Tasks
   alias Pinchflat.Media
-  alias Pinchflat.Tasks.ChannelTasks
-  alias Pinchflat.MediaSource.Channel
-  alias Pinchflat.MediaClient.ChannelDetails
+  alias Pinchflat.Tasks.SourceTasks
+  alias Pinchflat.MediaSource.Source
+  alias Pinchflat.MediaClient.SourceDetails
 
   @doc """
-  Returns the list of channels. Returns [%Channel{}, ...]
+  Returns the list of sources. Returns [%Source{}, ...]
   """
-  def list_channels do
-    Repo.all(Channel)
+  def list_sources do
+    Repo.all(Source)
   end
 
   @doc """
-  Gets a single channel.
+  Gets a single source.
 
-  Returns %Channel{}. Raises `Ecto.NoResultsError` if the Channel does not exist.
+  Returns %Source{}. Raises `Ecto.NoResultsError` if the Source does not exist.
   """
-  def get_channel!(id), do: Repo.get!(Channel, id)
+  def get_source!(id), do: Repo.get!(Source, id)
 
   @doc """
-  Creates a channel. May attempt to pull additional channel details from the
-  original_url (if provided). Will attempt to start indexing the channel's
+  Creates a source. May attempt to pull additional source details from the
+  original_url (if provided). Will attempt to start indexing the source's
   media if successfully inserted.
 
-  Returns {:ok, %Channel{}} | {:error, %Ecto.Changeset{}}
+  Returns {:ok, %Source{}} | {:error, %Ecto.Changeset{}}
   """
-  def create_channel(attrs) do
-    %Channel{}
-    |> change_channel_from_url(attrs)
+  def create_source(attrs) do
+    %Source{}
+    |> change_source_from_url(attrs)
     |> commit_and_start_indexing()
   end
 
@@ -45,12 +45,12 @@ defmodule Pinchflat.MediaSource do
 
   Returns [%MediaItem{}, ...] | [%Ecto.Changeset{}, ...]
   """
-  def index_media_items(%Channel{} = channel) do
-    {:ok, media_ids} = ChannelDetails.get_video_ids(channel.original_url)
+  def index_media_items(%Source{} = source) do
+    {:ok, media_ids} = SourceDetails.get_video_ids(source.original_url)
 
     media_ids
     |> Enum.map(fn media_id ->
-      attrs = %{channel_id: channel.id, media_id: media_id}
+      attrs = %{source_id: source.id, media_id: media_id}
 
       case Media.create_media_item(attrs) do
         {:ok, media_item} -> media_item
@@ -60,67 +60,67 @@ defmodule Pinchflat.MediaSource do
   end
 
   @doc """
-  Updates a channel. May attempt to pull additional channel details from the
-  original_url (if changed). May attempt to start indexing the channel's
+  Updates a source. May attempt to pull additional source details from the
+  original_url (if changed). May attempt to start indexing the source's
   media if the indexing frequency has been changed.
 
   Existing indexing tasks will be cancelled if the indexing frequency has been
-  changed (logic in `ChannelTasks.kickoff_indexing_task`)
+  changed (logic in `SourceTasks.kickoff_indexing_task`)
 
-  Returns {:ok, %Channel{}} | {:error, %Ecto.Changeset{}}
+  Returns {:ok, %Source{}} | {:error, %Ecto.Changeset{}}
   """
-  def update_channel(%Channel{} = channel, attrs) do
-    channel
-    |> change_channel_from_url(attrs)
+  def update_source(%Source{} = source, attrs) do
+    source
+    |> change_source_from_url(attrs)
     |> commit_and_start_indexing()
   end
 
   @doc """
-  Deletes a channel and it's associated tasks (of any state).
+  Deletes a source and it's associated tasks (of any state).
 
-  Returns {:ok, %Channel{}} | {:error, %Ecto.Changeset{}}
+  Returns {:ok, %Source{}} | {:error, %Ecto.Changeset{}}
   """
-  def delete_channel(%Channel{} = channel) do
-    Tasks.delete_tasks_for(channel)
-    Repo.delete(channel)
+  def delete_source(%Source{} = source) do
+    Tasks.delete_tasks_for(source)
+    Repo.delete(source)
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking channel changes.
+  Returns an `%Ecto.Changeset{}` for tracking source changes.
   """
-  def change_channel(%Channel{} = channel, attrs \\ %{}) do
-    Channel.changeset(channel, attrs)
+  def change_source(%Source{} = source, attrs \\ %{}) do
+    Source.changeset(source, attrs)
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking channel changes and additionally
-  fetches channel details from the original_url (if provided). If the channel
+  Returns an `%Ecto.Changeset{}` for tracking source changes and additionally
+  fetches source details from the original_url (if provided). If the source
   details cannot be fetched, an error is added to the changeset.
 
-  Note that this fetches channel details as long as the `original_url` is present.
+  Note that this fetches source details as long as the `original_url` is present.
   This means that it'll go for it even if a changeset is otherwise invalid. This
   is pretty easy to change, but for MVP I'm not concerned.
   """
-  def change_channel_from_url(%Channel{} = channel, attrs) do
-    case change_channel(channel, attrs) do
+  def change_source_from_url(%Source{} = source, attrs) do
+    case change_source(source, attrs) do
       %Ecto.Changeset{changes: %{original_url: _}} = changeset ->
-        add_channel_details_to_changeset(channel, changeset)
+        add_source_details_to_changeset(source, changeset)
 
       changeset ->
         changeset
     end
   end
 
-  defp add_channel_details_to_changeset(channel, changeset) do
+  defp add_source_details_to_changeset(source, changeset) do
     %Ecto.Changeset{changes: changes} = changeset
 
-    case ChannelDetails.get_channel_details(changes.original_url) do
-      {:ok, %ChannelDetails{} = channel_details} ->
-        change_channel(
-          channel,
+    case SourceDetails.get_source_details(changes.original_url) do
+      {:ok, %SourceDetails{} = source_details} ->
+        change_source(
+          source,
           Map.merge(changes, %{
-            name: channel_details.name,
-            channel_id: channel_details.id
+            name: source_details.name,
+            collection_id: source_details.id
           })
         )
 
@@ -128,7 +128,7 @@ defmodule Pinchflat.MediaSource do
         Ecto.Changeset.add_error(
           changeset,
           :original_url,
-          "could not fetch channel details from URL",
+          "could not fetch source details from URL",
           error: runner_error
         )
     end
@@ -136,27 +136,27 @@ defmodule Pinchflat.MediaSource do
 
   defp commit_and_start_indexing(changeset) do
     case Repo.insert_or_update(changeset) do
-      {:ok, %Channel{} = channel} ->
-        maybe_run_indexing_task(changeset, channel)
+      {:ok, %Source{} = source} ->
+        maybe_run_indexing_task(changeset, source)
 
-        {:ok, channel}
+        {:ok, source}
 
       err ->
         err
     end
   end
 
-  defp maybe_run_indexing_task(changeset, channel) do
+  defp maybe_run_indexing_task(changeset, source) do
     case changeset.data do
       # If the changeset is new (not persisted), attempt indexing no matter what
       %{__meta__: %{state: :built}} ->
-        ChannelTasks.kickoff_indexing_task(channel)
+        SourceTasks.kickoff_indexing_task(source)
 
       # If the record has been persisted, only attempt indexing if the
       # indexing frequency has been changed
       %{__meta__: %{state: :loaded}} ->
         if Map.has_key?(changeset.changes, :index_frequency_minutes) do
-          ChannelTasks.kickoff_indexing_task(channel)
+          SourceTasks.kickoff_indexing_task(source)
         end
     end
   end

@@ -1,16 +1,16 @@
-defmodule PinchflatWeb.MediaSources.ChannelHTML do
+defmodule PinchflatWeb.MediaSources.SourceHTML do
   use PinchflatWeb, :html
 
-  embed_templates "channel_html/*"
+  embed_templates "source_html/*"
 
   @doc """
-  Renders a channel form.
+  Renders a source form.
   """
   attr :changeset, Ecto.Changeset, required: true
   attr :action, :string, required: true
   attr :media_profiles, :list, required: true
 
-  def channel_form(assigns)
+  def source_form(assigns)
 
   def friendly_index_frequencies do
     [

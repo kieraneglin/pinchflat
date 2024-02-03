@@ -14,7 +14,7 @@ defmodule Pinchflat.TasksFixtures do
     {:ok, task} =
       attrs
       |> Enum.into(%{
-        channel_id: MediaSourceFixtures.channel_fixture().id,
+        source_id: MediaSourceFixtures.source_fixture().id,
         job_id: JobFixtures.job_fixture().id
       })
       |> Pinchflat.Tasks.create_task()

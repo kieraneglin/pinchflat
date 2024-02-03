@@ -25,8 +25,8 @@ defmodule Pinchflat.MediaClient.VideoDownloader do
   Returns {:ok, %MediaItem{}} | {:error, any, ...any}
   """
   def download_for_media_item(%MediaItem{} = media_item, backend \\ :yt_dlp) do
-    item_with_preloads = Repo.preload(media_item, [:metadata, channel: :media_profile])
-    media_profile = item_with_preloads.channel.media_profile
+    item_with_preloads = Repo.preload(media_item, [:metadata, source: :media_profile])
+    media_profile = item_with_preloads.source.media_profile
 
     case download_for_media_profile(media_item.media_id, media_profile, backend) do
       {:ok, parsed_json} ->
