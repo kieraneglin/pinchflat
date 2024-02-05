@@ -9,6 +9,12 @@
 </.header>
 
 <.list>
+  <:item title="media_profile">
+    <.link href={~p"/media_profiles/#{@source.media_profile}"}>
+      <%= @source.media_profile.name %>
+    </.link>
+  </:item>
+
   <:item
     :for={attr <- ~w(collection_type collection_name collection_id original_url friendly_name)a}
     title={attr}
