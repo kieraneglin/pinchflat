@@ -83,4 +83,28 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaParserTest do
       assert result.subtitle_filepaths == []
     end
   end
+
+  describe "parse_for_media_item/1 when testing thumbnail metadata" do
+    test "extracts the thumbnail filepath", %{metadata: metadata} do
+      result = Parser.parse_for_media_item(metadata)
+
+      assert String.ends_with?(result.thumbnail_filepath, ".webp")
+    end
+
+    test "doesn't freak out if the video has no thumbnails", %{metadata: metadata} do
+      metadata = Map.put(metadata, "thumbnails", %{})
+
+      result = Parser.parse_for_media_item(metadata)
+
+      assert result.thumbnail_filepath == nil
+    end
+
+    test "doesn't freak out if the thumbnails key is missing", %{metadata: metadata} do
+      metadata = Map.delete(metadata, "thumbnails")
+
+      result = Parser.parse_for_media_item(metadata)
+
+      assert result.thumbnail_filepath == nil
+    end
+  end
 end

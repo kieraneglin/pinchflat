@@ -94,4 +94,35 @@ defmodule Pinchflat.Profiles.Options.YtDlp.OptionBuilderTest do
       refute {:id, -1} in res
     end
   end
+
+  describe "build/1 when testing thumbnail options" do
+    test "includes :write_thumbnail option when specified" do
+      media_profile = %MediaProfile{@media_profile | download_thumbnail: true}
+
+      assert {:ok, res} = OptionBuilder.build(media_profile)
+
+      assert :write_thumbnail in res
+    end
+
+    test "includes :embed_thumbnail option when specified" do
+      media_profile = %MediaProfile{@media_profile | embed_thumbnail: true}
+
+      assert {:ok, res} = OptionBuilder.build(media_profile)
+
+      assert :embed_thumbnail in res
+    end
+
+    test "doesn't include these options when not specified" do
+      media_profile = %MediaProfile{
+        @media_profile
+        | embed_thumbnail: false,
+          download_thumbnail: false
+      }
+
+      assert {:ok, res} = OptionBuilder.build(media_profile)
+
+      refute :write_thumbnail in res
+      refute :embed_thumbnail in res
+    end
+  end
 end

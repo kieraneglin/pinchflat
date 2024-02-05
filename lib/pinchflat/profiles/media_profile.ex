@@ -15,6 +15,8 @@ defmodule Pinchflat.Profiles.MediaProfile do
     download_auto_subs
     embed_subs
     sub_langs
+    download_thumbnail
+    embed_thumbnail
   )a
 
   @required_fields ~w(name output_path_template)a
@@ -22,10 +24,14 @@ defmodule Pinchflat.Profiles.MediaProfile do
   schema "media_profiles" do
     field :name, :string
     field :output_path_template, :string
+
     field :download_subs, :boolean, default: true
     field :download_auto_subs, :boolean, default: true
     field :embed_subs, :boolean, default: true
     field :sub_langs, :string, default: "en"
+
+    field :download_thumbnail, :boolean, default: true
+    field :embed_thumbnail, :boolean, default: true
 
     has_many :sources, Source
 

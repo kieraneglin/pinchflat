@@ -24,6 +24,7 @@ defmodule Pinchflat.Profiles.Options.YtDlp.OptionBuilder do
     built_options =
       default_options() ++
         subtitle_options(media_profile) ++
+        thumbnail_options(media_profile) ++
         output_options(media_profile)
 
     {:ok, built_options}
@@ -33,7 +34,6 @@ defmodule Pinchflat.Profiles.Options.YtDlp.OptionBuilder do
   defp default_options do
     [
       :embed_metadata,
-      :embed_thumbnail,
       :no_progress
     ]
   end
@@ -61,6 +61,18 @@ defmodule Pinchflat.Profiles.Options.YtDlp.OptionBuilder do
 
         _ ->
           acc
+      end
+    end)
+  end
+
+  defp thumbnail_options(media_profile) do
+    mapped_struct = Map.from_struct(media_profile)
+
+    Enum.reduce(mapped_struct, [], fn attr, acc ->
+      case attr do
+        {:download_thumbnail, true} -> acc ++ [:write_thumbnail]
+        {:embed_thumbnail, true} -> acc ++ [:embed_thumbnail]
+        _ -> acc
       end
     end)
   end

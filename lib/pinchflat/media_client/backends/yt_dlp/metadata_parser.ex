@@ -25,6 +25,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MetadataParser do
     metadata_attrs
     |> Map.merge(parse_media_metadata(metadata))
     |> Map.merge(parse_subtitle_metadata(metadata))
+    |> Map.merge(parse_thumbnail_metadata(metadata))
   end
 
   defp parse_media_metadata(metadata) do
@@ -35,15 +36,28 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MetadataParser do
   end
 
   defp parse_subtitle_metadata(metadata) do
-    subtitle_map = metadata["requested_subtitles"] || %{}
     # IDEA: if needed, consider filtering out subtitles that don't exist on-disk
     subtitle_filepaths =
-      subtitle_map
+      (metadata["requested_subtitles"] || %{})
       |> Enum.map(fn {lang, attrs} -> [lang, attrs["filepath"]] end)
       |> Enum.sort(fn [lang_a, _], [lang_b, _] -> lang_a < lang_b end)
 
     %{
       subtitle_filepaths: subtitle_filepaths
+    }
+  end
+
+  defp parse_thumbnail_metadata(metadata) do
+    thumbnail_filepath =
+      (metadata["thumbnails"] || %{})
+      # Reverse so that higher resolution thumbnails come first.
+      # This _shouldn't_ matter yet, but I'd rather default to the best
+      # in case I'm wrong.
+      |> Enum.reverse()
+      |> Enum.find_value(fn attrs -> attrs["filepath"] end)
+
+    %{
+      thumbnail_filepath: thumbnail_filepath
     }
   end
 end
