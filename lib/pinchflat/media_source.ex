@@ -102,6 +102,8 @@ defmodule Pinchflat.MediaSource do
   is pretty easy to change, but for MVP I'm not concerned.
 
   IDEA: Maybe I could discern `collection_type` based on the original URL?
+  It also seems like it's a channel when the returned yt-dlp channel_id is the
+  same as the playlist_id - maybe could use that?
   """
   def change_source_from_url(%Source{} = source, attrs) do
     case change_source(source, attrs) do
