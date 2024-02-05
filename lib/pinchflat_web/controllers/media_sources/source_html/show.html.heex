@@ -9,9 +9,18 @@
 </.header>
 
 <.list>
-  <:item title="Source Name"><%= @source.name %></:item>
-  <:item title="Source ID"><%= @source.collection_id %></:item>
-  <:item title="Original URL"><%= @source.original_url %></:item>
+  <:item title="media_profile">
+    <.link href={~p"/media_profiles/#{@source.media_profile}"}>
+      <%= @source.media_profile.name %>
+    </.link>
+  </:item>
+
+  <:item
+    :for={attr <- ~w(collection_type collection_name collection_id original_url friendly_name)a}
+    title={attr}
+  >
+    <%= Map.get(@source, attr) %>
+  </:item>
 </.list>
 
 <.back navigate={~p"/media_sources/sources"}>Back to sources</.back>

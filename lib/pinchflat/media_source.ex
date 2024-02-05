@@ -100,6 +100,10 @@ defmodule Pinchflat.MediaSource do
   Note that this fetches source details as long as the `original_url` is present.
   This means that it'll go for it even if a changeset is otherwise invalid. This
   is pretty easy to change, but for MVP I'm not concerned.
+
+  IDEA: Maybe I could discern `collection_type` based on the original URL?
+  It also seems like it's a channel when the returned yt-dlp channel_id is the
+  same as the playlist_id - maybe could use that?
   """
   def change_source_from_url(%Source{} = source, attrs) do
     case change_source(source, attrs) do
@@ -115,14 +119,8 @@ defmodule Pinchflat.MediaSource do
     %Ecto.Changeset{changes: changes} = changeset
 
     case SourceDetails.get_source_details(changes.original_url) do
-      {:ok, %SourceDetails{} = source_details} ->
-        change_source(
-          source,
-          Map.merge(changes, %{
-            name: source_details.name,
-            collection_id: source_details.id
-          })
-        )
+      {:ok, source_details} ->
+        add_source_details_by_collection_type(source, changeset, source_details)
 
       {:error, runner_error, _status_code} ->
         Ecto.Changeset.add_error(
@@ -134,15 +132,35 @@ defmodule Pinchflat.MediaSource do
     end
   end
 
+  defp add_source_details_by_collection_type(source, changeset, source_details) do
+    %Ecto.Changeset{changes: changes} = changeset
+    collection_type = source.collection_type || changes[:collection_type]
+
+    collection_changes =
+      case collection_type do
+        :channel ->
+          %{
+            collection_id: source_details.channel_id,
+            collection_name: source_details.channel_name
+          }
+
+        :playlist ->
+          %{
+            collection_id: source_details.playlist_id,
+            collection_name: source_details.playlist_name
+          }
+
+        _ ->
+          %{}
+      end
+
+    change_source(source, Map.merge(changes, collection_changes))
+  end
+
   defp commit_and_start_indexing(changeset) do
     case Repo.insert_or_update(changeset) do
-      {:ok, %Source{} = source} ->
-        maybe_run_indexing_task(changeset, source)
-
-        {:ok, source}
-
-      err ->
-        err
+      {:ok, %Source{} = source} -> maybe_run_indexing_task(changeset, source)
+      err -> err
     end
   end
 
@@ -159,5 +177,7 @@ defmodule Pinchflat.MediaSource do
           SourceTasks.kickoff_indexing_task(source)
         end
     end
+
+    {:ok, source}
   end
 end

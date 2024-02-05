@@ -4,8 +4,6 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollection do
   videos (aka: a source [ie: channels, playlists]).
   """
 
-  alias Pinchflat.MediaClient.SourceDetails
-
   @doc """
   Returns a list of strings representing the video ids in the collection.
 
@@ -28,17 +26,27 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollection do
   instead we're fetching just the first video (using playlist_end: 1)
   and parsing the source ID and name from _its_ metadata
 
-  Returns {:ok, %SourceDetails{}} | {:error, any, ...}.
+  Returns {:ok, map()} | {:error, any, ...}.
   """
   def get_source_details(source_url) do
-    opts = [:skip_download, playlist_end: 1]
+    opts = [:simulate, :skip_download, playlist_end: 1]
+    output_template = "%(.{channel,channel_id,playlist_id,playlist_title})j"
 
-    with {:ok, output} <- backend_runner().run(source_url, opts, "%(.{channel,channel_id})j"),
+    with {:ok, output} <- backend_runner().run(source_url, opts, output_template),
          {:ok, parsed_json} <- Phoenix.json_library().decode(output) do
-      {:ok, SourceDetails.new(parsed_json["channel_id"], parsed_json["channel"])}
+      {:ok, format_source_details(parsed_json)}
     else
       err -> err
     end
+  end
+
+  defp format_source_details(response) do
+    %{
+      channel_id: response["channel_id"],
+      channel_name: response["channel"],
+      playlist_id: response["playlist_id"],
+      playlist_name: response["playlist_title"]
+    }
   end
 
   defp backend_runner do
