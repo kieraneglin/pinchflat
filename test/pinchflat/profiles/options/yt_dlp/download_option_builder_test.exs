@@ -125,4 +125,37 @@ defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilderTest do
       refute :embed_thumbnail in res
     end
   end
+
+  describe "build/1 when testing metadata options" do
+    test "includes :write_info_json option when specified" do
+      media_profile = %MediaProfile{@media_profile | download_metadata: true}
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_profile)
+
+      assert :write_info_json in res
+      assert :clean_info_json in res
+    end
+
+    test "includes :embed_metadata option when specified" do
+      media_profile = %MediaProfile{@media_profile | embed_metadata: true}
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_profile)
+
+      assert :embed_metadata in res
+    end
+
+    test "doesn't include these options when not specified" do
+      media_profile = %MediaProfile{
+        @media_profile
+        | embed_metadata: false,
+          download_metadata: false
+      }
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_profile)
+
+      refute :write_info_json in res
+      refute :clean_info_json in res
+      refute :embed_metadata in res
+    end
+  end
 end

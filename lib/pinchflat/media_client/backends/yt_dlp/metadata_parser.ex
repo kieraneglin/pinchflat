@@ -26,6 +26,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MetadataParser do
     |> Map.merge(parse_media_metadata(metadata))
     |> Map.merge(parse_subtitle_metadata(metadata))
     |> Map.merge(parse_thumbnail_metadata(metadata))
+    |> Map.merge(parse_infojson_metadata(metadata))
   end
 
   defp parse_media_metadata(metadata) do
@@ -58,6 +59,12 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MetadataParser do
 
     %{
       thumbnail_filepath: thumbnail_filepath
+    }
+  end
+
+  defp parse_infojson_metadata(metadata) do
+    %{
+      metadata_filepath: metadata["infojson_filename"]
     }
   end
 end

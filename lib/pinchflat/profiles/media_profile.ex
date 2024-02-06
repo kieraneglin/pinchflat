@@ -17,6 +17,8 @@ defmodule Pinchflat.Profiles.MediaProfile do
     sub_langs
     download_thumbnail
     embed_thumbnail
+    download_metadata
+    embed_metadata
     shorts_behaviour
     livestream_behaviour
   )a
@@ -34,6 +36,9 @@ defmodule Pinchflat.Profiles.MediaProfile do
 
     field :download_thumbnail, :boolean, default: true
     field :embed_thumbnail, :boolean, default: true
+
+    field :download_metadata, :boolean, default: true
+    field :embed_metadata, :boolean, default: true
 
     # NOTE: these do NOT speed up indexing - the indexer still has to go
     # through the entire collection to determine if a video is a short or

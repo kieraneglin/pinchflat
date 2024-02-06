@@ -25,6 +25,7 @@ defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder do
       default_options() ++
         subtitle_options(media_profile) ++
         thumbnail_options(media_profile) ++
+        metadata_options(media_profile) ++
         output_options(media_profile)
 
     {:ok, built_options}
@@ -32,10 +33,7 @@ defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder do
 
   # This will be updated a lot as I add new options to profiles
   defp default_options do
-    [
-      :embed_metadata,
-      :no_progress
-    ]
+    [:no_progress]
   end
 
   defp subtitle_options(media_profile) do
@@ -72,6 +70,18 @@ defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder do
       case attr do
         {:download_thumbnail, true} -> acc ++ [:write_thumbnail]
         {:embed_thumbnail, true} -> acc ++ [:embed_thumbnail]
+        _ -> acc
+      end
+    end)
+  end
+
+  defp metadata_options(media_profile) do
+    mapped_struct = Map.from_struct(media_profile)
+
+    Enum.reduce(mapped_struct, [], fn attr, acc ->
+      case attr do
+        {:download_metadata, true} -> acc ++ [:write_info_json, :clean_info_json]
+        {:embed_metadata, true} -> acc ++ [:embed_metadata]
         _ -> acc
       end
     end)

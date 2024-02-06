@@ -47,7 +47,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaParserTest do
     test "extracts the subtitle filepaths", %{metadata: metadata} do
       result = Parser.parse_for_media_item(metadata)
 
-      assert [["de", german_filepath], ["en", english_filepath]] = result.subtitle_filepaths
+      assert [["de", german_filepath], ["en", english_filepath] | _rest] = result.subtitle_filepaths
 
       assert String.ends_with?(english_filepath, ".en.srt")
       assert String.ends_with?(german_filepath, ".de.srt")
@@ -105,6 +105,22 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaParserTest do
       result = Parser.parse_for_media_item(metadata)
 
       assert result.thumbnail_filepath == nil
+    end
+  end
+
+  describe "parse_for_media_item/1 when testing infojson metadata" do
+    test "extracts the metadata filepath", %{metadata: metadata} do
+      result = Parser.parse_for_media_item(metadata)
+
+      assert String.ends_with?(result.metadata_filepath, ".info.json")
+    end
+
+    test "doesn't freak out if the video has no infojson", %{metadata: metadata} do
+      metadata = Map.put(metadata, "infojson_filename", nil)
+
+      result = Parser.parse_for_media_item(metadata)
+
+      assert result.metadata_filepath == nil
     end
   end
 end
