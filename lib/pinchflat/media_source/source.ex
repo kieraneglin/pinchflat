@@ -15,6 +15,7 @@ defmodule Pinchflat.MediaSource.Source do
     collection_type
     friendly_name
     index_frequency_minutes
+    download_media
     original_url
     media_profile_id
   )a
@@ -27,6 +28,7 @@ defmodule Pinchflat.MediaSource.Source do
     field :collection_id, :string
     field :collection_type, Ecto.Enum, values: [:channel, :playlist]
     field :index_frequency_minutes, :integer, default: 60 * 24
+    field :download_media, :boolean, default: true
     # This should only be used for user reference going forward
     # as the collection_id should be used for all API calls
     field :original_url, :string

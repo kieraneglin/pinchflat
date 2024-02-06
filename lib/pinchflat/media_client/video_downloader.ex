@@ -22,6 +22,10 @@ defmodule Pinchflat.MediaClient.VideoDownloader do
   returned by the backend. Also saves the entire metadata response to the associated
   media_metadata record.
 
+  NOTE: related methods (like the download worker) won't download if the source is set
+  to not download media. However, I'm not enforcing that here since I need this for testing.
+  This may change in the future but I'm not stressed.
+
   Returns {:ok, %MediaItem{}} | {:error, any, ...any}
   """
   def download_for_media_item(%MediaItem{} = media_item, backend \\ :yt_dlp) do
