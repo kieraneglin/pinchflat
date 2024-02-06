@@ -35,6 +35,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
 
   @doc """
   Starts tasks for downloading videos for any of a sources _pending_ media items.
+  Jobs are not enqueued if the source is set to not download media. This will return :ok.
 
   NOTE: this starts a download for each media item that is pending,
   not just the ones that were indexed in this job run. This should ensure
@@ -45,7 +46,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
 
   Returns :ok
   """
-  def enqueue_pending_media_downloads(%Source{} = source) do
+  def enqueue_pending_media_downloads(%Source{download_media: true} = source) do
     source
     |> Media.list_pending_media_items_for()
     |> Enum.each(fn media_item ->
@@ -54,5 +55,9 @@ defmodule Pinchflat.Tasks.SourceTasks do
       |> VideoDownloadWorker.new()
       |> Tasks.create_job_with_task(media_item)
     end)
+  end
+
+  def enqueue_pending_media_downloads(%Source{download_media: false} = _source) do
+    :ok
   end
 end

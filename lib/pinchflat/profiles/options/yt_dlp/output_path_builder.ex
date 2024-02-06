@@ -12,6 +12,11 @@ defmodule Pinchflat.Profiles.Options.YtDlp.OutputPathBuilder do
 
   Translates liquid-style templates into yt-dlp-style templates,
   leaving yt-dlp syntax intact.
+
+  IDEA: apart from any custom options I've defined, I can support any yt-dlp
+  option by assuming `{{ identifier }}` should transform to `%(identifier)S`.
+  It's not doing anything huge, but it's nicer to type and more approachable IMO.
+  IDEA: set a default for `MediaProfile`'s `output_path_template` field
   """
   def build(template_string) do
     TemplateParser.parse(template_string, full_yt_dlp_options_map())

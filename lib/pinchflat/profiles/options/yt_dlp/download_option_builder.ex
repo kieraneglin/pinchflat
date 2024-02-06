@@ -1,6 +1,6 @@
-defmodule Pinchflat.Profiles.Options.YtDlp.OptionBuilder do
+defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder do
   @moduledoc """
-  Builds the options for yt-dlp based on the given media profile.
+  Builds the options for yt-dlp to download media based on the given media profile.
 
   IDEA: consider making this a behaviour so I can add other backends later
   """
@@ -9,7 +9,7 @@ defmodule Pinchflat.Profiles.Options.YtDlp.OptionBuilder do
   alias Pinchflat.Profiles.Options.YtDlp.OutputPathBuilder
 
   @doc """
-  Builds the options for yt-dlp based on the given media profile.
+  Builds the options for yt-dlp to download media based on the given media profile.
 
   IDEA: consider adding the ability to pass in a second argument to override
         these options
@@ -24,6 +24,8 @@ defmodule Pinchflat.Profiles.Options.YtDlp.OptionBuilder do
     built_options =
       default_options() ++
         subtitle_options(media_profile) ++
+        thumbnail_options(media_profile) ++
+        metadata_options(media_profile) ++
         output_options(media_profile)
 
     {:ok, built_options}
@@ -31,11 +33,7 @@ defmodule Pinchflat.Profiles.Options.YtDlp.OptionBuilder do
 
   # This will be updated a lot as I add new options to profiles
   defp default_options do
-    [
-      :embed_metadata,
-      :embed_thumbnail,
-      :no_progress
-    ]
+    [:no_progress]
   end
 
   defp subtitle_options(media_profile) do
@@ -61,6 +59,30 @@ defmodule Pinchflat.Profiles.Options.YtDlp.OptionBuilder do
 
         _ ->
           acc
+      end
+    end)
+  end
+
+  defp thumbnail_options(media_profile) do
+    mapped_struct = Map.from_struct(media_profile)
+
+    Enum.reduce(mapped_struct, [], fn attr, acc ->
+      case attr do
+        {:download_thumbnail, true} -> acc ++ [:write_thumbnail]
+        {:embed_thumbnail, true} -> acc ++ [:embed_thumbnail]
+        _ -> acc
+      end
+    end)
+  end
+
+  defp metadata_options(media_profile) do
+    mapped_struct = Map.from_struct(media_profile)
+
+    Enum.reduce(mapped_struct, [], fn attr, acc ->
+      case attr do
+        {:download_metadata, true} -> acc ++ [:write_info_json, :clean_info_json]
+        {:embed_metadata, true} -> acc ++ [:embed_metadata]
+        _ -> acc
       end
     end)
   end
