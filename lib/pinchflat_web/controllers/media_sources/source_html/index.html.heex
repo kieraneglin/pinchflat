@@ -8,8 +8,8 @@
 </.header>
 
 <.table id="sources" rows={@sources} row_click={&JS.navigate(~p"/media_sources/sources/#{&1}")}>
-  <:col :let={source} label="Name"><%= source.name %></:col>
-  <:col :let={source} label="Source"><%= source.collection_id %></:col>
+  <:col :let={source} label="Collection Name"><%= source.collection_name %></:col>
+  <:col :let={source} label="Collection ID"><%= source.collection_id %></:col>
   <:action :let={source}>
     <div class="sr-only">
       <.link navigate={~p"/media_sources/sources/#{source}"}>Show</.link>

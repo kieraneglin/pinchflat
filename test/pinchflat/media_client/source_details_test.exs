@@ -8,20 +8,13 @@ defmodule Pinchflat.MediaClient.SourceDetailsTest do
 
   setup :verify_on_exit!
 
-  describe "new/2" do
-    test "it returns a struct with the given values" do
-      assert %SourceDetails{id: "UCQH2", name: "TheUselessTrials"} =
-               SourceDetails.new("UCQH2", "TheUselessTrials")
-    end
-  end
-
   describe "get_source_details/2" do
     test "it passes the expected arguments to the backend" do
       expect(YtDlpRunnerMock, :run, fn @channel_url, opts, ot ->
-        assert opts == [:skip_download, playlist_end: 1]
-        assert ot == "%(.{channel,channel_id})j"
+        assert opts == [:simulate, :skip_download, playlist_end: 1]
+        assert ot == "%(.{channel,channel_id,playlist_id,playlist_title})j"
 
-        {:ok, "{\"channel\": \"TheUselessTrials\", \"channel_id\": \"UCQH2\"}"}
+        {:ok, "{}"}
       end)
 
       assert {:ok, _} = SourceDetails.get_source_details(@channel_url)
@@ -29,11 +22,22 @@ defmodule Pinchflat.MediaClient.SourceDetailsTest do
 
     test "it returns a struct composed of the returned data" do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
-        {:ok, "{\"channel\": \"TheUselessTrials\", \"channel_id\": \"UCQH2\"}"}
+        Phoenix.json_library().encode(%{
+          channel: "TheUselessTrials",
+          channel_id: "UCQH2",
+          playlist_id: "PLQH2",
+          playlist_title: "TheUselessTrials - Videos"
+        })
       end)
 
       assert {:ok, res} = SourceDetails.get_source_details(@channel_url)
-      assert %SourceDetails{id: "UCQH2", name: "TheUselessTrials"} = res
+
+      assert %{
+               channel_id: "UCQH2",
+               channel_name: "TheUselessTrials",
+               playlist_id: "PLQH2",
+               playlist_name: "TheUselessTrials - Videos"
+             } = res
     end
   end
 
