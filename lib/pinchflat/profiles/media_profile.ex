@@ -17,6 +17,8 @@ defmodule Pinchflat.Profiles.MediaProfile do
     sub_langs
     download_thumbnail
     embed_thumbnail
+    shorts_behaviour
+    livestream_behaviour
   )a
 
   @required_fields ~w(name output_path_template)a
@@ -32,6 +34,14 @@ defmodule Pinchflat.Profiles.MediaProfile do
 
     field :download_thumbnail, :boolean, default: true
     field :embed_thumbnail, :boolean, default: true
+
+    # NOTE: these do NOT speed up indexing - the indexer still has to go
+    # through the entire collection to determine if a video is a short or
+    # a livestream.
+    # NOTE: these can BOTH be set to :only which will download shorts and
+    # livestreams _only_ and ignore regular videos.
+    field :shorts_behaviour, Ecto.Enum, values: [:include, :exclude, :only], default: :include
+    field :livestream_behaviour, Ecto.Enum, values: [:include, :exclude, :only], default: :include
 
     has_many :sources, Source
 

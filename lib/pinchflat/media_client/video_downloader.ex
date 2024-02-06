@@ -14,7 +14,7 @@ defmodule Pinchflat.MediaClient.VideoDownloader do
   alias Pinchflat.Profiles.MediaProfile
 
   alias Pinchflat.MediaClient.Backends.YtDlp.Video, as: YtDlpVideo
-  alias Pinchflat.Profiles.Options.YtDlp.OptionBuilder, as: YtDlpOptionBuilder
+  alias Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder, as: YtDlpDownloadOptionBuilder
   alias Pinchflat.MediaClient.Backends.YtDlp.MetadataParser, as: YtDlpMetadataParser
 
   @doc """
@@ -52,7 +52,7 @@ defmodule Pinchflat.MediaClient.VideoDownloader do
 
   defp option_builder(backend) do
     case backend do
-      :yt_dlp -> YtDlpOptionBuilder
+      :yt_dlp -> YtDlpDownloadOptionBuilder
     end
   end
 

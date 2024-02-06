@@ -1,6 +1,6 @@
-defmodule Pinchflat.Profiles.Options.YtDlp.OptionBuilder do
+defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder do
   @moduledoc """
-  Builds the options for yt-dlp based on the given media profile.
+  Builds the options for yt-dlp to download media based on the given media profile.
 
   IDEA: consider making this a behaviour so I can add other backends later
   """
@@ -9,7 +9,7 @@ defmodule Pinchflat.Profiles.Options.YtDlp.OptionBuilder do
   alias Pinchflat.Profiles.Options.YtDlp.OutputPathBuilder
 
   @doc """
-  Builds the options for yt-dlp based on the given media profile.
+  Builds the options for yt-dlp to download media based on the given media profile.
 
   IDEA: consider adding the ability to pass in a second argument to override
         these options
