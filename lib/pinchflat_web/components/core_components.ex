@@ -547,6 +547,30 @@ defmodule PinchflatWeb.CoreComponents do
   end
 
   @doc """
+  Renders a data list from a given map. Used in development to
+  quickly show the attributes of a database record.
+  """
+  attr :map, :map, required: true
+
+  def list_items_from_map(assigns) do
+    attrs =
+      Enum.filter(assigns.map, fn
+        {_, %{__struct__: _}} -> false
+        _ -> true
+      end)
+
+    assigns = assign(assigns, iterable_attributes: attrs)
+
+    ~H"""
+    <.list>
+      <:item :for={{k, v} <- @iterable_attributes} title={k}>
+        <%= v %>
+      </:item>
+    </.list>
+    """
+  end
+
+  @doc """
   Renders a back navigation link.
 
   ## Examples

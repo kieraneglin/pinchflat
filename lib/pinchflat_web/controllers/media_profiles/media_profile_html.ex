@@ -10,4 +10,12 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
   attr :action, :string, required: true
 
   def media_profile_form(assigns)
+
+  def friendly_format_type_options do
+    [
+      {"Include (default)", :include},
+      {"Exclude", :exclude},
+      {"Only", :only}
+    ]
+  end
 end
