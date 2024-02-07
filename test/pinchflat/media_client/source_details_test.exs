@@ -1,6 +1,8 @@
 defmodule Pinchflat.MediaClient.SourceDetailsTest do
-  use ExUnit.Case, async: true
+  use Pinchflat.DataCase
   import Mox
+  import Pinchflat.ProfilesFixtures
+  import Pinchflat.MediaSourceFixtures
 
   alias Pinchflat.MediaClient.SourceDetails
 
@@ -41,7 +43,7 @@ defmodule Pinchflat.MediaClient.SourceDetailsTest do
     end
   end
 
-  describe "get_video_ids/2" do
+  describe "get_video_ids/2 when passed a string" do
     test "it passes the expected arguments to the backend" do
       expect(YtDlpRunnerMock, :run, fn @channel_url, opts, ot ->
         assert opts == [:simulate, :skip_download]
@@ -59,6 +61,35 @@ defmodule Pinchflat.MediaClient.SourceDetailsTest do
       end)
 
       assert {:ok, ["video1", "video2", "video3"]} = SourceDetails.get_video_ids(@channel_url)
+    end
+  end
+
+  describe "get_video_ids/2 when passed a Source record" do
+    test "it calls the backend with the source's collection ID" do
+      source = source_fixture()
+
+      expect(YtDlpRunnerMock, :run, fn url, _opts, _ot ->
+        assert source.collection_id == url
+        {:ok, "video1\nvideo2\nvideo3"}
+      end)
+
+      assert {:ok, _} = SourceDetails.get_video_ids(source)
+    end
+
+    test "it builds options based on the source's media profile" do
+      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot ->
+        assert opts == [{:match_filter, "!was_live"}, :simulate, :skip_download]
+        {:ok, ""}
+      end)
+
+      media_profile =
+        media_profile_fixture(
+          shorts_behaviour: :include,
+          livestream_behaviour: :exclude
+        )
+
+      source = source_fixture(media_profile_id: media_profile.id)
+      assert {:ok, _} = SourceDetails.get_video_ids(source)
     end
   end
 end

@@ -8,19 +8,16 @@
   </:actions>
 </.header>
 
+<h3 class="mt-14">Relationships</h3>
 <.list>
   <:item title="media_profile">
     <.link href={~p"/media_profiles/#{@source.media_profile}"}>
       <%= @source.media_profile.name %>
     </.link>
   </:item>
-
-  <:item
-    :for={attr <- ~w(collection_type collection_name collection_id original_url friendly_name)a}
-    title={attr}
-  >
-    <%= Map.get(@source, attr) %>
-  </:item>
 </.list>
+
+<h3>Attributes</h3>
+<.list_items_from_map map={Map.from_struct(@source)} />
 
 <.back navigate={~p"/media_sources/sources"}>Back to sources</.back>

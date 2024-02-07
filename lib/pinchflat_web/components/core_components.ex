@@ -535,7 +535,7 @@ defmodule PinchflatWeb.CoreComponents do
 
   def list(assigns) do
     ~H"""
-    <div class="mt-14">
+    <div class="mt-2 mb-14">
       <dl class="-my-4 divide-y divide-zinc-100">
         <div :for={item <- @item} class="flex gap-4 py-4 text-sm leading-6 sm:gap-8">
           <dt class="w-1/4 flex-none text-zinc-500"><%= item.title %></dt>
@@ -543,6 +543,30 @@ defmodule PinchflatWeb.CoreComponents do
         </div>
       </dl>
     </div>
+    """
+  end
+
+  @doc """
+  Renders a data list from a given map. Used in development to
+  quickly show the attributes of a database record.
+  """
+  attr :map, :map, required: true
+
+  def list_items_from_map(assigns) do
+    attrs =
+      Enum.filter(assigns.map, fn
+        {_, %{__struct__: _}} -> false
+        _ -> true
+      end)
+
+    assigns = assign(assigns, iterable_attributes: attrs)
+
+    ~H"""
+    <.list>
+      <:item :for={{k, v} <- @iterable_attributes} title={k}>
+        <%= v %>
+      </:item>
+    </.list>
     """
   end
 

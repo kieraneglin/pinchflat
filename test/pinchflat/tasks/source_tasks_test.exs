@@ -75,5 +75,21 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
 
       assert [_] = Tasks.list_tasks_for(:media_item_id, media_item.id)
     end
+
+    test "it does not create a job if the source is set to not download" do
+      source = source_fixture(download_media: false)
+
+      assert :ok = SourceTasks.enqueue_pending_media_downloads(source)
+
+      refute_enqueued(worker: VideoDownloadWorker)
+    end
+
+    test "it does not attach tasks if the source is set to not download" do
+      source = source_fixture(download_media: false)
+      media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
+
+      assert :ok = SourceTasks.enqueue_pending_media_downloads(source)
+      assert [] = Tasks.list_tasks_for(:media_item_id, media_item.id)
+    end
   end
 end

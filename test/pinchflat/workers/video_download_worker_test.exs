@@ -4,6 +4,7 @@ defmodule Pinchflat.Workers.VideoDownloadWorkerTest do
   import Mox
   import Pinchflat.MediaFixtures
 
+  alias Pinchflat.MediaSource
   alias Pinchflat.Workers.VideoDownloadWorker
 
   setup :verify_on_exit!
@@ -54,6 +55,14 @@ defmodule Pinchflat.Workers.VideoDownloadWorkerTest do
 
         assert job.state == "retryable"
       end)
+    end
+
+    test "it does not download if the source is set to not download", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, 0, fn _url, _opts, _ot -> :ok end)
+
+      MediaSource.update_source(media_item.source, %{download_media: false})
+
+      perform_job(VideoDownloadWorker, %{id: media_item.id})
     end
   end
 end

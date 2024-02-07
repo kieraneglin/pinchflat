@@ -8,15 +8,6 @@
   </:actions>
 </.header>
 
-<.list>
-  <:item
-    :for={
-      attr <- ~w(name output_path_template download_subs download_auto_subs embed_subs sub_langs)a
-    }
-    title={attr}
-  >
-    <%= Map.get(@media_profile, attr) %>
-  </:item>
-</.list>
+<.list_items_from_map map={Map.from_struct(@media_profile)} />
 
 <.back navigate={~p"/media_profiles"}>Back to media_profiles</.back>

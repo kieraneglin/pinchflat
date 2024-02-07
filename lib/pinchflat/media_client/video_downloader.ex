@@ -14,13 +14,17 @@ defmodule Pinchflat.MediaClient.VideoDownloader do
   alias Pinchflat.Profiles.MediaProfile
 
   alias Pinchflat.MediaClient.Backends.YtDlp.Video, as: YtDlpVideo
-  alias Pinchflat.Profiles.Options.YtDlp.OptionBuilder, as: YtDlpOptionBuilder
+  alias Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder, as: YtDlpDownloadOptionBuilder
   alias Pinchflat.MediaClient.Backends.YtDlp.MetadataParser, as: YtDlpMetadataParser
 
   @doc """
   Downloads a video for a media item, updating the media item based on the metadata
   returned by the backend. Also saves the entire metadata response to the associated
   media_metadata record.
+
+  NOTE: related methods (like the download worker) won't download if the media item's source
+  is set to not download media. However, I'm not enforcing that here since I need this for testing.
+  This may change in the future but I'm not stressed.
 
   Returns {:ok, %MediaItem{}} | {:error, any, ...any}
   """
@@ -52,7 +56,7 @@ defmodule Pinchflat.MediaClient.VideoDownloader do
 
   defp option_builder(backend) do
     case backend do
-      :yt_dlp -> YtDlpOptionBuilder
+      :yt_dlp -> YtDlpDownloadOptionBuilder
     end
   end
 
