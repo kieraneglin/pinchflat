@@ -1,0 +1,120 @@
+/**
+ * @license
+ *
+ * Font Family: Satoshi
+ * Designed by: Deni Anggara
+ * URL: https://www.fontshare.com/fonts/satoshi
+ * © 2023 Indian Type Foundry
+ *
+ * Font Styles:
+ * Satoshi Light
+ * Satoshi Light Italic
+ * Satoshi Regular
+ * Satoshi Italic
+ * Satoshi Medium
+ * Satoshi Medium Italic
+ * Satoshi Bold
+ * Satoshi Bold Italic
+ * Satoshi Black
+ * Satoshi Black Italic
+ *
+*/
+
+@font-face {
+  font-family: 'Satoshi';
+  src:
+    url('/fonts/satoshi/Satoshi-Light.woff2'),
+    url('/fonts/satoshi/Satoshi-Light.woff'),
+    url('/fonts/satoshi/Satoshi-Light.ttf');
+  font-weight: 300;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src:
+    url('/fonts/satoshi/Satoshi-LightItalic.woff2'),
+    url('/fonts/satoshi/Satoshi-LightItalic.woff'),
+    url('/fonts/satoshi/Satoshi-LightItalic.ttf');
+  font-weight: 300;
+  font-display: swap;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src:
+    url('/fonts/satoshi/Satoshi-Regular.woff2'),
+    url('/fonts/satoshi/Satoshi-Regular.woff'),
+    url('/fonts/satoshi/Satoshi-Regular.ttf');
+  font-weight: 400;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src:
+    url('/fonts/satoshi/Satoshi-Italic.woff2'),
+    url('/fonts/satoshi/Satoshi-Italic.woff'),
+    url('/fonts/satoshi/Satoshi-Italic.ttf');
+  font-weight: 400;
+  font-display: swap;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src:
+    url('/fonts/satoshi/Satoshi-Medium.woff2'),
+    url('/fonts/satoshi/Satoshi-Medium.woff'),
+    url('/fonts/satoshi/Satoshi-Medium.ttf');
+  font-weight: 500;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src:
+    url('/fonts/satoshi/Satoshi-MediumItalic.woff2'),
+    url('/fonts/satoshi/Satoshi-MediumItalic.woff'),
+    url('/fonts/satoshi/Satoshi-MediumItalic.ttf');
+  font-weight: 500;
+  font-display: swap;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src:
+    url('/fonts/satoshi/Satoshi-Bold.woff2'),
+    url('/fonts/satoshi/Satoshi-Bold.woff'),
+    url('/fonts/satoshi/Satoshi-Bold.ttf');
+  font-weight: 700;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src:
+    url('/fonts/satoshi/Satoshi-BoldItalic.woff2'),
+    url('/fonts/satoshi/Satoshi-BoldItalic.woff'),
+    url('/fonts/satoshi/Satoshi-BoldItalic.ttf');
+  font-weight: 700;
+  font-display: swap;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src:
+    url('/fonts/satoshi/Satoshi-BlackItalic.woff2'),
+    url('/fonts/satoshi/Satoshi-BlackItalic.woff'),
+    url('/fonts/satoshi/Satoshi-BlackItalic.ttf');
+  font-weight: 900;
+  font-display: swap;
+  font-style: italic;
+}

@@ -1,11 +1,11 @@
-<.header>
+<.old_header>
   Listing Sources
   <:actions>
     <.link href={~p"/media_sources/sources/new"}>
       <.button>New Source</.button>
     </.link>
   </:actions>
-</.header>
+</.old_header>
 
 <.table id="sources" rows={@sources} row_click={&JS.navigate(~p"/media_sources/sources/#{&1}")}>
   <:col :let={source} label="Collection Name"><%= source.collection_name %></:col>

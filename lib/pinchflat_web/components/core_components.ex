@@ -425,7 +425,7 @@ defmodule PinchflatWeb.CoreComponents do
   slot :subtitle
   slot :actions
 
-  def header(assigns) do
+  def old_header(assigns) do
     ~H"""
     <header class={[@actions != [] && "flex items-center justify-between gap-6", @class]}>
       <div>
