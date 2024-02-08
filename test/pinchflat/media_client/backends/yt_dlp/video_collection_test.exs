@@ -1,6 +1,7 @@
 defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollectionTest do
   use ExUnit.Case, async: true
   import Mox
+  import Pinchflat.MediaSourceFixtures
 
   alias Pinchflat.MediaClient.Backends.YtDlp.VideoCollection
 
@@ -8,22 +9,23 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollectionTest do
 
   setup :verify_on_exit!
 
-  describe "get_video_ids/2" do
-    test "returns a list of video ids with no blank elements" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, "id1\nid2\n\nid3\n"} end)
+  describe "get_media_attributes/2" do
+    test "returns a list of video attributes with no blank elements" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, source_attributes_return_fixture() <> "\n\n"} end)
 
-      assert {:ok, ["id1", "id2", "id3"]} = VideoCollection.get_video_ids(@channel_url)
+      assert {:ok, [%{"id" => "video1"}, %{"id" => "video2"}, %{"id" => "video3"}]} =
+               VideoCollection.get_media_attributes(@channel_url)
     end
 
     test "it passes the expected default args" do
       expect(YtDlpRunnerMock, :run, fn _url, opts, ot ->
         assert opts == [:simulate, :skip_download]
-        assert ot == "%(id)s"
+        assert ot == "%(.{id,title,was_live,original_url})j"
 
         {:ok, ""}
       end)
 
-      assert {:ok, _} = VideoCollection.get_video_ids(@channel_url)
+      assert {:ok, _} = VideoCollection.get_media_attributes(@channel_url)
     end
 
     test "it passes the expected custom args" do
@@ -33,13 +35,13 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollectionTest do
         {:ok, ""}
       end)
 
-      assert {:ok, _} = VideoCollection.get_video_ids(@channel_url, [:custom_arg])
+      assert {:ok, _} = VideoCollection.get_media_attributes(@channel_url, [:custom_arg])
     end
 
     test "returns the error straight through when the command fails" do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:error, "Big issue", 1} end)
 
-      assert {:error, "Big issue", 1} = VideoCollection.get_video_ids(@channel_url)
+      assert {:error, "Big issue", 1} = VideoCollection.get_media_attributes(@channel_url)
     end
   end
 

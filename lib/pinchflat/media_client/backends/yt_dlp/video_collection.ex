@@ -4,18 +4,26 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollection do
   videos (aka: a source [ie: channels, playlists]).
   """
 
-  @doc """
-  Returns a list of strings representing the video ids in the collection.
+  alias Pinchflat.Utils.FunctionUtils
 
-  Returns {:ok, [binary()]} | {:error, any, ...}.
+  @doc """
+  Returns a list of maps representing the videos in the collection.
+
+  Returns {:ok, [map()]} | {:error, any, ...}.
   """
-  def get_video_ids(url, command_opts \\ []) do
+  def get_media_attributes(url, command_opts \\ []) do
     runner = Application.get_env(:pinchflat, :yt_dlp_runner)
     opts = command_opts ++ [:simulate, :skip_download]
 
-    case runner.run(url, opts, "%(id)s") do
-      {:ok, output} -> {:ok, String.split(output, "\n", trim: true)}
-      res -> res
+    case runner.run(url, opts, "%(.{id,title,was_live,original_url})j") do
+      {:ok, output} ->
+        output
+        |> String.split("\n", trim: true)
+        |> Enum.map(&Phoenix.json_library().decode!/1)
+        |> FunctionUtils.wrap_ok()
+
+      res ->
+        res
     end
   end
 

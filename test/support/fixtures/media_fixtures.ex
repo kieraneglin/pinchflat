@@ -15,6 +15,8 @@ defmodule Pinchflat.MediaFixtures do
       |> Enum.into(%{
         media_id: Faker.String.base64(12),
         title: Faker.Commerce.product_name(),
+        original_url: "https://www.youtube.com/channel/#{Faker.String.base64(12)}",
+        livestream: false,
         media_filepath: "/video/#{Faker.File.file_name(:video)}",
         source_id: MediaSourceFixtures.source_fixture().id
       })

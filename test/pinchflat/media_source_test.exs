@@ -6,7 +6,6 @@ defmodule Pinchflat.MediaSourceTest do
   import Pinchflat.MediaSourceFixtures
 
   alias Pinchflat.MediaSource
-  alias Pinchflat.Media.MediaItem
   alias Pinchflat.MediaSource.Source
   alias Pinchflat.Workers.MediaIndexingWorker
 
@@ -114,59 +113,6 @@ defmodule Pinchflat.MediaSourceTest do
       assert {:ok, %Source{} = source} = MediaSource.create_source(valid_attrs)
 
       assert_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
-    end
-  end
-
-  describe "index_media_items/1" do
-    setup do
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, "video1\nvideo2\nvideo3"} end)
-
-      {:ok, [source: source_fixture()]}
-    end
-
-    test "it creates a media_item record for each media ID returned", %{source: source} do
-      assert media_items = MediaSource.index_media_items(source)
-
-      assert Enum.count(media_items) == 3
-      assert ["video1", "video2", "video3"] == Enum.map(media_items, & &1.media_id)
-      assert Enum.all?(media_items, fn %MediaItem{} -> true end)
-    end
-
-    test "it attaches all media_items to the given source", %{source: source} do
-      source_id = source.id
-      assert media_items = MediaSource.index_media_items(source)
-
-      assert Enum.count(media_items) == 3
-      assert Enum.all?(media_items, fn %MediaItem{source_id: ^source_id} -> true end)
-    end
-
-    test "it won't duplicate media_items based on media_id and source", %{source: source} do
-      _first_run = MediaSource.index_media_items(source)
-      _duplicate_run = MediaSource.index_media_items(source)
-
-      media_items = Repo.preload(source, :media_items).media_items
-      assert Enum.count(media_items) == 3
-    end
-
-    test "it can duplicate media_ids for different sources", %{source: source} do
-      other_source = source_fixture()
-
-      media_items = MediaSource.index_media_items(source)
-      media_items_other_source = MediaSource.index_media_items(other_source)
-
-      assert Enum.count(media_items) == 3
-      assert Enum.count(media_items_other_source) == 3
-
-      assert Enum.map(media_items, & &1.media_id) ==
-               Enum.map(media_items_other_source, & &1.media_id)
-    end
-
-    test "it returns a list of media_items or changesets", %{source: source} do
-      first_run = MediaSource.index_media_items(source)
-      duplicate_run = MediaSource.index_media_items(source)
-
-      assert Enum.all?(first_run, fn %MediaItem{} -> true end)
-      assert Enum.all?(duplicate_run, fn %Ecto.Changeset{} -> true end)
     end
   end
 
