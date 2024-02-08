@@ -27,7 +27,8 @@ defmodule Pinchflat.Profiles.MediaProfile do
 
   schema "media_profiles" do
     field :name, :string
-    field :output_path_template, :string
+
+    field :output_path_template, :string, default: "/{{ uploader }}/{{ title }}.{{ ext }}"
 
     field :download_subs, :boolean, default: true
     field :download_auto_subs, :boolean, default: true

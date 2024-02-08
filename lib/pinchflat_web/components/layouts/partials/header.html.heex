@@ -1,5 +1,5 @@
 <header class="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
-  <div class="flex flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">
+  <div class="flex flex-grow items-center justify-end px-4 py-4 shadow-2 md:px-6 2xl:px-11">
     <div class="flex items-center gap-2 sm:gap-4 lg:hidden">
       <button
         class="z-99999 block rounded-sm border border-stroke bg-white p-1.5 shadow-sm dark:border-strokedark dark:bg-boxdark lg:hidden"
@@ -11,10 +11,10 @@
         <h2 class="text-title-md2 font-bold text-white">Pinchflat</h2>
       </a>
     </div>
-    <div class="hidden sm:block">
+    <div class="hidden sm:block bg-meta-4 rounded-md">
       <%!-- Aspirational (for now) --%>
       <div class="relative">
-        <span class="absolute left-0 top-1/2 -translate-y-1/2">
+        <span class="absolute left-2 top-1/2 -translate-y-1/2 flex">
           <.icon name="hero-magnifying-glass" />
         </span>
 
@@ -24,19 +24,6 @@
           class="w-full bg-transparent pl-9 pr-4 border-0 focus:ring-0 focus:outline-none xl:w-125"
         />
       </div>
-    </div>
-    <div class="flex items-center gap-3 2xsm:gap-7">
-      <ul class="flex items-center gap-2 2xsm:gap-4">
-        <li class="relative">
-          <%!-- Aspirational (for now) --%>
-          <a
-            class="relative flex h-8.5 w-8.5 items-center justify-center rounded-full border-[0.5px] border-stroke bg-gray hover:text-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
-            href="#"
-          >
-            <.icon name="hero-cog-8-tooth" />
-          </a>
-        </li>
-      </ul>
     </div>
   </div>
 </header>

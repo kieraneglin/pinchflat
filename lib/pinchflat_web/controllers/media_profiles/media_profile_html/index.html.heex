@@ -1,8 +1,39 @@
-<.old_header>
-  Listing Media profiles
-  <:actions>
-    <.link href={~p"/media_profiles/new"}>
-      <.button>New Media profile</.button>
+<div class="mb-6 flex gap-3 flex-row items-center justify-between">
+  <h2 class="text-title-md2 font-bold text-black dark:text-white">All Media Profiles</h2>
+  <nav>
+    <.link navigate={~p"/media_profiles/new"}>
+      <.button color="bg-primary" rounding="rounded-full">
+        <span class="font-bold mx-2">+</span> New Media Profile
+      </.button>
     </.link>
-  </:actions>
-</.old_header>
+  </nav>
+</div>
+
+<div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+  <div class="max-w-full overflow-x-auto">
+    <div class="flex flex-col gap-10">
+      <.table rows={@media_profiles} table_class="text-black dark:text-white">
+        <:col :let={media_profile} label="Name">
+          <%= media_profile.name %>
+        </:col>
+        <:col :let={media_profile} label="Output Template">
+          <code class="text-sm"><%= media_profile.output_path_template %></code>
+        </:col>
+        <:col :let={media_profile} label="" class="flex place-content-evenly">
+          <.link
+            navigate={~p"/media_profiles/#{media_profile.id}"}
+            class="hover:text-secondary duration-200 ease-in-out mx-0.5"
+          >
+            <.icon name="hero-eye" />
+          </.link>
+          <.link
+            navigate={~p"/media_profiles/#{media_profile.id}/edit"}
+            class="hover:text-secondary duration-200 ease-in-out mx-0.5"
+          >
+            <.icon name="hero-pencil-square" />
+          </.link>
+        </:col>
+      </.table>
+    </div>
+  </div>
+</div>
