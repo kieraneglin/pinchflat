@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="[scrollbar-gutter:stable]">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -11,11 +11,7 @@
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
   </head>
-  <body
-    x-data="{ 'darkMode': true, 'sidebarToggle': false }"
-    x-init="darkMode = true;"
-    x-bind:class="{'dark text-bodydark bg-boxdark-2': darkMode === true}"
-  >
+  <body x-data="{ 'sidebarToggle': false }" class="dark text-bodydark bg-boxdark-2">
     <%= @inner_content %>
   </body>
 </html>

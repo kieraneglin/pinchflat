@@ -9,7 +9,7 @@ defmodule PinchflatWeb.Layouts do
   attr :navigate, :any, required: true
 
   def sidebar_item(assigns) do
-    # I'm testing out grouping classes here. Tentative order: font, layout, animation, state-modifiers
+    # I'm testing out grouping classes here. Tentative order: font, layout, color, animation, state-modifiers
     ~H"""
     <li>
       <.link

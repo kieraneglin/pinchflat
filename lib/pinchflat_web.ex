@@ -84,8 +84,10 @@ defmodule PinchflatWeb do
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components and translation
-      import PinchflatWeb.CoreComponents
       import PinchflatWeb.Gettext
+      import PinchflatWeb.CoreComponents
+      import PinchflatWeb.CustomComponents.TableComponents
+      import PinchflatWeb.CustomComponents.ButtonComponents
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

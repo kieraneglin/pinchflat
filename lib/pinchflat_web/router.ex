@@ -20,10 +20,7 @@ defmodule PinchflatWeb.Router do
     get "/", PageController, :home
 
     resources "/media_profiles", MediaProfiles.MediaProfileController
-
-    scope "/media_sources", MediaSources do
-      resources "/sources", SourceController
-    end
+    resources "/sources", MediaSources.SourceController
   end
 
   # Other scopes may use custom stacks.
