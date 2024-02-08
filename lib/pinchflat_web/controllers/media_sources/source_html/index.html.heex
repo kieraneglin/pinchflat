@@ -1,24 +1,48 @@
-<.header>
-  Listing Sources
-  <:actions>
-    <.link href={~p"/media_sources/sources/new"}>
-      <.button>New Source</.button>
+<div class="mb-6 flex gap-3 flex-row items-center justify-between">
+  <h2 class="text-title-md2 font-bold text-black dark:text-white">All Sources</h2>
+  <nav>
+    <.link navigate={~p"/sources/new"}>
+      <.button color="bg-primary" rounding="rounded-full">
+        <span class="font-bold mx-2">+</span> New Source
+      </.button>
     </.link>
-  </:actions>
-</.header>
+  </nav>
+</div>
 
-<.table id="sources" rows={@sources} row_click={&JS.navigate(~p"/media_sources/sources/#{&1}")}>
-  <:col :let={source} label="Collection Name"><%= source.collection_name %></:col>
-  <:col :let={source} label="Collection ID"><%= source.collection_id %></:col>
-  <:action :let={source}>
-    <div class="sr-only">
-      <.link navigate={~p"/media_sources/sources/#{source}"}>Show</.link>
+<div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+  <div class="max-w-full overflow-x-auto">
+    <div class="flex flex-col gap-10">
+      <.table rows={@sources} table_class="text-black dark:text-white">
+        <:col :let={source} label="Name">
+          <%= source.friendly_name || source.collection_name %>
+        </:col>
+        <:col :let={source} label="Type"><%= source.collection_type %></:col>
+        <:col :let={source} label="Should Download?">
+          <.icon name={if source.download_media, do: "hero-check", else: "hero-x-mark"} />
+        </:col>
+        <:col :let={source} label="Media Profile">
+          <.link
+            navigate={~p"/media_profiles/#{source.media_profile_id}"}
+            class="hover:text-secondary duration-200 ease-in-out"
+          >
+            <%= source.media_profile.name %>
+          </.link>
+        </:col>
+        <:col :let={source} label="" class="flex place-content-evenly">
+          <.link
+            navigate={~p"/sources/#{source.id}"}
+            class="hover:text-secondary duration-200 ease-in-out mx-0.5"
+          >
+            <.icon name="hero-eye" />
+          </.link>
+          <.link
+            navigate={~p"/sources/#{source.id}/edit"}
+            class="hover:text-secondary duration-200 ease-in-out mx-0.5"
+          >
+            <.icon name="hero-pencil-square" />
+          </.link>
+        </:col>
+      </.table>
     </div>
-    <.link navigate={~p"/media_sources/sources/#{source}/edit"}>Edit</.link>
-  </:action>
-  <:action :let={source}>
-    <.link href={~p"/media_sources/sources/#{source}"} method="delete" data-confirm="Are you sure?">
-      Delete
-    </.link>
-  </:action>
-</.table>
+  </div>
+</div>

@@ -28,14 +28,14 @@ defmodule PinchflatWeb.SourceControllerTest do
 
   describe "index" do
     test "lists all sources", %{conn: conn} do
-      conn = get(conn, ~p"/media_sources/sources")
-      assert html_response(conn, 200) =~ "Listing Sources"
+      conn = get(conn, ~p"/sources")
+      assert html_response(conn, 200) =~ "All Sources"
     end
   end
 
   describe "new source" do
     test "renders form", %{conn: conn} do
-      conn = get(conn, ~p"/media_sources/sources/new")
+      conn = get(conn, ~p"/sources/new")
       assert html_response(conn, 200) =~ "New Source"
     end
   end
@@ -43,17 +43,17 @@ defmodule PinchflatWeb.SourceControllerTest do
   describe "create source" do
     test "redirects to show when data is valid", %{conn: conn, create_attrs: create_attrs} do
       expect(YtDlpRunnerMock, :run, 1, &runner_function_mock/3)
-      conn = post(conn, ~p"/media_sources/sources", source: create_attrs)
+      conn = post(conn, ~p"/sources", source: create_attrs)
 
       assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == ~p"/media_sources/sources/#{id}"
+      assert redirected_to(conn) == ~p"/sources/#{id}"
 
-      conn = get(conn, ~p"/media_sources/sources/#{id}")
-      assert html_response(conn, 200) =~ "Source #{id}"
+      conn = get(conn, ~p"/sources/#{id}")
+      assert html_response(conn, 200) =~ "Source ##{id}"
     end
 
     test "renders errors when data is invalid", %{conn: conn, invalid_attrs: invalid_attrs} do
-      conn = post(conn, ~p"/media_sources/sources", source: invalid_attrs)
+      conn = post(conn, ~p"/sources", source: invalid_attrs)
       assert html_response(conn, 200) =~ "New Source"
     end
   end
@@ -62,7 +62,7 @@ defmodule PinchflatWeb.SourceControllerTest do
     setup [:create_source]
 
     test "renders form for editing chosen source", %{conn: conn, source: source} do
-      conn = get(conn, ~p"/media_sources/sources/#{source}/edit")
+      conn = get(conn, ~p"/sources/#{source}/edit")
       assert html_response(conn, 200) =~ "Edit Source"
     end
   end
@@ -73,10 +73,10 @@ defmodule PinchflatWeb.SourceControllerTest do
     test "redirects when data is valid", %{conn: conn, source: source, update_attrs: update_attrs} do
       expect(YtDlpRunnerMock, :run, 1, &runner_function_mock/3)
 
-      conn = put(conn, ~p"/media_sources/sources/#{source}", source: update_attrs)
-      assert redirected_to(conn) == ~p"/media_sources/sources/#{source}"
+      conn = put(conn, ~p"/sources/#{source}", source: update_attrs)
+      assert redirected_to(conn) == ~p"/sources/#{source}"
 
-      conn = get(conn, ~p"/media_sources/sources/#{source}")
+      conn = get(conn, ~p"/sources/#{source}")
       assert html_response(conn, 200) =~ "https://www.youtube.com/source/321xyz"
     end
 
@@ -85,7 +85,7 @@ defmodule PinchflatWeb.SourceControllerTest do
       source: source,
       invalid_attrs: invalid_attrs
     } do
-      conn = put(conn, ~p"/media_sources/sources/#{source}", source: invalid_attrs)
+      conn = put(conn, ~p"/sources/#{source}", source: invalid_attrs)
       assert html_response(conn, 200) =~ "Edit Source"
     end
   end
@@ -94,11 +94,11 @@ defmodule PinchflatWeb.SourceControllerTest do
     setup [:create_source]
 
     test "deletes chosen source", %{conn: conn, source: source} do
-      conn = delete(conn, ~p"/media_sources/sources/#{source}")
-      assert redirected_to(conn) == ~p"/media_sources/sources"
+      conn = delete(conn, ~p"/sources/#{source}")
+      assert redirected_to(conn) == ~p"/sources"
 
       assert_error_sent 404, fn ->
-        get(conn, ~p"/media_sources/sources/#{source}")
+        get(conn, ~p"/sources/#{source}")
       end
     end
   end

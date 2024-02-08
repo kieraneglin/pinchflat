@@ -2,4 +2,30 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+@import './satoshi';
+
 /* This file is for your main application CSS */
+[x-cloak] {
+  display: none !important;
+}
+
+@layer base {
+  body {
+    @apply relative z-1 bg-whiten font-satoshi text-base font-normal text-body;
+  }
+}
+
+@layer components {
+}
+
+@layer utilities {
+  /* Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}

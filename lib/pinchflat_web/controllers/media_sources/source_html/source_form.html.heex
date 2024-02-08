@@ -3,6 +3,13 @@
     Oops, something went wrong! Please check the errors below.
   </.error>
 
+  <.input
+    field={f[:original_url]}
+    type="text"
+    label="Source URL"
+    help="URL of a channel or playlist (required)"
+  />
+
   <.input field={f[:friendly_name]} type="text" label="Friendly Name" />
 
   <.input
@@ -16,21 +23,25 @@
     field={f[:collection_type]}
     options={friendly_collection_types()}
     type="select"
-    label="Collection Type"
+    label="Source Type"
   />
-
-  <.input field={f[:original_url]} type="text" label="Source URL" />
 
   <.input
     field={f[:index_frequency_minutes]}
     options={friendly_index_frequencies()}
     type="select"
     label="Index Frequency"
+    help="Roughly how often to check for media to download"
   />
 
-  <.input field={f[:download_media]} type="checkbox" label="Download Media?" />
+  <.input
+    field={f[:download_media]}
+    type="toggle"
+    label="Download Media?"
+    help="Unchecking still indexes media but it won't be downloaded"
+  />
 
   <:actions>
-    <.button>Save Source</.button>
+    <.button class="mt-15 mb-5 sm:mb-7.5">Save Source</.button>
   </:actions>
 </.simple_form>

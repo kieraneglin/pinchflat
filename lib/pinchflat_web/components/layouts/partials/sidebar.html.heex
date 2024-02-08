@@ -1,0 +1,29 @@
+<aside
+  x-bind:class="sidebarToggle ? 'translate-x-0' : '-translate-x-full'"
+  class="absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-black duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0"
+  @click.outside="sidebarToggle = false"
+>
+  <div class="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
+    <h2 class="text-title-md2 font-bold text-white">Pinchflat</h2>
+
+    <button class="block lg:hidden" @click.stop="sidebarToggle = !sidebarToggle">
+      <.icon name="hero-arrow-left" class="fill-current" />
+    </button>
+  </div>
+  <div class="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
+    <nav class="mt-5 px-4 py-4 lg:mt-9 lg:px-6">
+      <div>
+        <h3 class="mb-4 ml-4 text-sm font-medium text-bodydark2">MENU</h3>
+        <ul class="mb-6 flex flex-col gap-1.5">
+          <.sidebar_item icon="hero-tv" text="Sources" navigate={~p"/sources"} />
+
+          <.sidebar_item
+            icon="hero-adjustments-vertical"
+            text="Media Profiles"
+            navigate={~p"/media_profiles"}
+          />
+        </ul>
+      </div>
+    </nav>
+  </div>
+</aside>

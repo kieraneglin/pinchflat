@@ -40,3 +40,4 @@ npm-debug.log
 .env
 .DS_Store
 scratchpad.md
+/scratchpad/
