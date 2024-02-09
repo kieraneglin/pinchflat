@@ -33,6 +33,38 @@
 
       <h3 class="font-bold text-xl">Attributes</h3>
       <.list_items_from_map map={Map.from_struct(@source)} />
+
+      <h3 class="font-bold text-xl">Downloaded Media</h3>
+      <%= if length(@downloaded_media) > 0 do %>
+        <.table rows={@downloaded_media} table_class="text-black dark:text-white">
+          <:col :let={media_item} label="Title">
+            <%= String.slice(media_item.title, 0..50) %>...
+          </:col>
+          <:col :let={media_item} label="" class="flex place-content-evenly">
+            <.link navigate={~p"/media/#{media_item.id}"} class="hover:text-secondary duration-200 ease-in-out mx-0.5">
+              <.icon name="hero-eye" />
+            </.link>
+          </:col>
+        </.table>
+      <% else %>
+        <p class="text-black dark:text-white">Nothing Here!</p>
+      <% end %>
+
+      <h3 class="font-bold text-xl">Pending Media</h3>
+      <%= if length(@pending_media) > 0 do %>
+        <.table rows={@pending_media} table_class="text-black dark:text-white">
+          <:col :let={media_item} label="Title">
+            <%= String.slice(media_item.title, 0..50) %>...
+          </:col>
+          <:col :let={media_item} label="" class="flex place-content-evenly">
+            <.link navigate={~p"/media/#{media_item.id}"} class="hover:text-secondary duration-200 ease-in-out mx-0.5">
+              <.icon name="hero-eye" />
+            </.link>
+          </:col>
+        </.table>
+      <% else %>
+        <p class="text-black dark:text-white">Nothing Here!</p>
+      <% end %>
     </div>
   </div>
 </div>
