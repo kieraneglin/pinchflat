@@ -13,17 +13,21 @@ defmodule Pinchflat.Media.MediaItem do
   @allowed_fields ~w(
     title
     media_id
+    original_url
+    livestream
     media_filepath
     source_id
     subtitle_filepaths
     thumbnail_filepath
     metadata_filepath
   )a
-  @required_fields ~w(media_id source_id)a
+  @required_fields ~w(title original_url livestream media_id source_id)a
 
   schema "media_items" do
     field :title, :string
     field :media_id, :string
+    field :original_url, :string
+    field :livestream, :boolean, default: false
     field :media_filepath, :string
     field :thumbnail_filepath, :string
     field :metadata_filepath, :string

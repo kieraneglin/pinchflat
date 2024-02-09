@@ -47,7 +47,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorker do
   end
 
   defp index_media_and_reschedule(source) do
-    MediaSource.index_media_items(source)
+    SourceTasks.index_media_items(source)
     SourceTasks.enqueue_pending_media_downloads(source)
 
     source

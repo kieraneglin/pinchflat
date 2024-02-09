@@ -6,6 +6,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
   alias Pinchflat.Media
   alias Pinchflat.Tasks
   alias Pinchflat.MediaSource.Source
+  alias Pinchflat.MediaClient.SourceDetails
   alias Pinchflat.Workers.MediaIndexingWorker
   alias Pinchflat.Workers.VideoDownloadWorker
 
@@ -31,6 +32,32 @@ defmodule Pinchflat.Tasks.SourceTasks do
         {:ok, task} -> {:ok, task}
       end
     end
+  end
+
+  @doc """
+  Given a media source, creates (indexes) the media by creating media_items for each
+  media ID in the source.
+
+  Returns [%MediaItem{}, ...] | [%Ecto.Changeset{}, ...]
+  """
+  def index_media_items(%Source{} = source) do
+    {:ok, media_attributes} = SourceDetails.get_media_attributes(source.original_url)
+
+    media_attributes
+    |> Enum.map(fn media_attrs ->
+      attrs = %{
+        source_id: source.id,
+        title: media_attrs["title"],
+        media_id: media_attrs["id"],
+        original_url: media_attrs["original_url"],
+        livestream: media_attrs["was_live"]
+      }
+
+      case Media.create_media_item(attrs) do
+        {:ok, media_item} -> media_item
+        {:error, changeset} -> changeset
+      end
+    end)
   end
 
   @doc """

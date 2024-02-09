@@ -7,7 +7,6 @@ defmodule Pinchflat.MediaSource do
   alias Pinchflat.Repo
 
   alias Pinchflat.Tasks
-  alias Pinchflat.Media
   alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.MediaSource.Source
   alias Pinchflat.MediaClient.SourceDetails
@@ -37,26 +36,6 @@ defmodule Pinchflat.MediaSource do
     %Source{}
     |> change_source_from_url(attrs)
     |> commit_and_start_indexing()
-  end
-
-  @doc """
-  Given a media source, creates (indexes) the media by creating media_items for each
-  media ID in the source.
-
-  Returns [%MediaItem{}, ...] | [%Ecto.Changeset{}, ...]
-  """
-  def index_media_items(%Source{} = source) do
-    {:ok, media_ids} = SourceDetails.get_video_ids(source.original_url)
-
-    media_ids
-    |> Enum.map(fn media_id ->
-      attrs = %{source_id: source.id, media_id: media_id}
-
-      case Media.create_media_item(attrs) do
-        {:ok, media_item} -> media_item
-        {:error, changeset} -> changeset
-      end
-    end)
   end
 
   @doc """
@@ -100,6 +79,9 @@ defmodule Pinchflat.MediaSource do
   Note that this fetches source details as long as the `original_url` is present.
   This means that it'll go for it even if a changeset is otherwise invalid. This
   is pretty easy to change, but for MVP I'm not concerned.
+
+  NOTE: When operating in the ideal path, this effectively adds an API call
+  to the source creation/update process. Should be used only when needed.
 
   IDEA: Maybe I could discern `collection_type` based on the original URL?
   It also seems like it's a channel when the returned yt-dlp channel_id is the

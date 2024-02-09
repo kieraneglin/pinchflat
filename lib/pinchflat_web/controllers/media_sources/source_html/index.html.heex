@@ -29,16 +29,10 @@
           </.link>
         </:col>
         <:col :let={source} label="" class="flex place-content-evenly">
-          <.link
-            navigate={~p"/sources/#{source.id}"}
-            class="hover:text-secondary duration-200 ease-in-out mx-0.5"
-          >
+          <.link navigate={~p"/sources/#{source.id}"} class="hover:text-secondary duration-200 ease-in-out mx-0.5">
             <.icon name="hero-eye" />
           </.link>
-          <.link
-            navigate={~p"/sources/#{source.id}/edit"}
-            class="hover:text-secondary duration-200 ease-in-out mx-0.5"
-          >
+          <.link navigate={~p"/sources/#{source.id}/edit"} class="hover:text-secondary duration-200 ease-in-out mx-0.5">
             <.icon name="hero-pencil-square" />
           </.link>
         </:col>

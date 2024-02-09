@@ -44,7 +44,7 @@ defmodule IexHelpers do
         :channel -> channel_url()
       end
 
-    SourceDetails.get_video_ids(source)
+    SourceDetails.get_media_attributes(source)
   end
 end
 

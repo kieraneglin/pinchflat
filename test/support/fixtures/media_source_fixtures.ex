@@ -29,4 +29,30 @@ defmodule Pinchflat.MediaSourceFixtures do
 
     source
   end
+
+  def source_attributes_return_fixture do
+    source_attributes = [
+      %{
+        id: "video1",
+        title: "Video 1",
+        original_url: "https://example.com/video1",
+        was_live: false
+      },
+      %{
+        id: "video2",
+        title: "Video 2",
+        original_url: "https://example.com/video2",
+        was_live: true
+      },
+      %{
+        id: "video3",
+        title: "Video 3",
+        original_url: "https://example.com/video3",
+        was_live: false
+      }
+    ]
+
+    source_attributes
+    |> Enum.map_join("\n", &Phoenix.json_library().encode!(&1))
+  end
 end
