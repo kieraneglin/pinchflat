@@ -48,6 +48,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorker do
 
   defp index_media_and_reschedule(source) do
     SourceTasks.index_media_items(source)
+    # This method handles the case where a source is set to not download media
     SourceTasks.enqueue_pending_media_downloads(source)
 
     source
