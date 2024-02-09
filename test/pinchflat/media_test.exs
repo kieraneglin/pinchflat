@@ -3,6 +3,7 @@ defmodule Pinchflat.MediaTest do
 
   import Pinchflat.TasksFixtures
   import Pinchflat.MediaFixtures
+  import Pinchflat.ProfilesFixtures
   import Pinchflat.MediaSourceFixtures
 
   alias Pinchflat.Media
@@ -30,7 +31,7 @@ defmodule Pinchflat.MediaTest do
   end
 
   describe "list_pending_media_items_for/1" do
-    test "it returns pending media_items for a given source" do
+    test "it returns pending without a filepath for a given source" do
       source = source_fixture()
       media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil})
 
@@ -47,6 +48,138 @@ defmodule Pinchflat.MediaTest do
         })
 
       assert Media.list_pending_media_items_for(source) == []
+    end
+  end
+
+  describe "list_pending_media_items_for/1 when testing shorts" do
+    test "returns shorts and normal media when shorts_behaviour is :include" do
+      source = source_fixture(%{media_profile_id: media_profile_fixture(%{shorts_behaviour: :include}).id})
+      normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
+      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+
+      assert Media.list_pending_media_items_for(source) == [normal, short]
+    end
+
+    test "returns only shorts when shorts_behaviour is :only" do
+      source = source_fixture(%{media_profile_id: media_profile_fixture(%{shorts_behaviour: :only}).id})
+      _normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
+      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+
+      assert Media.list_pending_media_items_for(source) == [short]
+    end
+
+    test "returns only normal media when shorts_behaviour is :exclude" do
+      source = source_fixture(%{media_profile_id: media_profile_fixture(%{shorts_behaviour: :exclude}).id})
+      normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
+      _short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+
+      assert Media.list_pending_media_items_for(source) == [normal]
+    end
+  end
+
+  describe "list_pending_media_items_for/1 when testing livestreams" do
+    test "returns livestreams and normal media when livestream_behaviour is :include" do
+      source = source_fixture(%{media_profile_id: media_profile_fixture(%{livestream_behaviour: :include}).id})
+      normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
+      livestream = media_item_fixture(%{source_id: source.id, media_filepath: nil, livestream: true})
+
+      assert Media.list_pending_media_items_for(source) == [normal, livestream]
+    end
+
+    test "returns only livestreams when livestream_behaviour is :only" do
+      source = source_fixture(%{media_profile_id: media_profile_fixture(%{livestream_behaviour: :only}).id})
+      _normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
+      livestream = media_item_fixture(%{source_id: source.id, media_filepath: nil, livestream: true})
+
+      assert Media.list_pending_media_items_for(source) == [livestream]
+    end
+
+    test "returns only normal media when livestream_behaviour is :exclude" do
+      source = source_fixture(%{media_profile_id: media_profile_fixture(%{livestream_behaviour: :exclude}).id})
+      normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
+      _livestream = media_item_fixture(%{source_id: source.id, media_filepath: nil, livestream: true})
+
+      assert Media.list_pending_media_items_for(source) == [normal]
+    end
+  end
+
+  describe "list_pending_media_items_for/1 when testing all format options" do
+    test "returns livestreams, shorts, and normal media when behaviour is :include" do
+      source =
+        source_fixture(%{
+          media_profile_id:
+            media_profile_fixture(%{
+              shorts_behaviour: :include,
+              livestream_behaviour: :include
+            }).id
+        })
+
+      normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
+      livestream = media_item_fixture(%{source_id: source.id, media_filepath: nil, livestream: true})
+      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+
+      assert Media.list_pending_media_items_for(source) == [normal, livestream, short]
+    end
+
+    test "returns only livestreams and shorts when behaviour is :only" do
+      source =
+        source_fixture(%{
+          media_profile_id:
+            media_profile_fixture(%{
+              shorts_behaviour: :only,
+              livestream_behaviour: :only
+            }).id
+        })
+
+      _normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
+      livestream = media_item_fixture(%{source_id: source.id, media_filepath: nil, livestream: true})
+      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+
+      assert Media.list_pending_media_items_for(source) == [livestream, short]
+    end
+
+    test "returns only normal media when behaviour is :exclude" do
+      source =
+        source_fixture(%{
+          media_profile_id:
+            media_profile_fixture(%{
+              shorts_behaviour: :exclude,
+              livestream_behaviour: :exclude
+            }).id
+        })
+
+      normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
+      _livestream = media_item_fixture(%{source_id: source.id, media_filepath: nil, livestream: true})
+      _short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+
+      assert Media.list_pending_media_items_for(source) == [normal]
+    end
+
+    test ":only and :exclude return the expected results" do
+      source =
+        source_fixture(%{
+          media_profile_id:
+            media_profile_fixture(%{
+              shorts_behaviour: :only,
+              livestream_behaviour: :exclude
+            }).id
+        })
+
+      _normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
+      _livestream = media_item_fixture(%{source_id: source.id, media_filepath: nil, livestream: true})
+      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+
+      assert Media.list_pending_media_items_for(source) == [short]
+    end
+  end
+
+  describe "list_downloaded_media_items_for/1" do
+    test "returns only media items with a media_filepath" do
+      source = source_fixture()
+      _media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: "/video/#{Faker.File.file_name(:video)}"})
+
+      assert Media.list_downloaded_media_items_for(source) == [media_item]
     end
   end
 
