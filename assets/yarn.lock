@@ -2,3 +2,21 @@
 # yarn lockfile v1
 
 
+"@vue/reactivity@~3.1.1":
+  version "3.1.5"
+  resolved "https://registry.yarnpkg.com/@vue/reactivity/-/reactivity-3.1.5.tgz#dbec4d9557f7c8f25c2635db1e23a78a729eb991"
+  integrity sha512-1tdfLmNjWG6t/CsPldh+foumYFo3cpyCHgBYQ34ylaMsJ+SNHQ1kApMIa8jN+i593zQuaw3AdWH0nJTARzCFhg==
+  dependencies:
+    "@vue/shared" "3.1.5"
+
+"@vue/shared@3.1.5":
+  version "3.1.5"
+  resolved "https://registry.yarnpkg.com/@vue/shared/-/shared-3.1.5.tgz#74ee3aad995d0a3996a6bb9533d4d280514ede03"
+  integrity sha512-oJ4F3TnvpXaQwZJNF3ZK+kLPHKarDmJjJ6jyzVNDKH9md1dptjC7lWR//jrGuLdek/U6iltWxqAnYOu8gCiOvA==
+
+alpinejs@^3.13.5:
+  version "3.13.5"
+  resolved "https://registry.yarnpkg.com/alpinejs/-/alpinejs-3.13.5.tgz#c06f067e847a295085b4c6f76c42a6a35499d953"
+  integrity sha512-1d2XeNGN+Zn7j4mUAKXtAgdc4/rLeadyTMWeJGXF5DzwawPBxwTiBhFFm6w/Ei8eJxUZeyNWWSD9zknfdz1kEw==
+  dependencies:
+    "@vue/reactivity" "~3.1.1"

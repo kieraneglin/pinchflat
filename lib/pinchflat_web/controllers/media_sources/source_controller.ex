@@ -7,7 +7,7 @@ defmodule PinchflatWeb.MediaSources.SourceController do
   alias Pinchflat.MediaSource.Source
 
   def index(conn, _params) do
-    sources = MediaSource.list_sources()
+    sources = Repo.preload(MediaSource.list_sources(), :media_profile)
 
     render(conn, :index, sources: sources)
   end
@@ -23,7 +23,7 @@ defmodule PinchflatWeb.MediaSources.SourceController do
       {:ok, source} ->
         conn
         |> put_flash(:info, "Source created successfully.")
-        |> redirect(to: ~p"/media_sources/sources/#{source}")
+        |> redirect(to: ~p"/sources/#{source}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, :new, changeset: changeset, media_profiles: media_profiles())
@@ -53,7 +53,7 @@ defmodule PinchflatWeb.MediaSources.SourceController do
       {:ok, source} ->
         conn
         |> put_flash(:info, "Source updated successfully.")
-        |> redirect(to: ~p"/media_sources/sources/#{source}")
+        |> redirect(to: ~p"/sources/#{source}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, :edit,
@@ -70,7 +70,7 @@ defmodule PinchflatWeb.MediaSources.SourceController do
 
     conn
     |> put_flash(:info, "Source deleted successfully.")
-    |> redirect(to: ~p"/media_sources/sources")
+    |> redirect(to: ~p"/sources")
   end
 
   defp media_profiles do
