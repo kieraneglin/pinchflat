@@ -35,7 +35,11 @@ defmodule Pinchflat.MediaClient.VideoDownloader do
     case download_for_media_profile(media_item.media_id, media_profile, backend) do
       {:ok, parsed_json} ->
         parser = metadata_parser(backend)
-        parsed_attrs = parser.parse_for_media_item(parsed_json)
+
+        parsed_attrs =
+          parsed_json
+          |> parser.parse_for_media_item()
+          |> Map.merge(%{media_downloaded_at: DateTime.utc_now()})
 
         # Don't forgor to use preloaded associations or updates to
         # associations won't work!
