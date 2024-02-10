@@ -45,7 +45,9 @@ defmodule Pinchflat.Profiles.MediaProfile do
     # through the entire collection to determine if a video is a short or
     # a livestream.
     # NOTE: these can BOTH be set to :only which will download shorts and
-    # livestreams _only_ and ignore regular videos.
+    # livestreams _only_ and ignore regular videos. The redundant case
+    # is when one is set to :only and the other is set to :exclude.
+    # See `build_format_clauses` in the Media context for more.
     field :shorts_behaviour, Ecto.Enum, values: [:include, :exclude, :only], default: :include
     field :livestream_behaviour, Ecto.Enum, values: [:include, :exclude, :only], default: :include
 

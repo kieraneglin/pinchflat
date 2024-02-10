@@ -3,12 +3,7 @@
     Oops, something went wrong! Please check the errors below.
   </.error>
 
-  <.input
-    field={f[:original_url]}
-    type="text"
-    label="Source URL"
-    help="URL of a channel or playlist (required)"
-  />
+  <.input field={f[:original_url]} type="text" label="Source URL" help="URL of a channel or playlist (required)" />
 
   <.input field={f[:friendly_name]} type="text" label="Friendly Name" />
 
@@ -19,12 +14,7 @@
     label="Media Profile"
   />
 
-  <.input
-    field={f[:collection_type]}
-    options={friendly_collection_types()}
-    type="select"
-    label="Source Type"
-  />
+  <.input field={f[:collection_type]} options={friendly_collection_types()} type="select" label="Source Type" />
 
   <.input
     field={f[:index_frequency_minutes]}

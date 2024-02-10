@@ -10,7 +10,7 @@ defmodule Pinchflat.MediaClient.VideoDownloaderTest do
   setup do
     media_item =
       Repo.preload(
-        media_item_fixture(%{title: nil, media_filepath: nil}),
+        media_item_fixture(%{title: "Something", media_filepath: nil}),
         [:metadata, source: :media_profile]
       )
 
@@ -58,7 +58,6 @@ defmodule Pinchflat.MediaClient.VideoDownloaderTest do
     end
 
     test "it extracts the title", %{media_item: media_item} do
-      assert media_item.title == nil
       assert {:ok, updated_media_item} = VideoDownloader.download_for_media_item(media_item)
       assert updated_media_item.title == "Trying to Wheelie Without the Rear Brake"
     end

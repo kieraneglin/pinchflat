@@ -1,6 +1,7 @@
 defmodule Pinchflat.Tasks.SourceTasksTest do
   use Pinchflat.DataCase
 
+  import Mox
   import Pinchflat.TasksFixtures
   import Pinchflat.MediaFixtures
   import Pinchflat.MediaSourceFixtures
@@ -8,8 +9,11 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
   alias Pinchflat.Tasks
   alias Pinchflat.Tasks.Task
   alias Pinchflat.Tasks.SourceTasks
+  alias Pinchflat.Media.MediaItem
   alias Pinchflat.Workers.MediaIndexingWorker
   alias Pinchflat.Workers.VideoDownloadWorker
+
+  setup :verify_on_exit!
 
   describe "kickoff_indexing_task/1" do
     test "it does not schedule a job if the interval is <= 0" do
@@ -43,6 +47,61 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
       assert {:ok, _} = SourceTasks.kickoff_indexing_task(source)
 
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+  end
+
+  describe "index_media_items/1" do
+    setup do
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, source_attributes_return_fixture()} end)
+
+      {:ok, [source: source_fixture()]}
+    end
+
+    test "it creates a media_item record for each media ID returned", %{source: source} do
+      assert media_items = SourceTasks.index_media_items(source)
+
+      assert Enum.count(media_items) == 3
+      assert ["video1", "video2", "video3"] == Enum.map(media_items, & &1.media_id)
+      assert ["Video 1", "Video 2", "Video 3"] == Enum.map(media_items, & &1.title)
+      assert Enum.all?(media_items, fn mi -> mi.original_url end)
+      assert Enum.all?(media_items, fn %MediaItem{} -> true end)
+    end
+
+    test "it attaches all media_items to the given source", %{source: source} do
+      source_id = source.id
+      assert media_items = SourceTasks.index_media_items(source)
+
+      assert Enum.count(media_items) == 3
+      assert Enum.all?(media_items, fn %MediaItem{source_id: ^source_id} -> true end)
+    end
+
+    test "it won't duplicate media_items based on media_id and source", %{source: source} do
+      _first_run = SourceTasks.index_media_items(source)
+      _duplicate_run = SourceTasks.index_media_items(source)
+
+      media_items = Repo.preload(source, :media_items).media_items
+      assert Enum.count(media_items) == 3
+    end
+
+    test "it can duplicate media_ids for different sources", %{source: source} do
+      other_source = source_fixture()
+
+      media_items = SourceTasks.index_media_items(source)
+      media_items_other_source = SourceTasks.index_media_items(other_source)
+
+      assert Enum.count(media_items) == 3
+      assert Enum.count(media_items_other_source) == 3
+
+      assert Enum.map(media_items, & &1.media_id) ==
+               Enum.map(media_items_other_source, & &1.media_id)
+    end
+
+    test "it returns a list of media_items or changesets", %{source: source} do
+      first_run = SourceTasks.index_media_items(source)
+      duplicate_run = SourceTasks.index_media_items(source)
+
+      assert Enum.all?(first_run, fn %MediaItem{} -> true end)
+      assert Enum.all?(duplicate_run, fn %Ecto.Changeset{} -> true end)
     end
   end
 

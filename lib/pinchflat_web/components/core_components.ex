@@ -168,8 +168,7 @@ defmodule PinchflatWeb.CoreComponents do
         phx-connected={hide("#server-error")}
         hidden
       >
-        Hang in there while we get back on track
-        <.icon name="hero-arrow-path" class="ml-1 h-3 w-3 animate-spin" />
+        Hang in there while we get back on track <.icon name="hero-arrow-path" class="ml-1 h-3 w-3 animate-spin" />
       </.flash>
     </div>
     """
@@ -245,8 +244,7 @@ defmodule PinchflatWeb.CoreComponents do
     values: ~w(checkbox color date datetime-local email file hidden month number password
                toggle range radio search select tel text textarea time url week)
 
-  attr :field, Phoenix.HTML.FormField,
-    doc: "a form field struct retrieved from the form, for example: @form[:email]"
+  attr :field, Phoenix.HTML.FormField, doc: "a form field struct retrieved from the form, for example: @form[:email]"
 
   attr :errors, :list, default: []
   attr :checked, :boolean, doc: "the checked flag for checkbox inputs"
@@ -254,8 +252,7 @@ defmodule PinchflatWeb.CoreComponents do
   attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
   attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
 
-  attr :rest, :global,
-    include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
+  attr :rest, :global, include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
                 multiple pattern placeholder readonly required rows size step)
 
   slot :inner_block
@@ -279,15 +276,7 @@ defmodule PinchflatWeb.CoreComponents do
     <div phx-feedback-for={@name}>
       <label class="flex items-center gap-4 text-sm leading-6">
         <input type="hidden" name={@name} value="false" />
-        <input
-          type="checkbox"
-          id={@id}
-          name={@name}
-          value="true"
-          checked={@checked}
-          class="rounded focus:ring-0"
-          {@rest}
-        />
+        <input type="checkbox" id={@id} name={@name} value="true" checked={@checked} class="rounded focus:ring-0" {@rest} />
         <%= @label %>
       </label>
       <.help :if={@help}><%= @help %></.help>
@@ -318,8 +307,7 @@ defmodule PinchflatWeb.CoreComponents do
           {@rest}
         />
         <div class="inline-block cursor-pointer" @click="enabled = !enabled">
-          <div x-bind:class="enabled && '!bg-primary'" class="block h-8 w-14 rounded-full bg-black">
-          </div>
+          <div x-bind:class="enabled && '!bg-primary'" class="block h-8 w-14 rounded-full bg-black"></div>
           <div
             x-bind:class="enabled && '!right-1 !translate-x-full'"
             class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white transition"
@@ -529,10 +517,7 @@ defmodule PinchflatWeb.CoreComponents do
           <td :if={@action != []} class="relative w-14 p-0">
             <div class="relative whitespace-nowrap py-4 text-right text-sm font-medium">
               <span class="absolute -inset-y-px -right-4 left-0 group-hover:bg-zinc-50 sm:rounded-r-xl" />
-              <span
-                :for={action <- @action}
-                class="relative ml-4 font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
-              >
+              <span :for={action <- @action} class="relative ml-4 font-semibold leading-6 text-zinc-900 hover:text-zinc-700">
                 <%= render_slot(action, @row_item.(row)) %>
               </span>
             </div>
@@ -607,10 +592,7 @@ defmodule PinchflatWeb.CoreComponents do
   def back(assigns) do
     ~H"""
     <div class="mt-16">
-      <.link
-        navigate={@navigate}
-        class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
-      >
+      <.link navigate={@navigate} class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700">
         <.icon name="hero-arrow-left-solid" class="h-3 w-3" />
         <%= render_slot(@inner_block) %>
       </.link>
@@ -651,8 +633,7 @@ defmodule PinchflatWeb.CoreComponents do
     JS.show(js,
       to: selector,
       transition:
-        {"transition-all transform ease-out duration-300",
-         "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95",
+        {"transition-all transform ease-out duration-300", "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95",
          "opacity-100 translate-y-0 sm:scale-100"}
     )
   end
