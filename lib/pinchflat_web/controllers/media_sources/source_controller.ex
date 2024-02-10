@@ -2,6 +2,7 @@ defmodule PinchflatWeb.MediaSources.SourceController do
   use PinchflatWeb, :controller
 
   alias Pinchflat.Repo
+  alias Pinchflat.Media
   alias Pinchflat.Profiles
   alias Pinchflat.MediaSource
   alias Pinchflat.MediaSource.Source
@@ -36,7 +37,10 @@ defmodule PinchflatWeb.MediaSources.SourceController do
       |> MediaSource.get_source!()
       |> Repo.preload(:media_profile)
 
-    render(conn, :show, source: source)
+    pending_media = Media.list_pending_media_items_for(source)
+    downloaded_media = Media.list_downloaded_media_items_for(source)
+
+    render(conn, :show, source: source, pending_media: pending_media, downloaded_media: downloaded_media)
   end
 
   def edit(conn, %{"id" => id}) do
