@@ -41,7 +41,10 @@
             <%= String.slice(media_item.title, 0..50) %>...
           </:col>
           <:col :let={media_item} label="" class="flex place-content-evenly">
-            <.link navigate={~p"/media/#{media_item.id}"} class="hover:text-secondary duration-200 ease-in-out mx-0.5">
+            <.link
+              navigate={~p"/sources/#{@source.id}/media/#{media_item.id}"}
+              class="hover:text-secondary duration-200 ease-in-out mx-0.5"
+            >
               <.icon name="hero-eye" />
             </.link>
           </:col>
@@ -57,7 +60,10 @@
             <%= String.slice(media_item.title, 0..50) %>...
           </:col>
           <:col :let={media_item} label="" class="flex place-content-evenly">
-            <.link navigate={~p"/media/#{media_item.id}"} class="hover:text-secondary duration-200 ease-in-out mx-0.5">
+            <.link
+              navigate={~p"/sources/#{@source.id}/media/#{media_item.id}"}
+              class="hover:text-secondary duration-200 ease-in-out mx-0.5"
+            >
               <.icon name="hero-eye" />
             </.link>
           </:col>
