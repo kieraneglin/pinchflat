@@ -63,6 +63,7 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
       assert Enum.count(media_items) == 3
       assert ["video1", "video2", "video3"] == Enum.map(media_items, & &1.media_id)
       assert ["Video 1", "Video 2", "Video 3"] == Enum.map(media_items, & &1.title)
+      assert ["desc1", "desc2", "desc3"] == Enum.map(media_items, & &1.description)
       assert Enum.all?(media_items, fn mi -> mi.original_url end)
       assert Enum.all?(media_items, fn %MediaItem{} -> true end)
     end

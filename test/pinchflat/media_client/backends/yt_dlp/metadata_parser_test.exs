@@ -36,6 +36,12 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaParserTest do
       assert result.title == "Trying to Wheelie Without the Rear Brake"
     end
 
+    test "it extracts the description", %{metadata: metadata} do
+      result = Parser.parse_for_media_item(metadata)
+
+      assert is_binary(result.description)
+    end
+
     test "it returns the metadata as a map", %{metadata: metadata} do
       result = Parser.parse_for_media_item(metadata)
 

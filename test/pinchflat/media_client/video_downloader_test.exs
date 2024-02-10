@@ -68,6 +68,11 @@ defmodule Pinchflat.MediaClient.VideoDownloaderTest do
       assert updated_media_item.title == "Trying to Wheelie Without the Rear Brake"
     end
 
+    test "it extracts the description", %{media_item: media_item} do
+      assert {:ok, updated_media_item} = VideoDownloader.download_for_media_item(media_item)
+      assert is_binary(updated_media_item.description)
+    end
+
     test "it extracts the media_filepath", %{media_item: media_item} do
       assert media_item.media_filepath == nil
       assert {:ok, updated_media_item} = VideoDownloader.download_for_media_item(media_item)

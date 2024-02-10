@@ -52,7 +52,8 @@ defmodule Pinchflat.Tasks.SourceTasks do
         title: media_attrs["title"],
         media_id: media_attrs["id"],
         original_url: media_attrs["original_url"],
-        livestream: media_attrs["was_live"]
+        livestream: media_attrs["was_live"],
+        description: media_attrs["description"]
       }
 
       case Media.create_media_item(attrs) do

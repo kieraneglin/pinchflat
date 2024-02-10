@@ -13,6 +13,7 @@ defmodule Pinchflat.Media.MediaItem do
   @allowed_fields ~w(
     title
     media_id
+    description
     original_url
     livestream
     media_downloaded_at
@@ -27,6 +28,7 @@ defmodule Pinchflat.Media.MediaItem do
   schema "media_items" do
     field :title, :string
     field :media_id, :string
+    field :description, :string
     field :original_url, :string
     field :livestream, :boolean, default: false
     field :media_downloaded_at, :utc_datetime
