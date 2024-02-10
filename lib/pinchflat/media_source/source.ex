@@ -16,11 +16,19 @@ defmodule Pinchflat.MediaSource.Source do
     friendly_name
     index_frequency_minutes
     download_media
+    last_indexed_at
     original_url
     media_profile_id
   )a
 
-  @required_fields @allowed_fields -- ~w(index_frequency_minutes friendly_name)a
+  @required_fields ~w(
+    collection_name
+    collection_id
+    collection_type
+    download_media
+    original_url
+    media_profile_id
+  )a
 
   schema "sources" do
     field :friendly_name, :string
@@ -29,6 +37,7 @@ defmodule Pinchflat.MediaSource.Source do
     field :collection_type, Ecto.Enum, values: [:channel, :playlist]
     field :index_frequency_minutes, :integer, default: 60 * 24
     field :download_media, :boolean, default: true
+    field :last_indexed_at, :utc_datetime
     # This should only be used for user reference going forward
     # as the collection_id should be used for all API calls
     field :original_url, :string

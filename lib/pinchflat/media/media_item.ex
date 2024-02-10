@@ -15,11 +15,12 @@ defmodule Pinchflat.Media.MediaItem do
     media_id
     original_url
     livestream
+    media_downloaded_at
     media_filepath
-    source_id
     subtitle_filepaths
     thumbnail_filepath
     metadata_filepath
+    source_id
   )a
   @required_fields ~w(title original_url livestream media_id source_id)a
 
@@ -28,6 +29,8 @@ defmodule Pinchflat.Media.MediaItem do
     field :media_id, :string
     field :original_url, :string
     field :livestream, :boolean, default: false
+    field :media_downloaded_at, :utc_datetime
+
     field :media_filepath, :string
     field :thumbnail_filepath, :string
     field :metadata_filepath, :string

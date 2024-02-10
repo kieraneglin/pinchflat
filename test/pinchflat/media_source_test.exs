@@ -2,12 +2,15 @@ defmodule Pinchflat.MediaSourceTest do
   use Pinchflat.DataCase
   import Mox
   import Pinchflat.TasksFixtures
+  import Pinchflat.MediaFixtures
   import Pinchflat.ProfilesFixtures
   import Pinchflat.MediaSourceFixtures
 
   alias Pinchflat.MediaSource
+  alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.MediaSource.Source
   alias Pinchflat.Workers.MediaIndexingWorker
+  alias Pinchflat.Workers.VideoDownloadWorker
 
   @invalid_source_attrs %{name: nil, collection_id: nil}
 
@@ -171,6 +174,27 @@ defmodule Pinchflat.MediaSourceTest do
 
       assert {:ok, %Source{}} = MediaSource.update_source(source, update_attrs)
       refute_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
+    end
+
+    test "enabling the download_media attribute will schedule a download task" do
+      source = source_fixture(download_media: false)
+      media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
+      update_attrs = %{download_media: true}
+
+      refute_enqueued(worker: VideoDownloadWorker)
+      assert {:ok, %Source{}} = MediaSource.update_source(source, update_attrs)
+      assert_enqueued(worker: VideoDownloadWorker, args: %{"id" => media_item.id})
+    end
+
+    test "disabling the download_media attribute will cancel the download task" do
+      source = source_fixture(download_media: true)
+      media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
+      update_attrs = %{download_media: false}
+      SourceTasks.enqueue_pending_media_tasks(source)
+
+      assert_enqueued(worker: VideoDownloadWorker, args: %{"id" => media_item.id})
+      assert {:ok, %Source{}} = MediaSource.update_source(source, update_attrs)
+      refute_enqueued(worker: VideoDownloadWorker)
     end
 
     test "updates with invalid data returns error changeset" do

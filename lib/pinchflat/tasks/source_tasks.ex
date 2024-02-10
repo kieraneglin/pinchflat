@@ -5,6 +5,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
 
   alias Pinchflat.Media
   alias Pinchflat.Tasks
+  alias Pinchflat.MediaSource
   alias Pinchflat.MediaSource.Source
   alias Pinchflat.MediaClient.SourceDetails
   alias Pinchflat.Workers.MediaIndexingWorker
@@ -42,6 +43,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
   """
   def index_media_items(%Source{} = source) do
     {:ok, media_attributes} = SourceDetails.get_media_attributes(source.original_url)
+    MediaSource.update_source(source, %{last_indexed_at: DateTime.utc_now()})
 
     media_attributes
     |> Enum.map(fn media_attrs ->
@@ -73,7 +75,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
 
   Returns :ok
   """
-  def enqueue_pending_media_downloads(%Source{download_media: true} = source) do
+  def enqueue_pending_media_tasks(%Source{download_media: true} = source) do
     source
     |> Media.list_pending_media_items_for()
     |> Enum.each(fn media_item ->
@@ -84,7 +86,18 @@ defmodule Pinchflat.Tasks.SourceTasks do
     end)
   end
 
-  def enqueue_pending_media_downloads(%Source{download_media: false} = _source) do
+  def enqueue_pending_media_tasks(%Source{download_media: false} = _source) do
     :ok
+  end
+
+  @doc """
+  Deletes ALL pending tasks for a source's media items.
+
+  Returns :ok
+  """
+  def dequeue_pending_media_tasks(%Source{} = source) do
+    source
+    |> Media.list_pending_media_items_for()
+    |> Enum.each(&Tasks.delete_pending_tasks_for/1)
   end
 end

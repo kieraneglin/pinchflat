@@ -117,9 +117,7 @@ defmodule Pinchflat.Tasks do
         %MediaItem{} = media_item -> list_tasks_for(:media_item_id, media_item.id)
       end
 
-    Enum.each(tasks, fn task ->
-      delete_task(task)
-    end)
+    Enum.each(tasks, &delete_task/1)
   end
 
   @doc """
@@ -134,9 +132,7 @@ defmodule Pinchflat.Tasks do
         %MediaItem{} = media_item -> list_pending_tasks_for(:media_item_id, media_item.id)
       end
 
-    Enum.each(tasks, fn task ->
-      delete_task(task)
-    end)
+    Enum.each(tasks, &delete_task/1)
   end
 
   @doc """
