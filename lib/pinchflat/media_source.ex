@@ -35,7 +35,7 @@ defmodule Pinchflat.MediaSource do
   def create_source(attrs) do
     %Source{}
     |> change_source_from_url(attrs)
-    |> commit_and_start_indexing()
+    |> commit_and_handle_tasks()
   end
 
   @doc """
@@ -51,7 +51,7 @@ defmodule Pinchflat.MediaSource do
   def update_source(%Source{} = source, attrs) do
     source
     |> change_source_from_url(attrs)
-    |> commit_and_start_indexing()
+    |> commit_and_handle_tasks()
   end
 
   @doc """
@@ -139,11 +139,32 @@ defmodule Pinchflat.MediaSource do
     change_source(source, Map.merge(changes, collection_changes))
   end
 
-  defp commit_and_start_indexing(changeset) do
+  defp commit_and_handle_tasks(changeset) do
     case Repo.insert_or_update(changeset) do
-      {:ok, %Source{} = source} -> maybe_run_indexing_task(changeset, source)
-      err -> err
+      {:ok, %Source{} = source} ->
+        maybe_handle_media_tasks(changeset, source)
+        maybe_run_indexing_task(changeset, source)
+
+      err ->
+        err
     end
+  end
+
+  # If the source is NOT new (ie: updated) and the download_media flag has changed,
+  # enqueue or dequeue media download tasks as necessary.
+  defp maybe_handle_media_tasks(changeset, source) do
+    case {changeset.data, changeset.changes} do
+      {%{__meta__: %{state: :loaded}}, %{download_media: true}} ->
+        SourceTasks.enqueue_pending_media_tasks(source)
+
+      {%{__meta__: %{state: :loaded}}, %{download_media: false}} ->
+        SourceTasks.dequeue_pending_media_tasks(source)
+
+      _ ->
+        :ok
+    end
+
+    {:ok, source}
   end
 
   defp maybe_run_indexing_task(changeset, source) do
