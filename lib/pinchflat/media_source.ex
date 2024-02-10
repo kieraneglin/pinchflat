@@ -167,6 +167,10 @@ defmodule Pinchflat.MediaSource do
     {:ok, source}
   end
 
+  # IDEA: this uses a pattern where `kickoff_indexing_task` controls whether
+  # it should run based on the source, but `maybe_handle_media_tasks` handles that
+  # logic itself. Consider updating one or the other to be consistent (once I've
+  # decided which I like more)
   defp maybe_run_indexing_task(changeset, source) do
     case changeset.data do
       # If the changeset is new (not persisted), attempt indexing no matter what

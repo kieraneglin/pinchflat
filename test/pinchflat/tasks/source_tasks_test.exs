@@ -103,6 +103,15 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
       assert Enum.all?(first_run, fn %MediaItem{} -> true end)
       assert Enum.all?(duplicate_run, fn %Ecto.Changeset{} -> true end)
     end
+
+    test "it updates the source's last_indexed_at field", %{source: source} do
+      assert source.last_indexed_at == nil
+
+      SourceTasks.index_media_items(source)
+      source = Repo.reload!(source)
+
+      assert DateTime.diff(DateTime.utc_now(), source.last_indexed_at) < 1
+    end
   end
 
   describe "enqueue_pending_media_tasks/1" do
