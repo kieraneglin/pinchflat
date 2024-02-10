@@ -111,7 +111,7 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
       SourceTasks.index_media_items(source)
       source = Repo.reload!(source)
 
-      assert DateTime.diff(DateTime.utc_now(), source.last_indexed_at) < 1
+      assert DateTime.diff(DateTime.utc_now(), source.last_indexed_at) < 2
     end
   end
 

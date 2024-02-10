@@ -183,6 +183,37 @@ defmodule Pinchflat.MediaTest do
     end
   end
 
+  describe "search/1" do
+    setup do
+      media_item =
+        media_item_fixture(%{
+          title: "The quick brown fox",
+          description: "jumps over the lazy dog"
+        })
+
+      {:ok, %{media_item_id: media_item.id}}
+    end
+
+    test "searches based on title", %{media_item_id: media_item_id} do
+      assert [%{id: ^media_item_id}] = Media.search("quick")
+    end
+
+    test "searches based on description", %{media_item_id: media_item_id} do
+      assert [%{id: ^media_item_id}] = Media.search("lazy")
+    end
+
+    test "adds a matching_search_term attribute with the relevant text" do
+      assert [res] = Media.search("quick")
+      assert String.contains?(res.matching_search_term, "The [PF_HIGHLIGHT]quick[/PF_HIGHLIGHT] brown fox")
+    end
+
+    test "optionall lets you specify a limit" do
+      media_item_fixture(%{title: "The small gray dog"})
+
+      assert [_] = Media.search("dog", limit: 1)
+    end
+  end
+
   describe "get_media_item!/1" do
     test "it returns the media_item with given id" do
       media_item = media_item_fixture()

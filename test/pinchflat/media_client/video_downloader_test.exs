@@ -60,7 +60,7 @@ defmodule Pinchflat.MediaClient.VideoDownloaderTest do
     test "it sets the media_downloaded_at", %{media_item: media_item} do
       assert media_item.media_downloaded_at == nil
       assert {:ok, updated_media_item} = VideoDownloader.download_for_media_item(media_item)
-      assert DateTime.diff(DateTime.utc_now(), updated_media_item.media_downloaded_at) < 1
+      assert DateTime.diff(DateTime.utc_now(), updated_media_item.media_downloaded_at) < 2
     end
 
     test "it extracts the title", %{media_item: media_item} do

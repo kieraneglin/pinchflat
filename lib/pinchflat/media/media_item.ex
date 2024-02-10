@@ -41,6 +41,8 @@ defmodule Pinchflat.Media.MediaItem do
     # Will very likely revisit because I can't leave well-enough alone.
     field :subtitle_filepaths, {:array, {:array, :string}}, default: []
 
+    field :matching_search_term, :string, virtual: true
+
     belongs_to :source, Source
 
     has_one :metadata, MediaMetadata, on_replace: :update
