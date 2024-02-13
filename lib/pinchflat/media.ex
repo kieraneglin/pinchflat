@@ -48,6 +48,40 @@ defmodule Pinchflat.Media do
   end
 
   @doc """
+  Returns a list of media_items that match the search term. Adds a `matching_search_term`
+  virtual field to the result set.
+
+  Returns [%MediaItem{}, ...].
+  """
+  def search(search_term, opts \\ []) do
+    limit = Keyword.get(opts, :limit, 50)
+
+    from(mi in MediaItem,
+      where: fragment("searchable @@ websearch_to_tsquery(?)", ^search_term),
+      select_merge: %{
+        matching_search_term:
+          fragment(
+            """
+            ts_headline(
+              'english',
+              CONCAT(title, ' ', description),
+              websearch_to_tsquery(?),
+              'StartSel=[PF_HIGHLIGHT],StopSel=[/PF_HIGHLIGHT]'
+            )
+            """,
+            ^search_term
+          )
+      },
+      order_by: {
+        :desc,
+        fragment("ts_rank_cd(searchable, websearch_to_tsquery(?), 0)", ^search_term)
+      },
+      limit: ^limit
+    )
+    |> Repo.all()
+  end
+
+  @doc """
   Gets a single media_item.
 
   Returns %MediaItem{}. Raises `Ecto.NoResultsError` if the Media item does not exist.

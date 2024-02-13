@@ -21,6 +21,7 @@ defmodule PinchflatWeb.Router do
 
     resources "/media_profiles", MediaProfiles.MediaProfileController
     resources "/media", Media.MediaItemController, only: [:show]
+    resources "/search", Searches.SearchController, only: [:show], singleton: true
 
     resources "/sources", MediaSources.SourceController do
       resources "/media", Media.MediaItemController, only: [:show]
