@@ -1,0 +1,29 @@
+<div class="mb-6 flex gap-3 flex-row items-center justify-between">
+  <h2 class="text-title-md2 font-bold text-black dark:text-white">
+    <span class="hidden sm:inline">Search </span>Results for "<%= StringUtils.truncate(@search_term, 50) %>"
+  </h2>
+</div>
+
+<div class="rounded-sm border border-stroke bg-white px-5 py-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5">
+  <div class="max-w-full overflow-x-auto">
+    <div class="flex flex-col gap-10 dark:text-white">
+      <%= if match?([_|_], @search_results) do %>
+        <.table rows={@search_results} table_class="text-black dark:text-white">
+          <:col :let={result} label="Title">
+            <%= StringUtils.truncate(result.title, 40) %>
+          </:col>
+          <:col :let={result} label="Excerpt">
+            <.highlight_search_terms text={result.matching_search_term} />
+          </:col>
+          <:col :let={result} label="" class="flex place-content-evenly">
+            <.link navigate={~p"/media/#{result.id}"} class="hover:text-secondary duration-200 ease-in-out mx-0.5">
+              <.icon name="hero-eye" />
+            </.link>
+          </:col>
+        </.table>
+      <% else %>
+        <p class="font-bold text-lg text-center text-black dark:text-white">No results found</p>
+      <% end %>
+    </div>
+  </div>
+</div>

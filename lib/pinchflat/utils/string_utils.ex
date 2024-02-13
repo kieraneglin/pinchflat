@@ -24,4 +24,21 @@ defmodule Pinchflat.Utils.StringUtils do
     |> Base.encode16(case: :lower)
     |> String.slice(0..(length - 1))
   end
+
+  @doc """
+  Truncates a string to the given length and adds `...` if the string is longer than the given length.
+  Will break on a word boundary. Nothing happens if the string is shorter than the given length.
+
+  Returns binary()
+  """
+  def truncate(string, length) do
+    if String.length(string) > length do
+      string
+      |> String.slice(0..(length - 1))
+      |> String.replace(~r/\s+\S*$/, "")
+      |> Kernel.<>("...")
+    else
+      string
+    end
+  end
 end

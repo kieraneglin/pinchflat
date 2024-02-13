@@ -27,4 +27,18 @@ defmodule Pinchflat.Utils.StringUtilsTest do
       assert String.length(StringUtils.random_string(64)) == 64
     end
   end
+
+  describe "truncate/2" do
+    test "truncates a string to the given length and adds ..." do
+      assert StringUtils.truncate("hello world", 5) == "hello..."
+    end
+
+    test "breaks on a word boundary" do
+      assert StringUtils.truncate("hello world", 7) == "hello..."
+    end
+
+    test "does not truncate a string shorter than the given length" do
+      assert StringUtils.truncate("hello", 10) == "hello"
+    end
+  end
 end

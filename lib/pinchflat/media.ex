@@ -52,8 +52,6 @@ defmodule Pinchflat.Media do
   virtual field to the result set.
 
   Returns [%MediaItem{}, ...].
-
-  TODO: test limit
   """
   def search(search_term, opts \\ []) do
     limit = Keyword.get(opts, :limit, 50)
