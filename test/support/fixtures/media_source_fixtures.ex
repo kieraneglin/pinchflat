@@ -36,19 +36,22 @@ defmodule Pinchflat.MediaSourceFixtures do
         id: "video1",
         title: "Video 1",
         original_url: "https://example.com/video1",
-        was_live: false
+        was_live: false,
+        description: "desc1"
       },
       %{
         id: "video2",
         title: "Video 2",
         original_url: "https://example.com/video2",
-        was_live: true
+        was_live: true,
+        description: "desc2"
       },
       %{
         id: "video3",
         title: "Video 3",
         original_url: "https://example.com/video3",
-        was_live: false
+        was_live: false,
+        description: "desc3"
       }
     ]
 

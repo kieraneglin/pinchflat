@@ -14,8 +14,9 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollection do
   def get_media_attributes(url, command_opts \\ []) do
     runner = Application.get_env(:pinchflat, :yt_dlp_runner)
     opts = command_opts ++ [:simulate, :skip_download]
+    output_template = "%(.{id,title,was_live,original_url,description})j"
 
-    case runner.run(url, opts, "%(.{id,title,was_live,original_url})j") do
+    case runner.run(url, opts, output_template) do
       {:ok, output} ->
         output
         |> String.split("\n", trim: true)

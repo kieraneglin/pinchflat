@@ -89,6 +89,8 @@ defmodule PinchflatWeb do
       import PinchflatWeb.CustomComponents.TableComponents
       import PinchflatWeb.CustomComponents.ButtonComponents
 
+      alias Pinchflat.Utils.StringUtils
+
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
 

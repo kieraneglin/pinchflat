@@ -20,7 +20,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollectionTest do
     test "it passes the expected default args" do
       expect(YtDlpRunnerMock, :run, fn _url, opts, ot ->
         assert opts == [:simulate, :skip_download]
-        assert ot == "%(.{id,title,was_live,original_url})j"
+        assert ot == "%(.{id,title,was_live,original_url,description})j"
 
         {:ok, ""}
       end)

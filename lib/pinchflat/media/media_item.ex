@@ -13,6 +13,7 @@ defmodule Pinchflat.Media.MediaItem do
   @allowed_fields ~w(
     title
     media_id
+    description
     original_url
     livestream
     media_downloaded_at
@@ -27,6 +28,7 @@ defmodule Pinchflat.Media.MediaItem do
   schema "media_items" do
     field :title, :string
     field :media_id, :string
+    field :description, :string
     field :original_url, :string
     field :livestream, :boolean, default: false
     field :media_downloaded_at, :utc_datetime
@@ -38,6 +40,8 @@ defmodule Pinchflat.Media.MediaItem do
     # be an associated record, but I don't see the benefit right now.
     # Will very likely revisit because I can't leave well-enough alone.
     field :subtitle_filepaths, {:array, {:array, :string}}, default: []
+
+    field :matching_search_term, :string, virtual: true
 
     belongs_to :source, Source
 
