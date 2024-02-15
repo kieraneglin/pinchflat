@@ -49,7 +49,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.CommandRunnerTest do
     test "it automatically includes the --print-to-file flag" do
       assert {:ok, output} = Runner.run(@video_url, [], "%(id)s")
 
-      assert String.contains?(output, "--print-to-file %(id)s /app/tmp/")
+      assert String.contains?(output, "--print-to-file %(id)s /tmp/")
     end
 
     test "it returns the output and status when the command fails" do

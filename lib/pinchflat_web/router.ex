@@ -20,11 +20,10 @@ defmodule PinchflatWeb.Router do
     get "/", PageController, :home
 
     resources "/media_profiles", MediaProfiles.MediaProfileController
-    resources "/media", Media.MediaItemController, only: [:show]
     resources "/search", Searches.SearchController, only: [:show], singleton: true
 
     resources "/sources", MediaSources.SourceController do
-      resources "/media", Media.MediaItemController, only: [:show]
+      resources "/media", Media.MediaItemController, only: [:show, :delete]
     end
   end
 

@@ -94,10 +94,9 @@ defmodule Pinchflat.Media do
   Returns [binary()]
   """
   def media_filepaths(media_item) do
-    filesystem_fields = ~w(media_filepath thumbnail_filepath metadata_filepath subtitle_filepaths)a
     mapped_struct = Map.from_struct(media_item)
 
-    filesystem_fields
+    MediaItem.filepath_attributes()
     |> Enum.map(fn
       :subtitle_filepaths = field -> Enum.map(mapped_struct[field], fn [_, filepath] -> filepath end)
       field -> List.wrap(mapped_struct[field])
@@ -124,7 +123,7 @@ defmodule Pinchflat.Media do
   end
 
   @doc """
-  Deletes a media_item and its associated tasks.
+  Deletes a media_item and its associated tasks. Will leave files on disk.
 
   Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}.
   """
@@ -134,25 +133,32 @@ defmodule Pinchflat.Media do
   end
 
   @doc """
+  Deletes the media_item's associated files. Will leave the media_item in the database.
+
+  Returns {:ok, %MediaItem{}}
+  """
+  def delete_attachments(media_item) do
+    media_item
+    |> media_filepaths()
+    |> Enum.each(&File.rm/1)
+
+    # Fails if the directory is not empty
+    case File.rmdir(Path.dirname(media_item.media_filepath)) do
+      :ok -> {:ok, media_item}
+      {:error, :eexist} -> {:ok, media_item}
+    end
+  end
+
+  @doc """
   Deletes the media_item and all associated files. Attempts to delete the root directory
   but only if it is empty.
 
   Returns {:ok, %MediaItem{}}
   """
   def delete_media_item_and_attachments(media_item) do
-    root_directory = Path.dirname(media_item.media_filepath)
-
-    media_item
-    |> media_filepaths()
-    |> Enum.each(&File.rm/1)
+    {:ok, _} = delete_attachments(media_item)
 
     delete_media_item(media_item)
-
-    # Fails if the directory is not empty
-    case File.rmdir(root_directory) do
-      :ok -> {:ok, media_item}
-      {:error, :eexist} -> {:ok, media_item}
-    end
   end
 
   @doc """

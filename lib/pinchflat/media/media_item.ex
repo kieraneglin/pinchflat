@@ -60,4 +60,9 @@ defmodule Pinchflat.Media.MediaItem do
     |> validate_required(@required_fields)
     |> unique_constraint([:media_id, :source_id])
   end
+
+  @doc false
+  def filepath_attributes do
+    ~w(media_filepath thumbnail_filepath metadata_filepath subtitle_filepaths)a
+  end
 end

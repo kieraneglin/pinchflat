@@ -300,6 +300,43 @@ defmodule Pinchflat.MediaTest do
     end
   end
 
+  describe "delete_attachments/1" do
+    test "deletes the media item's files" do
+      media_item = media_item_with_attachments()
+
+      assert {:ok, _} = Media.delete_attachments(media_item)
+      refute File.exists?(media_item.media_filepath)
+    end
+
+    test "does not delete the media item" do
+      media_item = media_item_with_attachments()
+
+      assert {:ok, _} = Media.delete_attachments(media_item)
+
+      assert Repo.reload!(media_item)
+    end
+
+    test "deletes the parent folder if it is empty" do
+      media_item = media_item_with_attachments()
+      root_directory = Path.dirname(media_item.media_filepath)
+
+      assert {:ok, _} = Media.delete_attachments(media_item)
+      refute File.exists?(root_directory)
+    end
+
+    test "does not delete the parent folder if it is not empty" do
+      media_item = media_item_with_attachments()
+      root_directory = Path.dirname(media_item.media_filepath)
+      File.touch(Path.join([root_directory, "test.txt"]))
+
+      assert {:ok, _} = Media.delete_attachments(media_item)
+      assert File.exists?(root_directory)
+
+      :ok = File.rm(Path.join([root_directory, "test.txt"]))
+      :ok = File.rmdir(root_directory)
+    end
+  end
+
   describe "delete_media_item_and_attachments/1" do
     setup do
       media_item = media_item_with_attachments()
@@ -315,23 +352,6 @@ defmodule Pinchflat.MediaTest do
       assert File.exists?(media_item.media_filepath)
       assert {:ok, _} = Media.delete_media_item_and_attachments(media_item)
       refute File.exists?(media_item.media_filepath)
-    end
-
-    test "deletes the parent folder if it is empty", %{media_item: media_item} do
-      root_directory = Path.dirname(media_item.media_filepath)
-      assert File.exists?(root_directory)
-      assert {:ok, _} = Media.delete_media_item_and_attachments(media_item)
-      refute File.exists?(root_directory)
-    end
-
-    test "does not delete the parent folder if it is not empty", %{media_item: media_item} do
-      root_directory = Path.dirname(media_item.media_filepath)
-      File.touch(Path.join([root_directory, "test.txt"]))
-      assert {:ok, _} = Media.delete_media_item_and_attachments(media_item)
-      assert File.exists?(root_directory)
-
-      :ok = File.rm(Path.join([root_directory, "test.txt"]))
-      :ok = File.rmdir(root_directory)
     end
   end
 

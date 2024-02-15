@@ -56,6 +56,8 @@ defmodule Pinchflat.MediaSource do
 
   @doc """
   Deletes a source and it's associated tasks (of any state).
+  NOTE: will fail if the source has associated media items. Intended
+  for now, will almost certainly change in the future.
 
   Returns {:ok, %Source{}} | {:error, %Ecto.Changeset{}}
   """
