@@ -21,6 +21,7 @@ defmodule Pinchflat.Profiles.MediaProfile do
     embed_metadata
     shorts_behaviour
     livestream_behaviour
+    preferred_resolution
   )a
 
   @required_fields ~w(name output_path_template)a
@@ -48,8 +49,10 @@ defmodule Pinchflat.Profiles.MediaProfile do
     # livestreams _only_ and ignore regular videos. The redundant case
     # is when one is set to :only and the other is set to :exclude.
     # See `build_format_clauses` in the Media context for more.
-    field :shorts_behaviour, Ecto.Enum, values: [:include, :exclude, :only], default: :include
-    field :livestream_behaviour, Ecto.Enum, values: [:include, :exclude, :only], default: :include
+    field :shorts_behaviour, Ecto.Enum, values: ~w(include exclude only)a, default: :include
+    field :livestream_behaviour, Ecto.Enum, values: ~w(include exclude only)a, default: :include
+
+    field :preferred_resolution, Ecto.Enum, values: ~w(2160p 1080p 720p 480p 360p)a, default: :"1080p"
 
     has_many :sources, Source
 
