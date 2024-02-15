@@ -221,6 +221,24 @@ defmodule Pinchflat.MediaTest do
     end
   end
 
+  describe "media_filepaths/1" do
+    test "returns filepaths in a flat list" do
+      filepaths = %{
+        media_filepath: "/video/test.mp4",
+        thumbnail_filepath: "/video/test.jpg",
+        subtitle_filepaths: [["en", "video/test.srt"]]
+      }
+
+      media_item = media_item_fixture(filepaths)
+
+      assert Media.media_filepaths(media_item) == [
+               "/video/test.mp4",
+               "/video/test.jpg",
+               "video/test.srt"
+             ]
+    end
+  end
+
   describe "create_media_item/1" do
     test "creating with valid data creates a media_item" do
       valid_attrs = %{
@@ -279,6 +297,61 @@ defmodule Pinchflat.MediaTest do
 
       assert {:ok, %MediaItem{}} = Media.delete_media_item(media_item)
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+  end
+
+  describe "delete_attachments/1" do
+    test "deletes the media item's files" do
+      media_item = media_item_with_attachments()
+
+      assert {:ok, _} = Media.delete_attachments(media_item)
+      refute File.exists?(media_item.media_filepath)
+    end
+
+    test "does not delete the media item" do
+      media_item = media_item_with_attachments()
+
+      assert {:ok, _} = Media.delete_attachments(media_item)
+
+      assert Repo.reload!(media_item)
+    end
+
+    test "deletes the parent folder if it is empty" do
+      media_item = media_item_with_attachments()
+      root_directory = Path.dirname(media_item.media_filepath)
+
+      assert {:ok, _} = Media.delete_attachments(media_item)
+      refute File.exists?(root_directory)
+    end
+
+    test "does not delete the parent folder if it is not empty" do
+      media_item = media_item_with_attachments()
+      root_directory = Path.dirname(media_item.media_filepath)
+      File.touch(Path.join([root_directory, "test.txt"]))
+
+      assert {:ok, _} = Media.delete_attachments(media_item)
+      assert File.exists?(root_directory)
+
+      :ok = File.rm(Path.join([root_directory, "test.txt"]))
+      :ok = File.rmdir(root_directory)
+    end
+  end
+
+  describe "delete_media_item_and_attachments/1" do
+    setup do
+      media_item = media_item_with_attachments()
+      {:ok, media_item: media_item}
+    end
+
+    test "deletes the media item", %{media_item: media_item} do
+      assert {:ok, _} = Media.delete_media_item_and_attachments(media_item)
+      assert_raise Ecto.NoResultsError, fn -> Media.get_media_item!(media_item.id) end
+    end
+
+    test "deletes associated files", %{media_item: media_item} do
+      assert File.exists?(media_item.media_filepath)
+      assert {:ok, _} = Media.delete_media_item_and_attachments(media_item)
+      refute File.exists?(media_item.media_filepath)
     end
   end
 

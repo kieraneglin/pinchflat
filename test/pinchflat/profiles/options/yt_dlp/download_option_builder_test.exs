@@ -12,7 +12,7 @@ defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilderTest do
     test "it generates an expanded output path based on the given template" do
       assert {:ok, res} = DownloadOptionBuilder.build(@media_profile)
 
-      assert {:output, "/tmp/videos/%(title)S.%(ext)s"} in res
+      assert {:output, "/tmp/test/videos/%(title)S.%(ext)s"} in res
     end
   end
 

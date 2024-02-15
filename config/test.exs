@@ -3,8 +3,8 @@ import Config
 config :pinchflat,
   # Specifying backend data here makes mocking and local testing SUPER easy
   yt_dlp_executable: Path.join([File.cwd!(), "/test/support/scripts/yt-dlp-mocks/repeater.sh"]),
-  media_directory: Path.join([System.tmp_dir!(), "videos"]),
-  metadata_directory: Path.join([System.tmp_dir!(), "metadata"])
+  media_directory: Path.join([System.tmp_dir!(), "test", "videos"]),
+  metadata_directory: Path.join([System.tmp_dir!(), "test", "metadata"])
 
 config :pinchflat, Oban, testing: :manual
 

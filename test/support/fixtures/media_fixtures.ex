@@ -31,9 +31,9 @@ defmodule Pinchflat.MediaFixtures do
   def media_item_with_metadata(attrs \\ %{}) do
     json_filepath =
       Path.join([
-        Path.dirname(__ENV__.file),
+        File.cwd!(),
+        "test",
         "support",
-        "fixtures",
         "files",
         "media_metadata.json"
       ])
@@ -42,6 +42,30 @@ defmodule Pinchflat.MediaFixtures do
     {:ok, parsed_json} = Phoenix.json_library().decode(file_body)
     merged_attrs = Map.merge(attrs, %{metadata: %{client_respinse: parsed_json}})
 
+    media_item_fixture(merged_attrs)
+  end
+
+  def media_item_with_attachments(attrs \\ %{}) do
+    stored_media_filepath =
+      Path.join([
+        Application.get_env(:pinchflat, :media_directory),
+        "#{:rand.uniform(1_000_000)}",
+        "#{:rand.uniform(1_000_000)}_media.mkv"
+      ])
+
+    fixture_media_filepath =
+      Path.join([
+        File.cwd!(),
+        "test",
+        "support",
+        "files",
+        "media.mkv"
+      ])
+
+    :ok = File.mkdir_p(Path.dirname(stored_media_filepath))
+    :ok = File.cp(fixture_media_filepath, stored_media_filepath)
+
+    merged_attrs = Map.merge(attrs, %{media_filepath: stored_media_filepath})
     media_item_fixture(merged_attrs)
   end
 end
