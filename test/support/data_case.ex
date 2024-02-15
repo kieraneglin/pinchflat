@@ -32,6 +32,20 @@ defmodule Pinchflat.DataCase do
 
   setup tags do
     Pinchflat.DataCase.setup_sandbox(tags)
+    Pinchflat.DataCase.setup_temp_filepaths()
+    :ok
+  end
+
+  @doc """
+  Sets up the temp filepaths for the media and metadata directories.
+  """
+  def setup_temp_filepaths do
+    File.rm_rf!(Application.get_env(:pinchflat, :media_directory))
+    File.rm_rf!(Application.get_env(:pinchflat, :metadata_directory))
+
+    File.mkdir_p!(Application.get_env(:pinchflat, :media_directory))
+    File.mkdir_p!(Application.get_env(:pinchflat, :metadata_directory))
+
     :ok
   end
 
