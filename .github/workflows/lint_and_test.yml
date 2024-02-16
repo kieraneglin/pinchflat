@@ -24,9 +24,6 @@ jobs:
       - name: Create and populate ENV file
         run: |
           echo MIX_ENV=test >> .env
-          echo POSTGRES_HOST=postgres >> .env
-          echo POSTGRES_USER=postgres >> .env
-          echo POSTGRES_PASSWORD=postgres >> .env
 
       - name: Pull prebuilt images
         run: docker compose pull

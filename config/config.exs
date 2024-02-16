@@ -28,6 +28,7 @@ config :pinchflat, PinchflatWeb.Endpoint,
   live_view: [signing_salt: "/t5878kO"]
 
 config :pinchflat, Oban,
+  engine: Oban.Engines.Lite,
   repo: Pinchflat.Repo,
   # Keep old jobs for 30 days for display in the UI
   plugins: [{Oban.Plugins.Pruner, max_age: 30 * 24 * 60 * 60}],

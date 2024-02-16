@@ -212,6 +212,14 @@ defmodule Pinchflat.MediaTest do
 
       assert [_] = Media.search("dog", limit: 1)
     end
+
+    test "returns an empty list when the search term is blank" do
+      assert [] = Media.search("")
+    end
+
+    test "returns an empty list when the search term is nil" do
+      assert [] = Media.search(nil)
+    end
   end
 
   describe "get_media_item!/1" do
