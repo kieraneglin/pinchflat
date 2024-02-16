@@ -44,14 +44,21 @@ if config_env() == :prod do
     if System.get_env("SECRET_KEY_BASE") do
       System.get_env("SECRET_KEY_BASE")
     else
-      Logger.warning("""
-        Using the default SECRET_KEY_BASE in a conventional production environment
-        is dangerous. Please set the SECRET_KEY_BASE environment variable if you're
-        deploying this to an internet-facing server. If you're running this in a
-        private network, it's likely safe to use the default value.
-      """)
+      if System.get_env("RUN_CONTEXT") == "selfhosted" do
+        # Using the default SECRET_KEY_BASE in a conventional production environment
+        # is dangerous. Please set the SECRET_KEY_BASE environment variable if you're
+        # deploying this to an internet-facing server. If you're running this in a
+        # private network, it's likely safe to use the default value. If you want
+        # to be extra safe, run `mix phx.gen.secret` and set the SECRET_KEY_BASE
+        # environment variable to the output of that command.
 
-      "ZkuQMStdmUzBv+gO3m3XZrtQW76e+AX3QIgTLajw3b/HkTLMEx+DOXr2WZsSS+n8"
+        "ZkuQMStdmUzBv+gO3m3XZrtQW76e+AX3QIgTLajw3b/HkTLMEx+DOXr2WZsSS+n8"
+      else
+        raise """
+        environment variable SECRET_KEY_BASE is missing.
+        You can generate one by calling: mix phx.gen.secret
+        """
+      end
     end
 
   config :pinchflat, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")

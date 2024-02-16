@@ -103,6 +103,7 @@ VOLUME /downloads
 ENV MIX_ENV="prod"
 ENV DATABASE_PATH="/config/pinchflat.db"
 ENV PORT=8945
+ENV RUN_CONTEXT="selfhosted"
 
 # Only copy the final release from the build stage
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/pinchflat ./
