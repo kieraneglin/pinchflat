@@ -6,13 +6,9 @@ config :pinchflat,
 
 # Configure your database
 config :pinchflat, Pinchflat.Repo,
-  username: System.get_env("POSTGRES_USER"),
-  password: System.get_env("POSTGRES_PASSWORD"),
-  hostname: System.get_env("POSTGRES_HOST"),
-  database: "pinchflat_dev",
-  stacktrace: true,
+  database: Path.expand("../pinchflat_dev.db", Path.dirname(__ENV__.file)),
   show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+  pool_size: 5
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
