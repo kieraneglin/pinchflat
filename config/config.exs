@@ -13,12 +13,12 @@ config :pinchflat,
   # Specifying backend data here makes mocking and local testing SUPER easy
   yt_dlp_executable: System.find_executable("yt-dlp"),
   yt_dlp_runner: Pinchflat.MediaClient.Backends.YtDlp.CommandRunner,
-  media_directory: "/media",
+  media_directory: "/downloads",
   metadata_directory: Path.join([System.tmp_dir!(), "pinchflat", "metadata"])
 
 # Configures the endpoint
 config :pinchflat, PinchflatWeb.Endpoint,
-  url: [host: "localhost"],
+  url: [host: "localhost", port: 8945],
   adapter: Phoenix.Endpoint.Cowboy2Adapter,
   render_errors: [
     formats: [html: PinchflatWeb.ErrorHTML, json: PinchflatWeb.ErrorJSON],

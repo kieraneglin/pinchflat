@@ -1,12 +1,14 @@
 version: '3'
 services:
   phx:
-    build: .
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
     volumes:
       - '.:/app'
     ports:
       - '4008:4008'
     command:
-      - ./docker-run.sh
+      - ./docker-run.dev.sh
     stdin_open: true
     tty: true

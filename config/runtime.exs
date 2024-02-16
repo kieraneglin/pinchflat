@@ -1,4 +1,5 @@
 import Config
+require Logger
 
 # config/runtime.exs is executed for all environments, including
 # during releases. It is executed after compilation and before the
@@ -28,6 +29,8 @@ if config_env() == :prod do
       For example: /etc/pinchflat/pinchflat.db
       """
 
+  config :pinchflat, yt_dlp_executable: System.find_executable("yt-dlp")
+
   config :pinchflat, Pinchflat.Repo,
     database: database_path,
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "5")
@@ -38,26 +41,29 @@ if config_env() == :prod do
   # to check this value into version control, so we use an environment
   # variable instead.
   secret_key_base =
-    System.get_env("SECRET_KEY_BASE") ||
-      raise """
-      environment variable SECRET_KEY_BASE is missing.
-      You can generate one by calling: mix phx.gen.secret
-      """
+    if System.get_env("SECRET_KEY_BASE") do
+      System.get_env("SECRET_KEY_BASE")
+    else
+      Logger.warning("""
+        Using the default SECRET_KEY_BASE in a conventional production environment
+        is dangerous. Please set the SECRET_KEY_BASE environment variable if you're
+        deploying this to an internet-facing server. If you're running this in a
+        private network, it's likely safe to use the default value.
+      """)
 
-  host = System.get_env("PHX_HOST") || "example.com"
-  port = String.to_integer(System.get_env("PORT") || "4000")
+      "ZkuQMStdmUzBv+gO3m3XZrtQW76e+AX3QIgTLajw3b/HkTLMEx+DOXr2WZsSS+n8"
+    end
 
   config :pinchflat, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
   config :pinchflat, PinchflatWeb.Endpoint,
-    url: [host: host, port: 443, scheme: "https"],
     http: [
       # Enable IPv6 and bind on all interfaces.
       # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
       # See the documentation on https://hexdocs.pm/plug_cowboy/Plug.Cowboy.html
       # for details about using IPv6 vs IPv4 and loopback vs public addresses.
       ip: {0, 0, 0, 0, 0, 0, 0, 0},
-      port: port
+      port: String.to_integer(System.get_env("PORT") || "4000")
     ],
     secret_key_base: secret_key_base
 
