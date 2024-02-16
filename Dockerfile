@@ -3,7 +3,7 @@ FROM elixir:latest
 
 # Install debian packages
 RUN apt-get update -qq
-RUN apt-get install -y inotify-tools postgresql-client ffmpeg \
+RUN apt-get install -y inotify-tools ffmpeg \
   python3 python3-pip python3-setuptools python3-wheel python3-dev
 
 # Install nodejs

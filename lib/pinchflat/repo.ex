@@ -1,7 +1,7 @@
 defmodule Pinchflat.Repo do
   use Ecto.Repo,
     otp_app: :pinchflat,
-    adapter: Ecto.Adapters.Postgres
+    adapter: Ecto.Adapters.SQLite3
 
   @doc """
   It's not immediately obvious if an Oban job qualifies as unique, so this method

@@ -6,12 +6,12 @@ defmodule Pinchflat.Repo.Migrations.CreateMediaItems do
       add :media_id, :string, null: false
       add :title, :string
       add :video_filepath, :string
-      add :channel_id, references(:channels, on_delete: :restrict), null: false
+      add :source_id, references(:sources, on_delete: :restrict), null: false
 
       timestamps(type: :utc_datetime)
     end
 
-    create index(:media_items, [:channel_id])
-    create unique_index(:media_items, [:media_id, :channel_id])
+    create index(:media_items, [:source_id])
+    create unique_index(:media_items, [:media_id, :source_id])
   end
 end

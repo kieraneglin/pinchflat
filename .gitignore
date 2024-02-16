@@ -41,3 +41,7 @@ npm-debug.log
 .DS_Store
 scratchpad.md
 /scratchpad/
+
+# Database files
+*.db
+*.db-*

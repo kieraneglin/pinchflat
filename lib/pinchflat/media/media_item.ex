@@ -9,6 +9,7 @@ defmodule Pinchflat.Media.MediaItem do
   alias Pinchflat.Tasks.Task
   alias Pinchflat.MediaSource.Source
   alias Pinchflat.Media.MediaMetadata
+  alias Pinchflat.Media.MediaItemSearchIndex
 
   @allowed_fields ~w(
     title
@@ -46,6 +47,7 @@ defmodule Pinchflat.Media.MediaItem do
     belongs_to :source, Source
 
     has_one :metadata, MediaMetadata, on_replace: :update
+    has_one :media_items_search_index, MediaItemSearchIndex, foreign_key: :id
 
     has_many :tasks, Task
 
