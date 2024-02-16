@@ -11,6 +11,11 @@ defmodule Pinchflat.MediaSource do
   alias Pinchflat.MediaSource.Source
   alias Pinchflat.MediaClient.SourceDetails
 
+  # TODO: test
+  def sources_exist? do
+    Repo.exists?(Source)
+  end
+
   @doc """
   Returns the list of sources. Returns [%Source{}, ...]
   """

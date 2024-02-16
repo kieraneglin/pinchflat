@@ -11,15 +11,23 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileController do
 
   def new(conn, _params) do
     changeset = Profiles.change_media_profile(%MediaProfile{})
-    render(conn, :new, changeset: changeset)
+
+    if get_session(conn, :onboarding) do
+      render(conn, :new, changeset: changeset, onboarding: true, layout: {Layouts, :onboarding})
+    else
+      render(conn, :new, changeset: changeset, onboarding: false)
+    end
   end
 
   def create(conn, %{"media_profile" => media_profile_params}) do
     case Profiles.create_media_profile(media_profile_params) do
       {:ok, media_profile} ->
+        redirect_location =
+          if get_session(conn, :onboarding), do: ~p"/", else: ~p"/media_profiles/#{media_profile}"
+
         conn
         |> put_flash(:info, "Media profile created successfully.")
-        |> redirect(to: ~p"/media_profiles/#{media_profile}")
+        |> redirect(to: redirect_location)
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, :new, changeset: changeset)
