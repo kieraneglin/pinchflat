@@ -34,7 +34,6 @@ defmodule PinchflatWeb.ConnCase do
 
   setup tags do
     Pinchflat.DataCase.setup_sandbox(tags)
-    Pinchflat.DataCase.setup_temp_filepaths()
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 end
