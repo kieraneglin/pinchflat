@@ -26,6 +26,7 @@ defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder do
         subtitle_options(media_profile) ++
         thumbnail_options(media_profile) ++
         metadata_options(media_profile) ++
+        quality_options(media_profile) ++
         output_options(media_profile)
 
     {:ok, built_options}
@@ -85,6 +86,19 @@ defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder do
         _ -> acc
       end
     end)
+  end
+
+  defp quality_options(media_profile) do
+    codec_options = "+codec:avc:m4a"
+
+    case media_profile.preferred_resolution do
+      :"360p" -> [format_sort: "res:360,#{codec_options}"]
+      :"480p" -> [format_sort: "res:480,#{codec_options}"]
+      :"720p" -> [format_sort: "res:720,#{codec_options}"]
+      :"1080p" -> [format_sort: "res:1080,#{codec_options}"]
+      :"1440p" -> [format_sort: "res:1440,#{codec_options}"]
+      :"2160p" -> [format_sort: "res:2160,#{codec_options}"]
+    end
   end
 
   defp output_options(media_profile) do

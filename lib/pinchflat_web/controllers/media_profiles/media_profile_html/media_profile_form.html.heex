@@ -66,6 +66,18 @@
     label="Include Livestreams?"
   />
 
+  <h3 class="mb-4 mt-8 text-2xl text-black dark:text-white">
+    Quality Options
+  </h3>
+
+  <.input
+    field={f[:preferred_resolution]}
+    options={friendly_resolution_options()}
+    type="select"
+    label="Preferred Resolution"
+    help="Will grab the closest available resolution if your preferred is not available"
+  />
+
   <:actions>
     <.button class="mt-15 mb-5 sm:mb-7.5">Save Media profile</.button>
   </:actions>

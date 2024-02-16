@@ -158,4 +158,12 @@ defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilderTest do
       refute :embed_metadata in res
     end
   end
+
+  describe "build/1 when testing quality options" do
+    test "it includes quality options" do
+      assert {:ok, res} = DownloadOptionBuilder.build(@media_profile)
+
+      assert {:format_sort, "res:1080,+codec:avc:m4a"} in res
+    end
+  end
 end

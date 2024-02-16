@@ -19,6 +19,9 @@
         <:col :let={media_profile} label="Output Template">
           <code class="text-sm"><%= media_profile.output_path_template %></code>
         </:col>
+        <:col :let={media_profile} label="Preferred Resolution">
+          <%= media_profile.preferred_resolution %>
+        </:col>
         <:col :let={media_profile} label="" class="flex place-content-evenly">
           <.link
             navigate={~p"/media_profiles/#{media_profile.id}"}
