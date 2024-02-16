@@ -1,12 +1,23 @@
 <div class="mb-6 flex gap-3 flex-row items-center justify-between">
   <div class="flex gap-3 items-center">
-    <.link :if={@conn.params["source_id"]} navigate={~p"/sources/#{@media_item.source_id}"}>
+    <.link navigate={~p"/sources/#{@media_item.source_id}"}>
       <.icon name="hero-arrow-left" class="w-10 h-10 hover:dark:text-white" />
     </.link>
     <h2 class="text-title-md2 font-bold text-black dark:text-white ml-4">
       Media Item #<%= @media_item.id %>
     </h2>
   </div>
+  <nav>
+    <.link
+      href={~p"/sources/#{@media_item.source_id}/media/#{@media_item}?delete_files=true"}
+      method="delete"
+      data-confirm="Are you sure?"
+    >
+      <.button color="bg-meta-1" rounding="rounded-full">
+        Delete Record and Files
+      </.button>
+    </.link>
+  </nav>
 </div>
 <div class="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
   <div class="max-w-full overflow-x-auto">
