@@ -1,11 +1,5 @@
 version: '3'
 services:
-  postgres:
-    image: 'postgres:16-alpine'
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-
   phx:
     build: .
     volumes:
@@ -13,4 +7,3 @@ services:
     ports:
       - '4008:4008'
     command: tail -F /dev/null
-    env_file: .env

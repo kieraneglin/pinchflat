@@ -6,7 +6,7 @@ config :pinchflat,
 
 # Configure your database
 config :pinchflat, Pinchflat.Repo,
-  database: Path.expand("../pinchflat_dev.db", Path.dirname(__ENV__.file)),
+  database: Path.expand("../priv/repo/pinchflat_dev.db", Path.dirname(__ENV__.file)),
   show_sensitive_data_on_connection_error: true,
   pool_size: 5
 
