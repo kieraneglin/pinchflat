@@ -3,7 +3,7 @@ defmodule Pinchflat.Repo.Migrations.AddMediaItemToTasks do
 
   def change do
     alter table(:tasks) do
-      # `restrict` because we need to be sure to delete pending tasks when a channel is deleted
+      # `restrict` because we need to be sure to delete pending tasks when a media item is deleted
       add :media_item_id, references(:media_items, on_delete: :restrict), null: true
     end
 

@@ -51,31 +51,29 @@ defmodule Pinchflat.Media do
   Returns a list of media_items that match the search term. Adds a `matching_search_term`
   virtual field to the result set.
 
+  Has explit handling for blank search terms because SQLite doesn't like empty MATCH clauses.
+
   Returns [%MediaItem{}, ...].
   """
-  def search(search_term, opts \\ []) do
+  def search(_search_term, _opts \\ [])
+  def search("", _opts), do: []
+  def search(nil, _opts), do: []
+
+  def search(search_term, opts) do
     limit = Keyword.get(opts, :limit, 50)
 
     from(mi in MediaItem,
-      where: fragment("searchable @@ websearch_to_tsquery(?)", ^search_term),
+      join: mi_search_index in assoc(mi, :media_items_search_index),
+      where: fragment("media_items_search_index MATCH ?", ^search_term),
       select_merge: %{
         matching_search_term:
-          fragment(
-            """
-            ts_headline(
-              'english',
-              CONCAT(title, ' ', description),
-              websearch_to_tsquery(?),
-              'StartSel=[PF_HIGHLIGHT],StopSel=[/PF_HIGHLIGHT]'
-            )
-            """,
-            ^search_term
-          )
+          fragment("""
+            snippet(media_items_search_index, 0, '[PF_HIGHLIGHT]', '[/PF_HIGHLIGHT]', '...', 20) ||
+            ' ' ||
+            snippet(media_items_search_index, 1, '[PF_HIGHLIGHT]', '[/PF_HIGHLIGHT]', '...', 20)
+          """)
       },
-      order_by: {
-        :desc,
-        fragment("ts_rank_cd(searchable, websearch_to_tsquery(?), 0)", ^search_term)
-      },
+      order_by: [desc: fragment("rank")],
       limit: ^limit
     )
     |> Repo.all()
@@ -174,7 +172,10 @@ defmodule Pinchflat.Media do
     Enum.reduce(mapped_struct, dynamic(true), fn attr, dynamic ->
       case {attr, media_profile} do
         {{:shorts_behaviour, :only}, %{livestream_behaviour: :only}} ->
-          dynamic([mi], ^dynamic and (mi.livestream == true or fragment("? ILIKE ?", mi.original_url, "%/shorts/%")))
+          dynamic(
+            [mi],
+            ^dynamic and (mi.livestream == true or fragment("LOWER(?) LIKE LOWER(?)", mi.original_url, "%/shorts/%"))
+          )
 
         # Technically redundant, but makes the other clauses easier to parse
         # (redundant because this condition is the same as the condition above, just flipped)
@@ -183,7 +184,7 @@ defmodule Pinchflat.Media do
 
         {{:shorts_behaviour, :only}, _} ->
           # return records with /shorts/ in the original_url
-          dynamic([mi], ^dynamic and fragment("? ILIKE ?", mi.original_url, "%/shorts/%"))
+          dynamic([mi], ^dynamic and fragment("LOWER(?) LIKE LOWER(?)", mi.original_url, "%/shorts/%"))
 
         {{:livestream_behaviour, :only}, _} ->
           # return records with livestream: true
@@ -191,7 +192,7 @@ defmodule Pinchflat.Media do
 
         {{:shorts_behaviour, :exclude}, %{livestream_behaviour: lb}} when lb != :only ->
           # return records without /shorts/ in the original_url
-          dynamic([mi], ^dynamic and fragment("? NOT ILIKE ?", mi.original_url, "%/shorts/%"))
+          dynamic([mi], ^dynamic and fragment("LOWER(?) NOT LIKE LOWER(?)", mi.original_url, "%/shorts/%"))
 
         {{:livestream_behaviour, :exclude}, %{shorts_behaviour: sb}} when sb != :only ->
           # return records with livestream: false
