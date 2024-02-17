@@ -1,7 +1,9 @@
 version: '3'
 services:
   phx:
-    build: .
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
     volumes:
       - '.:/app'
     ports:

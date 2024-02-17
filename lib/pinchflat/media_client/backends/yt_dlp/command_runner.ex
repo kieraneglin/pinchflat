@@ -30,7 +30,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.CommandRunner do
     print_to_file_opts = [{:print_to_file, output_template}, json_output_path]
     formatted_command_opts = [url] ++ parse_options(command_opts ++ print_to_file_opts)
 
-    Logger.debug("[yt-dlp] called with: #{Enum.join(formatted_command_opts, " ")}")
+    Logger.info("[yt-dlp] called with: #{Enum.join(formatted_command_opts, " ")}")
 
     case System.cmd(command, formatted_command_opts, stderr_to_stdout: true) do
       {_, 0} ->
