@@ -3,7 +3,7 @@ defmodule PinchflatWeb.SourceControllerTest do
   import Mox
 
   import Pinchflat.ProfilesFixtures
-  import Pinchflat.MediaSourceFixtures
+  import Pinchflat.SourcesFixtures
 
   setup do
     media_profile = media_profile_fixture()

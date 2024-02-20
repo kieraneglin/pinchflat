@@ -1,12 +1,12 @@
-defmodule Pinchflat.MediaSourceFixtures do
+defmodule Pinchflat.SourcesFixtures do
   @moduledoc """
   This module defines test helpers for creating
-  entities via the `Pinchflat.MediaSource` context.
+  entities via the `Pinchflat.Sources` context.
   """
 
   alias Pinchflat.Repo
   alias Pinchflat.ProfilesFixtures
-  alias Pinchflat.MediaSource.Source
+  alias Pinchflat.Sources.Source
 
   @doc """
   Generate a source.

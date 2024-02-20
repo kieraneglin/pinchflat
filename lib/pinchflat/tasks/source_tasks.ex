@@ -5,8 +5,8 @@ defmodule Pinchflat.Tasks.SourceTasks do
 
   alias Pinchflat.Media
   alias Pinchflat.Tasks
-  alias Pinchflat.MediaSource
-  alias Pinchflat.MediaSource.Source
+  alias Pinchflat.Sources
+  alias Pinchflat.Sources.Source
   alias Pinchflat.MediaClient.SourceDetails
   alias Pinchflat.Workers.MediaIndexingWorker
   alias Pinchflat.Workers.VideoDownloadWorker
@@ -43,7 +43,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
   """
   def index_media_items(%Source{} = source) do
     {:ok, media_attributes} = SourceDetails.get_media_attributes(source.original_url)
-    MediaSource.update_source(source, %{last_indexed_at: DateTime.utc_now()})
+    Sources.update_source(source, %{last_indexed_at: DateTime.utc_now()})
 
     media_attributes
     |> Enum.map(fn media_attrs ->

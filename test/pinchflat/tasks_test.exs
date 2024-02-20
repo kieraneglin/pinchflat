@@ -3,7 +3,7 @@ defmodule Pinchflat.TasksTest do
   import Pinchflat.JobFixtures
   import Pinchflat.TasksFixtures
   import Pinchflat.MediaFixtures
-  import Pinchflat.MediaSourceFixtures
+  import Pinchflat.SourcesFixtures
 
   alias Pinchflat.Tasks
   alias Pinchflat.Tasks.Task

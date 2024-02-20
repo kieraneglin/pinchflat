@@ -8,7 +8,7 @@ defmodule Pinchflat.Tasks do
 
   alias Pinchflat.Tasks.Task
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.MediaSource.Source
+  alias Pinchflat.Sources.Source
 
   @doc """
   Returns the list of tasks. Returns [%Task{}, ...]

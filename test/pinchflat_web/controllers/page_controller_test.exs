@@ -2,7 +2,7 @@ defmodule PinchflatWeb.PageControllerTest do
   use PinchflatWeb.ConnCase
 
   import Pinchflat.ProfilesFixtures
-  import Pinchflat.MediaSourceFixtures
+  import Pinchflat.SourcesFixtures
 
   describe "GET / when testing onboarding" do
     test "sets the onboarding session to true when onboarding", %{conn: conn} do

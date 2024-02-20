@@ -7,7 +7,7 @@ defmodule Pinchflat.Tasks.Task do
   import Ecto.Changeset
 
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.MediaSource.Source
+  alias Pinchflat.Sources.Source
 
   schema "tasks" do
     belongs_to :job, Oban.Job

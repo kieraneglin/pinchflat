@@ -4,7 +4,7 @@ defmodule Pinchflat.MediaTest do
   import Pinchflat.TasksFixtures
   import Pinchflat.MediaFixtures
   import Pinchflat.ProfilesFixtures
-  import Pinchflat.MediaSourceFixtures
+  import Pinchflat.SourcesFixtures
 
   alias Pinchflat.Media
   alias Pinchflat.Media.MediaItem
