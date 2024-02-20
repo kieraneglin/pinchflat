@@ -1,6 +1,6 @@
-defmodule Pinchflat.MediaSource do
+defmodule Pinchflat.Sources do
   @moduledoc """
-  The MediaSource context.
+  The Sources context.
   """
 
   import Ecto.Query, warn: false
@@ -8,7 +8,7 @@ defmodule Pinchflat.MediaSource do
 
   alias Pinchflat.Tasks
   alias Pinchflat.Tasks.SourceTasks
-  alias Pinchflat.MediaSource.Source
+  alias Pinchflat.Sources.Source
   alias Pinchflat.MediaClient.SourceDetails
 
   @doc """

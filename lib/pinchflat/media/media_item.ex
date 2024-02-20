@@ -7,7 +7,7 @@ defmodule Pinchflat.Media.MediaItem do
   import Ecto.Changeset
 
   alias Pinchflat.Tasks.Task
-  alias Pinchflat.MediaSource.Source
+  alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaMetadata
   alias Pinchflat.Media.MediaItemSearchIndex
 

@@ -6,7 +6,7 @@ defmodule Pinchflat.MediaClient.SourceDetails do
   it open-ish for future expansion (just in case).
   """
 
-  alias Pinchflat.MediaSource.Source
+  alias Pinchflat.Sources.Source
   alias Pinchflat.MediaClient.Backends.YtDlp.VideoCollection, as: YtDlpSource
 
   @doc """

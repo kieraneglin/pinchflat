@@ -2,7 +2,7 @@ defmodule PinchflatWeb.Pages.PageController do
   use PinchflatWeb, :controller
 
   alias Pinchflat.Repo
-  alias Pinchflat.MediaSource.Source
+  alias Pinchflat.Sources.Source
   alias Pinchflat.Profiles.MediaProfile
 
   def home(conn, params) do

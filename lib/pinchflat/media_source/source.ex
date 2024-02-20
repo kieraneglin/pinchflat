@@ -1,4 +1,4 @@
-defmodule Pinchflat.MediaSource.Source do
+defmodule Pinchflat.Sources.Source do
   @moduledoc """
   The Source schema.
   """

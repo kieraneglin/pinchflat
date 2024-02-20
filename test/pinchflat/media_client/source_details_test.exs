@@ -2,7 +2,7 @@ defmodule Pinchflat.MediaClient.SourceDetailsTest do
   use Pinchflat.DataCase
   import Mox
   import Pinchflat.ProfilesFixtures
-  import Pinchflat.MediaSourceFixtures
+  import Pinchflat.SourcesFixtures
 
   alias Pinchflat.MediaClient.SourceDetails
 

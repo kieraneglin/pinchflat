@@ -1,4 +1,4 @@
-defmodule PinchflatWeb.MediaSources.SourceHTML do
+defmodule PinchflatWeb.Sources.SourceHTML do
   use PinchflatWeb, :html
 
   embed_templates "source_html/*"

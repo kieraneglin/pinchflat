@@ -8,7 +8,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorker do
 
   alias __MODULE__
   alias Pinchflat.Tasks
-  alias Pinchflat.MediaSource
+  alias Pinchflat.Sources
   alias Pinchflat.Tasks.SourceTasks
 
   @impl Oban.Worker
@@ -37,7 +37,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorker do
   Returns :ok | {:ok, %Task{}}
   """
   def perform(%Oban.Job{args: %{"id" => source_id}}) do
-    source = MediaSource.get_source!(source_id)
+    source = Sources.get_source!(source_id)
 
     if source.index_frequency_minutes <= 0 do
       :ok

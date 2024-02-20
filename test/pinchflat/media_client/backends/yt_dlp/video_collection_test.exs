@@ -1,7 +1,7 @@
 defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollectionTest do
   use ExUnit.Case, async: true
   import Mox
-  import Pinchflat.MediaSourceFixtures
+  import Pinchflat.SourcesFixtures
 
   alias Pinchflat.MediaClient.Backends.YtDlp.VideoCollection
 
