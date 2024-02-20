@@ -23,7 +23,7 @@ defmodule PinchflatWeb.Router do
     resources "/search", Searches.SearchController, only: [:show], singleton: true
 
     resources "/sources", Sources.SourceController do
-      resources "/media", Media.MediaItemController, only: [:show, :delete]
+      resources "/media", MediaItems.MediaItemController, only: [:show, :delete]
     end
   end
 

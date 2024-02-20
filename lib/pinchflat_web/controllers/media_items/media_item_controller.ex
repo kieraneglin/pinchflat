@@ -1,4 +1,4 @@
-defmodule PinchflatWeb.Media.MediaItemController do
+defmodule PinchflatWeb.MediaItems.MediaItemController do
   use PinchflatWeb, :controller
 
   alias Pinchflat.Media
