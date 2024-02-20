@@ -55,6 +55,7 @@ defmodule Pinchflat.MixProject do
       {:nimble_parsec, "~> 1.4"},
       {:mox, "~> 1.0", only: :test},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:ex_check, "~> 0.14.0", only: [:dev], runtime: false},
       {:faker, "~> 0.17", only: :test}
     ]
   end
