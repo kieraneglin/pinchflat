@@ -59,6 +59,35 @@ defmodule Pinchflat.SourcesTest do
       assert String.starts_with?(source.collection_id, "some_playlist_id_")
     end
 
+    test "you can specify a custom friendly_name" do
+      expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123",
+        collection_type: "channel",
+        friendly_name: "some custom name"
+      }
+
+      assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
+
+      assert source.friendly_name == "some custom name"
+    end
+
+    test "friendly name is pulled from collection_name if not specified" do
+      expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123",
+        collection_type: "channel"
+      }
+
+      assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
+
+      assert source.friendly_name == "some channel name"
+    end
+
     test "creation with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Sources.create_source(@invalid_source_attrs)
     end
