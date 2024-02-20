@@ -256,6 +256,7 @@ defmodule PinchflatWeb.CoreComponents do
   attr :prompt, :string, default: nil, doc: "the prompt for select inputs"
   attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
   attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
+  attr :inputclass, :string, default: ""
 
   attr :rest, :global, include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
                 multiple pattern placeholder readonly required rows size step)
@@ -281,7 +282,15 @@ defmodule PinchflatWeb.CoreComponents do
     <div phx-feedback-for={@name}>
       <label class="flex items-center gap-4 text-sm leading-6">
         <input type="hidden" name={@name} value="false" />
-        <input type="checkbox" id={@id} name={@name} value="true" checked={@checked} class="rounded focus:ring-0" {@rest} />
+        <input
+          type="checkbox"
+          id={@id}
+          name={@name}
+          value="true"
+          checked={@checked}
+          class={["rounded focus:ring-0", @inputclass]}
+          {@rest}
+        />
         <%= @label %>
       </label>
       <.help :if={@help}><%= @help %></.help>
@@ -315,7 +324,10 @@ defmodule PinchflatWeb.CoreComponents do
           <div x-bind:class="enabled && '!bg-primary'" class="block h-8 w-14 rounded-full bg-black"></div>
           <div
             x-bind:class="enabled && '!right-1 !translate-x-full'"
-            class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white transition"
+            class={[
+              "absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white transition",
+              @inputclass
+            ]}
           >
           </div>
         </div>
@@ -335,7 +347,8 @@ defmodule PinchflatWeb.CoreComponents do
         name={@name}
         class={[
           "relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 pl-5 pr-12 outline-none transition",
-          "focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input text-black dark:text-white"
+          "focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input text-black dark:text-white",
+          @inputclass
         ]}
         multiple={@multiple}
         {@rest}
@@ -359,6 +372,7 @@ defmodule PinchflatWeb.CoreComponents do
         class={[
           "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
           "min-h-[6rem] phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
+          @inputclass,
           @errors == [] && "border-zinc-300 focus:border-zinc-400",
           @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}
@@ -384,6 +398,7 @@ defmodule PinchflatWeb.CoreComponents do
           "w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal text-black",
           "outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter",
           "dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary",
+          @inputclass,
           @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}
         {@rest}

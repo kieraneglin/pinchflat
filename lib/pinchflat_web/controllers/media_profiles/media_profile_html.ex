@@ -28,4 +28,21 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
       {"360p", "360p"}
     ]
   end
+
+  def custom_output_template_options do
+    ~w(upload_day upload_month upload_year)a
+  end
+
+  def common_output_template_options do
+    ~w(
+      id
+      ext
+      title
+      fulltitle
+      uploader
+      channel
+      upload_date
+      duration_string
+    )a
+  end
 end

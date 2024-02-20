@@ -6,11 +6,13 @@
     General Options
   </h3>
   <.input field={f[:name]} type="text" label="Name" placeholder="New Profile" help="(required)" />
+
   <.input
     field={f[:output_path_template]}
     type="text"
+    inputclass="font-mono"
     label="Output path template"
-    help="TODO: provide docs (required)"
+    help="Must end with .{{ ext }}. See below for more details. I promise the default is good for most cases (required)"
   />
 
   <h3 class="mb-4 mt-8 text-2xl text-black dark:text-white">
@@ -67,7 +69,7 @@
     options={friendly_format_type_options()}
     type="select"
     label="Include Shorts?"
-    help="Experimental"
+    help="Experimental. Please report any issues on GitHub"
   />
   <.input
     field={f[:livestream_behaviour]}
@@ -88,7 +90,9 @@
     help="Will grab the closest available resolution if your preferred is not available"
   />
 
-  <:actions>
-    <.button class="mt-15 mb-5 sm:mb-7.5">Save Media profile</.button>
-  </:actions>
+  <.button class="mt-15 mb-5 sm:mb-7.5">Save Media profile</.button>
+
+  <div class="rounded-sm dark:bg-meta-4 p-4 md:p-6 mb-5">
+    <.output_template_help />
+  </div>
 </.simple_form>
