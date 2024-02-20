@@ -1,6 +1,6 @@
 defmodule Pinchflat.Utils.StringUtils do
   @moduledoc """
-  Utility functions for working with strings
+  Utility methods for working with strings
   """
 
   @doc """

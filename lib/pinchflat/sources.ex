@@ -118,7 +118,7 @@ defmodule Pinchflat.Sources do
 
   defp add_source_details_by_collection_type(source, changeset, source_details) do
     %Ecto.Changeset{changes: changes} = changeset
-    collection_type = source.collection_type || changes[:collection_type]
+    collection_type = Ecto.Changeset.get_field(changeset, :collection_type)
 
     collection_changes =
       case collection_type do

@@ -1,6 +1,6 @@
 defmodule Pinchflat.Utils.FunctionUtils do
   @moduledoc """
-  Utility functions for working with functions
+  Utility methods for working with functions
   """
 
   @doc """

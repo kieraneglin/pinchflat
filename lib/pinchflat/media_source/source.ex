@@ -5,6 +5,7 @@ defmodule Pinchflat.Sources.Source do
 
   use Ecto.Schema
   import Ecto.Changeset
+  import Pinchflat.Utils.ChangesetUtils
 
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Profiles.MediaProfile
@@ -25,6 +26,7 @@ defmodule Pinchflat.Sources.Source do
     collection_name
     collection_id
     collection_type
+    friendly_name
     download_media
     original_url
     media_profile_id
@@ -53,6 +55,7 @@ defmodule Pinchflat.Sources.Source do
   def changeset(source, attrs) do
     source
     |> cast(attrs, @allowed_fields)
+    |> dynamic_default(:friendly_name, fn cs -> get_field(cs, :collection_name) end)
     |> validate_required(@required_fields)
     |> unique_constraint([:collection_id, :media_profile_id])
   end
