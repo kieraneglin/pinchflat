@@ -8,6 +8,7 @@
       <section class={["text-center", @media_profiles_exist && "opacity-20"]}>
         <h3 class="text-xl font-bold">1. Create a Media Profile</h3>
         <p class="text-md text-bodydark">Media Profiles set your preferences for fetching and downloading media.</p>
+        <p class="text-md text-bodydark">Don't worry, you can create more Media Profiles later!</p>
         <div class="mt-8">
           <.link navigate={~p"/media_profiles/new"}>
             <.button color="bg-primary" rounding="rounded-full" disabled={@media_profiles_exist}>
