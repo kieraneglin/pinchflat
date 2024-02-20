@@ -16,18 +16,37 @@ defmodule PinchflatWeb.MediaSources.SourceController do
   def new(conn, _params) do
     changeset = MediaSource.change_source(%Source{})
 
-    render(conn, :new, changeset: changeset, media_profiles: media_profiles())
+    if get_session(conn, :onboarding) do
+      render(conn, :new,
+        changeset: changeset,
+        media_profiles: media_profiles(),
+        layout: {Layouts, :onboarding}
+      )
+    else
+      render(conn, :new, changeset: changeset, media_profiles: media_profiles())
+    end
   end
 
   def create(conn, %{"source" => source_params}) do
     case MediaSource.create_source(source_params) do
       {:ok, source} ->
+        redirect_location =
+          if get_session(conn, :onboarding), do: ~p"/?onboarding=1", else: ~p"/sources/#{source}"
+
         conn
         |> put_flash(:info, "Source created successfully.")
-        |> redirect(to: ~p"/sources/#{source}")
+        |> redirect(to: redirect_location)
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, :new, changeset: changeset, media_profiles: media_profiles())
+        if get_session(conn, :onboarding) do
+          render(conn, :new,
+            changeset: changeset,
+            media_profiles: media_profiles(),
+            layout: {Layouts, :onboarding}
+          )
+        else
+          render(conn, :new, changeset: changeset, media_profiles: media_profiles())
+        end
     end
   end
 

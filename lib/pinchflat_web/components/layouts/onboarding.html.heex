@@ -1,0 +1,18 @@
+<div class="flex h-screen overflow-hidden">
+  <div class="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+    <header class="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
+      <div class="flex flex-grow items-center px-4 py-4 shadow-2 md:px-6 2xl:px-11">
+        <div class="flex items-center gap-2 sm:gap-4">
+          <h2 class="text-title-md2 font-bold text-white">Pinchflat</h2>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+        <.flash_group flash={@flash} />
+        <%= @inner_content %>
+      </div>
+    </main>
+  </div>
+</div>

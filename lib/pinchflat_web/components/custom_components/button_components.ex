@@ -14,18 +14,22 @@ defmodule PinchflatWeb.CustomComponents.ButtonComponents do
   attr :color, :string, default: "bg-primary"
   attr :rounding, :string, default: "rounded-sm"
   attr :class, :string, default: ""
+  attr :disabled, :boolean, default: false
 
   slot :inner_block, required: true
 
   def button(assigns) do
     ~H"""
-    <button class={[
-      "text-center font-medium text-white",
-      "#{@rounding} inline-flex items-center justify-center px-10 py-4",
-      "#{@color}",
-      "hover:bg-opacity-90 lg:px-8 xl:px-10",
-      @class
-    ]}>
+    <button
+      class={[
+        "text-center font-medium text-white",
+        "#{@rounding} inline-flex items-center justify-center px-10 py-4",
+        "#{@color}",
+        "hover:bg-opacity-90 lg:px-8 xl:px-10",
+        @class
+      ]}
+      disabled={@disabled}
+    >
       <%= render_slot(@inner_block) %>
     </button>
     """

@@ -45,6 +45,8 @@ defmodule PinchflatWeb do
       import Plug.Conn
       import PinchflatWeb.Gettext
 
+      alias PinchflatWeb.Layouts
+
       unquote(verified_routes())
     end
   end
