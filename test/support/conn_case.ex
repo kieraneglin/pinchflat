@@ -34,6 +34,10 @@ defmodule PinchflatWeb.ConnCase do
 
   setup tags do
     Pinchflat.DataCase.setup_sandbox(tags)
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+
+    conn = Phoenix.ConnTest.build_conn()
+    session_conn = Plug.Test.init_test_session(conn, %{})
+
+    {:ok, conn: conn, session_conn: session_conn}
   end
 end

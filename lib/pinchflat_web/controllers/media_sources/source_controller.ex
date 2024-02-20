@@ -20,11 +20,10 @@ defmodule PinchflatWeb.MediaSources.SourceController do
       render(conn, :new,
         changeset: changeset,
         media_profiles: media_profiles(),
-        onboarding: true,
         layout: {Layouts, :onboarding}
       )
     else
-      render(conn, :new, changeset: changeset, media_profiles: media_profiles(), onboarding: false)
+      render(conn, :new, changeset: changeset, media_profiles: media_profiles())
     end
   end
 
@@ -32,14 +31,22 @@ defmodule PinchflatWeb.MediaSources.SourceController do
     case MediaSource.create_source(source_params) do
       {:ok, source} ->
         redirect_location =
-          if get_session(conn, :onboarding), do: ~p"/", else: ~p"/sources/#{source}"
+          if get_session(conn, :onboarding), do: ~p"/?onboarding=1", else: ~p"/sources/#{source}"
 
         conn
         |> put_flash(:info, "Source created successfully.")
         |> redirect(to: redirect_location)
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, :new, changeset: changeset, media_profiles: media_profiles())
+        if get_session(conn, :onboarding) do
+          render(conn, :new,
+            changeset: changeset,
+            media_profiles: media_profiles(),
+            layout: {Layouts, :onboarding}
+          )
+        else
+          render(conn, :new, changeset: changeset, media_profiles: media_profiles())
+        end
     end
   end
 

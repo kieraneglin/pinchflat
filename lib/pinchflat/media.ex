@@ -100,7 +100,6 @@ defmodule Pinchflat.Media do
       field -> List.wrap(mapped_struct[field])
     end)
     |> List.flatten()
-    # TODO: test
     |> Enum.filter(&is_binary/1)
   end
 

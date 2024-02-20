@@ -245,6 +245,18 @@ defmodule Pinchflat.MediaTest do
                "video/test.srt"
              ]
     end
+
+    test "strips out nil values" do
+      filepaths = %{
+        media_filepath: "/video/test.mp4",
+        thumbnail_filepath: nil,
+        subtitle_filepaths: [["en", nil]]
+      }
+
+      media_item = media_item_fixture(filepaths)
+
+      assert Media.media_filepaths(media_item) == ["/video/test.mp4"]
+    end
   end
 
   describe "create_media_item/1" do

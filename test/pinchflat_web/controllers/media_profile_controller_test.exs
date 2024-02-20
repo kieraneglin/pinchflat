@@ -22,6 +22,15 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
       conn = get(conn, ~p"/media_profiles/new")
       assert html_response(conn, 200) =~ "New Media Profile"
     end
+
+    test "renders correct layout when onboarding", %{session_conn: session_conn} do
+      session_conn =
+        session_conn
+        |> put_session(:onboarding, true)
+        |> get(~p"/media_profiles/new")
+
+      refute html_response(session_conn, 200) =~ "MENU"
+    end
   end
 
   describe "create media_profile" do
@@ -38,6 +47,24 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, ~p"/media_profiles", media_profile: @invalid_attrs)
       assert html_response(conn, 200) =~ "New Media Profile"
+    end
+
+    test "redirects to onboarding when onboarding", %{session_conn: session_conn} do
+      session_conn =
+        session_conn
+        |> put_session(:onboarding, true)
+        |> post(~p"/media_profiles", media_profile: @create_attrs)
+
+      assert redirected_to(session_conn) == ~p"/?onboarding=1"
+    end
+
+    test "renders correct layout on error when onboarding", %{session_conn: session_conn} do
+      session_conn =
+        session_conn
+        |> put_session(:onboarding, true)
+        |> post(~p"/media_profiles", media_profile: @invalid_attrs)
+
+      refute html_response(session_conn, 200) =~ "MENU"
     end
   end
 

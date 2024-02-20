@@ -38,6 +38,15 @@ defmodule PinchflatWeb.SourceControllerTest do
       conn = get(conn, ~p"/sources/new")
       assert html_response(conn, 200) =~ "New Source"
     end
+
+    test "renders correct layout when onboarding", %{session_conn: session_conn} do
+      session_conn =
+        session_conn
+        |> put_session(:onboarding, true)
+        |> get(~p"/sources/new")
+
+      refute html_response(session_conn, 200) =~ "MENU"
+    end
   end
 
   describe "create source" do
@@ -55,6 +64,26 @@ defmodule PinchflatWeb.SourceControllerTest do
     test "renders errors when data is invalid", %{conn: conn, invalid_attrs: invalid_attrs} do
       conn = post(conn, ~p"/sources", source: invalid_attrs)
       assert html_response(conn, 200) =~ "New Source"
+    end
+
+    test "redirects to onboarding when onboarding", %{session_conn: session_conn, create_attrs: create_attrs} do
+      expect(YtDlpRunnerMock, :run, 1, &runner_function_mock/3)
+
+      session_conn =
+        session_conn
+        |> put_session(:onboarding, true)
+        |> post(~p"/sources", source: create_attrs)
+
+      assert redirected_to(session_conn) == ~p"/?onboarding=1"
+    end
+
+    test "renders correct layout on error when onboarding", %{session_conn: session_conn, invalid_attrs: invalid_attrs} do
+      session_conn =
+        session_conn
+        |> put_session(:onboarding, true)
+        |> post(~p"/sources", source: invalid_attrs)
+
+      refute html_response(session_conn, 200) =~ "MENU"
     end
   end
 

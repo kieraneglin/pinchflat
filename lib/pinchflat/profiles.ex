@@ -8,11 +8,6 @@ defmodule Pinchflat.Profiles do
 
   alias Pinchflat.Profiles.MediaProfile
 
-  # TODO: test
-  def media_profiles_exist? do
-    Repo.exists?(MediaProfile)
-  end
-
   @doc """
   Returns the list of media_profiles. Returns [%MediaProfile{}, ...]
   """
