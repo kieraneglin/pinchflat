@@ -25,7 +25,7 @@ WORKDIR /app
 COPY . ./
 
 # Needs permissions to be updated AFTER the copy step
-RUN chmod +x ./docker-run.sh
+RUN chmod +x ./docker-run.dev.sh
 
 # Install Elixir deps
 RUN mix deps.get

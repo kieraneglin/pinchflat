@@ -12,50 +12,22 @@ defmodule Pinchflat.Profiles.Options.YtDlp.OutputPathBuilder do
 
   Translates liquid-style templates into yt-dlp-style templates,
   leaving yt-dlp syntax intact.
-
-  IDEA: apart from any custom options I've defined, I can support any yt-dlp
-  option by assuming `{{ identifier }}` should transform to `%(identifier)S`.
-  It's not doing anything huge, but it's nicer to type and more approachable IMO.
-  IDEA: set a default for `MediaProfile`'s `output_path_template` field
   """
   def build(template_string) do
-    TemplateParser.parse(template_string, full_yt_dlp_options_map())
+    TemplateParser.parse(template_string, custom_yt_dlp_option_map(), &identifier_fn/2)
   end
 
-  defp full_yt_dlp_options_map do
-    Map.merge(
-      standard_yt_dlp_option_map(),
-      custom_yt_dlp_option_map()
-    )
-  end
-
-  defp standard_yt_dlp_option_map do
-    %{
-      # Uppercase "S" means "safe" - ie: filepath-safe
-      "id" => "%(id)S",
-      "ext" => "%(ext)S",
-      "title" => "%(title)S",
-      "fulltitle" => "%(fulltitle)S",
-      "uploader" => "%(uploader)S",
-      "creator" => "%(creator)S",
-      "upload_date" => "%(upload_date)S",
-      "release_date" => "%(release_date)S",
-      "duration" => "%(duration)S",
-      # For videos classified as an episode of a series:
-      "series" => "%(series)S",
-      "season" => "%(season)S",
-      "season_number" => "%(season_number)S",
-      "episode" => "%(episode)S",
-      "episode_number" => "%(episode_number)S",
-      "episode_id" => "%(episode_id)S",
-      # For videos classified as music:
-      "track" => "%(track)S",
-      "track_number" => "%(track_number)S",
-      "artist" => "%(artist)S",
-      "album" => "%(album)S",
-      "album_type" => "%(album_type)S",
-      "genre" => "%(genre)S"
-    }
+  # The `nil` case simply wraps the identifier in yt-dlp-style syntax. This assumes that
+  # the identifier is a valid yt-dlp option. The upside is that this gives the user
+  # access to ALL single-word yt-dlp options in the (imo) more friendly/forgiving liquid-style syntax.
+  #
+  # For all "custom" variables, we use the `Map.get/3` function to look up the value in the provided.
+  # See `custom_yt_dlp_option_map` for a list of those.
+  defp identifier_fn(identifier, variables) do
+    case Map.get(variables, identifier) do
+      nil -> "%(#{identifier})S"
+      value -> value
+    end
   end
 
   defp custom_yt_dlp_option_map do
