@@ -60,7 +60,8 @@ defmodule Pinchflat.MixProject do
       {:mox, "~> 1.0", only: :test},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ex_check, "~> 0.14.0", only: [:dev, :test], runtime: false},
-      {:faker, "~> 0.17", only: :test}
+      {:faker, "~> 0.17", only: :test},
+      {:sobelow, "~> 0.13", only: [:dev, :test], runtime: false}
     ]
   end
 

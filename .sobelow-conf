@@ -1,0 +1,15 @@
+[
+  verbose: false,
+  private: false,
+  skip: false,
+  router: nil,
+  exit: :medium,
+  format: "txt",
+  out: nil,
+  threshold: :low,
+  # All of these are ignorable because this app is intended to be single-user and self-hosted.
+  # There is an expectation that the user won't intentionally run a FS Traversal on themselves
+  ignore: ["CI.System", "Traversal.FileModule", "Config.HTTPS", "Config.CSP"],
+  ignore_files: [],
+  version: false
+]
