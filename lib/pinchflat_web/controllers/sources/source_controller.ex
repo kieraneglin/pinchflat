@@ -1,20 +1,20 @@
-defmodule PinchflatWeb.MediaSources.SourceController do
+defmodule PinchflatWeb.Sources.SourceController do
   use PinchflatWeb, :controller
 
   alias Pinchflat.Repo
   alias Pinchflat.Media
   alias Pinchflat.Profiles
-  alias Pinchflat.MediaSource
-  alias Pinchflat.MediaSource.Source
+  alias Pinchflat.Sources
+  alias Pinchflat.Sources.Source
 
   def index(conn, _params) do
-    sources = Repo.preload(MediaSource.list_sources(), :media_profile)
+    sources = Repo.preload(Sources.list_sources(), :media_profile)
 
     render(conn, :index, sources: sources)
   end
 
   def new(conn, _params) do
-    changeset = MediaSource.change_source(%Source{})
+    changeset = Sources.change_source(%Source{})
 
     if get_session(conn, :onboarding) do
       render(conn, :new,
@@ -28,7 +28,7 @@ defmodule PinchflatWeb.MediaSources.SourceController do
   end
 
   def create(conn, %{"source" => source_params}) do
-    case MediaSource.create_source(source_params) do
+    case Sources.create_source(source_params) do
       {:ok, source} ->
         redirect_location =
           if get_session(conn, :onboarding), do: ~p"/?onboarding=1", else: ~p"/sources/#{source}"
@@ -53,7 +53,7 @@ defmodule PinchflatWeb.MediaSources.SourceController do
   def show(conn, %{"id" => id}) do
     source =
       id
-      |> MediaSource.get_source!()
+      |> Sources.get_source!()
       |> Repo.preload(:media_profile)
 
     pending_media = Media.list_pending_media_items_for(source)
@@ -63,16 +63,16 @@ defmodule PinchflatWeb.MediaSources.SourceController do
   end
 
   def edit(conn, %{"id" => id}) do
-    source = MediaSource.get_source!(id)
-    changeset = MediaSource.change_source(source)
+    source = Sources.get_source!(id)
+    changeset = Sources.change_source(source)
 
     render(conn, :edit, source: source, changeset: changeset, media_profiles: media_profiles())
   end
 
   def update(conn, %{"id" => id, "source" => source_params}) do
-    source = MediaSource.get_source!(id)
+    source = Sources.get_source!(id)
 
-    case MediaSource.update_source(source, source_params) do
+    case Sources.update_source(source, source_params) do
       {:ok, source} ->
         conn
         |> put_flash(:info, "Source updated successfully.")
@@ -88,8 +88,8 @@ defmodule PinchflatWeb.MediaSources.SourceController do
   end
 
   def delete(conn, %{"id" => id}) do
-    source = MediaSource.get_source!(id)
-    {:ok, _source} = MediaSource.delete_source(source)
+    source = Sources.get_source!(id)
+    {:ok, _source} = Sources.delete_source(source)
 
     conn
     |> put_flash(:info, "Source deleted successfully.")

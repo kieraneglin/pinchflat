@@ -3,7 +3,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
 
   import Mox
   import Pinchflat.MediaFixtures
-  import Pinchflat.MediaSourceFixtures
+  import Pinchflat.SourcesFixtures
 
   alias Pinchflat.Tasks
   alias Pinchflat.Workers.MediaIndexingWorker

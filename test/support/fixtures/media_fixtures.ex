@@ -4,7 +4,7 @@ defmodule Pinchflat.MediaFixtures do
   entities via the `Pinchflat.Media` context.
   """
 
-  alias Pinchflat.MediaSourceFixtures
+  alias Pinchflat.SourcesFixtures
 
   @doc """
   Generate a media_item.
@@ -18,7 +18,7 @@ defmodule Pinchflat.MediaFixtures do
         original_url: "https://www.youtube.com/channel/#{Faker.String.base64(12)}",
         livestream: false,
         media_filepath: "/video/#{Faker.File.file_name(:video)}",
-        source_id: MediaSourceFixtures.source_fixture().id
+        source_id: SourcesFixtures.source_fixture().id
       })
       |> Pinchflat.Media.create_media_item()
 

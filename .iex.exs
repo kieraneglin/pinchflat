@@ -4,13 +4,13 @@ alias Pinchflat.Tasks.Task
 alias Pinchflat.Media.MediaItem
 alias Pinchflat.Tasks.SourceTasks
 alias Pinchflat.Media.MediaMetadata
-alias Pinchflat.MediaSource.Source
+alias Pinchflat.Sources.Source
 alias Pinchflat.Profiles.MediaProfile
 
 alias Pinchflat.Tasks
 alias Pinchflat.Media
 alias Pinchflat.Profiles
-alias Pinchflat.MediaSource
+alias Pinchflat.Sources
 
 alias Pinchflat.MediaClient.{SourceDetails, VideoDownloader}
 

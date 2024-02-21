@@ -6,7 +6,7 @@ defmodule Pinchflat.Profiles.MediaProfile do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Pinchflat.MediaSource.Source
+  alias Pinchflat.Sources.Source
 
   @allowed_fields ~w(
     name

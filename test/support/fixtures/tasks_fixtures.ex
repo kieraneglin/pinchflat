@@ -5,7 +5,7 @@ defmodule Pinchflat.TasksFixtures do
   """
 
   alias Pinchflat.JobFixtures
-  alias Pinchflat.MediaSourceFixtures
+  alias Pinchflat.SourcesFixtures
 
   @doc """
   Generate a task.
@@ -14,7 +14,7 @@ defmodule Pinchflat.TasksFixtures do
     {:ok, task} =
       attrs
       |> Enum.into(%{
-        source_id: MediaSourceFixtures.source_fixture().id,
+        source_id: SourcesFixtures.source_fixture().id,
         job_id: JobFixtures.job_fixture().id
       })
       |> Pinchflat.Tasks.create_task()
