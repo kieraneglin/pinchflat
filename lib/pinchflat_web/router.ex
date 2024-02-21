@@ -2,6 +2,7 @@ defmodule PinchflatWeb.Router do
   use PinchflatWeb, :router
 
   pipeline :browser do
+    plug :basic_auth
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_live_flash
@@ -46,6 +47,17 @@ defmodule PinchflatWeb.Router do
 
       live_dashboard "/dashboard", metrics: PinchflatWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
+    end
+  end
+
+  defp basic_auth(conn, _opts) do
+    username = Application.get_env(:pinchflat, :basic_auth_username)
+    password = Application.get_env(:pinchflat, :basic_auth_password)
+
+    if username && password do
+      Plug.BasicAuth.basic_auth(conn, username: username, password: password, realm: "Pinchflat")
+    else
+      conn
     end
   end
 end
