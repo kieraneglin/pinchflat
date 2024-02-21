@@ -29,6 +29,8 @@ if config_env() == :prod do
       For example: /etc/pinchflat/pinchflat.db
       """
 
+  log_path = System.get_env("LOG_PATH", "log/pinchflat.log")
+
   config :pinchflat, yt_dlp_executable: System.find_executable("yt-dlp")
 
   config :pinchflat, Pinchflat.Repo,
@@ -73,6 +75,21 @@ if config_env() == :prod do
       port: String.to_integer(System.get_env("PORT") || "4000")
     ],
     secret_key_base: secret_key_base
+
+  config :pinchflat, :logger, [
+    {:handler, :file_log, :logger_std_h,
+     %{
+       config: %{
+         type: :file,
+         file: String.to_charlist(log_path),
+         filesync_repeat_interval: 5000,
+         file_check: 5000,
+         max_no_files: 5,
+         max_no_bytes: 10_000_000
+       },
+       formatter: Logger.Formatter.new()
+     }}
+  ]
 
   # ## SSL Support
   #
