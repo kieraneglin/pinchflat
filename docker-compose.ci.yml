@@ -4,6 +4,8 @@ services:
     build:
       context: .
       dockerfile: dev.Dockerfile
+    environment:
+      - MIX_ENV=test
     volumes:
       - '.:/app'
     ports:

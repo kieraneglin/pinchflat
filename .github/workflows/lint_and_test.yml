@@ -21,10 +21,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Create and populate ENV file
-        run: |
-          echo MIX_ENV=test >> .env
-
       - name: Pull prebuilt images
         run: docker compose pull
 
@@ -55,14 +51,5 @@ jobs:
           docker compose exec -T phx mix ecto.create
           docker compose exec -T phx mix ecto.migrate
 
-      - name: Check JS formatting
-        run: docker compose exec -T phx yarn run prettier . --check
-
-      - name: Check Elixir formatting
-        run: docker compose exec -T phx mix format --check-formatted
-
-      - name: Check Credo
-        run: docker compose exec -T phx mix credo
-
-      - name: Run Elixir tests
-        run: docker compose exec -T phx mix test
+      - name: Run code checks
+        run: docker compose exec -T phx mix check --no-fix --no-retry
