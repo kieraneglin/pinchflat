@@ -14,7 +14,11 @@ config :pinchflat,
   yt_dlp_executable: System.find_executable("yt-dlp"),
   yt_dlp_runner: Pinchflat.MediaClient.Backends.YtDlp.CommandRunner,
   media_directory: "/downloads",
-  metadata_directory: Path.join([System.tmp_dir!(), "pinchflat", "metadata"])
+  metadata_directory: Path.join([System.tmp_dir!(), "pinchflat", "metadata"]),
+  # Setting AUTH_USERNAME and AUTH_PASSWORD implies you want to use basic auth.
+  # If either is unset, basic auth will not be used.
+  basic_auth_username: System.get_env("AUTH_USERNAME"),
+  basic_auth_password: System.get_env("AUTH_PASSWORD")
 
 # Configures the endpoint
 config :pinchflat, PinchflatWeb.Endpoint,
