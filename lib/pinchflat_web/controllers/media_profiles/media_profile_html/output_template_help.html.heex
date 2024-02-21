@@ -1,0 +1,72 @@
+<%!-- The heex HTML formatter is really struggling with this file - I apologize in advance --%>
+<aside>
+  <h2 class="text-xl font-bold mb-2">Output Template Syntax</h2>
+  <section class="ml-2 md:ml-4 mb-4 max-w-prose">
+    <p>When generating an output template, you have 3 options for syntax:</p>
+    <ul class="list-disc list-inside ml-2 md:ml-5">
+      <li>
+        Liquid-style:
+        <.inline_code>/{{ channel }}/{{ title }} - {{ id }}.{{ ext }}</.inline_code>
+      </li>
+      <li>
+        <code class="text-sm">yt-dlp</code>-style
+        <.reference_link href="https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#output-template">
+          <.icon name="hero-arrow-top-right-on-square" class="h-4 w-4" />
+        </.reference_link>:
+        <.inline_code>/%(channel)s/%(duration>%H-%M-%S)s-%(id)s.%(ext)s</.inline_code>
+      </li>
+      <li>
+        Any bare words:
+        <.inline_code>/videos/1080p/{{ id }}.{{ ext }}</.inline_code>
+      </li>
+    </ul>
+    <p class="my-2">
+      Apart from custom aliases, the liquid-style syntax maps 1:1 to the <code class="text-sm">yt-dlp</code>-style syntax behind-the-scenes. This means that
+      <em>any</em>
+      single-word <code class="text-sm">yt-dlp</code>
+      option can be used as liquid-style and it's automatically made filepath-safe. For example, the
+      <.inline_code>{{ duration }}</.inline_code>
+      option is translated to
+      <.inline_code>%(duration)S</.inline_code>
+    </p>
+    <p class="my-2">
+      <strong>Major 🔑:</strong>
+      these syntaxes can be mixed and matched freely! I prefer to use liquid-style and bare words
+      but I'll include <code class="text-sm">yt-dlp</code>-style when I need more control. For example:
+      <.inline_code>/1080p/{{ channel }}/{{ title }}-(%(subtitles.en.-1.ext)s).{{ ext }}</.inline_code>
+    </p>
+    <p class="my-2">
+      <strong>NOTE:</strong>
+      Your template <em>must</em>
+      end with an extension option (<.inline_code>.{{ ext }}</.inline_code>
+      or
+      <.inline_code>.%(ext)S</.inline_code>).
+      Downloading won't work as expected without it.
+    </p>
+  </section>
+
+  <h2 class="text-xl font-bold mb-2">Template Options</h2>
+  <section class="ml-2 md:ml-4 mb-4 max-w-prose">
+    <p>
+      Any single-word <code class="text-sm">yt-dlp</code>
+      option
+      <.reference_link href="https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#output-template">
+        <.icon name="hero-arrow-top-right-on-square" class="h-4 w-4" />
+      </.reference_link>
+      can be used with the curly braced liquid-style syntax.
+      This is just a list of the most common options as well as some custom aliases
+    </p>
+    <h3 class="text-lg font-bold mb-2">Custom Aliases</h3>
+    <ul class="list-disc list-inside ml-2 md:ml-5">
+      <li :for={opt <- custom_output_template_options()}>
+        <.inline_code>{{ <%= opt %> }}</.inline_code>
+      </li>
+    </ul>
+    <h3 class="text-lg font-bold mb-2">Common Options</h3>
+    <ul class="list-disc list-inside ml-2 md:ml-5">
+      <li :for={opt <- common_output_template_options()}>
+        <.inline_code>{{ <%= opt %> }}</.inline_code>
+      </li>
+    </ul>
+  </section>
+</aside>

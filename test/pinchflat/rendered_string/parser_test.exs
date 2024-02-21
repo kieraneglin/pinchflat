@@ -3,7 +3,7 @@ defmodule Pinchflat.RenderedString.ParserTest do
 
   alias Pinchflat.RenderedString.Parser
 
-  describe "parse/2" do
+  describe "parse/3" do
     test "it returns the rendered string when the string is valid" do
       assert {:ok, "bar"} = Parser.parse("{{ foo }}", %{"foo" => "bar"})
     end
@@ -35,6 +35,14 @@ defmodule Pinchflat.RenderedString.ParserTest do
 
     test "it returns an error when the string is invalid" do
       assert {:error, "expected end of string"} = Parser.parse("{{ 1-1 }", %{})
+    end
+
+    test "it supports a custom fetcher function" do
+      custom_fetcher = fn _, _ ->
+        "quux"
+      end
+
+      assert {:ok, "quux"} = Parser.parse("{{ foo }}", %{}, custom_fetcher)
     end
   end
 end
