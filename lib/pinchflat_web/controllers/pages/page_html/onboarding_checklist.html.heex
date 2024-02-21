@@ -1,0 +1,51 @@
+<div class="rounded-sm border border-stroke bg-white px-5 py-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5">
+  <div class="max-w-full overflow-x-auto">
+    <div class="flex flex-col gap-10 items-center dark:text-white">
+      <section class="text-center">
+        <h2 class="text-3xl font-bold">Welcome to Pinchflat</h2>
+        <p class="text-lg text-bodydark">Getting started is easy</p>
+      </section>
+      <section class={["text-center", @media_profiles_exist && "opacity-20"]}>
+        <h3 class="text-xl font-bold">1. Create a Media Profile</h3>
+        <p class="text-md text-bodydark">Media Profiles set your preferences for fetching and downloading media.</p>
+        <p class="text-md text-bodydark">Don't worry, you can create more Media Profiles later!</p>
+        <div class="mt-8">
+          <.link navigate={~p"/media_profiles/new"}>
+            <.button color="bg-primary" rounding="rounded-full" disabled={@media_profiles_exist}>
+              <span class="font-bold mx-2">+</span> New Media Profile
+            </.button>
+          </.link>
+        </div>
+      </section>
+      <section class={["text-center", (!@media_profiles_exist || @sources_exist) && "opacity-20"]}>
+        <h3 class="text-xl font-bold">2. Create a Source</h3>
+        <p class="text-md text-bodydark">Sources are the channels and playlists you want to download.</p>
+        <p class="text-md text-bodydark">
+          Each Media Profile can control many Sources so it's easy to add more content!
+        </p>
+        <div class="mt-8">
+          <.link navigate={~p"/sources/new"}>
+            <.button color="bg-primary" rounding="rounded-full" disabled={not @media_profiles_exist}>
+              <span class="font-bold mx-2">+</span> New Source
+            </.button>
+          </.link>
+        </div>
+      </section>
+      <section class={["text-center", @sources_exist || "opacity-20"]}>
+        <h3 class="text-xl font-bold">3. That's it!</h3>
+        <p class="text-md text-bodydark">Everything is set up and running based on your preferences.</p>
+        <p class="text-md text-bodydark">
+          Remember that indexing and downloading media can take a while, many hours for a large source.
+        </p>
+        <p class="text-md text-bodydark">Feel free to add more Media Profiles or Sources in the meantime!</p>
+        <div class="mt-8">
+          <.link navigate={~p"/"}>
+            <.button color="bg-primary" rounding="rounded-full" disabled={not @sources_exist}>
+              Let's Go <span class="font-bold mx-2">🚀</span>
+            </.button>
+          </.link>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

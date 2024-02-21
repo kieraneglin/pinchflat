@@ -17,7 +17,7 @@ defmodule PinchflatWeb.Router do
   scope "/", PinchflatWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    get "/", Pages.PageController, :home
 
     resources "/media_profiles", MediaProfiles.MediaProfileController
     resources "/search", Searches.SearchController, only: [:show], singleton: true
