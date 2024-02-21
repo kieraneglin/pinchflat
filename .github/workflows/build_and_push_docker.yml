@@ -4,10 +4,6 @@ on:
   push:
     branches:
       - master
-      - ke/docker-build-action
-  pull_request:
-    branches:
-      - master
   workflow_dispatch:
 
 jobs:
