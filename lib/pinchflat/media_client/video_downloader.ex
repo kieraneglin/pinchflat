@@ -32,7 +32,7 @@ defmodule Pinchflat.MediaClient.VideoDownloader do
     item_with_preloads = Repo.preload(media_item, [:metadata, source: :media_profile])
     media_profile = item_with_preloads.source.media_profile
 
-    case download_for_media_profile(media_item.media_id, media_profile, backend) do
+    case download_for_media_profile(media_item.original_url, media_profile, backend) do
       {:ok, parsed_json} ->
         parser = metadata_parser(backend)
 

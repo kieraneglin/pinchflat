@@ -11,19 +11,21 @@ defmodule Pinchflat.Media.MediaItem do
   alias Pinchflat.Media.MediaMetadata
   alias Pinchflat.Media.MediaItemSearchIndex
 
-  @allowed_fields ~w(
-    title
-    media_id
-    description
-    original_url
-    livestream
-    media_downloaded_at
-    media_filepath
-    subtitle_filepaths
-    thumbnail_filepath
-    metadata_filepath
-    source_id
-  )a
+  @allowed_fields [
+    # these fields are captured on indexing
+    :title,
+    :media_id,
+    :description,
+    :original_url,
+    :livestream,
+    :source_id,
+    # these fields are captured on download
+    :media_downloaded_at,
+    :media_filepath,
+    :subtitle_filepaths,
+    :thumbnail_filepath,
+    :metadata_filepath
+  ]
   @required_fields ~w(title original_url livestream media_id source_id)a
 
   schema "media_items" do
