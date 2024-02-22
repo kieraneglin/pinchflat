@@ -18,7 +18,7 @@ RUN mix local.rebar --force
 
 # Download YT-DLP
 # NOTE: If you're seeing weird issues, consider using the FFMPEG released by yt-dlp
-RUN python3 -m pip install -U --pre yt-dlp
+RUN python3 -m pip install -U --pre yt-dlp --break-system-packages
 
 # Create app directory and copy the Elixir projects into it.
 WORKDIR /app

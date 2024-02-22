@@ -2,3 +2,5 @@
   - Use a UUID for the media database ID (or at least alongside it)
 - Look into this and its recommended plugins https://hexdocs.pm/ex_check/readme.html
 - Add output template option for the source's friendly name
+- TODO: Install Elixir 1.16.2 when available to fix bug with `ex_check` https://github.com/karolsluszniak/ex_check/issues/41#issuecomment-1921390413
+  - delete `{:elixir_tests, "mix test"}` and formatting check
