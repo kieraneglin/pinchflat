@@ -3,7 +3,12 @@
     Oops, something went wrong! Please check the errors below.
   </.error>
 
-  <.input field={f[:friendly_name]} type="text" label="Custom Name" />
+  <.input
+    field={f[:friendly_name]}
+    type="text"
+    label="Custom Name"
+    help="Something descriptive. Does not impact indexing or downloading"
+  />
 
   <.input field={f[:original_url]} type="text" label="Source URL" help="URL of a channel or playlist (required)" />
 
