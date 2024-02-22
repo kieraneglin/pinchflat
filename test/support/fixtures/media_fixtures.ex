@@ -10,12 +10,14 @@ defmodule Pinchflat.MediaFixtures do
   Generate a media_item.
   """
   def media_item_fixture(attrs \\ %{}) do
+    media_id = Faker.String.base64(12)
+
     {:ok, media_item} =
       attrs
       |> Enum.into(%{
-        media_id: Faker.String.base64(12),
+        media_id: media_id,
         title: Faker.Commerce.product_name(),
-        original_url: "https://www.youtube.com/channel/#{Faker.String.base64(12)}",
+        original_url: "https://www.youtube.com/watch?v=#{media_id}",
         livestream: false,
         media_filepath: "/video/#{Faker.File.file_name(:video)}",
         source_id: SourcesFixtures.source_fixture().id
