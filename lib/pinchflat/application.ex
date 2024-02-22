@@ -22,6 +22,7 @@ defmodule Pinchflat.Application do
     ]
 
     :ok = Oban.Telemetry.attach_default_logger()
+    Logger.add_handlers(:pinchflat)
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

@@ -96,12 +96,11 @@ RUN chown nobody /app
 # Set up data volumes
 RUN mkdir /config /downloads
 RUN chown nobody /config /downloads
-VOLUME /config
-VOLUME /downloads
 
 # set runner ENV
 ENV MIX_ENV="prod"
-ENV DATABASE_PATH="/config/pinchflat.db"
+ENV DATABASE_PATH="/config/db/pinchflat.db"
+ENV LOG_PATH="/config/logs/pinchflat.log"
 ENV PORT=8945
 ENV RUN_CONTEXT="selfhosted"
 
