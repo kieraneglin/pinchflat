@@ -2,10 +2,17 @@
   <.error :if={@changeset.action}>
     Oops, something went wrong! Please check the errors below.
   </.error>
+
   <h3 class="my-4 text-2xl text-black dark:text-white">
     General Options
   </h3>
-  <.input field={f[:name]} type="text" label="Name" placeholder="New Profile" help="(required)" />
+  <.input
+    field={f[:name]}
+    type="text"
+    label="Name"
+    placeholder="New Profile"
+    help="Something descriptive. Does not impact indexing or downloading (required)"
+  />
 
   <.input
     field={f[:output_path_template]}
