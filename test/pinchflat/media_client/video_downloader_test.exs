@@ -19,7 +19,8 @@ defmodule Pinchflat.MediaClient.VideoDownloaderTest do
 
   describe "download_for_media_item/3" do
     test "it calls the backend runner", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, ot ->
+      expect(YtDlpRunnerMock, :run, fn url, _opts, ot ->
+        assert url == media_item.original_url
         assert ot == "after_move:%()j"
 
         {:ok, render_metadata(:media_metadata)}
