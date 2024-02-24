@@ -1,5 +1,5 @@
 defmodule Pinchflat.MediaClient.Backends.YtDlp.OutputPathBuilderTest do
-  use ExUnit.Case, async: true
+  use Pinchflat.DataCase
 
   alias Pinchflat.Profiles.Options.YtDlp.OutputPathBuilder
 

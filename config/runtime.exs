@@ -22,19 +22,24 @@ if System.get_env("PHX_SERVER") do
 end
 
 if config_env() == :prod do
-  database_path =
-    System.get_env("DATABASE_PATH") ||
+  config_path =
+    System.get_env("CONFIG_PATH") ||
       raise """
-      environment variable DATABASE_PATH is missing.
-      For example: /etc/pinchflat/pinchflat.db
+      environment variable CONFIG_PATH is missing.
+      For example: /etc/pinchflat/config
       """
 
-  log_path = System.get_env("LOG_PATH", "log/pinchflat.log")
+  db_path = System.get_env("DATABASE_PATH", Path.join([config_path, "db", "pinchflat.db"]))
+  log_path = System.get_env("LOG_PATH", Path.join([config_path, "logs", "pinchflat.log"]))
+  metadata_path = System.get_env("METADATA_PATH", Path.join([config_path, "metadata"]))
 
-  config :pinchflat, yt_dlp_executable: System.find_executable("yt-dlp")
+  config :pinchflat,
+    yt_dlp_executable: System.find_executable("yt-dlp"),
+    metadata_directory: metadata_path,
+    dns_cluster_query: System.get_env("DNS_CLUSTER_QUERY")
 
   config :pinchflat, Pinchflat.Repo,
-    database: database_path,
+    database: db_path,
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "5")
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
@@ -62,8 +67,6 @@ if config_env() == :prod do
         """
       end
     end
-
-  config :pinchflat, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
   config :pinchflat, PinchflatWeb.Endpoint,
     http: [

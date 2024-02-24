@@ -14,6 +14,10 @@ defmodule Pinchflat.MediaClient.VideoDownloaderTest do
         [:metadata, source: :media_profile]
       )
 
+    stub(HTTPClientMock, :get, fn _url, _headers, _opts ->
+      {:ok, ""}
+    end)
+
     {:ok, %{media_item: media_item}}
   end
 
@@ -29,15 +33,16 @@ defmodule Pinchflat.MediaClient.VideoDownloaderTest do
       assert {:ok, _} = VideoDownloader.download_for_media_item(media_item)
     end
 
-    test "it saves the metadata to the database", %{media_item: media_item} do
+    test "it saves the metadata filepatha to the database", %{media_item: media_item} do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
         {:ok, render_metadata(:media_metadata)}
       end)
 
       assert is_nil(media_item.metadata)
       assert {:ok, updated_media_item} = VideoDownloader.download_for_media_item(media_item)
-      assert updated_media_item.metadata
-      assert is_map(updated_media_item.metadata.client_response)
+
+      assert updated_media_item.metadata.metadata_filepath =~ "media_items/#{media_item.id}/metadata.json.gz"
+      assert updated_media_item.metadata.thumbnail_filepath =~ "media_items/#{media_item.id}/maxresdefault.jpg"
     end
 
     test "errors are passed through", %{media_item: media_item} do

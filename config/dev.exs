@@ -2,7 +2,8 @@ import Config
 
 config :pinchflat,
   media_directory: Path.join([File.cwd!(), "tmp", "videos"]),
-  metadata_directory: Path.join([File.cwd!(), "tmp", "metadata"])
+  metadata_directory: Path.join([File.cwd!(), "tmp", "metadata"]),
+  tmpfile_directory: Path.join([File.cwd!(), "tmp", "tmpfiles"])
 
 # Configure your database
 config :pinchflat, Pinchflat.Repo,

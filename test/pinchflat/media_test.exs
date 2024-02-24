@@ -1,6 +1,7 @@
 defmodule Pinchflat.MediaTest do
   use Pinchflat.DataCase
 
+  import Mox
   import Pinchflat.TasksFixtures
   import Pinchflat.MediaFixtures
   import Pinchflat.ProfilesFixtures
@@ -8,12 +9,17 @@ defmodule Pinchflat.MediaTest do
 
   alias Pinchflat.Media
   alias Pinchflat.Media.MediaItem
+  alias Pinchflat.MediaClient.Backends.YtDlp.MetadataFileHelpers
+
+  setup :verify_on_exit!
 
   @invalid_attrs %{title: nil, media_id: nil, media_filepath: nil}
 
   describe "schema" do
     test "media_metadata is deleted when media_item is deleted" do
-      media_item = media_item_fixture(%{metadata: %{client_response: %{foo: "bar"}}})
+      media_item =
+        media_item_fixture(%{metadata: %{metadata_filepath: "/metadata.json.gz", thumbnail_filepath: "/thumbnail.jpg"}})
+
       metadata = media_item.metadata
       assert {:ok, %MediaItem{}} = Media.delete_media_item(media_item)
 
@@ -259,6 +265,27 @@ defmodule Pinchflat.MediaTest do
     end
   end
 
+  describe "metadata_filepaths" do
+    test "returns filepaths in a flat list" do
+      filepaths = %{
+        metadata_filepath: "/metadata.json.gz",
+        thumbnail_filepath: "/thumbnail.jpg"
+      }
+
+      media_item = media_item_fixture(%{metadata: filepaths})
+
+      assert Media.metadata_filepaths(media_item) == [
+               "/metadata.json.gz",
+               "/thumbnail.jpg"
+             ]
+    end
+
+    test "returns an empty list when there is no metadata" do
+      media_item = media_item_fixture()
+      assert Media.metadata_filepaths(media_item) == []
+    end
+  end
+
   describe "create_media_item/1" do
     test "creating with valid data creates a media_item" do
       valid_attrs = %{
@@ -326,6 +353,26 @@ defmodule Pinchflat.MediaTest do
 
       assert {:ok, _} = Media.delete_attachments(media_item)
       refute File.exists?(media_item.media_filepath)
+    end
+
+    test "deletes the media item's metadata files" do
+      stub(HTTPClientMock, :get, fn _url, _headers, _opts -> {:ok, ""} end)
+      media_item = Repo.preload(media_item_with_attachments(), :metadata)
+
+      update_attrs = %{
+        metadata: %{
+          metadata_filepath: MetadataFileHelpers.compress_and_store_metadata_for(media_item, %{}),
+          thumbnail_filepath:
+            MetadataFileHelpers.download_and_store_thumbnail_for(media_item, %{
+              "thumbnail" => "https://example.com/thumbnail.jpg"
+            })
+        }
+      }
+
+      {:ok, updated_media_item} = Media.update_media_item(media_item, update_attrs)
+
+      assert {:ok, _} = Media.delete_attachments(updated_media_item)
+      refute File.exists?(updated_media_item.metadata.metadata_filepath)
     end
 
     test "does not delete the media item" do

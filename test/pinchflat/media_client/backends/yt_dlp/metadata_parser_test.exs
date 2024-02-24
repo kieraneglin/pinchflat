@@ -1,5 +1,5 @@
 defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaParserTest do
-  use ExUnit.Case, async: true
+  use Pinchflat.DataCase
 
   alias Pinchflat.MediaClient.Backends.YtDlp.MetadataParser, as: Parser
 
@@ -40,12 +40,6 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaParserTest do
       result = Parser.parse_for_media_item(metadata)
 
       assert is_binary(result.description)
-    end
-
-    test "it returns the metadata as a map", %{metadata: metadata} do
-      result = Parser.parse_for_media_item(metadata)
-
-      assert result.metadata.client_response == metadata
     end
   end
 
