@@ -9,8 +9,6 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MetadataFileHelpers do
   needed
   """
 
-  # TODO: ensure media metadata is deleted when the media item is deleted
-
   @doc """
   Compresses and stores metadata for a media item, returning the filepath.
 
