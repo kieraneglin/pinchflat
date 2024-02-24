@@ -99,8 +99,7 @@ RUN chown nobody /config /downloads
 
 # set runner ENV
 ENV MIX_ENV="prod"
-ENV DATABASE_PATH="/config/db/pinchflat.db"
-ENV LOG_PATH="/config/logs/pinchflat.log"
+ENV CONFIG_PATH="/config"
 ENV PORT=8945
 ENV RUN_CONTEXT="selfhosted"
 
