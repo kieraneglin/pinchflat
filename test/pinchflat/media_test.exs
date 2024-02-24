@@ -13,7 +13,9 @@ defmodule Pinchflat.MediaTest do
 
   describe "schema" do
     test "media_metadata is deleted when media_item is deleted" do
-      media_item = media_item_fixture(%{metadata: %{client_response: %{foo: "bar"}}})
+      media_item =
+        media_item_fixture(%{metadata: %{metadata_filepath: "/metadata.json.gz", thumbnail_filepath: "/thumbnail.jpg"}})
+
       metadata = media_item.metadata
       assert {:ok, %MediaItem{}} = Media.delete_media_item(media_item)
 

@@ -16,6 +16,7 @@ defmodule Pinchflat.MediaClient.VideoDownloader do
   alias Pinchflat.MediaClient.Backends.YtDlp.Video, as: YtDlpVideo
   alias Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder, as: YtDlpDownloadOptionBuilder
   alias Pinchflat.MediaClient.Backends.YtDlp.MetadataParser, as: YtDlpMetadataParser
+  alias Pinchflat.MediaClient.Backends.YtDlp.MetadataFileHelpers, as: YtDlpMetadataHelpers
 
   @doc """
   Downloads a video for a media item, updating the media item based on the metadata
@@ -34,12 +35,18 @@ defmodule Pinchflat.MediaClient.VideoDownloader do
 
     case download_for_media_profile(media_item.original_url, media_profile, backend) do
       {:ok, parsed_json} ->
-        parser = metadata_parser(backend)
+        {parser, helpers} = metadata_parsers(backend)
 
         parsed_attrs =
           parsed_json
           |> parser.parse_for_media_item()
-          |> Map.merge(%{media_downloaded_at: DateTime.utc_now()})
+          |> Map.merge(%{
+            media_downloaded_at: DateTime.utc_now(),
+            metadata: %{
+              metadata_filepath: helpers.compress_and_store_metadata_for(media_item, parsed_json),
+              thumbnail_filepath: helpers.download_and_store_thumbnail_for(media_item, parsed_json)
+            }
+          })
 
         # Don't forgor to use preloaded associations or updates to
         # associations won't work!
@@ -70,9 +77,9 @@ defmodule Pinchflat.MediaClient.VideoDownloader do
     end
   end
 
-  defp metadata_parser(backend) do
+  defp metadata_parsers(backend) do
     case backend do
-      :yt_dlp -> YtDlpMetadataParser
+      :yt_dlp -> {YtDlpMetadataParser, YtDlpMetadataHelpers}
     end
   end
 end

@@ -16,6 +16,10 @@ defmodule Pinchflat.Workers.VideoDownloadWorkerTest do
         [:metadata, source: :media_profile]
       )
 
+    stub(HTTPClientMock, :get, fn _url, _headers, _opts ->
+      {:ok, ""}
+    end)
+
     {:ok, %{media_item: media_item}}
   end
 
