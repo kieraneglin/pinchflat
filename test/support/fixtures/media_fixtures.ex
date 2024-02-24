@@ -31,18 +31,13 @@ defmodule Pinchflat.MediaFixtures do
   Generate a media_item with metadata.
   """
   def media_item_with_metadata(attrs \\ %{}) do
-    json_filepath =
-      Path.join([
-        File.cwd!(),
-        "test",
-        "support",
-        "files",
-        "media_metadata.json"
-      ])
-
-    {:ok, file_body} = File.read(json_filepath)
-    {:ok, parsed_json} = Phoenix.json_library().decode(file_body)
-    merged_attrs = Map.merge(attrs, %{metadata: %{client_respinse: parsed_json}})
+    merged_attrs =
+      Map.merge(attrs, %{
+        metadata: %{
+          metadata_filepath: Application.get_env(:pinchflat, :metadata_directory) <> "/metadata.json.gz",
+          thumbnail_filepath: Application.get_env(:pinchflat, :metadata_directory) <> "/thumbnail.jpg"
+        }
+      })
 
     media_item_fixture(merged_attrs)
   end

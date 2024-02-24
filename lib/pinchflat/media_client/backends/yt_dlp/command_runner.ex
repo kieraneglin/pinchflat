@@ -44,8 +44,8 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.CommandRunner do
   end
 
   defp generate_json_output_path do
-    metadata_directory = Application.get_env(:pinchflat, :metadata_directory)
-    filepath = Path.join([metadata_directory, "#{StringUtils.random_string(64)}.json"])
+    tmpfile_directory = Application.get_env(:pinchflat, :tmpfile_directory)
+    filepath = Path.join([tmpfile_directory, "#{StringUtils.random_string(64)}.json"])
 
     # Ensure the file can be created and written to BEFORE we run the `yt-dlp` command
     :ok = File.mkdir_p!(Path.dirname(filepath))

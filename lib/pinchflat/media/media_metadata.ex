@@ -10,8 +10,12 @@ defmodule Pinchflat.Media.MediaMetadata do
 
   alias Pinchflat.Media.MediaItem
 
+  @allowed_fields ~w(metadata_filepath thumbnail_filepath)a
+  @required_fields ~w(metadata_filepath thumbnail_filepath)a
+
   schema "media_metadata" do
-    field :client_response, :map
+    field :metadata_filepath, :string
+    field :thumbnail_filepath, :string
 
     belongs_to :media_item, MediaItem
 
@@ -21,8 +25,13 @@ defmodule Pinchflat.Media.MediaMetadata do
   @doc false
   def changeset(media_metadata, attrs) do
     media_metadata
-    |> cast(attrs, [:client_response])
-    |> validate_required([:client_response])
+    |> cast(attrs, @allowed_fields)
+    |> validate_required(@required_fields)
     |> unique_constraint([:media_item_id])
+  end
+
+  @doc false
+  def filepath_attributes do
+    ~w(metadata_filepath thumbnail_filepath)a
   end
 end

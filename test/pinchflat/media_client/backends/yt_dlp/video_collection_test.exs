@@ -1,5 +1,5 @@
 defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollectionTest do
-  use ExUnit.Case, async: true
+  use Pinchflat.DataCase
   import Mox
   import Pinchflat.SourcesFixtures
 

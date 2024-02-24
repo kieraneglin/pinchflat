@@ -13,6 +13,7 @@ alias Pinchflat.Profiles
 alias Pinchflat.Sources
 
 alias Pinchflat.MediaClient.{SourceDetails, VideoDownloader}
+alias Pinchflat.Metadata.{Zipper, ThumbnailFetcher}
 
 defmodule IexHelpers do
   def playlist_url do

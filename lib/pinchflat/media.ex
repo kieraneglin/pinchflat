@@ -9,6 +9,7 @@ defmodule Pinchflat.Media do
   alias Pinchflat.Tasks
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Media.MediaMetadata
 
   @doc """
   Returns the list of media_items. Returns [%MediaItem{}, ...].
@@ -104,6 +105,21 @@ defmodule Pinchflat.Media do
   end
 
   @doc """
+  Produces a flat list of the filesystem paths for a media_item's metadata files.
+  Returns an empty list if the media_item has no metadata.
+
+  Returns [binary()] | []
+  """
+  def metadata_filepaths(media_item) do
+    metadata = Repo.preload(media_item, :metadata).metadata || %MediaMetadata{}
+    mapped_struct = Map.from_struct(metadata)
+
+    MediaMetadata.filepath_attributes()
+    |> Enum.map(fn field -> mapped_struct[field] end)
+    |> Enum.filter(&is_binary/1)
+  end
+
+  @doc """
   Creates a media_item. Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}.
   """
   def create_media_item(attrs) do
@@ -134,18 +150,31 @@ defmodule Pinchflat.Media do
   @doc """
   Deletes the media_item's associated files. Will leave the media_item in the database.
 
+  NOTE: this deletes the metadata files as well, but maybe it shouldn't? I'm wondering if
+  the metadata is more a concern of the DB record itself and should be lumped in with those
+  delete operations. But the metadata does come from the download operation of the file.
+  Food for thought but not a priority at the moment.
+
   Returns {:ok, %MediaItem{}}
   """
   def delete_attachments(media_item) do
+    media_item = Repo.preload(media_item, :metadata)
+
     media_item
     |> media_filepaths()
+    |> Enum.concat(metadata_filepaths(media_item))
     |> Enum.each(&File.rm/1)
 
-    # Fails if the directory is not empty
-    case File.rmdir(Path.dirname(media_item.media_filepath)) do
-      :ok -> {:ok, media_item}
-      {:error, :eexist} -> {:ok, media_item}
+    # rmdir will attempt to delete the directory, but only if it is empty
+    if media_item.media_filepath do
+      File.rmdir(Path.dirname(media_item.media_filepath))
     end
+
+    if media_item.metadata && media_item.metadata.metadata_filepath do
+      File.rmdir(Path.dirname(media_item.metadata.metadata_filepath))
+    end
+
+    {:ok, media_item}
   end
 
   @doc """
