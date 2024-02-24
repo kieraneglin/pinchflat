@@ -150,6 +150,11 @@ defmodule Pinchflat.Media do
   @doc """
   Deletes the media_item's associated files. Will leave the media_item in the database.
 
+  NOTE: this deletes the metadata files as well, but maybe it shouldn't? I'm wondering if
+  the metadata is more a concern of the DB record itself and should be lumped in with those
+  delete operations. But the metadata does come from the download operation of the file.
+  Food for thought but not a priority at the moment.
+
   Returns {:ok, %MediaItem{}}
   """
   def delete_attachments(media_item) do
