@@ -87,13 +87,23 @@ defmodule PinchflatWeb.Sources.SourceController do
     end
   end
 
-  def delete(conn, %{"id" => id}) do
+  def delete(conn, %{"id" => id} = params) do
+    delete_files = Map.get(params, "delete_files", false)
     source = Sources.get_source!(id)
-    {:ok, _source} = Sources.delete_source(source)
 
-    conn
-    |> put_flash(:info, "Source deleted successfully.")
-    |> redirect(to: ~p"/sources")
+    if delete_files do
+      {:ok, _source} = Sources.delete_source(source, delete_files: true)
+
+      conn
+      |> put_flash(:info, "Source and files deleted successfully.")
+      |> redirect(to: ~p"/sources")
+    else
+      {:ok, _source} = Sources.delete_source(source)
+
+      conn
+      |> put_flash(:info, "Source deleted successfully. Files were not deleted.")
+      |> redirect(to: ~p"/sources")
+    end
   end
 
   defp media_profiles do

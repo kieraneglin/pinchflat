@@ -4,7 +4,6 @@ defmodule PinchflatWeb.MediaItemControllerTest do
   import Pinchflat.MediaFixtures
 
   alias Pinchflat.Repo
-  alias Pinchflat.Media
 
   describe "show media" do
     setup [:create_media_item]
@@ -18,10 +17,6 @@ defmodule PinchflatWeb.MediaItemControllerTest do
   describe "delete media when just deleting the records" do
     setup do
       media_item = media_item_with_attachments()
-
-      on_exit(fn ->
-        Media.delete_attachments(media_item)
-      end)
 
       %{media_item: media_item}
     end

@@ -14,7 +14,7 @@ defmodule PinchflatWeb.MediaItems.MediaItemController do
     media_item = Media.get_media_item!(id)
 
     if delete_files do
-      {:ok, _} = Media.delete_media_item_and_attachments(media_item)
+      {:ok, _} = Media.delete_media_item(media_item, delete_files: true)
 
       conn
       |> put_flash(:info, "Record and files deleted successfully.")

@@ -36,6 +36,15 @@ defmodule Pinchflat.MediaTest do
     end
   end
 
+  describe "list_media_items_for/1" do
+    test "it returns media_items for a given source" do
+      source = source_fixture()
+      media_item = media_item_fixture(%{source_id: source.id})
+
+      assert Media.list_media_items_for(source) == [media_item]
+    end
+  end
+
   describe "list_pending_media_items_for/1" do
     test "it returns pending without a filepath for a given source" do
       source = source_fixture()
@@ -345,13 +354,20 @@ defmodule Pinchflat.MediaTest do
       assert {:ok, %MediaItem{}} = Media.delete_media_item(media_item)
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
     end
+
+    test "does not delete the media_item's files by default" do
+      media_item = media_item_with_attachments()
+
+      assert {:ok, _} = Media.delete_media_item(media_item)
+      assert File.exists?(media_item.media_filepath)
+    end
   end
 
-  describe "delete_attachments/1" do
+  describe "delete_media_item/1 when testing file deletion" do
     test "deletes the media item's files" do
       media_item = media_item_with_attachments()
 
-      assert {:ok, _} = Media.delete_attachments(media_item)
+      assert {:ok, _} = Media.delete_media_item(media_item, delete_files: true)
       refute File.exists?(media_item.media_filepath)
     end
 
@@ -371,23 +387,21 @@ defmodule Pinchflat.MediaTest do
 
       {:ok, updated_media_item} = Media.update_media_item(media_item, update_attrs)
 
-      assert {:ok, _} = Media.delete_attachments(updated_media_item)
+      assert {:ok, _} = Media.delete_media_item(updated_media_item, delete_files: true)
       refute File.exists?(updated_media_item.metadata.metadata_filepath)
     end
 
-    test "does not delete the media item" do
-      media_item = media_item_with_attachments()
-
-      assert {:ok, _} = Media.delete_attachments(media_item)
-
-      assert Repo.reload!(media_item)
+    test "deletion deletes the media_item" do
+      media_item = media_item_fixture()
+      assert {:ok, %MediaItem{}} = Media.delete_media_item(media_item, delete_files: true)
+      assert_raise Ecto.NoResultsError, fn -> Media.get_media_item!(media_item.id) end
     end
 
     test "deletes the parent folder if it is empty" do
       media_item = media_item_with_attachments()
       root_directory = Path.dirname(media_item.media_filepath)
 
-      assert {:ok, _} = Media.delete_attachments(media_item)
+      assert {:ok, _} = Media.delete_media_item(media_item, delete_files: true)
       refute File.exists?(root_directory)
     end
 
@@ -396,29 +410,11 @@ defmodule Pinchflat.MediaTest do
       root_directory = Path.dirname(media_item.media_filepath)
       File.touch(Path.join([root_directory, "test.txt"]))
 
-      assert {:ok, _} = Media.delete_attachments(media_item)
+      assert {:ok, _} = Media.delete_media_item(media_item, delete_files: true)
       assert File.exists?(root_directory)
 
       :ok = File.rm(Path.join([root_directory, "test.txt"]))
       :ok = File.rmdir(root_directory)
-    end
-  end
-
-  describe "delete_media_item_and_attachments/1" do
-    setup do
-      media_item = media_item_with_attachments()
-      {:ok, media_item: media_item}
-    end
-
-    test "deletes the media item", %{media_item: media_item} do
-      assert {:ok, _} = Media.delete_media_item_and_attachments(media_item)
-      assert_raise Ecto.NoResultsError, fn -> Media.get_media_item!(media_item.id) end
-    end
-
-    test "deletes associated files", %{media_item: media_item} do
-      assert File.exists?(media_item.media_filepath)
-      assert {:ok, _} = Media.delete_media_item_and_attachments(media_item)
-      refute File.exists?(media_item.media_filepath)
     end
   end
 

@@ -6,6 +6,7 @@ defmodule Pinchflat.Sources do
   import Ecto.Query, warn: false
   alias Pinchflat.Repo
 
+  alias Pinchflat.Media
   alias Pinchflat.Tasks
   alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Sources.Source
@@ -55,13 +56,20 @@ defmodule Pinchflat.Sources do
   end
 
   @doc """
-  Deletes a source and it's associated tasks (of any state).
-  NOTE: will fail if the source has associated media items. Intended
-  for now, will almost certainly change in the future.
+  Deletes a source, its media items, and its associated tasks (of any state).
+  Can optionally delete the source's media files.
 
   Returns {:ok, %Source{}} | {:error, %Ecto.Changeset{}}
   """
-  def delete_source(%Source{} = source) do
+  def delete_source(%Source{} = source, opts \\ []) do
+    delete_files = Keyword.get(opts, :delete_files, false)
+
+    source
+    |> Media.list_media_items_for()
+    |> Enum.each(fn media_item ->
+      Media.delete_media_item(media_item, delete_files: delete_files)
+    end)
+
     Tasks.delete_tasks_for(source)
     Repo.delete(source)
   end

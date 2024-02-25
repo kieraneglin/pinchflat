@@ -268,6 +268,43 @@ defmodule Pinchflat.SourcesTest do
       assert {:ok, %Source{}} = Sources.delete_source(source)
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
     end
+
+    test "deletion also deletes all associated media items" do
+      source = source_fixture()
+      media_item = media_item_fixture(source_id: source.id)
+
+      assert {:ok, %Source{}} = Sources.delete_source(source)
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_item) end
+    end
+
+    test "deletion does not delete media files by default" do
+      source = source_fixture()
+      media_item = media_item_with_attachments(%{source_id: source.id})
+
+      assert {:ok, %Source{}} = Sources.delete_source(source)
+      assert File.exists?(media_item.media_filepath)
+    end
+  end
+
+  describe "delete_source/1 when deleting files" do
+    test "deletes source and media_items" do
+      source = source_fixture()
+      media_item = media_item_with_attachments(%{source_id: source.id})
+
+      assert {:ok, %Source{}} = Sources.delete_source(source, delete_files: true)
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_item) end
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(source) end
+    end
+
+    test "also deletes media files" do
+      source = source_fixture()
+      media_item = media_item_with_attachments(%{source_id: source.id})
+
+      assert {:ok, %Source{}} = Sources.delete_source(source, delete_files: true)
+
+      refute File.exists?(media_item.media_filepath)
+    end
   end
 
   describe "change_source/2" do
