@@ -32,12 +32,11 @@ defmodule Pinchflat.SourcesTest do
 
   describe "create_source/1" do
     test "creates a source and adds name + ID from runner response for channels" do
-      expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
+      expect(YtDlpRunnerMock, :run, &channel_mock/3)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
-        original_url: "https://www.youtube.com/channel/abc123",
-        collection_type: "channel"
+        original_url: "https://www.youtube.com/channel/abc123"
       }
 
       assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
@@ -46,12 +45,11 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "creates a source and adds name + ID for playlists" do
-      expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
+      expect(YtDlpRunnerMock, :run, &playlist_mock/3)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
-        original_url: "https://www.youtube.com/playlist?list=abc123",
-        collection_type: "playlist"
+        original_url: "https://www.youtube.com/playlist?list=abc123"
       }
 
       assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
@@ -60,12 +58,11 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "you can specify a custom friendly_name" do
-      expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
+      expect(YtDlpRunnerMock, :run, &channel_mock/3)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
         original_url: "https://www.youtube.com/channel/abc123",
-        collection_type: "channel",
         friendly_name: "some custom name"
       }
 
@@ -75,17 +72,32 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "friendly name is pulled from collection_name if not specified" do
-      expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
+      expect(YtDlpRunnerMock, :run, &channel_mock/3)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
-        original_url: "https://www.youtube.com/channel/abc123",
-        collection_type: "channel"
+        original_url: "https://www.youtube.com/channel/abc123"
       }
 
       assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
 
       assert source.friendly_name == "some channel name"
+    end
+
+    test "collection_type is inferred from source details" do
+      expect(YtDlpRunnerMock, :run, &channel_mock/3)
+      expect(YtDlpRunnerMock, :run, &playlist_mock/3)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123"
+      }
+
+      assert {:ok, %Source{} = source_1} = Sources.create_source(valid_attrs)
+      assert {:ok, %Source{} = source_2} = Sources.create_source(valid_attrs)
+
+      assert source_1.collection_type == :channel
+      assert source_2.collection_type == :playlist
     end
 
     test "creation with invalid data returns error changeset" do
@@ -97,14 +109,15 @@ defmodule Pinchflat.SourcesTest do
         {:ok,
          Phoenix.json_library().encode!(%{
            channel: "some channel name",
-           channel_id: "some_channel_id_12345678"
+           channel_id: "some_channel_id_12345678",
+           playlist_id: "some_channel_id_12345678",
+           playlist_title: "some channel name - videos"
          })}
       end)
 
       valid_once_attrs = %{
         media_profile_id: media_profile_fixture().id,
-        original_url: "https://www.youtube.com/channel/abc123",
-        collection_type: "channel"
+        original_url: "https://www.youtube.com/channel/abc123"
       }
 
       assert {:ok, %Source{}} = Sources.create_source(valid_once_attrs)
@@ -116,14 +129,15 @@ defmodule Pinchflat.SourcesTest do
         {:ok,
          Phoenix.json_library().encode!(%{
            channel: "some channel name",
-           channel_id: "some_channel_id_12345678"
+           channel_id: "some_channel_id_12345678",
+           playlist_id: "some_channel_id_12345678",
+           playlist_title: "some channel name - videos"
          })}
       end)
 
       valid_attrs = %{
         name: "some name",
-        original_url: "https://www.youtube.com/channel/abc123",
-        collection_type: "channel"
+        original_url: "https://www.youtube.com/channel/abc123"
       }
 
       source_1_attrs = Map.merge(valid_attrs, %{media_profile_id: media_profile_fixture().id})
@@ -134,12 +148,11 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "creation will schedule the indexing task" do
-      expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
+      expect(YtDlpRunnerMock, :run, &channel_mock/3)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
-        original_url: "https://www.youtube.com/channel/abc123",
-        collection_type: "channel"
+        original_url: "https://www.youtube.com/channel/abc123"
       }
 
       assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
@@ -158,7 +171,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "updating the original_url will re-fetch the source details for channels" do
-      expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
+      expect(YtDlpRunnerMock, :run, &channel_mock/3)
 
       source = source_fixture()
       update_attrs = %{original_url: "https://www.youtube.com/channel/abc123"}
@@ -169,9 +182,9 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "updating the original_url will re-fetch the source details for playlists" do
-      expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
+      expect(YtDlpRunnerMock, :run, &playlist_mock/3)
 
-      source = source_fixture(collection_type: "playlist")
+      source = source_fixture()
       update_attrs = %{original_url: "https://www.youtube.com/playlist?list=abc123"}
 
       assert {:ok, %Source{} = source} = Sources.update_source(source, update_attrs)
@@ -180,7 +193,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "not updating the original_url will not re-fetch the source details" do
-      expect(YtDlpRunnerMock, :run, 0, &runner_function_mock/3)
+      expect(YtDlpRunnerMock, :run, 0, &channel_mock/3)
 
       source = source_fixture()
       update_attrs = %{name: "some updated name"}
@@ -267,14 +280,14 @@ defmodule Pinchflat.SourcesTest do
 
   describe "change_source_from_url/2" do
     test "it returns a changeset" do
-      stub(YtDlpRunnerMock, :run, &runner_function_mock/3)
+      stub(YtDlpRunnerMock, :run, &channel_mock/3)
       source = source_fixture()
 
       assert %Ecto.Changeset{} = Sources.change_source_from_url(source, %{})
     end
 
     test "it does not fetch source details if the original_url isn't in the changeset" do
-      expect(YtDlpRunnerMock, :run, 0, &runner_function_mock/3)
+      expect(YtDlpRunnerMock, :run, 0, &channel_mock/3)
 
       changeset = Sources.change_source_from_url(%Source{}, %{name: "some updated name"})
 
@@ -282,7 +295,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "it fetches source details if the original_url is in the changeset" do
-      expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
+      expect(YtDlpRunnerMock, :run, &channel_mock/3)
 
       changeset =
         Sources.change_source_from_url(%Source{}, %{
@@ -293,13 +306,13 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "it adds source details to the changeset, keeping the orignal details" do
-      expect(YtDlpRunnerMock, :run, &runner_function_mock/3)
+      expect(YtDlpRunnerMock, :run, &channel_mock/3)
 
       media_profile = media_profile_fixture()
       media_profile_id = media_profile.id
 
       changeset =
-        Sources.change_source_from_url(%Source{collection_type: :channel}, %{
+        Sources.change_source_from_url(%Source{}, %{
           original_url: "https://www.youtube.com/channel/abc123",
           media_profile_id: media_profile.id
         })
@@ -329,14 +342,28 @@ defmodule Pinchflat.SourcesTest do
     end
   end
 
-  defp runner_function_mock(_url, _opts, _ot) do
+  defp playlist_mock(_url, _opts, _ot) do
+    {
+      :ok,
+      Phoenix.json_library().encode!(%{
+        channel: nil,
+        channel_id: nil,
+        playlist_id: "some_playlist_id_#{:rand.uniform(1_000_000)}",
+        playlist_title: "some playlist name"
+      })
+    }
+  end
+
+  defp channel_mock(_url, _opts, _ot) do
+    channel_id = "some_channel_id_#{:rand.uniform(1_000_000)}"
+
     {
       :ok,
       Phoenix.json_library().encode!(%{
         channel: "some channel name",
-        channel_id: "some_channel_id_#{:rand.uniform(1_000_000)}",
-        playlist_id: "some_playlist_id_#{:rand.uniform(1_000_000)}",
-        playlist_title: "some playlist name"
+        channel_id: channel_id,
+        playlist_id: channel_id,
+        playlist_title: "some channel name - videos"
       })
     }
   end

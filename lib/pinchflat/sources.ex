@@ -118,24 +118,20 @@ defmodule Pinchflat.Sources do
 
   defp add_source_details_by_collection_type(source, changeset, source_details) do
     %Ecto.Changeset{changes: changes} = changeset
-    collection_type = Ecto.Changeset.get_field(changeset, :collection_type)
 
     collection_changes =
-      case collection_type do
-        :channel ->
-          %{
-            collection_id: source_details.channel_id,
-            collection_name: source_details.channel_name
-          }
-
-        :playlist ->
-          %{
-            collection_id: source_details.playlist_id,
-            collection_name: source_details.playlist_name
-          }
-
-        _ ->
-          %{}
+      if source_details.playlist_id == source_details.channel_id do
+        %{
+          collection_type: :channel,
+          collection_id: source_details.channel_id,
+          collection_name: source_details.channel_name
+        }
+      else
+        %{
+          collection_type: :playlist,
+          collection_id: source_details.playlist_id,
+          collection_name: source_details.playlist_name
+        }
       end
 
     change_source(source, Map.merge(changes, collection_changes))
