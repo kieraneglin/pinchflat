@@ -169,21 +169,19 @@ defmodule Pinchflat.Sources do
     {:ok, source}
   end
 
-  # IDEA: this uses a pattern where `kickoff_indexing_task` controls whether
-  # it should run based on the source, but `maybe_handle_media_tasks` handles that
-  # logic itself. Consider updating one or the other to be consistent (once I've
-  # decided which I like more)
   defp maybe_run_indexing_task(changeset, source) do
     case changeset.data do
       # If the changeset is new (not persisted), attempt indexing no matter what
       %{__meta__: %{state: :built}} ->
         SourceTasks.kickoff_indexing_task(source)
 
-      # If the record has been persisted, only attempt indexing if the
-      # indexing frequency has been changed
+      # If the record has been persisted, only run indexing if the
+      # indexing frequency has been changed and is now greater than 0
       %{__meta__: %{state: :loaded}} ->
-        if Map.has_key?(changeset.changes, :index_frequency_minutes) do
-          SourceTasks.kickoff_indexing_task(source)
+        case changeset.changes do
+          %{index_frequency_minutes: mins} when mins > 0 -> SourceTasks.kickoff_indexing_task(source)
+          %{index_frequency_minutes: _} -> Tasks.delete_pending_tasks_for(source)
+          _ -> :ok
         end
     end
 

@@ -27,6 +27,7 @@ defmodule Pinchflat.Sources.Source do
     collection_id
     collection_type
     friendly_name
+    index_frequency_minutes
     download_media
     original_url
     media_profile_id

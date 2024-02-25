@@ -159,6 +159,20 @@ defmodule Pinchflat.SourcesTest do
 
       assert_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
     end
+
+    test "creation schedules an index test even if the index frequency is 0" do
+      expect(YtDlpRunnerMock, :run, &channel_mock/3)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123",
+        index_frequency_minutes: 0
+      }
+
+      assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
+
+      assert_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
+    end
   end
 
   describe "update_source/2" do
@@ -201,7 +215,7 @@ defmodule Pinchflat.SourcesTest do
       assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
     end
 
-    test "updating the index frequency will re-schedule the indexing task" do
+    test "updating the index frequency to >0 will re-schedule the indexing task" do
       source = source_fixture()
       update_attrs = %{index_frequency_minutes: 123}
 
@@ -210,11 +224,33 @@ defmodule Pinchflat.SourcesTest do
       assert_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
     end
 
-    test "not updating the index frequency will not re-schedule the indexing task" do
+    test "updating the index frequency to 0 will not re-schedule the indexing task" do
       source = source_fixture()
+      update_attrs = %{index_frequency_minutes: 0}
+
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+
+      refute_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
+    end
+
+    test "updating the index frequency to 0 will delete any pending tasks" do
+      source = source_fixture()
+      task = task_fixture(source_id: source.id)
+      update_attrs = %{index_frequency_minutes: 0}
+
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+
+    test "not updating the index frequency will not re-schedule the indexing task or delete tasks" do
+      source = source_fixture()
+      task = task_fixture(source_id: source.id)
       update_attrs = %{name: "some updated name"}
 
       assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+
+      assert Repo.reload!(task)
       refute_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
     end
 

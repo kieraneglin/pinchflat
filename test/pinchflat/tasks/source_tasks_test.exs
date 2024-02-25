@@ -16,15 +16,7 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
   setup :verify_on_exit!
 
   describe "kickoff_indexing_task/1" do
-    test "it does not schedule a job if the interval is <= 0" do
-      source = source_fixture(index_frequency_minutes: -1)
-
-      assert {:ok, :should_not_index} = SourceTasks.kickoff_indexing_task(source)
-
-      refute_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
-    end
-
-    test "it schedules a job if the interval is > 0" do
+    test "it schedules a job" do
       source = source_fixture(index_frequency_minutes: 1)
 
       assert {:ok, _} = SourceTasks.kickoff_indexing_task(source)
@@ -32,7 +24,7 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
       assert_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
     end
 
-    test "it creates and attaches a task if the interval is > 0" do
+    test "it creates and attaches a task" do
       source = source_fixture(index_frequency_minutes: 1)
 
       assert {:ok, %Task{} = task} = SourceTasks.kickoff_indexing_task(source)
