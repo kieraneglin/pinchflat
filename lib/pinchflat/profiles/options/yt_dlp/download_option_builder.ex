@@ -34,7 +34,7 @@ defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder do
 
   # This will be updated a lot as I add new options to profiles
   defp default_options do
-    [:no_progress]
+    [:no_progress, :windows_filenames]
   end
 
   defp subtitle_options(media_profile) do

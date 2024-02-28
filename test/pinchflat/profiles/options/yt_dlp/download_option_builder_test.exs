@@ -16,6 +16,15 @@ defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilderTest do
     end
   end
 
+  describe "build/1 when testing default options" do
+    test "it includes default options" do
+      assert {:ok, res} = DownloadOptionBuilder.build(@media_profile)
+
+      assert :no_progress in res
+      assert :windows_filenames in res
+    end
+  end
+
   describe "build/1 when testing subtitle options" do
     test "includes :write_subs option when specified" do
       media_profile = %MediaProfile{@media_profile | download_subs: true}
