@@ -75,7 +75,7 @@
 
     <section class="flex flex-col md:flex-row items-center md:justify-around mt-10">
       <.link
-        href={~p"/sources/#{@source.id}"}
+        href={~p"/sources/#{@source}"}
         method="delete"
         data-confirm="Are you sure you want to delete this source (leaving files in place)? This cannot be undone."
       >
@@ -84,9 +84,9 @@
         </.button>
       </.link>
       <.link
-        href={~p"/sources/#{@source.id}?delete_files=true"}
+        href={~p"/sources/#{@source}?delete_files=true"}
         method="delete"
-        data-confirm="Are you sure you want to delete this source AND it's associated files? This cannot be undone."
+        data-confirm="Are you sure you want to delete this source AND it's files? This cannot be undone."
         class="mt-5 md:mt-0"
       >
         <.button color="bg-meta-1" rounding="rounded-full">

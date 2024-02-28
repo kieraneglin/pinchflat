@@ -1,7 +1,11 @@
 defmodule PinchflatWeb.MediaProfileControllerTest do
   use PinchflatWeb.ConnCase
 
+  import Pinchflat.MediaFixtures
+  import Pinchflat.SourcesFixtures
   import Pinchflat.ProfilesFixtures
+
+  alias Pinchflat.Repo
 
   @create_attrs %{name: "some name", output_path_template: "some output_path_template"}
   @update_attrs %{
@@ -97,21 +101,71 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
     end
   end
 
-  describe "delete media_profile" do
+  describe "delete media_profile when just deleting the records" do
     setup [:create_media_profile]
 
-    test "deletes chosen media_profile", %{conn: conn, media_profile: media_profile} do
+    test "deletes chosen media_profile and its associations", %{conn: conn, media_profile: media_profile} do
+      source = source_fixture(media_profile_id: media_profile.id)
+      media_item = media_item_with_attachments(%{source_id: source.id})
+
       conn = delete(conn, ~p"/media_profiles/#{media_profile}")
       assert redirected_to(conn) == ~p"/media_profiles"
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/media_profiles/#{media_profile}")
-      end
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_profile) end
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(source) end
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_item) end
+    end
+
+    test "redirects to the media_profiles page", %{conn: conn, media_profile: media_profile} do
+      conn = delete(conn, ~p"/media_profiles/#{media_profile}")
+
+      assert redirected_to(conn) == ~p"/media_profiles"
+    end
+
+    test "doesn't delete any files", %{conn: conn, media_profile: media_profile} do
+      source = source_fixture(media_profile_id: media_profile.id)
+      media_item = media_item_with_attachments(%{source_id: source.id})
+
+      delete(conn, ~p"/media_profiles/#{media_profile}")
+
+      assert File.exists?(media_item.media_filepath)
+    end
+  end
+
+  describe "delete media_profile when deleting the records and files" do
+    setup [:create_media_profile]
+
+    test "deletes chosen media_profile and its associations", %{conn: conn, media_profile: media_profile} do
+      source = source_fixture(media_profile_id: media_profile.id)
+      media_item = media_item_with_attachments(%{source_id: source.id})
+
+      conn = delete(conn, ~p"/media_profiles/#{media_profile}?delete_files=true")
+      assert redirected_to(conn) == ~p"/media_profiles"
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_profile) end
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(source) end
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_item) end
+    end
+
+    test "redirects to the media_profiles page", %{conn: conn, media_profile: media_profile} do
+      conn = delete(conn, ~p"/media_profiles/#{media_profile}?delete_files=true")
+
+      assert redirected_to(conn) == ~p"/media_profiles"
+    end
+
+    test "deletes the files", %{conn: conn, media_profile: media_profile} do
+      source = source_fixture(media_profile_id: media_profile.id)
+      media_item = media_item_with_attachments(%{source_id: source.id})
+
+      delete(conn, ~p"/media_profiles/#{media_profile}?delete_files=true")
+
+      refute File.exists?(media_item.media_filepath)
     end
   end
 
   defp create_media_profile(_) do
     media_profile = media_profile_fixture()
+
     %{media_profile: media_profile}
   end
 end

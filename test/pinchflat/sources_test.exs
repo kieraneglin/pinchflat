@@ -23,6 +23,15 @@ defmodule Pinchflat.SourcesTest do
     end
   end
 
+  describe "list_sources_for/1" do
+    test "returns all sources for a given media profile" do
+      media_profile = media_profile_fixture()
+      source = source_fixture(media_profile_id: media_profile.id)
+
+      assert Sources.list_sources_for(media_profile) == [source]
+    end
+  end
+
   describe "get_source!/1" do
     test "it returns the source with given id" do
       source = source_fixture()
@@ -285,7 +294,7 @@ defmodule Pinchflat.SourcesTest do
     end
   end
 
-  describe "delete_source/1" do
+  describe "delete_source/2" do
     test "it deletes the source" do
       source = source_fixture()
       assert {:ok, %Source{}} = Sources.delete_source(source)
@@ -322,7 +331,7 @@ defmodule Pinchflat.SourcesTest do
     end
   end
 
-  describe "delete_source/1 when deleting files" do
+  describe "delete_source/2 when deleting files" do
     test "deletes source and media_items" do
       source = source_fixture()
       media_item = media_item_with_attachments(%{source_id: source.id})

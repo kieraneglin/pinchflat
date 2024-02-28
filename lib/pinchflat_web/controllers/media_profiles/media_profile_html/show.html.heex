@@ -22,5 +22,27 @@
       <h3 class="font-bold text-xl">Attributes</h3>
       <.list_items_from_map map={Map.from_struct(@media_profile)} />
     </div>
+
+    <section class="flex flex-col md:flex-row items-center md:justify-around my-10">
+      <.link
+        href={~p"/media_profiles/#{@media_profile}"}
+        method="delete"
+        data-confirm="Are you sure you want to delete this profile and all its sources (leaving files in place)? This cannot be undone."
+      >
+        <.button color="bg-meta-1" rounding="rounded-full">
+          Delete Profile and its Sources
+        </.button>
+      </.link>
+      <.link
+        href={~p"/media_profiles/#{@media_profile}?delete_files=true"}
+        method="delete"
+        data-confirm="Are you sure you want to delete this profile, all its sources, and its files? This cannot be undone."
+        class="mt-5 md:mt-0"
+      >
+        <.button color="bg-meta-1" rounding="rounded-full">
+          Delete Profile, Sources and Files
+        </.button>
+      </.link>
+    </section>
   </div>
 </div>

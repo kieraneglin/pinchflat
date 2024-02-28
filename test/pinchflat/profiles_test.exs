@@ -1,9 +1,12 @@
 defmodule Pinchflat.ProfilesTest do
   use Pinchflat.DataCase
 
+  import Pinchflat.MediaFixtures
+  import Pinchflat.SourcesFixtures
+  import Pinchflat.ProfilesFixtures
+
   alias Pinchflat.Profiles
   alias Pinchflat.Profiles.MediaProfile
-  import Pinchflat.ProfilesFixtures
 
   @invalid_attrs %{name: nil, output_path_template: nil}
 
@@ -61,11 +64,66 @@ defmodule Pinchflat.ProfilesTest do
     end
   end
 
-  describe "delete_media_profile/1" do
+  describe "delete_media_profile/2" do
     test "deletion deletes the media_profile" do
       media_profile = media_profile_fixture()
+
       assert {:ok, %MediaProfile{}} = Profiles.delete_media_profile(media_profile)
-      assert_raise Ecto.NoResultsError, fn -> Profiles.get_media_profile!(media_profile.id) end
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_profile) end
+    end
+
+    test "deletion deletes all sources" do
+      media_profile = media_profile_fixture()
+      source = source_fixture(media_profile_id: media_profile.id)
+
+      assert {:ok, %MediaProfile{}} = Profiles.delete_media_profile(media_profile)
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(source) end
+    end
+
+    test "deletion deletes all media items" do
+      media_profile = media_profile_fixture()
+      source = source_fixture(media_profile_id: media_profile.id)
+      media_item = media_item_fixture(source_id: source.id)
+
+      assert {:ok, %MediaProfile{}} = Profiles.delete_media_profile(media_profile)
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_item) end
+    end
+
+    test "deletion does not delete files by default" do
+      media_profile = media_profile_fixture()
+      source = source_fixture(media_profile_id: media_profile.id)
+      media_item = media_item_with_attachments(%{source_id: source.id})
+
+      assert {:ok, %MediaProfile{}} = Profiles.delete_media_profile(media_profile)
+
+      assert File.exists?(media_item.media_filepath)
+    end
+  end
+
+  describe "delete_media_profile/2 when deleting files" do
+    test "still deletes all the needful records" do
+      media_profile = media_profile_fixture()
+      source = source_fixture(media_profile_id: media_profile.id)
+      media_item = media_item_fixture(source_id: source.id)
+
+      assert {:ok, %MediaProfile{}} = Profiles.delete_media_profile(media_profile, delete_files: true)
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_profile) end
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(source) end
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_item) end
+    end
+
+    test "deletes files" do
+      media_profile = media_profile_fixture()
+      source = source_fixture(media_profile_id: media_profile.id)
+      media_item = media_item_with_attachments(%{source_id: source.id})
+
+      assert {:ok, %MediaProfile{}} = Profiles.delete_media_profile(media_profile, delete_files: true)
+
+      refute File.exists?(media_item.media_filepath)
     end
   end
 

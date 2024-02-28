@@ -340,7 +340,7 @@ defmodule Pinchflat.MediaTest do
     end
   end
 
-  describe "delete_media_item/1" do
+  describe "delete_media_item/2" do
     test "deletion deletes the media_item" do
       media_item = media_item_fixture()
       assert {:ok, %MediaItem{}} = Media.delete_media_item(media_item)
@@ -363,7 +363,7 @@ defmodule Pinchflat.MediaTest do
     end
   end
 
-  describe "delete_media_item/1 when testing file deletion" do
+  describe "delete_media_item/2 when testing file deletion" do
     test "deletes the media item's files" do
       media_item = media_item_with_attachments()
 

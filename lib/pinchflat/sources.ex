@@ -8,8 +8,9 @@ defmodule Pinchflat.Sources do
 
   alias Pinchflat.Media
   alias Pinchflat.Tasks
-  alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Tasks.SourceTasks
+  alias Pinchflat.Profiles.MediaProfile
   alias Pinchflat.MediaClient.SourceDetails
 
   @doc """
@@ -17,6 +18,15 @@ defmodule Pinchflat.Sources do
   """
   def list_sources do
     Repo.all(Source)
+  end
+
+  @doc """
+  Returns the list of sources for a media_profile.
+
+  Returns [%Source{}, ...]
+  """
+  def list_sources_for(%MediaProfile{} = media_profile) do
+    Repo.all(from s in Source, where: s.media_profile_id == ^media_profile.id)
   end
 
   @doc """
