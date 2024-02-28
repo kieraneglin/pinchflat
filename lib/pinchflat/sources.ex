@@ -190,7 +190,7 @@ defmodule Pinchflat.Sources do
       %{__meta__: %{state: :loaded}} ->
         case changeset.changes do
           %{index_frequency_minutes: mins} when mins > 0 -> SourceTasks.kickoff_indexing_task(source)
-          %{index_frequency_minutes: _} -> Tasks.delete_pending_tasks_for(source)
+          %{index_frequency_minutes: _} -> Tasks.delete_pending_tasks_for(source, "MediaIndexingWorker")
           _ -> :ok
         end
     end

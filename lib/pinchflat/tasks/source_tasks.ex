@@ -18,7 +18,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
   Returns {:ok, %Task{}}.
   """
   def kickoff_indexing_task(%Source{} = source) do
-    Tasks.delete_pending_tasks_for(source)
+    Tasks.delete_pending_tasks_for(source, "MediaIndexingWorker")
 
     source
     |> Map.take([:id])

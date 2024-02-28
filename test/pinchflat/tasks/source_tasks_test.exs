@@ -34,7 +34,8 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
 
     test "it deletes any pending tasks for the source" do
       source = source_fixture()
-      task = task_fixture(source_id: source.id)
+      {:ok, job} = Oban.insert(MediaIndexingWorker.new(%{"id" => source.id}))
+      task = task_fixture(source_id: source.id, job_id: job.id)
 
       assert {:ok, _} = SourceTasks.kickoff_indexing_task(source)
 

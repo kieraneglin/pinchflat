@@ -19,30 +19,46 @@ defmodule Pinchflat.Tasks do
 
   @doc """
   Returns the list of tasks for a given record type and ID. Optionally allows you to specify
-  which job states to include.
+  which worker or job states to include.
 
   Returns [%Task{}, ...]
   """
-  def list_tasks_for(attached_record_type, attached_record_id, job_states \\ Oban.Job.states()) do
+  def list_tasks_for(attached_record_type, attached_record_id, worker_name \\ nil, job_states \\ Oban.Job.states()) do
     stringified_states = Enum.map(job_states, &to_string/1)
+
+    worker_name_finder =
+      if worker_name do
+        # Workers are the full module name - we want to match on the string ENDING with
+        # the passed worker name and it should be preceeded with a . so we aren't matching
+        # on a substring. You can pass in more fragments of the worker name if you need
+        # to disambiguate. eg: "TestWorker" or "FooBar.TestWorker"
+        worker_finder = "%.#{worker_name}"
+
+        dynamic([_t, j], fragment("? LIKE ?", j.worker, ^worker_finder))
+      else
+        true
+      end
 
     Repo.all(
       from t in Task,
         join: j in assoc(t, :job),
         where: field(t, ^attached_record_type) == ^attached_record_id,
+        where: ^worker_name_finder,
         where: j.state in ^stringified_states
     )
   end
 
   @doc """
-  Returns the list of pending tasks for a given record type and ID.
+  Returns the list of pending tasks for a given record type and ID. Optionally allows you to specify
+  which worker to include.
 
   Returns [%Task{}, ...]
   """
-  def list_pending_tasks_for(attached_record_type, attached_record_id) do
+  def list_pending_tasks_for(attached_record_type, attached_record_id, worker_name \\ nil) do
     list_tasks_for(
       attached_record_type,
       attached_record_id,
+      worker_name,
       [:available, :scheduled, :retryable]
     )
   end
@@ -107,14 +123,15 @@ defmodule Pinchflat.Tasks do
 
   @doc """
   Deletes all tasks attached to a given record, cancelling any attached jobs.
+  Optionally allows you to specify which worker to include.
 
   Returns :ok
   """
-  def delete_tasks_for(attached_record) do
+  def delete_tasks_for(attached_record, worker_name \\ nil) do
     tasks =
       case attached_record do
-        %Source{} = source -> list_tasks_for(:source_id, source.id)
-        %MediaItem{} = media_item -> list_tasks_for(:media_item_id, media_item.id)
+        %Source{} = source -> list_tasks_for(:source_id, source.id, worker_name)
+        %MediaItem{} = media_item -> list_tasks_for(:media_item_id, media_item.id, worker_name)
       end
 
     Enum.each(tasks, &delete_task/1)
@@ -122,14 +139,15 @@ defmodule Pinchflat.Tasks do
 
   @doc """
   Deletes all _pending_ tasks attached to a given record, cancelling any attached jobs.
+  Optionally allows you to specify which worker to include.
 
   Returns :ok
   """
-  def delete_pending_tasks_for(attached_record) do
+  def delete_pending_tasks_for(attached_record, worker_name \\ nil) do
     tasks =
       case attached_record do
-        %Source{} = source -> list_pending_tasks_for(:source_id, source.id)
-        %MediaItem{} = media_item -> list_pending_tasks_for(:media_item_id, media_item.id)
+        %Source{} = source -> list_pending_tasks_for(:source_id, source.id, worker_name)
+        %MediaItem{} = media_item -> list_pending_tasks_for(:media_item_id, media_item.id, worker_name)
       end
 
     Enum.each(tasks, &delete_task/1)

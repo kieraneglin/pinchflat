@@ -244,7 +244,8 @@ defmodule Pinchflat.SourcesTest do
 
     test "updating the index frequency to 0 will delete any pending tasks" do
       source = source_fixture()
-      task = task_fixture(source_id: source.id)
+      {:ok, job} = Oban.insert(MediaIndexingWorker.new(%{"id" => source.id}))
+      task = task_fixture(source_id: source.id, job_id: job.id)
       update_attrs = %{index_frequency_minutes: 0}
 
       assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
