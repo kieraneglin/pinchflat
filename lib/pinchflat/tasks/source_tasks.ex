@@ -12,26 +12,23 @@ defmodule Pinchflat.Tasks.SourceTasks do
   alias Pinchflat.Workers.VideoDownloadWorker
 
   @doc """
-  Starts tasks for indexing a source's media.
+  Starts tasks for indexing a source's media regardless of the source's indexing
+  frequency. It's assumed the caller will check for that.
 
-  Returns {:ok, :should_not_index} | {:ok, %Task{}}.
+  Returns {:ok, %Task{}}.
   """
   def kickoff_indexing_task(%Source{} = source) do
-    Tasks.delete_pending_tasks_for(source)
+    Tasks.delete_pending_tasks_for(source, "MediaIndexingWorker")
 
-    if source.index_frequency_minutes <= 0 do
-      {:ok, :should_not_index}
-    else
-      source
-      |> Map.take([:id])
-      # Schedule this one immediately, but future ones will be on an interval
-      |> MediaIndexingWorker.new()
-      |> Tasks.create_job_with_task(source)
-      |> case do
-        # This should never return {:error, :duplicate_job} since we just deleted
-        # any pending tasks. I'm being assertive about it so it's obvious if I'm wrong
-        {:ok, task} -> {:ok, task}
-      end
+    source
+    |> Map.take([:id])
+    # Schedule this one immediately, but future ones will be on an interval
+    |> MediaIndexingWorker.new()
+    |> Tasks.create_job_with_task(source)
+    |> case do
+      # This should never return {:error, :duplicate_job} since we just deleted
+      # any pending tasks. I'm being assertive about it so it's obvious if I'm wrong
+      {:ok, task} -> {:ok, task}
     end
   end
 

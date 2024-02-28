@@ -7,17 +7,6 @@
       Media Item #<%= @media_item.id %>
     </h2>
   </div>
-  <nav>
-    <.link
-      href={~p"/sources/#{@media_item.source_id}/media/#{@media_item}?delete_files=true"}
-      method="delete"
-      data-confirm="Are you sure?"
-    >
-      <.button color="bg-meta-1" rounding="rounded-full">
-        Delete Record and Files
-      </.button>
-    </.link>
-  </nav>
 </div>
 <div class="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
   <div class="max-w-full overflow-x-auto">
@@ -25,5 +14,17 @@
       <h3 class="font-bold text-xl">Attributes</h3>
       <.list_items_from_map map={Map.from_struct(@media_item)} />
     </div>
+
+    <section class="flex justify-center my-10">
+      <.link
+        href={~p"/sources/#{@media_item.source_id}/media/#{@media_item}?delete_files=true"}
+        method="delete"
+        data-confirm="Are you sure you want to delete this record and all associated files on disk? This cannot be undone."
+      >
+        <.button color="bg-meta-1" rounding="rounded-full">
+          Delete Files
+        </.button>
+      </.link>
+    </section>
   </div>
 </div>

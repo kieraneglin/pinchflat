@@ -6,9 +6,11 @@ defmodule Pinchflat.Sources do
   import Ecto.Query, warn: false
   alias Pinchflat.Repo
 
+  alias Pinchflat.Media
   alias Pinchflat.Tasks
-  alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Tasks.SourceTasks
+  alias Pinchflat.Profiles.MediaProfile
   alias Pinchflat.MediaClient.SourceDetails
 
   @doc """
@@ -16,6 +18,15 @@ defmodule Pinchflat.Sources do
   """
   def list_sources do
     Repo.all(Source)
+  end
+
+  @doc """
+  Returns the list of sources for a media_profile.
+
+  Returns [%Source{}, ...]
+  """
+  def list_sources_for(%MediaProfile{} = media_profile) do
+    Repo.all(from s in Source, where: s.media_profile_id == ^media_profile.id)
   end
 
   @doc """
@@ -55,13 +66,20 @@ defmodule Pinchflat.Sources do
   end
 
   @doc """
-  Deletes a source and it's associated tasks (of any state).
-  NOTE: will fail if the source has associated media items. Intended
-  for now, will almost certainly change in the future.
+  Deletes a source, its media items, and its associated tasks (of any state).
+  Can optionally delete the source's media files.
 
   Returns {:ok, %Source{}} | {:error, %Ecto.Changeset{}}
   """
-  def delete_source(%Source{} = source) do
+  def delete_source(%Source{} = source, opts \\ []) do
+    delete_files = Keyword.get(opts, :delete_files, false)
+
+    source
+    |> Media.list_media_items_for()
+    |> Enum.each(fn media_item ->
+      Media.delete_media_item(media_item, delete_files: delete_files)
+    end)
+
     Tasks.delete_tasks_for(source)
     Repo.delete(source)
   end
@@ -84,10 +102,6 @@ defmodule Pinchflat.Sources do
 
   NOTE: When operating in the ideal path, this effectively adds an API call
   to the source creation/update process. Should be used only when needed.
-
-  IDEA: Maybe I could discern `collection_type` based on the original URL?
-  It also seems like it's a channel when the returned yt-dlp channel_id is the
-  same as the playlist_id - maybe could use that?
   """
   def change_source_from_url(%Source{} = source, attrs) do
     case change_source(source, attrs) do
@@ -118,24 +132,20 @@ defmodule Pinchflat.Sources do
 
   defp add_source_details_by_collection_type(source, changeset, source_details) do
     %Ecto.Changeset{changes: changes} = changeset
-    collection_type = Ecto.Changeset.get_field(changeset, :collection_type)
 
     collection_changes =
-      case collection_type do
-        :channel ->
-          %{
-            collection_id: source_details.channel_id,
-            collection_name: source_details.channel_name
-          }
-
-        :playlist ->
-          %{
-            collection_id: source_details.playlist_id,
-            collection_name: source_details.playlist_name
-          }
-
-        _ ->
-          %{}
+      if source_details.playlist_id == source_details.channel_id do
+        %{
+          collection_type: :channel,
+          collection_id: source_details.channel_id,
+          collection_name: source_details.channel_name
+        }
+      else
+        %{
+          collection_type: :playlist,
+          collection_id: source_details.playlist_id,
+          collection_name: source_details.playlist_name
+        }
       end
 
     change_source(source, Map.merge(changes, collection_changes))
@@ -169,21 +179,19 @@ defmodule Pinchflat.Sources do
     {:ok, source}
   end
 
-  # IDEA: this uses a pattern where `kickoff_indexing_task` controls whether
-  # it should run based on the source, but `maybe_handle_media_tasks` handles that
-  # logic itself. Consider updating one or the other to be consistent (once I've
-  # decided which I like more)
   defp maybe_run_indexing_task(changeset, source) do
     case changeset.data do
       # If the changeset is new (not persisted), attempt indexing no matter what
       %{__meta__: %{state: :built}} ->
         SourceTasks.kickoff_indexing_task(source)
 
-      # If the record has been persisted, only attempt indexing if the
-      # indexing frequency has been changed
+      # If the record has been persisted, only run indexing if the
+      # indexing frequency has been changed and is now greater than 0
       %{__meta__: %{state: :loaded}} ->
-        if Map.has_key?(changeset.changes, :index_frequency_minutes) do
-          SourceTasks.kickoff_indexing_task(source)
+        case changeset.changes do
+          %{index_frequency_minutes: mins} when mins > 0 -> SourceTasks.kickoff_indexing_task(source)
+          %{index_frequency_minutes: _} -> Tasks.delete_pending_tasks_for(source, "MediaIndexingWorker")
+          _ -> :ok
         end
     end
 

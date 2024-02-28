@@ -46,6 +46,7 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileController do
   def edit(conn, %{"id" => id}) do
     media_profile = Profiles.get_media_profile!(id)
     changeset = Profiles.change_media_profile(media_profile)
+
     render(conn, :edit, media_profile: media_profile, changeset: changeset)
   end
 
@@ -63,12 +64,20 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileController do
     end
   end
 
-  def delete(conn, %{"id" => id}) do
+  def delete(conn, %{"id" => id} = params) do
+    delete_files = Map.get(params, "delete_files", false)
     media_profile = Profiles.get_media_profile!(id)
-    {:ok, _media_profile} = Profiles.delete_media_profile(media_profile)
+    {:ok, _media_profile} = Profiles.delete_media_profile(media_profile, delete_files: delete_files)
+
+    flash_message =
+      if delete_files do
+        "Media profile, its sources, and its files deleted successfully."
+      else
+        "Media profile and its sources deleted successfully. Files were not deleted."
+      end
 
     conn
-    |> put_flash(:info, "Media profile deleted successfully.")
+    |> put_flash(:info, flash_message)
     |> redirect(to: ~p"/media_profiles")
   end
 end
