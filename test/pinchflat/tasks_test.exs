@@ -201,6 +201,17 @@ defmodule Pinchflat.TasksTest do
       assert :ok = Tasks.delete_tasks_for(media_item, "TestJobWorker")
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
     end
+
+    test "deletion does not impact unintended records" do
+      source = source_fixture()
+      task = task_fixture(source_id: source.id)
+
+      assert :ok = Tasks.delete_tasks_for(source_fixture())
+      assert :ok = Tasks.delete_tasks_for(source_fixture(), "FooBarWorker")
+      assert :ok = Tasks.delete_tasks_for(source_fixture(), "TestJobWorker")
+
+      assert Repo.reload!(task)
+    end
   end
 
   describe "delete_pending_tasks_for/1" do
