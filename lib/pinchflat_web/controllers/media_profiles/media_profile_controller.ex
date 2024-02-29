@@ -1,6 +1,7 @@
 defmodule PinchflatWeb.MediaProfiles.MediaProfileController do
   use PinchflatWeb, :controller
 
+  alias Pinchflat.Repo
   alias Pinchflat.Profiles
   alias Pinchflat.Profiles.MediaProfile
 
@@ -39,7 +40,11 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileController do
   end
 
   def show(conn, %{"id" => id}) do
-    media_profile = Profiles.get_media_profile!(id)
+    media_profile =
+      id
+      |> Profiles.get_media_profile!()
+      |> Repo.preload(:sources)
+
     render(conn, :show, media_profile: media_profile)
   end
 
