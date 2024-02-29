@@ -16,8 +16,10 @@ defmodule PinchflatWeb.CoreComponents do
   """
   use Phoenix.Component
 
-  alias Phoenix.LiveView.JS
   import PinchflatWeb.Gettext
+
+  alias Phoenix.LiveView.JS
+  alias PinchflatWeb.CustomComponents.TextComponents
 
   @doc """
   Renders a modal.
@@ -591,11 +593,12 @@ defmodule PinchflatWeb.CoreComponents do
     assigns = assign(assigns, iterable_attributes: attrs)
 
     ~H"""
-    <.list>
-      <:item :for={{k, v} <- @iterable_attributes} title={k}>
-        <%= v %>
-      </:item>
-    </.list>
+    <ul>
+      <li :for={{k, v} <- @iterable_attributes} class="mb-2">
+        <strong><%= k %>:</strong>
+        <TextComponents.inline_code><%= v %></TextComponents.inline_code>
+      </li>
+    </ul>
     """
   end
 
