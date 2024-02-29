@@ -18,83 +18,89 @@
 </div>
 <div class="rounded-sm border border-stroke bg-white px-5 py-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5">
   <div class="max-w-full overflow-x-auto">
-    <div class="flex flex-col gap-10 dark:text-white">
-      <h3 class="font-bold text-xl">Attributes for "<%= @source.friendly_name %>"</h3>
+    <.tabbed_layout>
+      <:tab title="Attributes">
+        <div class="flex flex-col gap-10 text-white">
+          <h3 class="font-bold text-lg">Attributes</h3>
+          <section>
+            <strong>Media Profile:</strong>
+            <.inline_link href={~p"/media_profiles/#{@source.media_profile_id}"}>
+              <%= @source.media_profile.name %>
+            </.inline_link>
+          </section>
 
-      <h3 class="font-bold text-lg">Relationships</h3>
-      <.list>
-        <:item title="media_profile">
+          <.list_items_from_map map={Map.from_struct(@source)} />
+        </div>
+
+        <section class="flex flex-col md:flex-row items-center md:justify-around mt-10">
           <.link
-            navigate={~p"/media_profiles/#{@source.media_profile_id}"}
-            class="hover:text-secondary duration-200 ease-in-out"
+            href={~p"/sources/#{@source}"}
+            method="delete"
+            data-confirm="Are you sure you want to delete this source (leaving files in place)? This cannot be undone."
           >
-            <%= @source.media_profile.name %>
+            <.button color="bg-meta-1" rounding="rounded-full">
+              Delete Source
+            </.button>
           </.link>
-        </:item>
-      </.list>
-
-      <h3 class="font-bold text-lg">Attributes</h3>
-      <.list_items_from_map map={Map.from_struct(@source)} />
-
-      <h3 class="font-bold text-xl">Downloaded Media</h3>
-      <%= if match?([_|_], @downloaded_media) do %>
-        <.table rows={@downloaded_media} table_class="text-black dark:text-white">
-          <:col :let={media_item} label="Title">
-            <%= StringUtils.truncate(media_item.title, 50) %>
-          </:col>
-          <:col :let={media_item} label="" class="flex place-content-evenly">
-            <.link
-              navigate={~p"/sources/#{@source.id}/media/#{media_item.id}"}
-              class="hover:text-secondary duration-200 ease-in-out mx-0.5"
-            >
-              <.icon name="hero-eye" />
-            </.link>
-          </:col>
-        </.table>
-      <% else %>
-        <p class="text-black dark:text-white">Nothing Here!</p>
-      <% end %>
-
-      <h3 class="font-bold text-xl">Pending Media</h3>
-      <%= if match?([_|_], @pending_media) do %>
-        <.table rows={@pending_media} table_class="text-black dark:text-white">
-          <:col :let={media_item} label="Title">
-            <%= StringUtils.truncate(media_item.title, 50) %>
-          </:col>
-          <:col :let={media_item} label="" class="flex place-content-evenly">
-            <.link
-              navigate={~p"/sources/#{@source.id}/media/#{media_item.id}"}
-              class="hover:text-secondary duration-200 ease-in-out mx-0.5"
-            >
-              <.icon name="hero-eye" />
-            </.link>
-          </:col>
-        </.table>
-      <% else %>
-        <p class="text-black dark:text-white">Nothing Here!</p>
-      <% end %>
-    </div>
-
-    <section class="flex flex-col md:flex-row items-center md:justify-around mt-10">
-      <.link
-        href={~p"/sources/#{@source}"}
-        method="delete"
-        data-confirm="Are you sure you want to delete this source (leaving files in place)? This cannot be undone."
-      >
-        <.button color="bg-meta-1" rounding="rounded-full">
-          Delete Source
-        </.button>
-      </.link>
-      <.link
-        href={~p"/sources/#{@source}?delete_files=true"}
-        method="delete"
-        data-confirm="Are you sure you want to delete this source and it's files on disk? This cannot be undone."
-        class="mt-5 md:mt-0"
-      >
-        <.button color="bg-meta-1" rounding="rounded-full">
-          Delete Source and Files
-        </.button>
-      </.link>
-    </section>
+          <.link
+            href={~p"/sources/#{@source}?delete_files=true"}
+            method="delete"
+            data-confirm="Are you sure you want to delete this source and it's files on disk? This cannot be undone."
+            class="mt-5 md:mt-0"
+          >
+            <.button color="bg-meta-1" rounding="rounded-full">
+              Delete Source and Files
+            </.button>
+          </.link>
+        </section>
+      </:tab>
+      <:tab title="Pending Media">
+        <%= if match?([_|_], @pending_media) do %>
+          <h4 class="text-white text-lg mb-6">Shows a maximum of 100 media items</h4>
+          <.table rows={@pending_media} table_class="text-black dark:text-white">
+            <:col :let={media_item} label="Title">
+              <%= StringUtils.truncate(media_item.title, 50) %>
+            </:col>
+            <:col :let={media_item} label="" class="flex place-content-evenly">
+              <.icon_link href={~p"/sources/#{@source.id}/media/#{media_item.id}"} icon="hero-eye" />
+            </:col>
+          </.table>
+        <% else %>
+          <p class="text-black dark:text-white">Nothing Here!</p>
+        <% end %>
+      </:tab>
+      <:tab title="Downloaded Media">
+        <%= if match?([_|_], @downloaded_media) do %>
+          <h4 class="text-white text-lg mb-6">Shows a maximum of 100 media items</h4>
+          <.table rows={@downloaded_media} table_class="text-black dark:text-white">
+            <:col :let={media_item} label="Title">
+              <%= StringUtils.truncate(media_item.title, 50) %>
+            </:col>
+            <:col :let={media_item} label="" class="flex place-content-evenly">
+              <.icon_link href={~p"/sources/#{@source.id}/media/#{media_item.id}"} icon="hero-eye" />
+            </:col>
+          </.table>
+        <% else %>
+          <p class="text-black dark:text-white">Nothing Here!</p>
+        <% end %>
+      </:tab>
+      <:tab title="Tasks">
+        <%= if match?([_|_], @source.tasks) do %>
+          <.table rows={@source.tasks} table_class="text-black dark:text-white">
+            <:col :let={task} label="Worker">
+              <%= task.job.worker %>
+            </:col>
+            <:col :let={task} label="State">
+              <%= task.job.state %>
+            </:col>
+            <:col :let={task} label="Scheduled At">
+              <%= Calendar.strftime(task.job.scheduled_at, "%y-%m-%d %I:%M:%S %p %Z") %>
+            </:col>
+          </.table>
+        <% else %>
+          <p class="text-black dark:text-white">Nothing Here!</p>
+        <% end %>
+      </:tab>
+    </.tabbed_layout>
   </div>
 </div>
