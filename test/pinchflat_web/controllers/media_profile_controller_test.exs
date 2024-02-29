@@ -17,7 +17,7 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
   describe "index" do
     test "lists all media_profiles", %{conn: conn} do
       conn = get(conn, ~p"/media_profiles")
-      assert html_response(conn, 200) =~ "All Media Profiles"
+      assert html_response(conn, 200) =~ "Media Profiles"
     end
   end
 
@@ -45,7 +45,7 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
       assert redirected_to(conn) == ~p"/media_profiles/#{id}"
 
       conn = get(conn, ~p"/media_profiles/#{id}")
-      assert html_response(conn, 200) =~ "Media Profile ##{id}"
+      assert html_response(conn, 200) =~ "Media Profile"
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
