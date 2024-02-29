@@ -12,10 +12,23 @@ defmodule Pinchflat.Media do
   alias Pinchflat.Media.MediaMetadata
 
   @doc """
-  Returns the list of media_items. Returns [%MediaItem{}, ...].
+  Returns the list of media_items.
+
+  Returns [%MediaItem{}, ...].
   """
   def list_media_items do
     Repo.all(MediaItem)
+  end
+
+  @doc """
+  Returns a list of media_items for a given source.
+
+  Returns [%MediaItem{}, ...].
+  """
+  def list_media_items_for(%Source{} = source) do
+    MediaItem
+    |> where([mi], mi.source_id == ^source.id)
+    |> Repo.all()
   end
 
   @doc """
@@ -138,26 +151,30 @@ defmodule Pinchflat.Media do
   end
 
   @doc """
-  Deletes a media_item and its associated tasks. Will leave files on disk.
+  Deletes a media_item and its associated tasks.
+  Can optionally delete the media_item's files.
 
   Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}.
   """
-  def delete_media_item(%MediaItem{} = media_item) do
+  def delete_media_item(%MediaItem{} = media_item, opts \\ []) do
+    delete_files = Keyword.get(opts, :delete_files, false)
+
+    if delete_files do
+      {:ok, _} = delete_all_attachments(media_item)
+    end
+
     Tasks.delete_tasks_for(media_item)
     Repo.delete(media_item)
   end
 
   @doc """
-  Deletes the media_item's associated files. Will leave the media_item in the database.
-
-  NOTE: this deletes the metadata files as well, but maybe it shouldn't? I'm wondering if
-  the metadata is more a concern of the DB record itself and should be lumped in with those
-  delete operations. But the metadata does come from the download operation of the file.
-  Food for thought but not a priority at the moment.
-
-  Returns {:ok, %MediaItem{}}
+  Returns an `%Ecto.Changeset{}` for tracking media_item changes.
   """
-  def delete_attachments(media_item) do
+  def change_media_item(%MediaItem{} = media_item, attrs \\ %{}) do
+    MediaItem.changeset(media_item, attrs)
+  end
+
+  defp delete_all_attachments(media_item) do
     media_item = Repo.preload(media_item, :metadata)
 
     media_item
@@ -175,25 +192,6 @@ defmodule Pinchflat.Media do
     end
 
     {:ok, media_item}
-  end
-
-  @doc """
-  Deletes the media_item and all associated files. Attempts to delete the root directory
-  but only if it is empty.
-
-  Returns {:ok, %MediaItem{}}
-  """
-  def delete_media_item_and_attachments(media_item) do
-    {:ok, _} = delete_attachments(media_item)
-
-    delete_media_item(media_item)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking media_item changes.
-  """
-  def change_media_item(%MediaItem{} = media_item, attrs \\ %{}) do
-    MediaItem.changeset(media_item, attrs)
   end
 
   defp build_format_clauses(media_profile) do

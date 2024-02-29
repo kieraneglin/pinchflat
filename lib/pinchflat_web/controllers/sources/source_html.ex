@@ -24,11 +24,4 @@ defmodule PinchflatWeb.Sources.SourceHTML do
       {"Monthly", 30 * 24 * 60}
     ]
   end
-
-  def friendly_collection_types do
-    [
-      {"Channel", "channel"},
-      {"Playlist", "playlist"}
-    ]
-  end
 end

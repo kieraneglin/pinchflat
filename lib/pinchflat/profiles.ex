@@ -4,12 +4,15 @@ defmodule Pinchflat.Profiles do
   """
 
   import Ecto.Query, warn: false
-  alias Pinchflat.Repo
 
+  alias Pinchflat.Repo
+  alias Pinchflat.Sources
   alias Pinchflat.Profiles.MediaProfile
 
   @doc """
-  Returns the list of media_profiles. Returns [%MediaProfile{}, ...]
+  Returns the list of media_profiles.
+
+  Returns [%MediaProfile{}, ...]
   """
   def list_media_profiles do
     Repo.all(MediaProfile)
@@ -23,7 +26,9 @@ defmodule Pinchflat.Profiles do
   def get_media_profile!(id), do: Repo.get!(MediaProfile, id)
 
   @doc """
-  Creates a media_profile. Returns {:ok, %MediaProfile{}} | {:error, %Ecto.Changeset{}}
+  Creates a media_profile.
+
+  Returns {:ok, %MediaProfile{}} | {:error, %Ecto.Changeset{}}
   """
   def create_media_profile(attrs) do
     %MediaProfile{}
@@ -32,7 +37,9 @@ defmodule Pinchflat.Profiles do
   end
 
   @doc """
-  Updates a media_profile. Returns {:ok, %MediaProfile{}} | {:error, %Ecto.Changeset{}}
+  Updates a media_profile.
+
+  Returns {:ok, %MediaProfile{}} | {:error, %Ecto.Changeset{}}
   """
   def update_media_profile(%MediaProfile{} = media_profile, attrs) do
     media_profile
@@ -41,14 +48,25 @@ defmodule Pinchflat.Profiles do
   end
 
   @doc """
-  Deletes a media_profile. Returns {:ok, %MediaProfile{}} | {:error, %Ecto.Changeset{}}
+  Deletes a media_profile, all its sources, and all their media items.
+  Can optionally delete the media files.
+
+  Returns {:ok, %MediaProfile{}} | {:error, %Ecto.Changeset{}}
   """
-  def delete_media_profile(%MediaProfile{} = media_profile) do
+  def delete_media_profile(%MediaProfile{} = media_profile, opts \\ []) do
+    delete_files = Keyword.get(opts, :delete_files, false)
+
+    media_profile
+    |> Sources.list_sources_for()
+    |> Enum.each(fn source ->
+      Sources.delete_source(source, delete_files: delete_files)
+    end)
+
     Repo.delete(media_profile)
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking media_profile changes.
+  Returns `%Ecto.Changeset{}`
   """
   def change_media_profile(%MediaProfile{} = media_profile, attrs \\ %{}) do
     MediaProfile.changeset(media_profile, attrs)

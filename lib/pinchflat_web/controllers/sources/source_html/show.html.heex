@@ -72,5 +72,27 @@
         <p class="text-black dark:text-white">Nothing Here!</p>
       <% end %>
     </div>
+
+    <section class="flex flex-col md:flex-row items-center md:justify-around mt-10">
+      <.link
+        href={~p"/sources/#{@source}"}
+        method="delete"
+        data-confirm="Are you sure you want to delete this source (leaving files in place)? This cannot be undone."
+      >
+        <.button color="bg-meta-1" rounding="rounded-full">
+          Delete Source
+        </.button>
+      </.link>
+      <.link
+        href={~p"/sources/#{@source}?delete_files=true"}
+        method="delete"
+        data-confirm="Are you sure you want to delete this source and it's files on disk? This cannot be undone."
+        class="mt-5 md:mt-0"
+      >
+        <.button color="bg-meta-1" rounding="rounded-full">
+          Delete Source and Files
+        </.button>
+      </.link>
+    </section>
   </div>
 </div>

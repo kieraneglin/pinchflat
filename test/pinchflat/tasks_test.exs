@@ -36,7 +36,7 @@ defmodule Pinchflat.TasksTest do
     end
   end
 
-  describe "list_tasks_for/3" do
+  describe "list_tasks_for/4" do
     test "it lets you specify which record type/ID to join on" do
       task = task_fixture()
 
@@ -46,12 +46,25 @@ defmodule Pinchflat.TasksTest do
     test "it lets you specify which job states to include" do
       task = task_fixture()
 
-      assert Tasks.list_tasks_for(:source_id, task.source_id, [:available]) == [task]
-      assert Tasks.list_tasks_for(:source_id, task.source_id, [:cancelled]) == []
+      assert Tasks.list_tasks_for(:source_id, task.source_id, nil, [:available]) == [task]
+      assert Tasks.list_tasks_for(:source_id, task.source_id, nil, [:cancelled]) == []
+    end
+
+    test "it lets you specify which worker to include" do
+      task = task_fixture()
+
+      assert Tasks.list_tasks_for(:source_id, task.source_id, "TestJobWorker") == [task]
+      assert Tasks.list_tasks_for(:source_id, task.source_id, "FooBarWorker") == []
+    end
+
+    test "it includes all workers if no worker is specified" do
+      task = task_fixture()
+
+      assert Tasks.list_tasks_for(:source_id, task.source_id, nil) == [task]
     end
   end
 
-  describe "list_pending_tasks_for/2" do
+  describe "list_pending_tasks_for/3" do
     test "it lists pending tasks" do
       task = task_fixture()
 
@@ -63,6 +76,13 @@ defmodule Pinchflat.TasksTest do
       :ok = Oban.cancel_job(task.job)
 
       assert Tasks.list_pending_tasks_for(:source_id, task.source_id) == []
+    end
+
+    test "it lets you specify which worker to include" do
+      task = task_fixture()
+
+      assert Tasks.list_pending_tasks_for(:source_id, task.source_id, "TestJobWorker") == [task]
+      assert Tasks.list_pending_tasks_for(:source_id, task.source_id, "FooBarWorker") == []
     end
   end
 
@@ -154,7 +174,7 @@ defmodule Pinchflat.TasksTest do
     end
   end
 
-  describe "delete_tasks_for/1" do
+  describe "delete_tasks_for/2" do
     test "it deletes tasks attached to a source" do
       source = source_fixture()
       task = task_fixture(source_id: source.id)
@@ -169,6 +189,28 @@ defmodule Pinchflat.TasksTest do
 
       assert :ok = Tasks.delete_tasks_for(media_item)
       assert_raise Ecto.NoResultsError, fn -> Tasks.get_task!(task.id) end
+    end
+
+    test "deletion can specify which worker to include" do
+      media_item = media_item_fixture()
+      task = task_fixture(media_item_id: media_item.id)
+
+      assert :ok = Tasks.delete_tasks_for(media_item, "FooBarWorker")
+      assert Repo.reload!(task)
+
+      assert :ok = Tasks.delete_tasks_for(media_item, "TestJobWorker")
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+
+    test "deletion does not impact unintended records" do
+      source = source_fixture()
+      task = task_fixture(source_id: source.id)
+
+      assert :ok = Tasks.delete_tasks_for(source_fixture())
+      assert :ok = Tasks.delete_tasks_for(source_fixture(), "FooBarWorker")
+      assert :ok = Tasks.delete_tasks_for(source_fixture(), "TestJobWorker")
+
+      assert Repo.reload!(task)
     end
   end
 
@@ -199,6 +241,17 @@ defmodule Pinchflat.TasksTest do
       assert :ok = Tasks.delete_pending_tasks_for(media_item)
       assert Tasks.get_task!(cancelled_task.id)
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(pending_task) end
+    end
+
+    test "deletion can specify which worker to include" do
+      media_item = media_item_fixture()
+      task = task_fixture(media_item_id: media_item.id)
+
+      assert :ok = Tasks.delete_pending_tasks_for(media_item, "FooBarWorker")
+      assert Repo.reload!(task)
+
+      assert :ok = Tasks.delete_pending_tasks_for(media_item, "TestJobWorker")
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
     end
   end
 

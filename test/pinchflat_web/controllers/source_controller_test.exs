@@ -2,8 +2,11 @@ defmodule PinchflatWeb.SourceControllerTest do
   use PinchflatWeb.ConnCase
   import Mox
 
-  import Pinchflat.ProfilesFixtures
+  import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
+  import Pinchflat.ProfilesFixtures
+
+  alias Pinchflat.Repo
 
   setup do
     media_profile = media_profile_fixture()
@@ -119,21 +122,53 @@ defmodule PinchflatWeb.SourceControllerTest do
     end
   end
 
-  describe "delete source" do
+  describe "delete source when just deleting the records" do
     setup [:create_source]
 
-    test "deletes chosen source", %{conn: conn, source: source} do
+    test "deletes chosen source and media_items", %{conn: conn, source: source, media_item: media_item} do
+      delete(conn, ~p"/sources/#{source}")
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(source) end
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_item) end
+    end
+
+    test "redirects to the sources page", %{conn: conn, source: source} do
       conn = delete(conn, ~p"/sources/#{source}")
       assert redirected_to(conn) == ~p"/sources"
+    end
 
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/sources/#{source}")
-      end
+    test "does not delete the files", %{conn: conn, source: source, media_item: media_item} do
+      delete(conn, ~p"/sources/#{source}")
+      assert File.exists?(media_item.media_filepath)
+    end
+  end
+
+  describe "delete source when deleting the records and files" do
+    setup [:create_source]
+
+    test "deletes chosen source and media_items", %{conn: conn, source: source, media_item: media_item} do
+      delete(conn, ~p"/sources/#{source}?delete_files=true")
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(source) end
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_item) end
+    end
+
+    test "redirects to the sources page", %{conn: conn, source: source} do
+      conn = delete(conn, ~p"/sources/#{source}?delete_files=true")
+      assert redirected_to(conn) == ~p"/sources"
+    end
+
+    test "deletes the files", %{conn: conn, source: source, media_item: media_item} do
+      delete(conn, ~p"/sources/#{source}?delete_files=true")
+      refute File.exists?(media_item.media_filepath)
     end
   end
 
   defp create_source(_) do
-    %{source: source_fixture()}
+    source = source_fixture()
+    media_item = media_item_with_attachments(%{source_id: source.id})
+
+    %{source: source, media_item: media_item}
   end
 
   defp runner_function_mock(_url, _opts, _ot) do
