@@ -4,8 +4,9 @@
   @click.outside="sidebarToggle = false"
 >
   <div class="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
-    <a href="/">
-      <h2 class="text-title-md2 font-bold text-white">Pinchflat</h2>
+    <a href="/" class="flex items-center">
+      <img src={~p"/images/logo.png"} alt="Pinchflat" class="w-9 h-9" />
+      <h2 class="text-xl font-bold text-white pl-2">Pinchflat</h2>
     </a>
 
     <button class="block lg:hidden" @click.stop="sidebarToggle = !sidebarToggle">
