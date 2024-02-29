@@ -1,10 +1,14 @@
 defmodule PinchflatWeb.MediaItems.MediaItemController do
   use PinchflatWeb, :controller
 
+  alias Pinchflat.Repo
   alias Pinchflat.Media
 
   def show(conn, %{"id" => id}) do
-    media_item = Media.get_media_item!(id)
+    media_item =
+      id
+      |> Media.get_media_item!()
+      |> Repo.preload([:source, tasks: [:job]])
 
     render(conn, :show, media_item: media_item)
   end
