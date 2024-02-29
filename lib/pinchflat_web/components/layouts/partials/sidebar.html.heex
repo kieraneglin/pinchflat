@@ -1,6 +1,9 @@
 <aside
   x-bind:class="sidebarVisible ? 'translate-x-0' : '-translate-x-full'"
-  class="-translate-x-full absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-black duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0"
+  class={[
+    "-translate-x-full absolute left-0 top-0 z-9999 flex h-screen w-60 flex-col overflow-y-hidden",
+    "bg-black duration-300 ease-linear shadow-lg sm:shadow-none dark:bg-boxdark lg:static lg:translate-x-0"
+  ]}
   @click.outside="sidebarVisible = false"
 >
   <div class="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
