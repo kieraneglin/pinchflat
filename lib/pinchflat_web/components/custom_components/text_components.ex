@@ -31,13 +31,16 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
     """
   end
 
+  @doc """
+  Renders an icon as a link with the given href.
+  """
   attr :href, :string, required: true
   attr :icon, :string, required: true
   attr :class, :string, default: ""
-  # TODO: docs
+
   def icon_link(assigns) do
     ~H"""
-    <.link navigate={@href} class={["hover:text-secondary duration-200 ease-in-out", @class]}>
+    <.link href={@href} class={["hover:text-secondary duration-200 ease-in-out", @class]}>
       <CoreComponents.icon name={@icon} />
     </.link>
     """
