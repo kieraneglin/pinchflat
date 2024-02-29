@@ -41,12 +41,14 @@ defmodule Pinchflat.Media do
 
   Returns [%MediaItem{}, ...].
   """
-  def list_pending_media_items_for(%Source{} = source) do
+  def list_pending_media_items_for(%Source{} = source, opts \\ []) do
+    limit = Keyword.get(opts, :limit, nil)
     media_profile = Repo.preload(source, :media_profile).media_profile
 
     MediaItem
     |> where([mi], mi.source_id == ^source.id and is_nil(mi.media_filepath))
     |> where(^build_format_clauses(media_profile))
+    |> Repo.maybe_limit(limit)
     |> Repo.all()
   end
 
@@ -55,9 +57,12 @@ defmodule Pinchflat.Media do
 
   Returns [%MediaItem{}, ...].
   """
-  def list_downloaded_media_items_for(%Source{} = source) do
+  def list_downloaded_media_items_for(%Source{} = source, opts \\ []) do
+    limit = Keyword.get(opts, :limit, nil)
+
     MediaItem
     |> where([mi], mi.source_id == ^source.id and not is_nil(mi.media_filepath))
+    |> Repo.maybe_limit(limit)
     |> Repo.all()
   end
 
