@@ -54,10 +54,10 @@ defmodule PinchflatWeb.Sources.SourceController do
     source =
       id
       |> Sources.get_source!()
-      |> Repo.preload(:media_profile)
+      |> Repo.preload([:media_profile, tasks: [:job]])
 
-    pending_media = Media.list_pending_media_items_for(source)
-    downloaded_media = Media.list_downloaded_media_items_for(source)
+    pending_media = Media.list_pending_media_items_for(source, limit: 100)
+    downloaded_media = Media.list_downloaded_media_items_for(source, limit: 100)
 
     render(conn, :show, source: source, pending_media: pending_media, downloaded_media: downloaded_media)
   end

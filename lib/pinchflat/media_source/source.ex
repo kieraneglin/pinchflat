@@ -7,6 +7,7 @@ defmodule Pinchflat.Sources.Source do
   import Ecto.Changeset
   import Pinchflat.Utils.ChangesetUtils
 
+  alias Pinchflat.Tasks.Task
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Profiles.MediaProfile
 
@@ -47,6 +48,7 @@ defmodule Pinchflat.Sources.Source do
 
     belongs_to :media_profile, MediaProfile
 
+    has_many :tasks, Task
     has_many :media_items, MediaItem, foreign_key: :source_id
 
     timestamps(type: :utc_datetime)

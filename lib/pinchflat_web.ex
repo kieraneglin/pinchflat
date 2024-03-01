@@ -88,6 +88,7 @@ defmodule PinchflatWeb do
       # Core UI components and translation
       import PinchflatWeb.Gettext
       import PinchflatWeb.CoreComponents
+      import PinchflatWeb.CustomComponents.TabComponents
       import PinchflatWeb.CustomComponents.TextComponents
       import PinchflatWeb.CustomComponents.TableComponents
       import PinchflatWeb.CustomComponents.ButtonComponents

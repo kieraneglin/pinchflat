@@ -23,7 +23,7 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
   attr :href, :string, required: true
   slot :inner_block
 
-  def reference_link(assigns) do
+  def inline_link(assigns) do
     ~H"""
     <.link href={@href} target="_blank" class="text-blue-500 hover:text-blue-300">
       <%= render_slot(@inner_block) %>

@@ -587,6 +587,7 @@ defmodule PinchflatWeb.CoreComponents do
     attrs =
       Enum.filter(assigns.map, fn
         {_, %{__struct__: _}} -> false
+        {_, [%{__meta__: _} | _]} -> false
         _ -> true
       end)
 
