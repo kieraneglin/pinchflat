@@ -2,6 +2,8 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
   @moduledoc false
   use Phoenix.Component
 
+  alias PinchflatWeb.CoreComponents
+
   @doc """
   Renders a code block with the given content.
   """
@@ -25,6 +27,21 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
     ~H"""
     <.link href={@href} target="_blank" class="text-blue-500 hover:text-blue-300">
       <%= render_slot(@inner_block) %>
+    </.link>
+    """
+  end
+
+  @doc """
+  Renders an icon as a link with the given href.
+  """
+  attr :href, :string, required: true
+  attr :icon, :string, required: true
+  attr :class, :string, default: ""
+
+  def icon_link(assigns) do
+    ~H"""
+    <.link href={@href} class={["hover:text-secondary duration-200 ease-in-out", @class]}>
+      <CoreComponents.icon name={@icon} />
     </.link>
     """
   end

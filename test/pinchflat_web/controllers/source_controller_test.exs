@@ -32,7 +32,7 @@ defmodule PinchflatWeb.SourceControllerTest do
   describe "index" do
     test "lists all sources", %{conn: conn} do
       conn = get(conn, ~p"/sources")
-      assert html_response(conn, 200) =~ "All Sources"
+      assert html_response(conn, 200) =~ "Sources"
     end
   end
 
@@ -61,7 +61,7 @@ defmodule PinchflatWeb.SourceControllerTest do
       assert redirected_to(conn) == ~p"/sources/#{id}"
 
       conn = get(conn, ~p"/sources/#{id}")
-      assert html_response(conn, 200) =~ "Source ##{id}"
+      assert html_response(conn, 200) =~ "Source"
     end
 
     test "renders errors when data is invalid", %{conn: conn, invalid_attrs: invalid_attrs} do

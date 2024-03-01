@@ -1,17 +1,17 @@
 <div class="mb-6 flex gap-3 flex-row items-center justify-between">
-  <div class="flex gap-3 items-center">
+  <div class="flex items-center">
     <.link navigate={~p"/media_profiles"}>
       <.icon name="hero-arrow-left" class="w-10 h-10 hover:dark:text-white" />
     </.link>
-    <h2 class="text-title-md2 font-bold text-black dark:text-white ml-4">
-      Media Profile #<%= @media_profile.id %>
+    <h2 class="text-title-md2 font-bold text-black dark:text-white ml-2">
+      Media Profile <span class="hidden sm:inline">#<%= @media_profile.id %></span>
     </h2>
   </div>
 
   <nav>
     <.link navigate={~p"/media_profiles/#{@media_profile}/edit"}>
       <.button color="bg-primary" rounding="rounded-full">
-        <.icon name="hero-pencil-square" class="mr-2" /> Edit Media Profile
+        <.icon name="hero-pencil-square" class="mr-2" />Edit <span class="hidden sm:inline pl-1">Media Profile</span>
       </.button>
     </.link>
   </nav>
@@ -19,7 +19,7 @@
 <div class="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
   <div class="max-w-full overflow-x-auto">
     <div class="flex flex-col gap-10 dark:text-white">
-      <h3 class="font-bold text-xl">Attributes</h3>
+      <h3 class="font-bold text-xl">Attributes for "<%= @media_profile.name %>"</h3>
       <.list_items_from_map map={Map.from_struct(@media_profile)} />
     </div>
 
@@ -40,7 +40,7 @@
         class="mt-5 md:mt-0"
       >
         <.button color="bg-meta-1" rounding="rounded-full">
-          Delete Profile, Sources and Files
+          Delete Profile, Sources, and Files
         </.button>
       </.link>
     </section>

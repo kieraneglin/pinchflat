@@ -23,7 +23,7 @@ defmodule PinchflatWeb.CustomComponents.ButtonComponents do
     <button
       class={[
         "text-center font-medium text-white",
-        "#{@rounding} inline-flex items-center justify-center px-10 py-4",
+        "#{@rounding} inline-flex items-center justify-center px-8 py-4",
         "#{@color}",
         "hover:bg-opacity-90 lg:px-8 xl:px-10",
         @class
