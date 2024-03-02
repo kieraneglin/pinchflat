@@ -5,21 +5,17 @@ defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder do
   IDEA: consider making this a behaviour so I can add other backends later
   """
 
-  alias Pinchflat.Profiles.MediaProfile
+  alias Pinchflat.Media.MediaItem
   alias Pinchflat.Profiles.Options.YtDlp.OutputPathBuilder
 
   @doc """
-  Builds the options for yt-dlp to download media based on the given media profile.
+  Builds the options for yt-dlp to download media based on the given media's profile.
 
   IDEA: consider adding the ability to pass in a second argument to override
         these options
   """
-  def build(%MediaProfile{} = media_profile) do
-    # NOTE: I'll be hardcoding most things for now (esp. options to help me test) -
-    # add more configuration later as I build out the models. Walk before you can run!
-
-    # NOTE: Looks like you can put different media types in different directories.
-    # see: https://github.com/yt-dlp/yt-dlp#output-template
+  def build(%MediaItem{} = media_item_with_preloads) do
+    media_profile = media_item_with_preloads.source.media_profile
 
     built_options =
       default_options() ++
@@ -27,12 +23,11 @@ defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder do
         thumbnail_options(media_profile) ++
         metadata_options(media_profile) ++
         quality_options(media_profile) ++
-        output_options(media_profile)
+        output_options(media_item_with_preloads)
 
     {:ok, built_options}
   end
 
-  # This will be updated a lot as I add new options to profiles
   defp default_options do
     [:no_progress, :windows_filenames]
   end
@@ -101,12 +96,23 @@ defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder do
     end
   end
 
-  defp output_options(media_profile) do
-    {:ok, output_path} = OutputPathBuilder.build(media_profile.output_path_template)
+  defp output_options(media_item_with_preloads) do
+    media_profile = media_item_with_preloads.source.media_profile
+    additional_options_map = output_options_map(media_item_with_preloads)
+    {:ok, output_path} = OutputPathBuilder.build(media_profile.output_path_template, additional_options_map)
 
     [
       output: Path.join(base_directory(), output_path)
     ]
+  end
+
+  defp output_options_map(media_item_with_preloads) do
+    source = media_item_with_preloads.source
+
+    %{
+      "source_friendly_name" => source.friendly_name,
+      "source_collection_type" => source.collection_type
+    }
   end
 
   defp base_directory do
