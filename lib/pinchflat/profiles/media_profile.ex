@@ -53,7 +53,7 @@ defmodule Pinchflat.Profiles.MediaProfile do
     field :shorts_behaviour, Ecto.Enum, values: ~w(include exclude only)a, default: :include
     field :livestream_behaviour, Ecto.Enum, values: ~w(include exclude only)a, default: :include
 
-    field :preferred_resolution, Ecto.Enum, values: ~w(2160p 1080p 720p 480p 360p)a, default: :"1080p"
+    field :preferred_resolution, Ecto.Enum, values: ~w(2160p 1080p 720p 480p 360p audio)a, default: :"1080p"
 
     has_many :sources, Source
 
