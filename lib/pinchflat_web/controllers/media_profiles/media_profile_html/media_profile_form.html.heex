@@ -22,10 +22,15 @@
     help="Must end with .{{ ext }}. See below for more details. I promise the default is good for most cases (required)"
   />
 
-  <h3 class="mb-4 mt-8 text-2xl text-black dark:text-white">
+  <h3 class="mt-8 text-2xl text-black dark:text-white">
     Subtitle Options
   </h3>
-  <.input field={f[:download_subs]} type="toggle" label="Download Subtitles" />
+  <.input
+    field={f[:download_subs]}
+    type="toggle"
+    label="Download Subtitles"
+    help="Downloads subtitle files alongside media file"
+  />
   <.input
     field={f[:download_auto_subs]}
     type="toggle"
@@ -45,10 +50,15 @@
     help="Use commas for multiple languages (eg: en,de)"
   />
 
-  <h3 class="mb-4 mt-8 text-2xl text-black dark:text-white">
+  <h3 class="mt-8 text-2xl text-black dark:text-white">
     Thumbnail Options
   </h3>
-  <.input field={f[:download_thumbnail]} type="toggle" label="Download Thumbnail" />
+  <.input
+    field={f[:download_thumbnail]}
+    type="toggle"
+    label="Download Thumbnail"
+    help="Downloads thumbnail alongside media file"
+  />
   <.input
     field={f[:embed_thumbnail]}
     type="toggle"
@@ -56,10 +66,15 @@
     help="Embeds thumbnail in the video file itself, if supported (recommended)"
   />
 
-  <h3 class="mb-4 mt-8 text-2xl text-black dark:text-white">
+  <h3 class="mt-8 text-2xl text-black dark:text-white">
     Metadata Options
   </h3>
-  <.input field={f[:download_metadata]} type="toggle" label="Download Metadata" />
+  <.input
+    field={f[:download_metadata]}
+    type="toggle"
+    label="Download Metadata"
+    help="Downloads metadata file alongside media file"
+  />
   <.input
     field={f[:embed_metadata]}
     type="toggle"
@@ -67,7 +82,7 @@
     help="Embeds metadata in the video file itself, if supported (recommended)"
   />
 
-  <h3 class="mb-4 mt-8 text-2xl text-black dark:text-white">
+  <h3 class="mt-8 text-2xl text-black dark:text-white">
     Release Format Options
   </h3>
 
@@ -85,7 +100,7 @@
     label="Include Livestreams?"
   />
 
-  <h3 class="mb-4 mt-8 text-2xl text-black dark:text-white">
+  <h3 class="mt-8 text-2xl text-black dark:text-white">
     Quality Options
   </h3>
 
@@ -94,7 +109,7 @@
     options={friendly_resolution_options()}
     type="select"
     label="Preferred Resolution"
-    help="Will grab the closest available resolution if your preferred is not available"
+    help="Will grab the closest available resolution if your preferred is not available. Setting to 'Audio Only' negates embedding options."
   />
 
   <.button class="my-10 sm:mb-7.5 w-full sm:w-auto">Save Media profile</.button>
