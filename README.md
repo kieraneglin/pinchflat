@@ -1,18 +1,15 @@
-# Pinchflat
+# Pinchflat (Alpha)
 
-To start your Phoenix server:
+This is alpha software and anything can break at any time. I make not guarantees about the stability of this software, forward-compatibility of updates, or integrity (both related to and independent of Pinchflat). Essentially, use at your own risk and expect there will be rough edges.
 
-- Run `mix setup` to install and setup dependencies
-- Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+## What is Pinchflat?
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+TODO: expand on this.
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+Pinchflat is a lightweight self-contained app for downloading YouTube content. For now, it is not intended as a way to consume content, but instead as a way to download content to disk using specified rules and schedules.
 
-## Learn more
+I have plans for more to come, but for now this is the focus. Think of Pinchflat as nothing more than an automated way to get content from YouTube to your disk.
 
-- Official website: https://www.phoenixframework.org/
-- Guides: https://hexdocs.pm/phoenix/overview.html
-- Docs: https://hexdocs.pm/phoenix
-- Forum: https://elixirforum.com/c/phoenix-forum
-- Source: https://github.com/phoenixframework/phoenix
+## License
+
+See `LICENSE` file
