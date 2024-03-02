@@ -46,8 +46,8 @@
   </section>
 
   <h2 class="text-xl font-bold mb-2">Template Options</h2>
-  <section class="ml-2 md:ml-4 mb-4 max-w-prose">
-    <p>
+  <section class="ml-2 md:ml-4 mb-4">
+    <p class="max-w-prose">
       Any single-word <code class="text-sm">yt-dlp</code>
       option
       <.inline_link href="https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#output-template">
@@ -58,8 +58,9 @@
     </p>
     <h3 class="text-lg font-bold mb-2">Custom Aliases</h3>
     <ul class="list-disc list-inside ml-2 md:ml-5">
-      <li :for={opt <- custom_output_template_options()}>
-        <.inline_code>{{ <%= opt %> }}</.inline_code>
+      <li :for={{k, v} <- custom_output_template_options()}>
+        <.inline_code>{{ <%= k %> }}</.inline_code>
+        <span :if={v}>- <%= v %></span>
       </li>
     </ul>
     <h3 class="text-lg font-bold mb-2">Common Options</h3>

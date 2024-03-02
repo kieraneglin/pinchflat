@@ -14,7 +14,7 @@
     <div class="flex flex-col gap-10 min-w-max">
       <.table rows={@sources} table_class="text-black dark:text-white">
         <:col :let={source} label="Name">
-          <%= source.friendly_name || source.collection_name %>
+          <%= source.custom_name || source.collection_name %>
         </:col>
         <:col :let={source} label="Type"><%= source.collection_type %></:col>
         <:col :let={source} label="Should Download?">

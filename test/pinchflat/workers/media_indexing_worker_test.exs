@@ -12,29 +12,37 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
   setup :verify_on_exit!
 
   describe "perform/1" do
-    test "it does not do any indexing if the source shouldn't be indexed" do
-      expect(YtDlpRunnerMock, :run, 0, fn _url, _opts, _ot -> {:ok, ""} end)
-
-      source = source_fixture(index_frequency_minutes: -1)
-
-      perform_job(MediaIndexingWorker, %{id: source.id})
-    end
-
-    test "it does not reschedule if the source shouldn't be indexed" do
-      expect(YtDlpRunnerMock, :run, 0, fn _url, _opts, _ot -> {:ok, ""} end)
-
-      source = source_fixture(index_frequency_minutes: -1)
-      perform_job(MediaIndexingWorker, %{id: source.id})
-
-      refute_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
-    end
-
     test "it indexes the source if it should be indexed" do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, ""} end)
 
       source = source_fixture(index_frequency_minutes: 10)
 
       perform_job(MediaIndexingWorker, %{id: source.id})
+    end
+
+    test "it indexes the source no matter what if the source has never been indexed before" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, ""} end)
+
+      source = source_fixture(index_frequency_minutes: 0, last_indexed_at: nil)
+
+      perform_job(MediaIndexingWorker, %{id: source.id})
+    end
+
+    test "it does not do any indexing if the source has been indexed and shouldn't be rescheduled" do
+      expect(YtDlpRunnerMock, :run, 0, fn _url, _opts, _ot -> {:ok, ""} end)
+
+      source = source_fixture(index_frequency_minutes: -1, last_indexed_at: DateTime.utc_now())
+
+      perform_job(MediaIndexingWorker, %{id: source.id})
+    end
+
+    test "it does not reschedule if the source shouldn't be indexed" do
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, ""} end)
+
+      source = source_fixture(index_frequency_minutes: -1)
+      perform_job(MediaIndexingWorker, %{id: source.id})
+
+      refute_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
     end
 
     test "it kicks off a download job for each pending media item" do

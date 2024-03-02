@@ -8,13 +8,16 @@ defmodule Pinchflat.Profiles.Options.YtDlp.OutputPathBuilder do
   alias Pinchflat.RenderedString.Parser, as: TemplateParser
 
   @doc """
-  Builds the actual final filepath from a given template.
+  Builds the actual final filepath from a given template. Optionally, you can pass in
+  a map of additional options to be used in the template.
 
   Translates liquid-style templates into yt-dlp-style templates,
   leaving yt-dlp syntax intact.
   """
-  def build(template_string) do
-    TemplateParser.parse(template_string, custom_yt_dlp_option_map(), &identifier_fn/2)
+  def build(template_string, additional_template_options \\ %{}) do
+    combined_options = Map.merge(custom_yt_dlp_option_map(), additional_template_options)
+
+    TemplateParser.parse(template_string, combined_options, &identifier_fn/2)
   end
 
   # The `nil` case simply wraps the identifier in yt-dlp-style syntax. This assumes that
@@ -30,6 +33,9 @@ defmodule Pinchflat.Profiles.Options.YtDlp.OutputPathBuilder do
     end
   end
 
+  # This isn't the only source for custom options, since they can be passed in my the caller.
+  # `download_option_builder` is the most likely place for other custom options to be added,
+  # but if in doubt just search the codebase for `OutputPathBuilder.build`.
   defp custom_yt_dlp_option_map do
     %{
       # Individual parts of the upload date
