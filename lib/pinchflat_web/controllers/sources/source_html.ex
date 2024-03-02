@@ -14,7 +14,7 @@ defmodule PinchflatWeb.Sources.SourceHTML do
 
   def friendly_index_frequencies do
     [
-      {"Never", -1},
+      {"On Create", -1},
       {"1 Hour", 60},
       {"3 Hours", 3 * 60},
       {"6 Hours", 6 * 60},
