@@ -1,8 +1,10 @@
 defmodule PinchflatWeb.Pages.PageController do
+  alias Pinchflat.Media.MediaItem
   use PinchflatWeb, :controller
 
   alias Pinchflat.Repo
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Media.MediaItem
   alias Pinchflat.Profiles.MediaProfile
 
   def home(conn, params) do
@@ -18,9 +20,17 @@ defmodule PinchflatWeb.Pages.PageController do
   end
 
   defp render_home_page(conn) do
+    media_profile_count = Repo.aggregate(MediaProfile, :count, :id)
+    source_count = Repo.aggregate(Source, :count, :id)
+    media_item_count = Repo.aggregate(MediaItem, :count, :id)
+
     conn
     |> put_session(:onboarding, false)
-    |> render(:home)
+    |> render(:home,
+      media_profile_count: media_profile_count,
+      source_count: source_count,
+      media_item_count: media_item_count
+    )
   end
 
   defp render_onboarding_page(conn, media_profiles_exist, sources_exist) do
