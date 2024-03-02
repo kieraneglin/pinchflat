@@ -44,7 +44,7 @@ defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder do
         {{:download_auto_subs, true}, %{download_subs: true}} ->
           acc ++ [:write_auto_subs]
 
-        {{:embed_subs, true}, _} ->
+        {{:embed_subs, true}, %{preferred_resolution: pr}} when pr != :audio ->
           acc ++ [:embed_subs]
 
         {{:sub_langs, sub_langs}, %{download_subs: true}} ->
@@ -63,10 +63,15 @@ defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder do
     mapped_struct = Map.from_struct(media_profile)
 
     Enum.reduce(mapped_struct, [], fn attr, acc ->
-      case attr do
-        {:download_thumbnail, true} -> acc ++ [:write_thumbnail]
-        {:embed_thumbnail, true} -> acc ++ [:embed_thumbnail]
-        _ -> acc
+      case {attr, media_profile} do
+        {{:download_thumbnail, true}, _} ->
+          acc ++ [:write_thumbnail]
+
+        {{:embed_thumbnail, true}, %{preferred_resolution: pr}} when pr != :audio ->
+          acc ++ [:embed_thumbnail]
+
+        _ ->
+          acc
       end
     end)
   end
@@ -75,10 +80,15 @@ defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder do
     mapped_struct = Map.from_struct(media_profile)
 
     Enum.reduce(mapped_struct, [], fn attr, acc ->
-      case attr do
-        {:download_metadata, true} -> acc ++ [:write_info_json, :clean_info_json]
-        {:embed_metadata, true} -> acc ++ [:embed_metadata]
-        _ -> acc
+      case {attr, media_profile} do
+        {{:download_metadata, true}, _} ->
+          acc ++ [:write_info_json, :clean_info_json]
+
+        {{:embed_metadata, true}, %{preferred_resolution: pr}} when pr != :audio ->
+          acc ++ [:embed_metadata]
+
+        _ ->
+          acc
       end
     end)
   end
@@ -87,6 +97,8 @@ defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder do
     codec_options = "+codec:avc:m4a"
 
     case media_profile.preferred_resolution do
+      # Also be aware that :audio disabled all embedding options for thumbnails, subtitles, and metadata
+      :audio -> [format_sort: "ext", format: "bestaudio"]
       :"360p" -> [format_sort: "res:360,#{codec_options}"]
       :"480p" -> [format_sort: "res:480,#{codec_options}"]
       :"720p" -> [format_sort: "res:720,#{codec_options}"]
