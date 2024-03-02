@@ -33,6 +33,9 @@ defmodule Pinchflat.Profiles.Options.YtDlp.OutputPathBuilder do
     end
   end
 
+  # This isn't the only source for custom options, since they can be passed in my the caller.
+  # `download_option_builder` is the most likely place for other custom options to be added,
+  # but if in doubt just search the codebase for `OutputPathBuilder.build`.
   defp custom_yt_dlp_option_map do
     %{
       # Individual parts of the upload date

@@ -30,7 +30,7 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
   end
 
   def custom_output_template_options do
-    ~w(upload_day upload_month upload_year)a
+    ~w(upload_day upload_month upload_year source_custom_name source_collection_type)a
   end
 
   def common_output_template_options do
