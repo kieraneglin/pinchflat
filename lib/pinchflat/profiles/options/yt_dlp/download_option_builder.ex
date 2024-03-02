@@ -110,7 +110,7 @@ defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder do
     source = media_item_with_preloads.source
 
     %{
-      "source_friendly_name" => source.friendly_name,
+      "source_custom_name" => source.custom_name,
       "source_collection_type" => source.collection_type
     }
   end

@@ -9,7 +9,7 @@ defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilderTest do
 
   setup do
     media_profile = media_profile_fixture(%{output_path_template: "{{ title }}.%(ext)s"})
-    source = source_fixture(%{media_profile_id: media_profile.id, friendly_name: "my source"})
+    source = source_fixture(%{media_profile_id: media_profile.id, custom_name: "my source"})
     media_item = Repo.preload(media_item_fixture(source_id: source.id), source: :media_profile)
 
     {:ok, media_item: media_item}
@@ -24,11 +24,11 @@ defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilderTest do
 
     test "it respects custom output path options", %{media_item: media_item} do
       media_item =
-        update_media_profile_attribute(media_item, %{output_path_template: "{{ source_friendly_name }}.%(ext)s"})
+        update_media_profile_attribute(media_item, %{output_path_template: "{{ source_custom_name }}.%(ext)s"})
 
       assert {:ok, res} = DownloadOptionBuilder.build(media_item)
 
-      assert {:output, "/tmp/test/videos/#{media_item.source.friendly_name}.%(ext)s"} in res
+      assert {:output, "/tmp/test/videos/#{media_item.source.custom_name}.%(ext)s"} in res
     end
   end
 

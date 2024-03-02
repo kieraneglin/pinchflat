@@ -15,7 +15,7 @@ defmodule Pinchflat.Sources.Source do
     collection_name
     collection_id
     collection_type
-    friendly_name
+    custom_name
     index_frequency_minutes
     download_media
     last_indexed_at
@@ -27,7 +27,7 @@ defmodule Pinchflat.Sources.Source do
     collection_name
     collection_id
     collection_type
-    friendly_name
+    custom_name
     index_frequency_minutes
     download_media
     original_url
@@ -35,7 +35,7 @@ defmodule Pinchflat.Sources.Source do
   )a
 
   schema "sources" do
-    field :friendly_name, :string
+    field :custom_name, :string
     field :collection_name, :string
     field :collection_id, :string
     field :collection_type, Ecto.Enum, values: [:channel, :playlist]
@@ -58,7 +58,7 @@ defmodule Pinchflat.Sources.Source do
   def changeset(source, attrs) do
     source
     |> cast(attrs, @allowed_fields)
-    |> dynamic_default(:friendly_name, fn cs -> get_field(cs, :collection_name) end)
+    |> dynamic_default(:custom_name, fn cs -> get_field(cs, :collection_name) end)
     |> validate_required(@required_fields)
     |> unique_constraint([:collection_id, :media_profile_id])
   end
