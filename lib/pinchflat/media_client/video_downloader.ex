@@ -11,7 +11,6 @@ defmodule Pinchflat.MediaClient.VideoDownloader do
   alias Pinchflat.Repo
   alias Pinchflat.Media
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.Profiles.MediaProfile
 
   alias Pinchflat.MediaClient.Backends.YtDlp.Video, as: YtDlpVideo
   alias Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder, as: YtDlpDownloadOptionBuilder
@@ -31,9 +30,8 @@ defmodule Pinchflat.MediaClient.VideoDownloader do
   """
   def download_for_media_item(%MediaItem{} = media_item, backend \\ :yt_dlp) do
     item_with_preloads = Repo.preload(media_item, [:metadata, source: :media_profile])
-    media_profile = item_with_preloads.source.media_profile
 
-    case download_for_media_profile(media_item.original_url, media_profile, backend) do
+    case download_with_options(media_item.original_url, item_with_preloads, backend) do
       {:ok, parsed_json} ->
         {parser, helpers} = metadata_parsers(backend)
 
@@ -57,10 +55,10 @@ defmodule Pinchflat.MediaClient.VideoDownloader do
     end
   end
 
-  defp download_for_media_profile(url, %MediaProfile{} = media_profile, backend) do
+  defp download_with_options(url, item_with_preloads, backend) do
     option_builder = option_builder(backend)
     video_backend = video_backend(backend)
-    {:ok, options} = option_builder.build(media_profile)
+    {:ok, options} = option_builder.build(item_with_preloads)
 
     video_backend.download(url, options)
   end

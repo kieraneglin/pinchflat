@@ -15,8 +15,9 @@ defmodule Pinchflat.Workers.MediaIndexingWorker do
   @doc """
   The ID is that of a source _record_, not a YouTube channel/playlist ID. Indexes
   the provided source, kicks off downloads for each new MediaItem, and
-  reschedules the job to run again in the future (as determined by the
-  souce's `index_frequency_minutes` field).
+  reschedules the job to run again in the future. It will ALWAYS index a source
+  if it's never been indexed before, but rescheduling is determined by the
+  `index_frequency_minutes` field.
 
   README: Re-scheduling here works a little different than you may expect.
   The reschedule time is relative to the time the job has actually _completed_.
@@ -39,18 +40,31 @@ defmodule Pinchflat.Workers.MediaIndexingWorker do
   def perform(%Oban.Job{args: %{"id" => source_id}}) do
     source = Sources.get_source!(source_id)
 
-    if source.index_frequency_minutes <= 0 do
-      :ok
-    else
-      index_media_and_reschedule(source)
+    case {source.index_frequency_minutes, source.last_indexed_at} do
+      {index_freq, _} when index_freq > 0 ->
+        # If the indexing is on a schedule simply run indexing and reschedule
+        index_media(source)
+        reschedule_indexing(source)
+
+      {_, nil} ->
+        # If the source has never been indexed, index it once
+        # even if it's not meant to reschedule
+        index_media(source)
+
+      _ ->
+        # If the source HAS been indexed and is not meant to reschedule,
+        # perform a no-op
+        :ok
     end
   end
 
-  defp index_media_and_reschedule(source) do
+  defp index_media(source) do
     SourceTasks.index_media_items(source)
     # This method handles the case where a source is set to not download media
     SourceTasks.enqueue_pending_media_tasks(source)
+  end
 
+  defp reschedule_indexing(source) do
     source
     |> Map.take([:id])
     |> MediaIndexingWorker.new(schedule_in: source.index_frequency_minutes * 60)

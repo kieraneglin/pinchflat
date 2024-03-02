@@ -66,18 +66,18 @@ defmodule Pinchflat.SourcesTest do
       assert String.starts_with?(source.collection_id, "some_playlist_id_")
     end
 
-    test "you can specify a custom friendly_name" do
+    test "you can specify a custom custom_name" do
       expect(YtDlpRunnerMock, :run, &channel_mock/3)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
         original_url: "https://www.youtube.com/channel/abc123",
-        friendly_name: "some custom name"
+        custom_name: "some custom name"
       }
 
       assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
 
-      assert source.friendly_name == "some custom name"
+      assert source.custom_name == "some custom name"
     end
 
     test "friendly name is pulled from collection_name if not specified" do
@@ -90,7 +90,7 @@ defmodule Pinchflat.SourcesTest do
 
       assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
 
-      assert source.friendly_name == "some channel name"
+      assert source.custom_name == "some channel name"
     end
 
     test "collection_type is inferred from source details" do

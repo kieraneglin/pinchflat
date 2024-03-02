@@ -3,7 +3,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.OutputPathBuilderTest do
 
   alias Pinchflat.Profiles.Options.YtDlp.OutputPathBuilder
 
-  describe "build/1" do
+  describe "build/2" do
     test "it expands 'standard' curly brace variables in the template" do
       assert {:ok, res} = OutputPathBuilder.build("/videos/{{ title }}.{{ ext }}")
 
@@ -14,6 +14,12 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.OutputPathBuilderTest do
       assert {:ok, res} = OutputPathBuilder.build("/videos/{{ upload_year }}.{{ ext }}")
 
       assert res == "/videos/%(upload_date>%Y)S.%(ext)S"
+    end
+
+    test "it respects additional options" do
+      assert {:ok, res} = OutputPathBuilder.build("/videos/{{ custom }}.{{ ext }}", %{"custom" => "test"})
+
+      assert res == "/videos/test.%(ext)S"
     end
 
     test "it leaves yt-dlp variables alone" do
