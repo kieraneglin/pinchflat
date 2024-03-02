@@ -30,7 +30,13 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
   end
 
   def custom_output_template_options do
-    ~w(upload_day upload_month upload_year source_custom_name source_collection_type)a
+    %{
+      upload_day: nil,
+      upload_month: nil,
+      upload_year: nil,
+      source_custom_name: "the name of the sources that use this profile",
+      source_collection_type: "the collection type of the sources that use this profile. Either 'channel' or 'playlist'"
+    }
   end
 
   def common_output_template_options do
