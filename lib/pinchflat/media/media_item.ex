@@ -22,6 +22,7 @@ defmodule Pinchflat.Media.MediaItem do
     # these fields are captured on download
     :media_downloaded_at,
     :media_filepath,
+    :media_size_bytes,
     :subtitle_filepaths,
     :thumbnail_filepath,
     :metadata_filepath
@@ -37,6 +38,7 @@ defmodule Pinchflat.Media.MediaItem do
     field :media_downloaded_at, :utc_datetime
 
     field :media_filepath, :string
+    field :media_size_bytes, :integer
     field :thumbnail_filepath, :string
     field :metadata_filepath, :string
     # This is an array of [iso-2 language, filepath] pairs. Probably could

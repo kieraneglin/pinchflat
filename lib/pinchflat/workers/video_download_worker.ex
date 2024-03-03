@@ -8,7 +8,9 @@ defmodule Pinchflat.Workers.VideoDownloadWorker do
 
   alias Pinchflat.Repo
   alias Pinchflat.Media
+  alias Pinchflat.Tasks
   alias Pinchflat.MediaClient.VideoDownloader
+  alias Pinchflat.Workers.FilesystemDataWorker
 
   @impl Oban.Worker
   @doc """
@@ -25,16 +27,31 @@ defmodule Pinchflat.Workers.VideoDownloadWorker do
 
     # If the source is set to not download media, perform a no-op
     if media_item.source.download_media do
-      download_media(media_item)
+      download_media_and_schedule_jobs(media_item)
     else
       :ok
     end
   end
 
-  defp download_media(media_item) do
+  defp download_media_and_schedule_jobs(media_item) do
     case VideoDownloader.download_for_media_item(media_item) do
-      {:ok, _} -> {:ok, media_item}
-      err -> err
+      {:ok, _} ->
+        schedule_filesystem_data_worker(media_item)
+        {:ok, media_item}
+
+      err ->
+        err
+    end
+  end
+
+  defp schedule_filesystem_data_worker(media_item) do
+    media_item
+    |> Map.take([:id])
+    |> FilesystemDataWorker.new()
+    |> Tasks.create_job_with_task(media_item)
+    |> case do
+      {:ok, task} -> {:ok, task}
+      {:error, :duplicate_job} -> {:ok, :job_exists}
     end
   end
 end
