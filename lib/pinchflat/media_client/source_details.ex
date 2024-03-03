@@ -22,16 +22,21 @@ defmodule Pinchflat.MediaClient.SourceDetails do
   Returns a list of basic video data mapsfor the given source URL OR
   source record using the given backend.
 
+  Options:
+    - :file_listener_handler - a function that will be called with the path to the
+      file that will be written to by yt-dlp. This is useful for
+      setting up a file watcher to read the file as it gets written to.
+
   Returns {:ok, [map()]} | {:error, any, ...}.
   """
-  def get_media_attributes(sourceable, backend \\ :yt_dlp)
+  def get_media_attributes(sourceable, opts \\ [], backend \\ :yt_dlp)
 
-  def get_media_attributes(%Source{} = source, backend) do
-    source_module(backend).get_media_attributes(source.collection_id)
+  def get_media_attributes(%Source{} = source, opts, backend) do
+    get_media_attributes(source.collection_id, opts, backend)
   end
 
-  def get_media_attributes(source_url, backend) when is_binary(source_url) do
-    source_module(backend).get_media_attributes(source_url)
+  def get_media_attributes(source_url, opts, backend) when is_binary(source_url) do
+    source_module(backend).get_media_attributes(source_url, opts)
   end
 
   defp source_module(backend) do

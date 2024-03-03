@@ -4,4 +4,5 @@ defmodule Pinchflat.MediaClient.Backends.BackendCommandRunner do
   """
 
   @callback run(binary(), keyword(), binary()) :: {:ok, binary()} | {:error, binary(), integer()}
+  @callback run(binary(), keyword(), binary(), keyword()) :: {:ok, binary()} | {:error, binary(), integer()}
 end

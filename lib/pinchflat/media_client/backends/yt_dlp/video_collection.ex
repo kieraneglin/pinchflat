@@ -4,19 +4,33 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollection do
   videos (aka: a source [ie: channels, playlists]).
   """
 
+  require Logger
+
   alias Pinchflat.Utils.FunctionUtils
+  alias Pinchflat.Utils.FilesystemUtils
 
   @doc """
   Returns a list of maps representing the videos in the collection.
 
+  Options:
+    - :file_listener_handler - a function that will be called with the path to the
+      file that will be written to when yt-dlp is done. This is useful for
+      setting up a file watcher to know when the file is ready to be read.
+
   Returns {:ok, [map()]} | {:error, any, ...}.
   """
-  def get_media_attributes(url, command_opts \\ []) do
+  def get_media_attributes(url, addl_opts \\ []) do
     runner = Application.get_env(:pinchflat, :yt_dlp_runner)
-    opts = command_opts ++ [:simulate, :skip_download]
+    command_opts = [:simulate, :skip_download]
     output_template = "%(.{id,title,was_live,original_url,description})j"
+    output_filepath = FilesystemUtils.generate_metadata_tmpfile(:json)
+    file_listener_handler = Keyword.get(addl_opts, :file_listener_handler, false)
 
-    case runner.run(url, opts, output_template) do
+    if file_listener_handler do
+      file_listener_handler.(output_filepath)
+    end
+
+    case runner.run(url, command_opts, output_template, output_filepath: output_filepath) do
       {:ok, output} ->
         output
         |> String.split("\n", trim: true)

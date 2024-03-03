@@ -45,7 +45,9 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
 
   describe "index_media_items/1" do
     setup do
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, source_attributes_return_fixture()} end)
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts ->
+        {:ok, source_attributes_return_fixture()}
+      end)
 
       {:ok, [source: source_fixture()]}
     end
@@ -105,6 +107,30 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
       source = Repo.reload!(source)
 
       assert DateTime.diff(DateTime.utc_now(), source.last_indexed_at) < 2
+    end
+  end
+
+  describe "index_media_items/1 when testing file watcher" do
+    setup do
+      {:ok, [source: source_fixture()]}
+    end
+
+    test "it creates a new media item for everything already in the file", %{source: source} do
+      watcher_poll_interval = Application.get_env(:pinchflat, :file_watcher_poll_interval)
+
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl_opts ->
+        filepath = Keyword.get(addl_opts, :output_filepath)
+        File.write(filepath, source_attributes_return_fixture())
+
+        # Need to add a delay to ensure the file watcher has time to read the file
+        :timer.sleep(watcher_poll_interval * 2)
+
+        {:ok, ""}
+      end)
+
+      assert Repo.aggregate(MediaItem, :count, :id) == 0
+      SourceTasks.index_media_items(source)
+      assert Repo.aggregate(MediaItem, :count, :id) == 3
     end
   end
 

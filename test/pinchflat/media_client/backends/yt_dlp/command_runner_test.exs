@@ -10,7 +10,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.CommandRunnerTest do
     on_exit(&reset_executable/0)
   end
 
-  describe "run/2" do
+  describe "run/4" do
     test "it returns the output and status when the command succeeds" do
       assert {:ok, _output} = Runner.run(@video_url, [], "")
     end
@@ -56,6 +56,12 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.CommandRunnerTest do
       wrap_executable("/bin/false", fn ->
         assert {:error, "", 1} = Runner.run(@video_url, [], "")
       end)
+    end
+
+    test "optionally lets you specify an output_filepath" do
+      assert {:ok, output} = Runner.run(@video_url, [], "%(id)s", output_filepath: "/tmp/yt-dlp-output.json")
+
+      assert String.contains?(output, "--print-to-file %(id)s /tmp/yt-dlp-output.json")
     end
   end
 
