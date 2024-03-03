@@ -6,6 +6,7 @@ defmodule Pinchflat.Workers.VideoDownloadWorkerTest do
 
   alias Pinchflat.Sources
   alias Pinchflat.Workers.VideoDownloadWorker
+  alias Pinchflat.Workers.FilesystemDataWorker
 
   setup :verify_on_exit!
 
@@ -67,6 +68,18 @@ defmodule Pinchflat.Workers.VideoDownloadWorkerTest do
       Sources.update_source(media_item.source, %{download_media: false})
 
       perform_job(VideoDownloadWorker, %{id: media_item.id})
+    end
+
+    test "it schedules a filesystem data worker", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+        {:ok, render_metadata(:media_metadata)}
+      end)
+
+      assert [] = all_enqueued(worker: FilesystemDataWorker)
+
+      perform_job(VideoDownloadWorker, %{id: media_item.id})
+
+      assert [_] = all_enqueued(worker: FilesystemDataWorker)
     end
   end
 end
