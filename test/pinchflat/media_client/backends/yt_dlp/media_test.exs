@@ -1,10 +1,10 @@
-defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoTest do
+defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaTest do
   use Pinchflat.DataCase
   import Mox
 
-  alias Pinchflat.MediaClient.Backends.YtDlp.Video
+  alias Pinchflat.MediaClient.Backends.YtDlp.Media
 
-  @video_url "https://www.youtube.com/watch?v=TiZPUDkDYbk"
+  @media_url "https://www.youtube.com/watch?v=TiZPUDkDYbk"
 
   setup :verify_on_exit!
 
@@ -16,14 +16,14 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoTest do
 
   describe "download/2" do
     test "it calls the backend runner with the expected arguments" do
-      expect(YtDlpRunnerMock, :run, fn @video_url, opts, ot ->
+      expect(YtDlpRunnerMock, :run, fn @media_url, opts, ot ->
         assert [:no_simulate] = opts
         assert "after_move:%()j" = ot
 
         {:ok, render_metadata(:media_metadata)}
       end)
 
-      assert {:ok, _} = Video.download(@video_url)
+      assert {:ok, _} = Media.download(@media_url)
     end
 
     test "it passes along additional options" do
@@ -33,7 +33,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoTest do
         {:ok, "{}"}
       end)
 
-      assert {:ok, _} = Video.download(@video_url, [:custom_arg])
+      assert {:ok, _} = Media.download(@media_url, [:custom_arg])
     end
 
     test "it parses and returns the generated file as JSON" do
@@ -42,7 +42,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoTest do
       end)
 
       assert {:ok, %{"title" => "Trying to Wheelie Without the Rear Brake"}} =
-               Video.download(@video_url)
+               Media.download(@media_url)
     end
 
     test "it returns errors" do
@@ -50,7 +50,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoTest do
         {:error, "something"}
       end)
 
-      assert {:error, "something"} = Video.download(@video_url)
+      assert {:error, "something"} = Media.download(@media_url)
     end
   end
 end

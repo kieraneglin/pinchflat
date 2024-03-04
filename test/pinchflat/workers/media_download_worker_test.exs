@@ -1,11 +1,11 @@
-defmodule Pinchflat.Workers.VideoDownloadWorkerTest do
+defmodule Pinchflat.Workers.MediaDownloadWorkerTest do
   use Pinchflat.DataCase
 
   import Mox
   import Pinchflat.MediaFixtures
 
   alias Pinchflat.Sources
-  alias Pinchflat.Workers.VideoDownloadWorker
+  alias Pinchflat.Workers.MediaDownloadWorker
   alias Pinchflat.Workers.FilesystemDataWorker
 
   setup :verify_on_exit!
@@ -31,7 +31,7 @@ defmodule Pinchflat.Workers.VideoDownloadWorkerTest do
       end)
 
       assert media_item.media_filepath == nil
-      perform_job(VideoDownloadWorker, %{id: media_item.id})
+      perform_job(MediaDownloadWorker, %{id: media_item.id})
       assert Repo.reload(media_item).media_filepath != nil
     end
 
@@ -41,22 +41,22 @@ defmodule Pinchflat.Workers.VideoDownloadWorkerTest do
       end)
 
       assert media_item.metadata == nil
-      perform_job(VideoDownloadWorker, %{id: media_item.id})
+      perform_job(MediaDownloadWorker, %{id: media_item.id})
       assert Repo.reload(media_item).metadata != nil
     end
 
     test "it won't double-schedule downloading jobs", %{media_item: media_item} do
-      Oban.insert(VideoDownloadWorker.new(%{id: media_item.id}))
-      Oban.insert(VideoDownloadWorker.new(%{id: media_item.id}))
+      Oban.insert(MediaDownloadWorker.new(%{id: media_item.id}))
+      Oban.insert(MediaDownloadWorker.new(%{id: media_item.id}))
 
-      assert [_] = all_enqueued(worker: VideoDownloadWorker)
+      assert [_] = all_enqueued(worker: MediaDownloadWorker)
     end
 
     test "it sets the job to retryable if the download fails", %{media_item: media_item} do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:error, "error"} end)
 
       Oban.Testing.with_testing_mode(:inline, fn ->
-        {:ok, job} = Oban.insert(VideoDownloadWorker.new(%{id: media_item.id}))
+        {:ok, job} = Oban.insert(MediaDownloadWorker.new(%{id: media_item.id}))
 
         assert job.state == "retryable"
       end)
@@ -67,7 +67,7 @@ defmodule Pinchflat.Workers.VideoDownloadWorkerTest do
 
       Sources.update_source(media_item.source, %{download_media: false})
 
-      perform_job(VideoDownloadWorker, %{id: media_item.id})
+      perform_job(MediaDownloadWorker, %{id: media_item.id})
     end
 
     test "it schedules a filesystem data worker", %{media_item: media_item} do
@@ -77,7 +77,7 @@ defmodule Pinchflat.Workers.VideoDownloadWorkerTest do
 
       assert [] = all_enqueued(worker: FilesystemDataWorker)
 
-      perform_job(VideoDownloadWorker, %{id: media_item.id})
+      perform_job(MediaDownloadWorker, %{id: media_item.id})
 
       assert [_] = all_enqueued(worker: FilesystemDataWorker)
     end

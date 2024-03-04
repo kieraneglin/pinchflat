@@ -1,7 +1,7 @@
 import Config
 
 config :pinchflat,
-  media_directory: Path.join([File.cwd!(), "tmp", "videos"]),
+  media_directory: Path.join([File.cwd!(), "tmp", "media"]),
   metadata_directory: Path.join([File.cwd!(), "tmp", "metadata"]),
   tmpfile_directory: Path.join([File.cwd!(), "tmp", "tmpfiles"])
 

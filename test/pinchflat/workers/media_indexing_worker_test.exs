@@ -7,7 +7,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
 
   alias Pinchflat.Tasks
   alias Pinchflat.Workers.MediaIndexingWorker
-  alias Pinchflat.Workers.VideoDownloadWorker
+  alias Pinchflat.Workers.MediaDownloadWorker
 
   setup :verify_on_exit!
 
@@ -53,7 +53,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
       source = source_fixture(index_frequency_minutes: 10)
       perform_job(MediaIndexingWorker, %{id: source.id})
 
-      assert length(all_enqueued(worker: VideoDownloadWorker)) == 3
+      assert length(all_enqueued(worker: MediaDownloadWorker)) == 3
     end
 
     test "it starts a job for any pending media item even if it's from another run" do
@@ -65,7 +65,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
       media_item_fixture(%{source_id: source.id, media_filepath: nil})
       perform_job(MediaIndexingWorker, %{id: source.id})
 
-      assert length(all_enqueued(worker: VideoDownloadWorker)) == 4
+      assert length(all_enqueued(worker: MediaDownloadWorker)) == 4
     end
 
     test "it does not kick off a job for media items that could not be saved" do
@@ -78,7 +78,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
       perform_job(MediaIndexingWorker, %{id: source.id})
 
       # Only 3 jobs should be enqueued, since the first video is a duplicate
-      assert length(all_enqueued(worker: VideoDownloadWorker))
+      assert length(all_enqueued(worker: MediaDownloadWorker))
     end
 
     test "it reschedules the job based on the index frequency" do

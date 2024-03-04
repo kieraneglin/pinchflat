@@ -1,10 +1,10 @@
-defmodule Pinchflat.MediaClient.Backends.YtDlp.Video do
+defmodule Pinchflat.MediaClient.Backends.YtDlp.Media do
   @moduledoc """
-  Contains utilities for working with singular videos
+  Contains utilities for working with singular pieces of media
   """
 
   @doc """
-  Downloads a single video (and possibly its metadata) directly to its
+  Downloads a single piece of media (and possibly its metadata) directly to its
   final destination. Returns the parsed JSON output from yt-dlp.
 
   Returns {:ok, map()} | {:error, any, ...}.
