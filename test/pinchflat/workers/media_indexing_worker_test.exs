@@ -13,7 +13,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
 
   describe "perform/1" do
     test "it indexes the source if it should be indexed" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, ""} end)
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:ok, ""} end)
 
       source = source_fixture(index_frequency_minutes: 10)
 
@@ -21,7 +21,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
     end
 
     test "it indexes the source no matter what if the source has never been indexed before" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, ""} end)
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:ok, ""} end)
 
       source = source_fixture(index_frequency_minutes: 0, last_indexed_at: nil)
 
@@ -29,7 +29,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
     end
 
     test "it does not do any indexing if the source has been indexed and shouldn't be rescheduled" do
-      expect(YtDlpRunnerMock, :run, 0, fn _url, _opts, _ot -> {:ok, ""} end)
+      expect(YtDlpRunnerMock, :run, 0, fn _url, _opts, _ot, _addl_opts -> {:ok, ""} end)
 
       source = source_fixture(index_frequency_minutes: -1, last_indexed_at: DateTime.utc_now())
 
@@ -37,7 +37,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
     end
 
     test "it does not reschedule if the source shouldn't be indexed" do
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, ""} end)
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:ok, ""} end)
 
       source = source_fixture(index_frequency_minutes: -1)
       perform_job(MediaIndexingWorker, %{id: source.id})
@@ -46,7 +46,9 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
     end
 
     test "it kicks off a download job for each pending media item" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, source_attributes_return_fixture()} end)
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts ->
+        {:ok, source_attributes_return_fixture()}
+      end)
 
       source = source_fixture(index_frequency_minutes: 10)
       perform_job(MediaIndexingWorker, %{id: source.id})
@@ -55,7 +57,9 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
     end
 
     test "it starts a job for any pending media item even if it's from another run" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, source_attributes_return_fixture()} end)
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts ->
+        {:ok, source_attributes_return_fixture()}
+      end)
 
       source = source_fixture(index_frequency_minutes: 10)
       media_item_fixture(%{source_id: source.id, media_filepath: nil})
@@ -65,7 +69,9 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
     end
 
     test "it does not kick off a job for media items that could not be saved" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, source_attributes_return_fixture()} end)
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts ->
+        {:ok, source_attributes_return_fixture()}
+      end)
 
       source = source_fixture(index_frequency_minutes: 10)
       media_item_fixture(%{source_id: source.id, media_filepath: nil, media_id: "video1"})
@@ -76,7 +82,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
     end
 
     test "it reschedules the job based on the index frequency" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, ""} end)
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:ok, ""} end)
 
       source = source_fixture(index_frequency_minutes: 10)
       perform_job(MediaIndexingWorker, %{id: source.id})
@@ -89,7 +95,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
     end
 
     test "it creates a task for the rescheduled job" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, ""} end)
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:ok, ""} end)
 
       source = source_fixture(index_frequency_minutes: 10)
       task_count_fetcher = fn -> Enum.count(Tasks.list_tasks()) end
@@ -100,7 +106,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
     end
 
     test "it creates the basic media_item records" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, source_attributes_return_fixture()} end)
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:ok, source_attributes_return_fixture()} end)
 
       source = source_fixture(index_frequency_minutes: 10)
 

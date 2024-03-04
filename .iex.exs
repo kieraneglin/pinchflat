@@ -15,6 +15,8 @@ alias Pinchflat.Sources
 alias Pinchflat.MediaClient.{SourceDetails, VideoDownloader}
 alias Pinchflat.Metadata.{Zipper, ThumbnailFetcher}
 
+alias Pinchflat.Utils.FilesystemUtils.FileFollowerServer
+
 defmodule IexHelpers do
   def playlist_url do
     "https://www.youtube.com/playlist?list=PLmqC3wPkeL8kSlTCcSMDD63gmSi7evcXS"

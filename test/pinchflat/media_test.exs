@@ -215,6 +215,34 @@ defmodule Pinchflat.MediaTest do
     end
   end
 
+  describe "pending_download?/1" do
+    test "returns true when the media hasn't been downloaded" do
+      media_item = media_item_fixture(%{media_filepath: nil})
+
+      assert Media.pending_download?(media_item)
+    end
+
+    test "returns false if the media has been downloaded" do
+      media_item = media_item_fixture(%{media_filepath: "/video/#{Faker.File.file_name(:video)}"})
+
+      refute Media.pending_download?(media_item)
+    end
+
+    test "returns false if the media hasn't been downloaded but the profile doesn't DL shorts" do
+      source = source_fixture(%{media_profile_id: media_profile_fixture(%{shorts_behaviour: :exclude}).id})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+
+      refute Media.pending_download?(media_item)
+    end
+
+    test "returns false if the media hasn't been downloaded but the profile doesn't DL livestreams" do
+      source = source_fixture(%{media_profile_id: media_profile_fixture(%{livestream_behaviour: :exclude}).id})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, livestream: true})
+
+      refute Media.pending_download?(media_item)
+    end
+  end
+
   describe "search/1" do
     setup do
       media_item =

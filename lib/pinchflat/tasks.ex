@@ -2,7 +2,6 @@ defmodule Pinchflat.Tasks do
   @moduledoc """
   The Tasks context.
   """
-
   import Ecto.Query, warn: false
   alias Pinchflat.Repo
 

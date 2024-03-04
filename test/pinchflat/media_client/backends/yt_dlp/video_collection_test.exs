@@ -11,14 +11,16 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollectionTest do
 
   describe "get_media_attributes/2" do
     test "returns a list of video attributes with no blank elements" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, source_attributes_return_fixture() <> "\n\n"} end)
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts ->
+        {:ok, source_attributes_return_fixture() <> "\n\n"}
+      end)
 
       assert {:ok, [%{"id" => "video1"}, %{"id" => "video2"}, %{"id" => "video3"}]} =
                VideoCollection.get_media_attributes(@channel_url)
     end
 
     test "it passes the expected default args" do
-      expect(YtDlpRunnerMock, :run, fn _url, opts, ot ->
+      expect(YtDlpRunnerMock, :run, fn _url, opts, ot, _addl_opts ->
         assert opts == [:simulate, :skip_download]
         assert ot == "%(.{id,title,was_live,original_url,description})j"
 
@@ -28,20 +30,35 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollectionTest do
       assert {:ok, _} = VideoCollection.get_media_attributes(@channel_url)
     end
 
-    test "it passes the expected custom args" do
-      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot ->
-        assert opts == [:custom_arg, :simulate, :skip_download]
+    test "returns the error straight through when the command fails" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:error, "Big issue", 1} end)
+
+      assert {:error, "Big issue", 1} = VideoCollection.get_media_attributes(@channel_url)
+    end
+
+    test "passes the explict tmpfile path to runner" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl_opts ->
+        assert [{:output_filepath, filepath}] = addl_opts
+        assert String.ends_with?(filepath, ".json")
 
         {:ok, ""}
       end)
 
-      assert {:ok, _} = VideoCollection.get_media_attributes(@channel_url, [:custom_arg])
+      assert {:ok, _} = VideoCollection.get_media_attributes(@channel_url)
     end
 
-    test "returns the error straight through when the command fails" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:error, "Big issue", 1} end)
+    test "supports an optional file_listener_handler that gets passed a filename" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:ok, ""} end)
+      current_self = self()
 
-      assert {:error, "Big issue", 1} = VideoCollection.get_media_attributes(@channel_url)
+      handler = fn filename ->
+        send(current_self, {:handler, filename})
+      end
+
+      assert {:ok, _} = VideoCollection.get_media_attributes(@channel_url, file_listener_handler: handler)
+
+      assert_receive {:handler, filename}
+      assert String.ends_with?(filename, ".json")
     end
   end
 
