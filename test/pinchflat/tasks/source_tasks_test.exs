@@ -220,6 +220,25 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
       SourceTasks.index_and_enqueue_download_for_media_items(source)
       refute_enqueued(worker: VideoDownloadWorker)
     end
+
+    test "does not enqueue multiple download jobs for the same media items", %{source: source} do
+      watcher_poll_interval = Application.get_env(:pinchflat, :file_watcher_poll_interval)
+
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl_opts ->
+        filepath = Keyword.get(addl_opts, :output_filepath)
+        File.write(filepath, source_attributes_return_fixture())
+
+        # Need to add a delay to ensure the file watcher has time to read the file
+        :timer.sleep(watcher_poll_interval * 2)
+        # This also returns the final result to the yt-dlp call (like the real usage actually would do)
+        # so it'll attempt to create the media items and enqueue the download jobs based on this as well
+        {:ok, source_attributes_return_fixture()}
+      end)
+
+      SourceTasks.index_and_enqueue_download_for_media_items(source)
+      assert Repo.aggregate(MediaItem, :count, :id) == 3
+      assert [_, _, _] = all_enqueued(worker: VideoDownloadWorker)
+    end
   end
 
   describe "enqueue_pending_media_tasks/1" do
