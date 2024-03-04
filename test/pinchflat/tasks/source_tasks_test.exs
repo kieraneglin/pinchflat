@@ -12,7 +12,7 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
   alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Workers.MediaIndexingWorker
-  alias Pinchflat.Workers.VideoDownloadWorker
+  alias Pinchflat.Workers.MediaDownloadWorker
 
   setup :verify_on_exit!
 
@@ -116,7 +116,7 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
 
       SourceTasks.index_and_enqueue_download_for_media_items(source)
 
-      assert_enqueued(worker: VideoDownloadWorker, args: %{"id" => media_item.id})
+      assert_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
     end
 
     test "it does not attach tasks if the source is set to not download" do
@@ -167,9 +167,9 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
         {:ok, ""}
       end)
 
-      refute_enqueued(worker: VideoDownloadWorker)
+      refute_enqueued(worker: MediaDownloadWorker)
       SourceTasks.index_and_enqueue_download_for_media_items(source)
-      assert_enqueued(worker: VideoDownloadWorker)
+      assert_enqueued(worker: MediaDownloadWorker)
     end
 
     test "does not enqueue downloads if the source is set to not download" do
@@ -188,7 +188,7 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
       end)
 
       SourceTasks.index_and_enqueue_download_for_media_items(source)
-      refute_enqueued(worker: VideoDownloadWorker)
+      refute_enqueued(worker: MediaDownloadWorker)
     end
 
     test "does not enqueue downloads for media that doesn't match the profile's format options" do
@@ -218,7 +218,7 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
       end)
 
       SourceTasks.index_and_enqueue_download_for_media_items(source)
-      refute_enqueued(worker: VideoDownloadWorker)
+      refute_enqueued(worker: MediaDownloadWorker)
     end
 
     test "does not enqueue multiple download jobs for the same media items", %{source: source} do
@@ -237,7 +237,7 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
 
       SourceTasks.index_and_enqueue_download_for_media_items(source)
       assert Repo.aggregate(MediaItem, :count, :id) == 3
-      assert [_, _, _] = all_enqueued(worker: VideoDownloadWorker)
+      assert [_, _, _] = all_enqueued(worker: MediaDownloadWorker)
     end
   end
 
@@ -248,7 +248,7 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
 
       assert :ok = SourceTasks.enqueue_pending_media_tasks(source)
 
-      assert_enqueued(worker: VideoDownloadWorker, args: %{"id" => media_item.id})
+      assert_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
     end
 
     test "it does not enqueue a job for media items with a filepath" do
@@ -257,7 +257,7 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
 
       assert :ok = SourceTasks.enqueue_pending_media_tasks(source)
 
-      refute_enqueued(worker: VideoDownloadWorker)
+      refute_enqueued(worker: MediaDownloadWorker)
     end
 
     test "it attaches a task to each enqueued job" do
@@ -276,7 +276,7 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
 
       assert :ok = SourceTasks.enqueue_pending_media_tasks(source)
 
-      refute_enqueued(worker: VideoDownloadWorker)
+      refute_enqueued(worker: MediaDownloadWorker)
     end
 
     test "it does not attach tasks if the source is set to not download" do
@@ -294,11 +294,11 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
       media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
 
       SourceTasks.enqueue_pending_media_tasks(source)
-      assert_enqueued(worker: VideoDownloadWorker, args: %{"id" => media_item.id})
+      assert_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
 
       assert :ok = SourceTasks.dequeue_pending_media_tasks(source)
 
-      refute_enqueued(worker: VideoDownloadWorker)
+      refute_enqueued(worker: MediaDownloadWorker)
       assert [] = Tasks.list_tasks_for(:media_item_id, media_item.id)
     end
   end

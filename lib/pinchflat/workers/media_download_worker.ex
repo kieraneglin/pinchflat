@@ -1,4 +1,4 @@
-defmodule Pinchflat.Workers.VideoDownloadWorker do
+defmodule Pinchflat.Workers.MediaDownloadWorker do
   @moduledoc false
 
   use Oban.Worker,
@@ -9,7 +9,7 @@ defmodule Pinchflat.Workers.VideoDownloadWorker do
   alias Pinchflat.Repo
   alias Pinchflat.Media
   alias Pinchflat.Tasks
-  alias Pinchflat.MediaClient.VideoDownloader
+  alias Pinchflat.MediaClient.MediaDownloader
   alias Pinchflat.Workers.FilesystemDataWorker
 
   @impl Oban.Worker
@@ -34,7 +34,7 @@ defmodule Pinchflat.Workers.VideoDownloadWorker do
   end
 
   defp download_media_and_schedule_jobs(media_item) do
-    case VideoDownloader.download_for_media_item(media_item) do
+    case MediaDownloader.download_for_media_item(media_item) do
       {:ok, _} ->
         schedule_filesystem_data_worker(media_item)
         {:ok, media_item}

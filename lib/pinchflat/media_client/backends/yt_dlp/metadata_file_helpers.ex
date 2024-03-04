@@ -4,7 +4,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MetadataFileHelpers do
   out-of-band of the normal yt-dlp backend process.
 
   The idea is that I don't want to craft a complicated yt-dlp command,
-  instead focusing on downloading the video as the user wants it then
+  instead focusing on downloading the media as the user wants it then
   I can use the result of that here to grab the additional information
   needed
   """

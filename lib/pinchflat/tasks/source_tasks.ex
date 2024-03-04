@@ -15,7 +15,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.MediaClient.SourceDetails
   alias Pinchflat.Workers.MediaIndexingWorker
-  alias Pinchflat.Workers.VideoDownloadWorker
+  alias Pinchflat.Workers.MediaDownloadWorker
   alias Pinchflat.Utils.FilesystemUtils.FileFollowerServer
 
   @doc """
@@ -75,7 +75,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
   end
 
   @doc """
-  Starts tasks for downloading videos for any of a sources _pending_ media items.
+  Starts tasks for downloading media for any of a sources _pending_ media items.
   Jobs are not enqueued if the source is set to not download media. This will return :ok.
 
   NOTE: this starts a download for each media item that is pending,
@@ -91,7 +91,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
     |> Enum.each(fn media_item ->
       media_item
       |> Map.take([:id])
-      |> VideoDownloadWorker.new()
+      |> MediaDownloadWorker.new()
       |> Tasks.create_job_with_task(media_item)
     end)
   end
@@ -161,7 +161,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
 
           media_item
           |> Map.take([:id])
-          |> VideoDownloadWorker.new()
+          |> MediaDownloadWorker.new()
           |> Tasks.create_job_with_task(media_item)
         end
 

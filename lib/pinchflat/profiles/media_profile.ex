@@ -44,10 +44,10 @@ defmodule Pinchflat.Profiles.MediaProfile do
     field :embed_metadata, :boolean, default: true
 
     # NOTE: these do NOT speed up indexing - the indexer still has to go
-    # through the entire collection to determine if a video is a short or
+    # through the entire collection to determine if a media is a short or
     # a livestream.
     # NOTE: these can BOTH be set to :only which will download shorts and
-    # livestreams _only_ and ignore regular videos. The redundant case
+    # livestreams _only_ and ignore regular media. The redundant case
     # is when one is set to :only and the other is set to :exclude.
     # See `build_format_clauses` in the Media context for more.
     field :shorts_behaviour, Ecto.Enum, values: ~w(include exclude only)a, default: :include

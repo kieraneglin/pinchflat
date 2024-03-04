@@ -23,7 +23,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaParserTest do
   end
 
   describe "parse_for_media_item/1 when testing media metadata" do
-    test "it extracts the video filepath", %{metadata: metadata} do
+    test "it extracts the media filepath", %{metadata: metadata} do
       result = Parser.parse_for_media_item(metadata)
 
       assert String.contains?(result.media_filepath, "bwRHIkYqYJo")
@@ -67,7 +67,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaParserTest do
       assert [["al", _], ["de", _], ["en", _], ["za", _]] = result.subtitle_filepaths
     end
 
-    test "doesn't freak out if the video has no subtitles", %{metadata: metadata} do
+    test "doesn't freak out if the media has no subtitles", %{metadata: metadata} do
       metadata = Map.put(metadata, "requested_subtitles", %{})
 
       result = Parser.parse_for_media_item(metadata)
@@ -91,7 +91,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaParserTest do
       assert String.ends_with?(result.thumbnail_filepath, ".webp")
     end
 
-    test "doesn't freak out if the video has no thumbnails", %{metadata: metadata} do
+    test "doesn't freak out if the media has no thumbnails", %{metadata: metadata} do
       metadata = Map.put(metadata, "thumbnails", %{})
 
       result = Parser.parse_for_media_item(metadata)
@@ -115,7 +115,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaParserTest do
       assert String.ends_with?(result.metadata_filepath, ".info.json")
     end
 
-    test "doesn't freak out if the video has no infojson", %{metadata: metadata} do
+    test "doesn't freak out if the media has no infojson", %{metadata: metadata} do
       metadata = Map.put(metadata, "infojson_filename", nil)
 
       result = Parser.parse_for_media_item(metadata)
