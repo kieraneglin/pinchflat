@@ -12,6 +12,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
   alias Pinchflat.Tasks
   alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Media.MediaItem
   alias Pinchflat.MediaClient.SourceDetails
   alias Pinchflat.Workers.MediaIndexingWorker
   alias Pinchflat.Workers.VideoDownloadWorker
@@ -40,13 +41,19 @@ defmodule Pinchflat.Tasks.SourceTasks do
 
   @doc """
   Given a media source, creates (indexes) the media by creating media_items for each
-  media ID in the source.
+  media ID in the source. Afterward, kicks off a download task for each pending media
+  item belonging to the source. You can't tell me the method name isn't descriptive!
 
   Indexing is slow and usually returns a list of all media data at once for record creation.
   To help with this, we use a file follower to watch the file that yt-dlp writes to
   so we can create media items as they come in. This parallelizes the process and adds
   clarity to the user experience. This has a few things to be aware of which are documented
   below in the file watcher setup method.
+
+  NOTE: downloads are only enqueued if the source is set to download media. Downloads are
+  also enqueued for ALL pending media items, not just the ones that were indexed in this
+  job run. This should ensure that any stragglers are caught if, for some reason, they
+  weren't enqueued or somehow got de-queued.
 
   Since indexing returns all media data EVERY TIME, we rely on the unique index of the
   media_id to prevent duplicates. Due to both the file follower and the fact that future
@@ -55,16 +62,16 @@ defmodule Pinchflat.Tasks.SourceTasks do
 
   Returns [%MediaItem{}, ...] | [%Ecto.Changeset{}, ...]
   """
-  def index_media_items(%Source{} = source) do
+  def index_and_enqueue_download_for_media_items(%Source{} = source) do
     # See the method definition below for more info on how file watchers work
     # (important reading if you're not familiar with it)
     {:ok, media_attributes} = get_media_attributes_and_setup_file_watcher(source)
 
+    result = Enum.map(media_attributes, fn media_attrs -> create_media_item_from_attributes(source, media_attrs) end)
     Sources.update_source(source, %{last_indexed_at: DateTime.utc_now()})
+    enqueue_pending_media_tasks(source)
 
-    Enum.map(media_attributes, fn media_attrs ->
-      create_media_item_from_attributes(source, media_attrs)
-    end)
+    result
   end
 
   @doc """
@@ -75,8 +82,6 @@ defmodule Pinchflat.Tasks.SourceTasks do
   not just the ones that were indexed in this job run. This should ensure
   that any stragglers are caught if, for some reason, they weren't enqueued
   or somehow got de-queued.
-
-  I'm not sure of a case where this would happen, but it's cheap insurance.
 
   Returns :ok
   """
@@ -123,8 +128,8 @@ defmodule Pinchflat.Tasks.SourceTasks do
     {:ok, pid} = FileFollowerServer.start_link()
 
     handler = fn filepath -> setup_file_follower_watcher(pid, filepath, source) end
-
     result = SourceDetails.get_media_attributes(source.original_url, file_listener_handler: handler)
+
     FileFollowerServer.stop(pid)
 
     result
@@ -136,7 +141,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
         {:ok, media_attrs} ->
           Logger.debug("FileFollowerServer Handler: Got media attributes: #{inspect(media_attrs)}")
 
-          create_media_item_from_attributes(source, media_attrs)
+          create_media_item_and_enqueue_download(source, media_attrs)
 
         err ->
           Logger.debug("FileFollowerServer Handler: Error decoding JSON: #{inspect(err)}")
@@ -144,6 +149,25 @@ defmodule Pinchflat.Tasks.SourceTasks do
           err
       end
     end)
+  end
+
+  defp create_media_item_and_enqueue_download(source, media_attrs) do
+    maybe_media_item = create_media_item_from_attributes(source, media_attrs)
+
+    case maybe_media_item do
+      %MediaItem{} = media_item ->
+        if source.download_media && Media.pending_download?(media_item) do
+          Logger.debug("FileFollowerServer Handler: Enqueuing download task for #{inspect(media_attrs)}")
+
+          media_item
+          |> Map.take([:id])
+          |> VideoDownloadWorker.new()
+          |> Tasks.create_job_with_task(media_item)
+        end
+
+      changeset ->
+        changeset
+    end
   end
 
   defp create_media_item_from_attributes(source, media_attrs) do

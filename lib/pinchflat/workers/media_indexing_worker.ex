@@ -43,25 +43,20 @@ defmodule Pinchflat.Workers.MediaIndexingWorker do
     case {source.index_frequency_minutes, source.last_indexed_at} do
       {index_freq, _} when index_freq > 0 ->
         # If the indexing is on a schedule simply run indexing and reschedule
-        index_media(source)
+        SourceTasks.index_and_enqueue_download_for_media_items(source)
         reschedule_indexing(source)
 
       {_, nil} ->
         # If the source has never been indexed, index it once
         # even if it's not meant to reschedule
-        index_media(source)
+        SourceTasks.index_and_enqueue_download_for_media_items(source)
+        :ok
 
       _ ->
         # If the source HAS been indexed and is not meant to reschedule,
         # perform a no-op
         :ok
     end
-  end
-
-  defp index_media(source) do
-    SourceTasks.index_media_items(source)
-    # This method handles the case where a source is set to not download media
-    SourceTasks.enqueue_pending_media_tasks(source)
   end
 
   defp reschedule_indexing(source) do

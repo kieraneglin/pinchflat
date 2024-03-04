@@ -67,6 +67,24 @@ defmodule Pinchflat.Media do
   end
 
   @doc """
+  For a given media_item, tells you if it is pending download. This is defined as
+  the media_item having a `media_filepath` of `nil` and matching the format selection
+  rules of the parent media_profile.
+
+  Intentionally does not take the `download_media` setting of the source into account.
+
+  Returns boolean()
+  """
+  def pending_download?(%MediaItem{} = media_item) do
+    media_profile = Repo.preload(media_item, source: :media_profile).source.media_profile
+
+    MediaItem
+    |> where([mi], mi.id == ^media_item.id and is_nil(mi.media_filepath))
+    |> where(^build_format_clauses(media_profile))
+    |> Repo.exists?()
+  end
+
+  @doc """
   Returns a list of media_items that match the search term. Adds a `matching_search_term`
   virtual field to the result set.
 
