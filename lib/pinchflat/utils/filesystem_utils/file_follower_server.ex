@@ -9,7 +9,7 @@ defmodule Pinchflat.Utils.FilesystemUtils.FileFollowerServer do
   require Logger
 
   @poll_interval_ms Application.compile_env(:pinchflat, :file_watcher_poll_interval)
-  @activity_timeout_ms 10_000
+  @activity_timeout_ms 60_000
 
   # Client API
   @doc """
