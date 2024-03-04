@@ -2,6 +2,11 @@ name: Build and Push Docker Image
 
 on:
   workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker Image Tag'
+        required: true
+        default: 'dev'
 
 jobs:
   docker:
@@ -24,4 +29,4 @@ jobs:
         with:
           push: true
           file: ./selfhosted.Dockerfile
-          tags: keglin/pinchflat:dev
+          tags: 'keglin/pinchflat:${{ github.event.inputs.image_tag }}'
