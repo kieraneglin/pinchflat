@@ -44,5 +44,14 @@ defmodule PinchflatWeb.RoutingTest do
 
       assert conn.status == 200
     end
+
+    test "it treats empty strings as not being set when using basic auth", %{conn: conn} do
+      Application.put_env(:pinchflat, :basic_auth_username, "")
+      Application.put_env(:pinchflat, :basic_auth_password, "pass")
+
+      conn = get(conn, "/")
+
+      assert conn.status == 200
+    end
   end
 end

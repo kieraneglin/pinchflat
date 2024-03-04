@@ -54,10 +54,14 @@ defmodule PinchflatWeb.Router do
     username = Application.get_env(:pinchflat, :basic_auth_username)
     password = Application.get_env(:pinchflat, :basic_auth_password)
 
-    if username && password do
+    if credential_set?(username) && credential_set?(password) do
       Plug.BasicAuth.basic_auth(conn, username: username, password: password, realm: "Pinchflat")
     else
       conn
     end
+  end
+
+  defp credential_set?(credential) do
+    credential && credential != ""
   end
 end
