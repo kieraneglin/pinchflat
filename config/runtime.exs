@@ -21,6 +21,10 @@ if System.get_env("PHX_SERVER") do
   config :pinchflat, PinchflatWeb.Endpoint, server: true
 end
 
+config :pinchflat,
+  basic_auth_username: System.get_env("BASIC_AUTH_USERNAME"),
+  basic_auth_password: System.get_env("BASIC_AUTH_PASSWORD")
+
 if config_env() == :prod do
   config_path =
     System.get_env("CONFIG_PATH") ||
