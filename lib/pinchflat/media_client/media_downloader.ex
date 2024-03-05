@@ -1,8 +1,8 @@
-defmodule Pinchflat.MediaClient.VideoDownloader do
+defmodule Pinchflat.MediaClient.MediaDownloader do
   @moduledoc """
-  This is the integration layer for actually downloading videos.
+  This is the integration layer for actually downloading medias.
   It takes into account the media profile's settings in order
-  to download the video with the desired options.
+  to download the media with the desired options.
 
   Technically hardcodes the yt-dlp backend for now, but should leave
   it open-ish for future expansion (just in case).
@@ -12,13 +12,13 @@ defmodule Pinchflat.MediaClient.VideoDownloader do
   alias Pinchflat.Media
   alias Pinchflat.Media.MediaItem
 
-  alias Pinchflat.MediaClient.Backends.YtDlp.Video, as: YtDlpVideo
+  alias Pinchflat.MediaClient.Backends.YtDlp.Media, as: YtDlpMedia
   alias Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder, as: YtDlpDownloadOptionBuilder
   alias Pinchflat.MediaClient.Backends.YtDlp.MetadataParser, as: YtDlpMetadataParser
   alias Pinchflat.MediaClient.Backends.YtDlp.MetadataFileHelpers, as: YtDlpMetadataHelpers
 
   @doc """
-  Downloads a video for a media item, updating the media item based on the metadata
+  Downloads media for a media item, updating the media item based on the metadata
   returned by the backend. Also saves the entire metadata response to the associated
   media_metadata record.
 
@@ -57,10 +57,10 @@ defmodule Pinchflat.MediaClient.VideoDownloader do
 
   defp download_with_options(url, item_with_preloads, backend) do
     option_builder = option_builder(backend)
-    video_backend = video_backend(backend)
+    media_backend = media_backend(backend)
     {:ok, options} = option_builder.build(item_with_preloads)
 
-    video_backend.download(url, options)
+    media_backend.download(url, options)
   end
 
   defp option_builder(backend) do
@@ -69,9 +69,9 @@ defmodule Pinchflat.MediaClient.VideoDownloader do
     end
   end
 
-  defp video_backend(backend) do
+  defp media_backend(backend) do
     case backend do
-      :yt_dlp -> YtDlpVideo
+      :yt_dlp -> YtDlpMedia
     end
   end
 

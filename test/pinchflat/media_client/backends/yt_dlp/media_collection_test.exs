@@ -1,9 +1,9 @@
-defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollectionTest do
+defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaCollectionTest do
   use Pinchflat.DataCase
   import Mox
   import Pinchflat.SourcesFixtures
 
-  alias Pinchflat.MediaClient.Backends.YtDlp.VideoCollection
+  alias Pinchflat.MediaClient.Backends.YtDlp.MediaCollection
 
   @channel_url "https://www.youtube.com/c/TheUselessTrials"
 
@@ -16,7 +16,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollectionTest do
       end)
 
       assert {:ok, [%{"id" => "video1"}, %{"id" => "video2"}, %{"id" => "video3"}]} =
-               VideoCollection.get_media_attributes(@channel_url)
+               MediaCollection.get_media_attributes(@channel_url)
     end
 
     test "it passes the expected default args" do
@@ -27,13 +27,13 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollectionTest do
         {:ok, ""}
       end)
 
-      assert {:ok, _} = VideoCollection.get_media_attributes(@channel_url)
+      assert {:ok, _} = MediaCollection.get_media_attributes(@channel_url)
     end
 
     test "returns the error straight through when the command fails" do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:error, "Big issue", 1} end)
 
-      assert {:error, "Big issue", 1} = VideoCollection.get_media_attributes(@channel_url)
+      assert {:error, "Big issue", 1} = MediaCollection.get_media_attributes(@channel_url)
     end
 
     test "passes the explict tmpfile path to runner" do
@@ -44,7 +44,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollectionTest do
         {:ok, ""}
       end)
 
-      assert {:ok, _} = VideoCollection.get_media_attributes(@channel_url)
+      assert {:ok, _} = MediaCollection.get_media_attributes(@channel_url)
     end
 
     test "supports an optional file_listener_handler that gets passed a filename" do
@@ -55,7 +55,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollectionTest do
         send(current_self, {:handler, filename})
       end
 
-      assert {:ok, _} = VideoCollection.get_media_attributes(@channel_url, file_listener_handler: handler)
+      assert {:ok, _} = MediaCollection.get_media_attributes(@channel_url, file_listener_handler: handler)
 
       assert_receive {:handler, filename}
       assert String.ends_with?(filename, ".json")
@@ -73,7 +73,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollectionTest do
         })
       end)
 
-      assert {:ok, res} = VideoCollection.get_source_details(@channel_url)
+      assert {:ok, res} = MediaCollection.get_source_details(@channel_url)
 
       assert %{
                channel_id: "UCQH2",
@@ -91,19 +91,19 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollectionTest do
         {:ok, "{}"}
       end)
 
-      assert {:ok, _} = VideoCollection.get_source_details(@channel_url)
+      assert {:ok, _} = MediaCollection.get_source_details(@channel_url)
     end
 
     test "it returns an error if the runner returns an error" do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:error, "Big issue", 1} end)
 
-      assert {:error, "Big issue", 1} = VideoCollection.get_source_details(@channel_url)
+      assert {:error, "Big issue", 1} = MediaCollection.get_source_details(@channel_url)
     end
 
     test "it returns an error if the output is not JSON" do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, "Not JSON"} end)
 
-      assert {:error, %Jason.DecodeError{}} = VideoCollection.get_source_details(@channel_url)
+      assert {:error, %Jason.DecodeError{}} = MediaCollection.get_source_details(@channel_url)
     end
   end
 end

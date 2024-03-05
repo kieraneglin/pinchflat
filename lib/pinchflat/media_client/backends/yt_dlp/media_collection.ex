@@ -1,7 +1,7 @@
-defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollection do
+defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaCollection do
   @moduledoc """
   Contains utilities for working with collections of
-  videos (aka: a source [ie: channels, playlists]).
+  media (aka: a source [ie: channels, playlists]).
   """
 
   require Logger
@@ -10,7 +10,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.VideoCollection do
   alias Pinchflat.Utils.FilesystemUtils
 
   @doc """
-  Returns a list of maps representing the videos in the collection.
+  Returns a list of maps representing the media in the collection.
 
   Options:
     - :file_listener_handler - a function that will be called with the path to the

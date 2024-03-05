@@ -7,7 +7,7 @@ defmodule Pinchflat.MediaClient.SourceDetails do
   """
 
   alias Pinchflat.Sources.Source
-  alias Pinchflat.MediaClient.Backends.YtDlp.VideoCollection, as: YtDlpSource
+  alias Pinchflat.MediaClient.Backends.YtDlp.MediaCollection, as: YtDlpSource
 
   @doc """
   Gets a source's ID and name from its URL using the given backend.
@@ -19,7 +19,7 @@ defmodule Pinchflat.MediaClient.SourceDetails do
   end
 
   @doc """
-  Returns a list of basic video data mapsfor the given source URL OR
+  Returns a list of basic media data maps for the given source URL OR
   source record using the given backend.
 
   Options:

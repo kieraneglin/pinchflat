@@ -10,7 +10,7 @@ defmodule Pinchflat.SourcesTest do
   alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Sources.Source
   alias Pinchflat.Workers.MediaIndexingWorker
-  alias Pinchflat.Workers.VideoDownloadWorker
+  alias Pinchflat.Workers.MediaDownloadWorker
 
   @invalid_source_attrs %{name: nil, collection_id: nil}
 
@@ -269,9 +269,9 @@ defmodule Pinchflat.SourcesTest do
       media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
       update_attrs = %{download_media: true}
 
-      refute_enqueued(worker: VideoDownloadWorker)
+      refute_enqueued(worker: MediaDownloadWorker)
       assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
-      assert_enqueued(worker: VideoDownloadWorker, args: %{"id" => media_item.id})
+      assert_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
     end
 
     test "disabling the download_media attribute will cancel the download task" do
@@ -280,9 +280,9 @@ defmodule Pinchflat.SourcesTest do
       update_attrs = %{download_media: false}
       SourceTasks.enqueue_pending_media_tasks(source)
 
-      assert_enqueued(worker: VideoDownloadWorker, args: %{"id" => media_item.id})
+      assert_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
       assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
-      refute_enqueued(worker: VideoDownloadWorker)
+      refute_enqueued(worker: MediaDownloadWorker)
     end
 
     test "updates with invalid data returns error changeset" do
