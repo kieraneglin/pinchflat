@@ -17,10 +17,10 @@ config :pinchflat,
   # The user may or may not store metadata for their needs, but the app will always store its copy
   metadata_directory: "/config/metadata",
   tmpfile_directory: Path.join([System.tmp_dir!(), "pinchflat", "data"]),
-  # Setting AUTH_USERNAME and AUTH_PASSWORD implies you want to use basic auth.
+  # Setting BASIC_AUTH_USERNAME and BASIC_AUTH_PASSWORD implies you want to use basic auth.
   # If either is unset, basic auth will not be used.
-  basic_auth_username: System.get_env("AUTH_USERNAME"),
-  basic_auth_password: System.get_env("AUTH_PASSWORD"),
+  basic_auth_username: System.get_env("BASIC_AUTH_USERNAME"),
+  basic_auth_password: System.get_env("BASIC_AUTH_PASSWORD"),
   file_watcher_poll_interval: 1000
 
 # Configures the endpoint

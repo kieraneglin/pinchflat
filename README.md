@@ -28,7 +28,7 @@ docker run \
 
 ## Authentication
 
-Currently HTTP basic auth is optionally supported. To use it, set the `AUTH_USERNAME` and `AUTH_PASSWORD` environment variables when starting the container. If you don't set both of these, no authentication will be required.
+Currently HTTP basic auth is optionally supported. To use it, set the `BASIC_AUTH_USERNAME` and `BASIC_AUTH_PASSWORD` environment variables when starting the container. If you don't set both of these, no authentication will be required.
 
 ## License
 
