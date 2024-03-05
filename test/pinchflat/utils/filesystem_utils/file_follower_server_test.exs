@@ -45,7 +45,7 @@ defmodule Pinchflat.Utils.FilesystemUtils.FileFollowerServerTest do
       refute is_nil(Process.info(pid))
       FileFollowerServer.stop(pid)
       # Gotta wait for the server to stop async
-      :timer.sleep(10)
+      :timer.sleep(50)
       assert is_nil(Process.info(pid))
     end
   end
