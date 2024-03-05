@@ -5,7 +5,8 @@ config :pinchflat,
   yt_dlp_executable: Path.join([File.cwd!(), "/test/support/scripts/yt-dlp-mocks/repeater.sh"]),
   media_directory: Path.join([System.tmp_dir!(), "test", "videos"]),
   metadata_directory: Path.join([System.tmp_dir!(), "test", "metadata"]),
-  tmpfile_directory: Path.join([System.tmp_dir!(), "test", "tmpfiles"])
+  tmpfile_directory: Path.join([System.tmp_dir!(), "test", "tmpfiles"]),
+  file_watcher_poll_interval: 50
 
 config :pinchflat, Oban, testing: :manual
 

@@ -6,6 +6,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.CommandRunner do
   require Logger
 
   alias Pinchflat.Utils.StringUtils
+  alias Pinchflat.Utils.FilesystemUtils, as: FSUtils
   alias Pinchflat.MediaClient.Backends.BackendCommandRunner
 
   @behaviour BackendCommandRunner
@@ -15,19 +16,20 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.CommandRunner do
   a file and then returns its contents because yt-dlp will return warnings
   to stdout even if the command is successful, but these will break JSON parsing.
 
-  Returns {:ok, binary()} | {:error, output, status}.
+  Additional Opts:
+    - :output_filepath - the path to save the output to. If not provided, a temporary
+      file will be created and used. Useful for if you need a reference to the file
+      for a file watcher.
 
-  IDEA: Indexing takes a long time, but the output is actually streamed to stdout.
-  Maybe we could listen to that stream instead so we can index videos as they're discovered.
-  See: https://stackoverflow.com/a/49061086/5665799
+  Returns {:ok, binary()} | {:error, output, status}.
   """
   @impl BackendCommandRunner
-  def run(url, command_opts, output_template) do
+  def run(url, command_opts, output_template, addl_opts \\ []) do
     command = backend_executable()
     # These must stay in exactly this order, hence why I'm giving it its own variable.
     # Also, can't use RAM file since yt-dlp needs a concrete filepath.
-    json_output_path = generate_json_output_path()
-    print_to_file_opts = [{:print_to_file, output_template}, json_output_path]
+    output_filepath = Keyword.get(addl_opts, :output_filepath, FSUtils.generate_metadata_tmpfile(:json))
+    print_to_file_opts = [{:print_to_file, output_template}, output_filepath]
     formatted_command_opts = [url] ++ parse_options(command_opts ++ print_to_file_opts)
 
     Logger.info("[yt-dlp] called with: #{Enum.join(formatted_command_opts, " ")}")
@@ -36,22 +38,11 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.CommandRunner do
       {_, 0} ->
         # IDEA: consider deleting the file after reading it
         # (even on error? especially on error?)
-        File.read(json_output_path)
+        File.read(output_filepath)
 
       {output, status} ->
         {:error, output, status}
     end
-  end
-
-  defp generate_json_output_path do
-    tmpfile_directory = Application.get_env(:pinchflat, :tmpfile_directory)
-    filepath = Path.join([tmpfile_directory, "#{StringUtils.random_string(64)}.json"])
-
-    # Ensure the file can be created and written to BEFORE we run the `yt-dlp` command
-    :ok = File.mkdir_p!(Path.dirname(filepath))
-    :ok = File.write(filepath, "")
-
-    filepath
   end
 
   # We want to satisfy the following behaviours:

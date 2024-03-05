@@ -1,7 +1,9 @@
 defmodule Pinchflat.Tasks.MediaItemTasks do
   @moduledoc """
-  This module contains methods used by or used to control tasks (aka workers)
-  related to media items.
+  Contains methods used by OR used to create/manage tasks for media items.
+
+  Tasks/workers are meant to be thin wrappers so most of the actual work they
+  do is also defined here. Essentially, a one-stop-shop for media-related tasks/workers.
   """
   alias Pinchflat.Media
 
