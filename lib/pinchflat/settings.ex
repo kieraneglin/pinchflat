@@ -19,7 +19,8 @@ defmodule Pinchflat.Settings do
 
   @doc """
   Creates or updates a setting, returning the parsed value.
-  Raises if an unsupported datatype is used.
+  Raises if an unsupported datatype is used. Optionally allows
+  specifying the datatype.
 
   Returns value in type of `Ecto.Enum.mappings(Setting, :datatype)`
   """
@@ -44,6 +45,24 @@ defmodule Pinchflat.Settings do
     Setting
     |> Repo.get_by!(name: to_string(name))
     |> read_setting()
+  end
+
+  @doc """
+  Attempts to find a setting by name or creates a setting with value
+  if one doesn't exist, returning the parsed value. Optionally allows
+  specifying the datatype.
+
+  Returns value in type of `Ecto.Enum.mappings(Setting, :datatype)`
+  """
+  def fetch!(name, value) do
+    fetch!(name, value, infer_datatype(value))
+  end
+
+  def fetch!(name, value, datatype) do
+    case Repo.get_by(Setting, name: to_string(name)) do
+      nil -> create_setting!(name, value, datatype)
+      setting -> read_setting(setting)
+    end
   end
 
   defp change_setting(setting, attrs) do

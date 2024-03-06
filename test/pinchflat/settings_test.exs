@@ -4,25 +4,32 @@ defmodule Pinchflat.SettingsTest do
   alias Pinchflat.Settings
   alias Pinchflat.Settings.Setting
 
+  # NOTE: We're treating some of these tests differently
+  # than in other modules because certain settings
+  # are always created on app boot (including in the test env),
+  # so we can't treat these like a clean slate.
+
   describe "list_settings/0" do
     test "returns all settings" do
       Settings.set!("foo", "bar")
-      assert [_] = Settings.list_settings()
+      results = Settings.list_settings()
+
+      assert Enum.all?(results, fn setting -> match?(%Setting{}, setting) end)
     end
   end
 
   describe "set/2" do
     test "creates a new setting if one does not exist" do
-      assert Repo.aggregate(Setting, :count, :id) == 0
+      original = Repo.aggregate(Setting, :count, :id)
       Settings.set!("foo", "bar")
-      assert Repo.aggregate(Setting, :count, :id) == 1
+      assert Repo.aggregate(Setting, :count, :id) == original + 1
     end
 
     test "updates an existing setting if one exists" do
       Settings.set!("foo", "bar")
-      assert Repo.aggregate(Setting, :count, :id) == 1
+      original = Repo.aggregate(Setting, :count, :id)
       Settings.set!("foo", "baz")
-      assert Repo.aggregate(Setting, :count, :id) == 1
+      assert Repo.aggregate(Setting, :count, :id) == original
       assert Settings.get!("foo") == "baz"
     end
 
@@ -76,6 +83,26 @@ defmodule Pinchflat.SettingsTest do
       assert_raise Ecto.NoResultsError, fn ->
         Settings.get!("foo")
       end
+    end
+  end
+
+  describe "fetch/2" do
+    test "creates a setting if one doesn't exist" do
+      original = Repo.aggregate(Setting, :count, :id)
+      assert Settings.fetch!("foo", "bar") == "bar"
+      assert Repo.aggregate(Setting, :count, :id) == original + 1
+    end
+
+    test "returns an existing setting if one does exist" do
+      Settings.set!("foo", "bar")
+
+      assert Settings.fetch!("foo", "baz") == "bar"
+    end
+  end
+
+  describe "fetch/3" do
+    test "allows manual specification of datatype" do
+      assert Settings.fetch!("foo", "true", :boolean) == true
     end
   end
 end
