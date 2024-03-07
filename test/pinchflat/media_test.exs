@@ -267,6 +267,13 @@ defmodule Pinchflat.MediaTest do
       assert String.contains?(res.matching_search_term, "The [PF_HIGHLIGHT]quick[/PF_HIGHLIGHT] brown fox")
     end
 
+    test "doesn't set matching_search_term to nil if one of the attributes we search on is null" do
+      media_item_fixture(%{title: "foobar baz", description: nil})
+
+      assert [%{matching_search_term: matching_search_term}] = Media.search("baz")
+      refute is_nil(matching_search_term)
+    end
+
     test "optionally lets you specify a limit" do
       media_item_fixture(%{title: "The small gray dog"})
 
