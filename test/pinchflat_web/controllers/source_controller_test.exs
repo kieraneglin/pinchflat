@@ -7,9 +7,11 @@ defmodule PinchflatWeb.SourceControllerTest do
   import Pinchflat.ProfilesFixtures
 
   alias Pinchflat.Repo
+  alias Pinchflat.Settings
 
   setup do
     media_profile = media_profile_fixture()
+    Settings.set!(:onboarding, false)
 
     {
       :ok,
@@ -42,13 +44,11 @@ defmodule PinchflatWeb.SourceControllerTest do
       assert html_response(conn, 200) =~ "New Source"
     end
 
-    test "renders correct layout when onboarding", %{session_conn: session_conn} do
-      session_conn =
-        session_conn
-        |> put_session(:onboarding, true)
-        |> get(~p"/sources/new")
+    test "renders correct layout when onboarding", %{conn: conn} do
+      Settings.set!(:onboarding, true)
+      conn = get(conn, ~p"/sources/new")
 
-      refute html_response(session_conn, 200) =~ "MENU"
+      refute html_response(conn, 200) =~ "MENU"
     end
   end
 
@@ -69,24 +69,20 @@ defmodule PinchflatWeb.SourceControllerTest do
       assert html_response(conn, 200) =~ "New Source"
     end
 
-    test "redirects to onboarding when onboarding", %{session_conn: session_conn, create_attrs: create_attrs} do
+    test "redirects to onboarding when onboarding", %{conn: conn, create_attrs: create_attrs} do
       expect(YtDlpRunnerMock, :run, 1, &runner_function_mock/3)
 
-      session_conn =
-        session_conn
-        |> put_session(:onboarding, true)
-        |> post(~p"/sources", source: create_attrs)
+      Settings.set!(:onboarding, true)
+      conn = post(conn, ~p"/sources", source: create_attrs)
 
-      assert redirected_to(session_conn) == ~p"/?onboarding=1"
+      assert redirected_to(conn) == ~p"/?onboarding=1"
     end
 
-    test "renders correct layout on error when onboarding", %{session_conn: session_conn, invalid_attrs: invalid_attrs} do
-      session_conn =
-        session_conn
-        |> put_session(:onboarding, true)
-        |> post(~p"/sources", source: invalid_attrs)
+    test "renders correct layout on error when onboarding", %{conn: conn, invalid_attrs: invalid_attrs} do
+      Settings.set!(:onboarding, true)
+      conn = post(conn, ~p"/sources", source: invalid_attrs)
 
-      refute html_response(session_conn, 200) =~ "MENU"
+      refute html_response(conn, 200) =~ "MENU"
     end
   end
 

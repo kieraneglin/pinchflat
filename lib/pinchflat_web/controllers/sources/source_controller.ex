@@ -16,37 +16,29 @@ defmodule PinchflatWeb.Sources.SourceController do
   def new(conn, _params) do
     changeset = Sources.change_source(%Source{})
 
-    if get_session(conn, :onboarding) do
-      render(conn, :new,
-        changeset: changeset,
-        media_profiles: media_profiles(),
-        layout: {Layouts, :onboarding}
-      )
-    else
-      render(conn, :new, changeset: changeset, media_profiles: media_profiles())
-    end
+    render(conn, :new,
+      changeset: changeset,
+      media_profiles: media_profiles(),
+      layout: get_onboarding_layout()
+    )
   end
 
   def create(conn, %{"source" => source_params}) do
     case Sources.create_source(source_params) do
       {:ok, source} ->
         redirect_location =
-          if get_session(conn, :onboarding), do: ~p"/?onboarding=1", else: ~p"/sources/#{source}"
+          if Settings.get!(:onboarding), do: ~p"/?onboarding=1", else: ~p"/sources/#{source}"
 
         conn
         |> put_flash(:info, "Source created successfully.")
         |> redirect(to: redirect_location)
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        if get_session(conn, :onboarding) do
-          render(conn, :new,
-            changeset: changeset,
-            media_profiles: media_profiles(),
-            layout: {Layouts, :onboarding}
-          )
-        else
-          render(conn, :new, changeset: changeset, media_profiles: media_profiles())
-        end
+        render(conn, :new,
+          changeset: changeset,
+          media_profiles: media_profiles(),
+          layout: get_onboarding_layout()
+        )
     end
   end
 
@@ -106,5 +98,13 @@ defmodule PinchflatWeb.Sources.SourceController do
 
   defp media_profiles do
     Profiles.list_media_profiles()
+  end
+
+  defp get_onboarding_layout do
+    if Settings.get!(:onboarding) do
+      {Layouts, :onboarding}
+    else
+      {Layouts, :app}
+    end
   end
 end
