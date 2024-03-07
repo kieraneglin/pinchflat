@@ -37,6 +37,17 @@ if config_env() == :prod do
   log_path = System.get_env("LOG_PATH", Path.join([config_path, "logs", "pinchflat.log"]))
   metadata_path = System.get_env("METADATA_PATH", Path.join([config_path, "metadata"]))
 
+  # We want to force _some_ level of useful logging in production
+  acceptable_log_levels = ~w(debug info)
+  log_level = String.to_existing_atom(System.get_env("LOG_LEVEL", "info"))
+
+  if log_level in acceptable_log_levels do
+    config :logger, level: log_level
+  else
+    Logger.error("Invalid log level: #{log_level}. Defaulting to info.")
+    config :logger, level: :info
+  end
+
   config :pinchflat,
     yt_dlp_executable: System.find_executable("yt-dlp"),
     metadata_directory: metadata_path,
