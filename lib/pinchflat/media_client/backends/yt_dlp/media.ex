@@ -20,6 +20,24 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.Media do
     end
   end
 
+  # TODO: test
+  def get_media_attributes(url) do
+    runner = Application.get_env(:pinchflat, :yt_dlp_runner)
+    command_opts = [:simulate, :skip_download]
+    output_template = indexing_output_template()
+
+    case runner.run(url, command_opts, output_template) do
+      {:ok, output} -> Phoenix.json_library().decode!(output)
+      res -> res
+    end
+  end
+
+  # TODO: test
+  # TODO: test that media_collection consumes this maybe?
+  def indexing_output_template do
+    "%(.{id,title,was_live,original_url,description})j"
+  end
+
   defp backend_runner do
     Application.get_env(:pinchflat, :yt_dlp_runner)
   end

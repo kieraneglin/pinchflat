@@ -55,6 +55,11 @@ defmodule Pinchflat.MediaClient.MediaDownloader do
     end
   end
 
+  # def download_for_source(source, url, backend \\ :yt_dlp) do
+  #   # Create MI from source and URL
+  #   media_item = nil
+  # end
+
   defp download_with_options(url, item_with_preloads, backend) do
     option_builder = option_builder(backend)
     media_backend = media_backend(backend)

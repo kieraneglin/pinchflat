@@ -23,11 +23,15 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MetadataParser do
     |> Map.merge(parse_infojson_metadata(metadata))
   end
 
+  # TODO: test new
   defp parse_media_metadata(metadata) do
     %{
+      media_id: metadata["id"],
       title: metadata["title"],
+      original_url: metadata["original_url"],
       description: metadata["description"],
-      media_filepath: metadata["filepath"]
+      media_filepath: metadata["filepath"],
+      livestream: metadata["was_live"]
     }
   end
 

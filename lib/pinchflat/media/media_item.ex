@@ -12,14 +12,14 @@ defmodule Pinchflat.Media.MediaItem do
   alias Pinchflat.Media.MediaItemSearchIndex
 
   @allowed_fields [
-    # these fields are captured on indexing
+    # these fields are captured on indexing (and again on download)
     :title,
     :media_id,
     :description,
     :original_url,
     :livestream,
     :source_id,
-    # these fields are captured on download
+    # these fields are captured only on download
     :media_downloaded_at,
     :media_filepath,
     :media_size_bytes,

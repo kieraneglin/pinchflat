@@ -14,7 +14,7 @@ alias Pinchflat.Sources
 alias Pinchflat.Settings
 
 alias Pinchflat.MediaClient.{SourceDetails, MediaDownloader}
-alias Pinchflat.Metadata.{Zipper, ThumbnailFetcher}
+alias Pinchflat.MediaClient.Backends.YtDlp.MetadataFileHelpers
 
 alias Pinchflat.Utils.FilesystemUtils.FileFollowerServer
 
@@ -48,7 +48,7 @@ defmodule IexHelpers do
         :channel -> channel_url()
       end
 
-    SourceDetails.get_media_attributes(source)
+    SourceDetails.get_media_attributes_for_collection(source)
   end
 end
 

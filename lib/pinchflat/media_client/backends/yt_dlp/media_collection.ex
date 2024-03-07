@@ -8,6 +8,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaCollection do
 
   alias Pinchflat.Utils.FunctionUtils
   alias Pinchflat.Utils.FilesystemUtils
+  alias Pinchflat.MediaClient.Backends.YtDlp.Media, as: YtDlpMedia
 
   @doc """
   Returns a list of maps representing the media in the collection.
@@ -19,10 +20,10 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaCollection do
 
   Returns {:ok, [map()]} | {:error, any, ...}.
   """
-  def get_media_attributes(url, addl_opts \\ []) do
+  def get_media_attributes_for_collection(url, addl_opts \\ []) do
     runner = Application.get_env(:pinchflat, :yt_dlp_runner)
     command_opts = [:simulate, :skip_download]
-    output_template = "%(.{id,title,was_live,original_url,description})j"
+    output_template = YtDlpMedia.indexing_output_template()
     output_filepath = FilesystemUtils.generate_metadata_tmpfile(:json)
     file_listener_handler = Keyword.get(addl_opts, :file_listener_handler, false)
 

@@ -43,7 +43,7 @@ defmodule Pinchflat.MediaClient.SourceDetailsTest do
     end
   end
 
-  describe "get_media_attributes/2 when passed a string" do
+  describe "get_media_attributes_for_collection/2 when passed a string" do
     test "it passes the expected arguments to the backend" do
       expect(YtDlpRunnerMock, :run, fn @channel_url, opts, ot, _addl_opts ->
         assert opts == [:simulate, :skip_download]
@@ -52,7 +52,7 @@ defmodule Pinchflat.MediaClient.SourceDetailsTest do
         {:ok, ""}
       end)
 
-      assert {:ok, _} = SourceDetails.get_media_attributes(@channel_url)
+      assert {:ok, _} = SourceDetails.get_media_attributes_for_collection(@channel_url)
     end
 
     test "it returns a list of maps" do
@@ -60,11 +60,11 @@ defmodule Pinchflat.MediaClient.SourceDetailsTest do
         {:ok, source_attributes_return_fixture()}
       end)
 
-      assert {:ok, [%{}, %{}, %{}]} = SourceDetails.get_media_attributes(@channel_url)
+      assert {:ok, [%{}, %{}, %{}]} = SourceDetails.get_media_attributes_for_collection(@channel_url)
     end
   end
 
-  describe "get_media_attributes/2 when passed a Source record" do
+  describe "get_media_attributes_for_collection/2 when passed a Source record" do
     test "it calls the backend with the source's collection ID" do
       source = source_fixture()
 
@@ -73,7 +73,7 @@ defmodule Pinchflat.MediaClient.SourceDetailsTest do
         {:ok, source_attributes_return_fixture()}
       end)
 
-      assert {:ok, _} = SourceDetails.get_media_attributes(source)
+      assert {:ok, _} = SourceDetails.get_media_attributes_for_collection(source)
     end
 
     test "it builds options based on the source's media profile" do
@@ -89,7 +89,7 @@ defmodule Pinchflat.MediaClient.SourceDetailsTest do
         )
 
       source = source_fixture(media_profile_id: media_profile.id)
-      assert {:ok, _} = SourceDetails.get_media_attributes(source)
+      assert {:ok, _} = SourceDetails.get_media_attributes_for_collection(source)
     end
 
     test "lets you pass through an optional file_listener_handler" do
@@ -104,7 +104,7 @@ defmodule Pinchflat.MediaClient.SourceDetailsTest do
         send(current_self, {:handler, filename})
       end
 
-      assert {:ok, _} = SourceDetails.get_media_attributes(source, file_listener_handler: handler)
+      assert {:ok, _} = SourceDetails.get_media_attributes_for_collection(source, file_listener_handler: handler)
 
       assert_receive {:handler, _}
     end

@@ -9,14 +9,14 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaCollectionTest do
 
   setup :verify_on_exit!
 
-  describe "get_media_attributes/2" do
+  describe "get_media_attributes_for_collection/2" do
     test "returns a list of video attributes with no blank elements" do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts ->
         {:ok, source_attributes_return_fixture() <> "\n\n"}
       end)
 
       assert {:ok, [%{"id" => "video1"}, %{"id" => "video2"}, %{"id" => "video3"}]} =
-               MediaCollection.get_media_attributes(@channel_url)
+               MediaCollection.get_media_attributes_for_collection(@channel_url)
     end
 
     test "it passes the expected default args" do
@@ -27,13 +27,13 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaCollectionTest do
         {:ok, ""}
       end)
 
-      assert {:ok, _} = MediaCollection.get_media_attributes(@channel_url)
+      assert {:ok, _} = MediaCollection.get_media_attributes_for_collection(@channel_url)
     end
 
     test "returns the error straight through when the command fails" do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:error, "Big issue", 1} end)
 
-      assert {:error, "Big issue", 1} = MediaCollection.get_media_attributes(@channel_url)
+      assert {:error, "Big issue", 1} = MediaCollection.get_media_attributes_for_collection(@channel_url)
     end
 
     test "passes the explict tmpfile path to runner" do
@@ -44,7 +44,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaCollectionTest do
         {:ok, ""}
       end)
 
-      assert {:ok, _} = MediaCollection.get_media_attributes(@channel_url)
+      assert {:ok, _} = MediaCollection.get_media_attributes_for_collection(@channel_url)
     end
 
     test "supports an optional file_listener_handler that gets passed a filename" do
@@ -55,7 +55,8 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaCollectionTest do
         send(current_self, {:handler, filename})
       end
 
-      assert {:ok, _} = MediaCollection.get_media_attributes(@channel_url, file_listener_handler: handler)
+      assert {:ok, _} =
+               MediaCollection.get_media_attributes_for_collection(@channel_url, file_listener_handler: handler)
 
       assert_receive {:handler, filename}
       assert String.ends_with?(filename, ".json")

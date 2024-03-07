@@ -29,14 +29,14 @@ defmodule Pinchflat.MediaClient.SourceDetails do
 
   Returns {:ok, [map()]} | {:error, any, ...}.
   """
-  def get_media_attributes(sourceable, opts \\ [], backend \\ :yt_dlp)
+  def get_media_attributes_for_collection(sourceable, opts \\ [], backend \\ :yt_dlp)
 
-  def get_media_attributes(%Source{} = source, opts, backend) do
-    get_media_attributes(source.collection_id, opts, backend)
+  def get_media_attributes_for_collection(%Source{} = source, opts, backend) do
+    get_media_attributes_for_collection(source.collection_id, opts, backend)
   end
 
-  def get_media_attributes(source_url, opts, backend) when is_binary(source_url) do
-    source_module(backend).get_media_attributes(source_url, opts)
+  def get_media_attributes_for_collection(source_url, opts, backend) when is_binary(source_url) do
+    source_module(backend).get_media_attributes_for_collection(source_url, opts)
   end
 
   defp source_module(backend) do

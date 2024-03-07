@@ -65,7 +65,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
   def index_and_enqueue_download_for_media_items(%Source{} = source) do
     # See the method definition below for more info on how file watchers work
     # (important reading if you're not familiar with it)
-    {:ok, media_attributes} = get_media_attributes_and_setup_file_watcher(source)
+    {:ok, media_attributes} = get_media_attributes_for_collection_and_setup_file_watcher(source)
 
     result = Enum.map(media_attributes, fn media_attrs -> create_media_item_from_attributes(source, media_attrs) end)
     Sources.update_source(source, %{last_indexed_at: DateTime.utc_now()})
@@ -116,7 +116,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
   # lines (ie: you should gracefully fail if you can't parse a line).
   #
   # This works in-tandem with the normal (blocking) media indexing behaviour. When
-  # the `get_media_attributes` method completes it'll return the FULL result to
+  # the `get_media_attributes_for_collection` method completes it'll return the FULL result to
   # the caller for parsing. Ideally, every item in the list will have already
   # been processed by the file follower, but if not, the caller handles creation
   # of any media items that were missed/initially failed.
@@ -124,11 +124,11 @@ defmodule Pinchflat.Tasks.SourceTasks do
   # It attempts a graceful shutdown of the file follower after the indexing is done,
   # but the FileFollowerServer will also stop itself if it doesn't see any activity
   # for a sufficiently long time.
-  defp get_media_attributes_and_setup_file_watcher(source) do
+  defp get_media_attributes_for_collection_and_setup_file_watcher(source) do
     {:ok, pid} = FileFollowerServer.start_link()
 
     handler = fn filepath -> setup_file_follower_watcher(pid, filepath, source) end
-    result = SourceDetails.get_media_attributes(source.original_url, file_listener_handler: handler)
+    result = SourceDetails.get_media_attributes_for_collection(source.original_url, file_listener_handler: handler)
 
     FileFollowerServer.stop(pid)
 
