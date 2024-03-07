@@ -105,9 +105,9 @@ defmodule Pinchflat.Media do
       select_merge: %{
         matching_search_term:
           fragment("""
-            snippet(media_items_search_index, 0, '[PF_HIGHLIGHT]', '[/PF_HIGHLIGHT]', '...', 20) ||
+            coalesce(snippet(media_items_search_index, 0, '[PF_HIGHLIGHT]', '[/PF_HIGHLIGHT]', '...', 20), '') ||
             ' ' ||
-            snippet(media_items_search_index, 1, '[PF_HIGHLIGHT]', '[/PF_HIGHLIGHT]', '...', 20)
+            coalesce(snippet(media_items_search_index, 1, '[PF_HIGHLIGHT]', '[/PF_HIGHLIGHT]', '...', 20), '')
           """)
       },
       order_by: [desc: fragment("rank")],
