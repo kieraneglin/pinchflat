@@ -1,4 +1,4 @@
-defmodule Pinchflat.MediaClient.Backends.YtDlp.MetadataParser do
+defmodule Pinchflat.Metadata.MetadataParser do
   @moduledoc """
   yt-dlp offers a LOT of metadata in its JSON response, some of which
   needs to be extracted and included in various models.

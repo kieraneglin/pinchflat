@@ -1,4 +1,4 @@
-defmodule Pinchflat.MediaClient.Backends.YtDlp.CommandRunner do
+defmodule Pinchflat.YtDlp.Backend.CommandRunner do
   @moduledoc """
   Runs yt-dlp commands using the `System.cmd/3` function
   """
@@ -7,7 +7,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.CommandRunner do
 
   alias Pinchflat.Utils.StringUtils
   alias Pinchflat.Utils.FilesystemUtils, as: FSUtils
-  alias Pinchflat.MediaClient.Backends.BackendCommandRunner
+  alias Pinchflat.YtDlp.Backend.BackendCommandRunner
 
   @behaviour BackendCommandRunner
 
@@ -25,6 +25,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.CommandRunner do
   """
   @impl BackendCommandRunner
   def run(url, command_opts, output_template, addl_opts \\ []) do
+    # This approach lets us mock the command for testing
     command = backend_executable()
     # These must stay in exactly this order, hence why I'm giving it its own variable.
     # Also, can't use RAM file since yt-dlp needs a concrete filepath.

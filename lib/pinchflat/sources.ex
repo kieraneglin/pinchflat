@@ -11,7 +11,7 @@ defmodule Pinchflat.Sources do
   alias Pinchflat.Sources.Source
   alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Profiles.MediaProfile
-  alias Pinchflat.MediaClient.SourceDetails
+  alias Pinchflat.YtDlp.Backend.MediaCollection
 
   @doc """
   Returns the list of sources. Returns [%Source{}, ...]
@@ -116,7 +116,7 @@ defmodule Pinchflat.Sources do
   defp add_source_details_to_changeset(source, changeset) do
     %Ecto.Changeset{changes: changes} = changeset
 
-    case SourceDetails.get_source_details(changes.original_url) do
+    case MediaCollection.get_source_details(changes.original_url) do
       {:ok, source_details} ->
         add_source_details_by_collection_type(source, changeset, source_details)
 

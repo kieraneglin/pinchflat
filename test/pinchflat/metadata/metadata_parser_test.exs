@@ -1,7 +1,7 @@
-defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaParserTest do
+defmodule Pinchflat.YtDlp.Backend.MediaParserTest do
   use Pinchflat.DataCase
 
-  alias Pinchflat.MediaClient.Backends.YtDlp.MetadataParser, as: Parser
+  alias Pinchflat.Metadata.MetadataParser, as: Parser
 
   setup do
     json_filepath =

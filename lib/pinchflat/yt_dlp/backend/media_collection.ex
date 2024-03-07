@@ -1,4 +1,4 @@
-defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaCollection do
+defmodule Pinchflat.YtDlp.Backend.MediaCollection do
   @moduledoc """
   Contains utilities for working with collections of
   media (aka: a source [ie: channels, playlists]).
@@ -8,7 +8,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaCollection do
 
   alias Pinchflat.Utils.FunctionUtils
   alias Pinchflat.Utils.FilesystemUtils
-  alias Pinchflat.MediaClient.Backends.YtDlp.Media, as: YtDlpMedia
+  alias Pinchflat.YtDlp.Backend.Media, as: YtDlpMedia
 
   @doc """
   Returns a list of maps representing the media in the collection.
@@ -74,6 +74,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaCollection do
   end
 
   defp backend_runner do
+    # This approach lets us mock the command for testing
     Application.get_env(:pinchflat, :yt_dlp_runner)
   end
 end

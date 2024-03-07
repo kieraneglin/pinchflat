@@ -1,4 +1,4 @@
-defmodule Pinchflat.MediaClient.Backends.YtDlp.MetadataFileHelpers do
+defmodule Pinchflat.Metadata.MetadataFileHelpers do
   @moduledoc """
   Provides methods for creating/downloading/storing related metadata
   out-of-band of the normal yt-dlp backend process.

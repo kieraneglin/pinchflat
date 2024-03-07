@@ -1,12 +1,10 @@
-defmodule Pinchflat.Profiles.Options.YtDlp.DownloadOptionBuilder do
+defmodule Pinchflat.YtDlp.DownloadOptionBuilder do
   @moduledoc """
   Builds the options for yt-dlp to download media based on the given media profile.
-
-  IDEA: consider making this a behaviour so I can add other backends later
   """
 
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.Profiles.Options.YtDlp.OutputPathBuilder
+  alias Pinchflat.Profiles.OutputPathBuilder
 
   @doc """
   Builds the options for yt-dlp to download media based on the given media's profile.

@@ -1,9 +1,9 @@
-defmodule Pinchflat.MediaClient.Backends.YtDlp.MetadataFileHelpersTest do
+defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
   use Pinchflat.DataCase
   import Mox
   import Pinchflat.MediaFixtures
 
-  alias Pinchflat.MediaClient.Backends.YtDlp.MetadataFileHelpers, as: Helpers
+  alias Pinchflat.Metadata.MetadataFileHelpers, as: Helpers
 
   setup do
     media_item = media_item_fixture()

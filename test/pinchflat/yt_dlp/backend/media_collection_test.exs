@@ -1,9 +1,9 @@
-defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaCollectionTest do
+defmodule Pinchflat.YtDlp.Backend.MediaCollectionTest do
   use Pinchflat.DataCase
   import Mox
   import Pinchflat.SourcesFixtures
 
-  alias Pinchflat.MediaClient.Backends.YtDlp.MediaCollection
+  alias Pinchflat.YtDlp.Backend.MediaCollection
 
   @channel_url "https://www.youtube.com/c/TheUselessTrials"
 

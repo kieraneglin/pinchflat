@@ -13,9 +13,9 @@ defmodule Pinchflat.Tasks.SourceTasks do
   alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.MediaClient.SourceDetails
   alias Pinchflat.Workers.MediaIndexingWorker
   alias Pinchflat.Workers.MediaDownloadWorker
+  alias Pinchflat.YtDlp.Backend.MediaCollection
   alias Pinchflat.Utils.FilesystemUtils.FileFollowerServer
 
   @doc """
@@ -128,7 +128,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
     {:ok, pid} = FileFollowerServer.start_link()
 
     handler = fn filepath -> setup_file_follower_watcher(pid, filepath, source) end
-    result = SourceDetails.get_media_attributes_for_collection(source.original_url, file_listener_handler: handler)
+    result = MediaCollection.get_media_attributes_for_collection(source.original_url, file_listener_handler: handler)
 
     FileFollowerServer.stop(pid)
 

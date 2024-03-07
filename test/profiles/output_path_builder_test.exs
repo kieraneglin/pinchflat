@@ -1,7 +1,7 @@
-defmodule Pinchflat.MediaClient.Backends.YtDlp.OutputPathBuilderTest do
+defmodule Pinchflat.Profiles.OutputPathBuilderTest do
   use Pinchflat.DataCase
 
-  alias Pinchflat.Profiles.Options.YtDlp.OutputPathBuilder
+  alias Pinchflat.Profiles.OutputPathBuilder
 
   describe "build/2" do
     test "it expands 'standard' curly brace variables in the template" do

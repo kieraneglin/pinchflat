@@ -14,7 +14,7 @@ alias Pinchflat.Sources
 alias Pinchflat.Settings
 
 alias Pinchflat.MediaClient.{SourceDetails, MediaDownloader}
-alias Pinchflat.MediaClient.Backends.YtDlp.MetadataFileHelpers
+alias Pinchflat.Metadata.MetadataFileHelpers
 
 alias Pinchflat.Utils.FilesystemUtils.FileFollowerServer
 

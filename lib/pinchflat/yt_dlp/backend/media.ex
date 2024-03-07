@@ -1,4 +1,4 @@
-defmodule Pinchflat.MediaClient.Backends.YtDlp.Media do
+defmodule Pinchflat.YtDlp.Backend.Media do
   @moduledoc """
   Contains utilities for working with singular pieces of media
   """
@@ -39,6 +39,7 @@ defmodule Pinchflat.MediaClient.Backends.YtDlp.Media do
   end
 
   defp backend_runner do
+    # This approach lets us mock the command for testing
     Application.get_env(:pinchflat, :yt_dlp_runner)
   end
 end

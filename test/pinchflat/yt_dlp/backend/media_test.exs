@@ -1,8 +1,8 @@
-defmodule Pinchflat.MediaClient.Backends.YtDlp.MediaTest do
+defmodule Pinchflat.YtDlp.Backend.MediaTest do
   use Pinchflat.DataCase
   import Mox
 
-  alias Pinchflat.MediaClient.Backends.YtDlp.Media
+  alias Pinchflat.YtDlp.Backend.Media
 
   @media_url "https://www.youtube.com/watch?v=TiZPUDkDYbk"
 
