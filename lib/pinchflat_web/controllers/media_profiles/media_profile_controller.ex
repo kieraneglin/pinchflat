@@ -13,29 +13,21 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileController do
   def new(conn, _params) do
     changeset = Profiles.change_media_profile(%MediaProfile{})
 
-    if get_session(conn, :onboarding) do
-      render(conn, :new, changeset: changeset, layout: {Layouts, :onboarding})
-    else
-      render(conn, :new, changeset: changeset)
-    end
+    render(conn, :new, changeset: changeset, layout: get_onboarding_layout())
   end
 
   def create(conn, %{"media_profile" => media_profile_params}) do
     case Profiles.create_media_profile(media_profile_params) do
       {:ok, media_profile} ->
         redirect_location =
-          if get_session(conn, :onboarding), do: ~p"/?onboarding=1", else: ~p"/media_profiles/#{media_profile}"
+          if Settings.get!(:onboarding), do: ~p"/?onboarding=1", else: ~p"/media_profiles/#{media_profile}"
 
         conn
         |> put_flash(:info, "Media profile created successfully.")
         |> redirect(to: redirect_location)
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        if get_session(conn, :onboarding) do
-          render(conn, :new, changeset: changeset, layout: {Layouts, :onboarding})
-        else
-          render(conn, :new, changeset: changeset)
-        end
+        render(conn, :new, changeset: changeset, layout: get_onboarding_layout())
     end
   end
 
@@ -84,5 +76,13 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileController do
     conn
     |> put_flash(:info, flash_message)
     |> redirect(to: ~p"/media_profiles")
+  end
+
+  defp get_onboarding_layout do
+    if Settings.get!(:onboarding) do
+      {Layouts, :onboarding}
+    else
+      {Layouts, :app}
+    end
   end
 end

@@ -6,6 +6,7 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
   import Pinchflat.ProfilesFixtures
 
   alias Pinchflat.Repo
+  alias Pinchflat.Settings
 
   @create_attrs %{name: "some name", output_path_template: "some output_path_template"}
   @update_attrs %{
@@ -13,6 +14,12 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
     output_path_template: "some updated output_path_template"
   }
   @invalid_attrs %{name: nil, output_path_template: nil}
+
+  setup do
+    Settings.set!(:onboarding, false)
+
+    :ok
+  end
 
   describe "index" do
     test "lists all media_profiles", %{conn: conn} do
@@ -27,13 +34,11 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
       assert html_response(conn, 200) =~ "New Media Profile"
     end
 
-    test "renders correct layout when onboarding", %{session_conn: session_conn} do
-      session_conn =
-        session_conn
-        |> put_session(:onboarding, true)
-        |> get(~p"/media_profiles/new")
+    test "renders correct layout when onboarding", %{conn: conn} do
+      Settings.set!(:onboarding, true)
+      conn = get(conn, ~p"/media_profiles/new")
 
-      refute html_response(session_conn, 200) =~ "MENU"
+      refute html_response(conn, 200) =~ "MENU"
     end
   end
 
@@ -53,22 +58,18 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
       assert html_response(conn, 200) =~ "New Media Profile"
     end
 
-    test "redirects to onboarding when onboarding", %{session_conn: session_conn} do
-      session_conn =
-        session_conn
-        |> put_session(:onboarding, true)
-        |> post(~p"/media_profiles", media_profile: @create_attrs)
+    test "redirects to onboarding when onboarding", %{conn: conn} do
+      Settings.set!(:onboarding, true)
+      conn = post(conn, ~p"/media_profiles", media_profile: @create_attrs)
 
-      assert redirected_to(session_conn) == ~p"/?onboarding=1"
+      assert redirected_to(conn) == ~p"/?onboarding=1"
     end
 
-    test "renders correct layout on error when onboarding", %{session_conn: session_conn} do
-      session_conn =
-        session_conn
-        |> put_session(:onboarding, true)
-        |> post(~p"/media_profiles", media_profile: @invalid_attrs)
+    test "renders correct layout on error when onboarding", %{conn: conn} do
+      Settings.set!(:onboarding, true)
+      conn = post(conn, ~p"/media_profiles", media_profile: @invalid_attrs)
 
-      refute html_response(session_conn, 200) =~ "MENU"
+      refute html_response(conn, 200) =~ "MENU"
     end
   end
 

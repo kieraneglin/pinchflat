@@ -10,6 +10,8 @@ defmodule Pinchflat.Application do
     children = [
       PinchflatWeb.Telemetry,
       Pinchflat.Repo,
+      # {Task, &run_startup_tasks/0},
+      Pinchflat.StartupTasks,
       {Oban, Application.fetch_env!(:pinchflat, Oban)},
       {DNSCluster, query: Application.get_env(:pinchflat, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Pinchflat.PubSub},

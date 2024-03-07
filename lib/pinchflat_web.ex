@@ -45,6 +45,7 @@ defmodule PinchflatWeb do
       import Plug.Conn
       import PinchflatWeb.Gettext
 
+      alias Pinchflat.Settings
       alias PinchflatWeb.Layouts
 
       unquote(verified_routes())
@@ -56,6 +57,8 @@ defmodule PinchflatWeb do
       use Phoenix.LiveView,
         layout: {PinchflatWeb.Layouts, :app}
 
+      alias Pinchflat.Settings
+
       unquote(html_helpers())
     end
   end
@@ -63,6 +66,8 @@ defmodule PinchflatWeb do
   def live_component do
     quote do
       use Phoenix.LiveComponent
+
+      alias Pinchflat.Settings
 
       unquote(html_helpers())
     end
@@ -75,6 +80,8 @@ defmodule PinchflatWeb do
       # Import convenience functions from controllers
       import Phoenix.Controller,
         only: [get_csrf_token: 0, view_module: 1, view_template: 1]
+
+      alias Pinchflat.Settings
 
       # Include general helpers for rendering HTML
       unquote(html_helpers())
@@ -93,6 +100,7 @@ defmodule PinchflatWeb do
       import PinchflatWeb.CustomComponents.TableComponents
       import PinchflatWeb.CustomComponents.ButtonComponents
 
+      alias Pinchflat.Settings
       alias Pinchflat.Utils.StringUtils
 
       # Shortcut for generating JS commands

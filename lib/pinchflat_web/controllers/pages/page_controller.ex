@@ -20,12 +20,12 @@ defmodule PinchflatWeb.Pages.PageController do
   end
 
   defp render_home_page(conn) do
+    Settings.set!(:onboarding, false)
     media_profile_count = Repo.aggregate(MediaProfile, :count, :id)
     source_count = Repo.aggregate(Source, :count, :id)
     media_item_count = Repo.aggregate(MediaItem, :count, :id)
 
     conn
-    |> put_session(:onboarding, false)
     |> render(:home,
       media_profile_count: media_profile_count,
       source_count: source_count,
@@ -34,8 +34,9 @@ defmodule PinchflatWeb.Pages.PageController do
   end
 
   defp render_onboarding_page(conn, media_profiles_exist, sources_exist) do
+    Settings.set!(:onboarding, true)
+
     conn
-    |> put_session(:onboarding, true)
     |> render(:onboarding_checklist,
       media_profiles_exist: media_profiles_exist,
       sources_exist: sources_exist,
