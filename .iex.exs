@@ -11,6 +11,7 @@ alias Pinchflat.Tasks
 alias Pinchflat.Media
 alias Pinchflat.Profiles
 alias Pinchflat.Sources
+alias Pinchflat.Settings
 
 alias Pinchflat.MediaClient.{SourceDetails, MediaDownloader}
 alias Pinchflat.Metadata.{Zipper, ThumbnailFetcher}
