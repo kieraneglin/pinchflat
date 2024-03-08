@@ -23,6 +23,7 @@ defmodule Pinchflat.Api.YoutubeRss do
           |> Regex.scan(response)
           |> Enum.map(fn [_, id] -> String.trim(id) end)
           |> Enum.filter(&(String.length(&1) > 0))
+          |> Enum.uniq()
 
         {:ok, media_ids}
 

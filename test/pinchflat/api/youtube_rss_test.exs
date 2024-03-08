@@ -67,5 +67,13 @@ defmodule Pinchflat.Api.YoutubeRssTest do
 
       assert {:ok, ["test_1"]} = YoutubeRss.get_recent_media_ids_from_rss(source)
     end
+
+    test "removes duplicate media IDs", %{source: source} do
+      expect(HTTPClientMock, :get, fn _url ->
+        {:ok, "<yt:videoId>test_1</yt:videoId><yt:videoId>test_1</yt:videoId>"}
+      end)
+
+      assert {:ok, ["test_1"]} = YoutubeRss.get_recent_media_ids_from_rss(source)
+    end
   end
 end

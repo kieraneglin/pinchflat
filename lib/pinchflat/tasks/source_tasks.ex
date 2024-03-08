@@ -12,8 +12,10 @@ defmodule Pinchflat.Tasks.SourceTasks do
   alias Pinchflat.Tasks
   alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Api.YoutubeRss
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Workers.MediaDownloadWorker
+  alias Pinchflat.Workers.MediaIndexingWorker
   alias Pinchflat.YtDlp.Backend.MediaCollection
   alias Pinchflat.Workers.MediaCollectionIndexingWorker
   alias Pinchflat.Utils.FilesystemUtils.FileFollowerServer
@@ -36,6 +38,27 @@ defmodule Pinchflat.Tasks.SourceTasks do
       # any pending tasks. I'm being assertive about it so it's obvious if I'm wrong
       {:ok, task} -> {:ok, task}
     end
+  end
+
+  @doc """
+  Fetches new media IDs from a source's YouTube RSS feed and kicks off indexing tasks
+  for any new media items. See comments in `MediaIndexingWorker` for more info on the
+  order of operations and how this fits into the indexing process.
+
+  Returns :ok
+  """
+  def kickoff_indexing_tasks_from_youtube_rss_feed(%Source{} = source) do
+    {:ok, media_ids} = YoutubeRss.get_recent_media_ids_from_rss(source)
+    existing_media_items = Media.list_media_items_by_media_id_for(source, media_ids)
+    new_media_ids = media_ids -- Enum.map(existing_media_items, & &1.media_id)
+
+    Enum.each(new_media_ids, fn media_id ->
+      url = "https://www.youtube.com/watch?v=#{media_id}"
+
+      %{id: source.id, media_url: url}
+      |> MediaIndexingWorker.new()
+      |> Tasks.create_job_with_task(source)
+    end)
   end
 
   @doc """

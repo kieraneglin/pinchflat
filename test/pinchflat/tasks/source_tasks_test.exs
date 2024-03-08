@@ -11,8 +11,9 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
   alias Pinchflat.Tasks.Task
   alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.Workers.MediaCollectionIndexingWorker
   alias Pinchflat.Workers.MediaDownloadWorker
+  alias Pinchflat.Workers.MediaIndexingWorker
+  alias Pinchflat.Workers.MediaCollectionIndexingWorker
 
   setup :verify_on_exit!
 
@@ -41,6 +42,31 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
       assert {:ok, _} = SourceTasks.kickoff_indexing_task(source)
 
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+  end
+
+  describe "kickoff_indexing_tasks_from_youtube_rss_feed/1" do
+    setup do
+      {:ok, [source: source_fixture()]}
+    end
+
+    test "enqueues a new worker for each new media_id in the source's RSS feed", %{source: source} do
+      expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
+
+      assert :ok = SourceTasks.kickoff_indexing_tasks_from_youtube_rss_feed(source)
+
+      assert [worker] = all_enqueued(worker: MediaIndexingWorker)
+      assert worker.args["id"] == source.id
+      assert worker.args["media_url"] == "https://www.youtube.com/watch?v=test_1"
+    end
+
+    test "does not enqueue a new worker for the source's media IDs we already know about", %{source: source} do
+      expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
+      media_item_fixture(source_id: source.id, media_id: "test_1")
+
+      assert :ok = SourceTasks.kickoff_indexing_tasks_from_youtube_rss_feed(source)
+
+      refute_enqueued(worker: MediaIndexingWorker)
     end
   end
 
