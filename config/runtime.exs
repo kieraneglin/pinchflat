@@ -38,7 +38,7 @@ if config_env() == :prod do
   metadata_path = System.get_env("METADATA_PATH", Path.join([config_path, "metadata"]))
 
   # We want to force _some_ level of useful logging in production
-  acceptable_log_levels = ~w(debug info)
+  acceptable_log_levels = ~w(debug info)a
   log_level = String.to_existing_atom(System.get_env("LOG_LEVEL", "info"))
 
   if log_level in acceptable_log_levels do
