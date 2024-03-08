@@ -1,10 +1,10 @@
 alias Pinchflat.Repo
 
 alias Pinchflat.Tasks.Task
+alias Pinchflat.Sources.Source
 alias Pinchflat.Media.MediaItem
 alias Pinchflat.Tasks.SourceTasks
 alias Pinchflat.Media.MediaMetadata
-alias Pinchflat.Sources.Source
 alias Pinchflat.Profiles.MediaProfile
 
 alias Pinchflat.Tasks
@@ -13,7 +13,11 @@ alias Pinchflat.Profiles
 alias Pinchflat.Sources
 alias Pinchflat.Settings
 
-alias Pinchflat.MediaClient.{SourceDetails, MediaDownloader}
+alias Pinchflat.MediaClient.MediaDownloader
+alias Pinchflat.YtDlp.Backend.Media, as: YtDlpMedia
+alias Pinchflat.YtDlp.Backend.MediaCollection, as: YtDlpCollection
+
+alias Pinchflat.Api.YoutubeRss
 alias Pinchflat.Metadata.MetadataFileHelpers
 
 alias Pinchflat.Utils.FilesystemUtils.FileFollowerServer
@@ -38,7 +42,7 @@ defmodule IexHelpers do
         :channel -> channel_url()
       end
 
-    SourceDetails.get_source_details(source)
+    YtDlpCollection.get_source_details(source)
   end
 
   def ids(type) do
@@ -48,7 +52,7 @@ defmodule IexHelpers do
         :channel -> channel_url()
       end
 
-    SourceDetails.get_media_attributes_for_collection(source)
+    YtDlpCollection.get_media_attributes_for_collection(source)
   end
 end
 

@@ -4,5 +4,7 @@ defmodule Pinchflat.HTTP.HTTPBehaviour do
   so I can use Mox to create an HTTP mock
   """
 
+  @callback get(String.t()) :: {:ok, String.t()} | {:error, String.t()}
+  @callback get(String.t(), Keyword.t()) :: {:ok, String.t()} | {:error, String.t()}
   @callback get(String.t(), Keyword.t(), Keyword.t()) :: {:ok, String.t()} | {:error, String.t()}
 end
