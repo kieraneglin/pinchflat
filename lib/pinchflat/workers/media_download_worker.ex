@@ -45,8 +45,7 @@ defmodule Pinchflat.Workers.MediaDownloadWorker do
   end
 
   defp schedule_filesystem_data_worker(media_item) do
-    media_item
-    |> Map.take([:id])
+    %{id: media_item.id}
     |> FilesystemDataWorker.new()
     |> Tasks.create_job_with_task(media_item)
     |> case do

@@ -20,20 +20,30 @@ defmodule Pinchflat.YtDlp.Backend.Media do
     end
   end
 
-  # TODO: test
+  @doc """
+  Returns a map representing the media at the given URL.
+
+  IDEA: should I return a struct here? I want these methods to be agnostic
+  to implementation, but maybe it can specify its own contract by
+  returning a struct with well-known fields. Would make refactoring
+  turbo easy if a field needs to exist but its behavior changes slightly.
+
+  Returns {:ok, [map()]} | {:error, any, ...}.
+  """
   def get_media_attributes(url) do
     runner = Application.get_env(:pinchflat, :yt_dlp_runner)
     command_opts = [:simulate, :skip_download]
     output_template = indexing_output_template()
 
     case runner.run(url, command_opts, output_template) do
-      {:ok, output} -> Phoenix.json_library().decode!(output)
+      {:ok, output} -> Phoenix.json_library().decode(output)
       res -> res
     end
   end
 
-  # TODO: test
-  # TODO: test that media_collection consumes this maybe?
+  @doc """
+  Returns the output template for yt-dlp's indexing command.
+  """
   def indexing_output_template do
     "%(.{id,title,was_live,original_url,description})j"
   end

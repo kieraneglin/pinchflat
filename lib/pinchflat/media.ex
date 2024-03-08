@@ -156,7 +156,9 @@ defmodule Pinchflat.Media do
   end
 
   @doc """
-  Creates a media_item. Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}.
+  Creates a media_item.
+
+  Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}
   """
   def create_media_item(attrs) do
     %MediaItem{}
@@ -165,7 +167,28 @@ defmodule Pinchflat.Media do
   end
 
   @doc """
-  Updates a media_item. Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}.
+  Creates a media item from the attributes returned by the video backend
+  (read: yt-dlp)
+
+  Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}
+  """
+  def create_media_item_from_backend_attrs(source, media_attrs) do
+    attrs = %{
+      source_id: source.id,
+      title: media_attrs["title"],
+      media_id: media_attrs["id"],
+      original_url: media_attrs["original_url"],
+      livestream: media_attrs["was_live"],
+      description: media_attrs["description"]
+    }
+
+    create_media_item(attrs)
+  end
+
+  @doc """
+  Updates a media_item.
+
+  Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}
   """
   def update_media_item(%MediaItem{} = media_item, attrs) do
     media_item
@@ -177,7 +200,7 @@ defmodule Pinchflat.Media do
   Deletes a media_item and its associated tasks.
   Can optionally delete the media_item's files.
 
-  Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}.
+  Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}
   """
   def delete_media_item(%MediaItem{} = media_item, opts \\ []) do
     delete_files = Keyword.get(opts, :delete_files, false)

@@ -1,4 +1,4 @@
-defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
+defmodule Pinchflat.Workers.MediaCollectionIndexingWorkerTest do
   use Pinchflat.DataCase
 
   import Mox
@@ -6,7 +6,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
   import Pinchflat.SourcesFixtures
 
   alias Pinchflat.Tasks
-  alias Pinchflat.Workers.MediaIndexingWorker
+  alias Pinchflat.Workers.MediaCollectionIndexingWorker
   alias Pinchflat.Workers.MediaDownloadWorker
 
   setup :verify_on_exit!
@@ -17,7 +17,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
 
       source = source_fixture(index_frequency_minutes: 10)
 
-      perform_job(MediaIndexingWorker, %{id: source.id})
+      perform_job(MediaCollectionIndexingWorker, %{id: source.id})
     end
 
     test "it indexes the source no matter what if the source has never been indexed before" do
@@ -25,7 +25,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
 
       source = source_fixture(index_frequency_minutes: 0, last_indexed_at: nil)
 
-      perform_job(MediaIndexingWorker, %{id: source.id})
+      perform_job(MediaCollectionIndexingWorker, %{id: source.id})
     end
 
     test "it does not do any indexing if the source has been indexed and shouldn't be rescheduled" do
@@ -33,16 +33,16 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
 
       source = source_fixture(index_frequency_minutes: -1, last_indexed_at: DateTime.utc_now())
 
-      perform_job(MediaIndexingWorker, %{id: source.id})
+      perform_job(MediaCollectionIndexingWorker, %{id: source.id})
     end
 
     test "it does not reschedule if the source shouldn't be indexed" do
       stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:ok, ""} end)
 
       source = source_fixture(index_frequency_minutes: -1)
-      perform_job(MediaIndexingWorker, %{id: source.id})
+      perform_job(MediaCollectionIndexingWorker, %{id: source.id})
 
-      refute_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
+      refute_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
     end
 
     test "it kicks off a download job for each pending media item" do
@@ -51,7 +51,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
       end)
 
       source = source_fixture(index_frequency_minutes: 10)
-      perform_job(MediaIndexingWorker, %{id: source.id})
+      perform_job(MediaCollectionIndexingWorker, %{id: source.id})
 
       assert length(all_enqueued(worker: MediaDownloadWorker)) == 3
     end
@@ -63,7 +63,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
 
       source = source_fixture(index_frequency_minutes: 10)
       media_item_fixture(%{source_id: source.id, media_filepath: nil})
-      perform_job(MediaIndexingWorker, %{id: source.id})
+      perform_job(MediaCollectionIndexingWorker, %{id: source.id})
 
       assert length(all_enqueued(worker: MediaDownloadWorker)) == 4
     end
@@ -75,7 +75,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
 
       source = source_fixture(index_frequency_minutes: 10)
       media_item_fixture(%{source_id: source.id, media_filepath: nil, media_id: "video1"})
-      perform_job(MediaIndexingWorker, %{id: source.id})
+      perform_job(MediaCollectionIndexingWorker, %{id: source.id})
 
       # Only 3 jobs should be enqueued, since the first video is a duplicate
       assert length(all_enqueued(worker: MediaDownloadWorker))
@@ -85,10 +85,10 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:ok, ""} end)
 
       source = source_fixture(index_frequency_minutes: 10)
-      perform_job(MediaIndexingWorker, %{id: source.id})
+      perform_job(MediaCollectionIndexingWorker, %{id: source.id})
 
       assert_enqueued(
-        worker: MediaIndexingWorker,
+        worker: MediaCollectionIndexingWorker,
         args: %{"id" => source.id},
         scheduled_at: now_plus(source.index_frequency_minutes, :minutes)
       )
@@ -101,7 +101,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
       task_count_fetcher = fn -> Enum.count(Tasks.list_tasks()) end
 
       assert_changed([from: 0, to: 1], task_count_fetcher, fn ->
-        perform_job(MediaIndexingWorker, %{id: source.id})
+        perform_job(MediaCollectionIndexingWorker, %{id: source.id})
       end)
     end
 
@@ -118,7 +118,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
       end
 
       assert_changed([from: [], to: ["video1", "video2", "video3"]], media_item_fetcher, fn ->
-        perform_job(MediaIndexingWorker, %{id: source.id})
+        perform_job(MediaCollectionIndexingWorker, %{id: source.id})
       end)
     end
   end

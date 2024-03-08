@@ -33,13 +33,31 @@ defmodule Pinchflat.YtDlp.Backend.MediaParserTest do
     test "it extracts the title", %{metadata: metadata} do
       result = Parser.parse_for_media_item(metadata)
 
-      assert result.title == "Trying to Wheelie Without the Rear Brake"
+      assert result.title == metadata["title"]
     end
 
     test "it extracts the description", %{metadata: metadata} do
       result = Parser.parse_for_media_item(metadata)
 
-      assert is_binary(result.description)
+      assert result.description == metadata["description"]
+    end
+
+    test "it extracts the original_url", %{metadata: metadata} do
+      result = Parser.parse_for_media_item(metadata)
+
+      assert result.original_url == metadata["original_url"]
+    end
+
+    test "it extracts the media_id", %{metadata: metadata} do
+      result = Parser.parse_for_media_item(metadata)
+
+      assert result.media_id == metadata["id"]
+    end
+
+    test "it extracts the livestream flag", %{metadata: metadata} do
+      result = Parser.parse_for_media_item(metadata)
+
+      assert result.livestream == metadata["was_live"]
     end
   end
 

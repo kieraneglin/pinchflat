@@ -13,9 +13,9 @@ defmodule Pinchflat.Tasks.SourceTasks do
   alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.Workers.MediaIndexingWorker
   alias Pinchflat.Workers.MediaDownloadWorker
   alias Pinchflat.YtDlp.Backend.MediaCollection
+  alias Pinchflat.Workers.MediaCollectionIndexingWorker
   alias Pinchflat.Utils.FilesystemUtils.FileFollowerServer
 
   @doc """
@@ -25,12 +25,11 @@ defmodule Pinchflat.Tasks.SourceTasks do
   Returns {:ok, %Task{}}.
   """
   def kickoff_indexing_task(%Source{} = source) do
-    Tasks.delete_pending_tasks_for(source, "MediaIndexingWorker")
+    Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker")
 
-    source
-    |> Map.take([:id])
+    %{id: source.id}
     # Schedule this one immediately, but future ones will be on an interval
-    |> MediaIndexingWorker.new()
+    |> MediaCollectionIndexingWorker.new()
     |> Tasks.create_job_with_task(source)
     |> case do
       # This should never return {:error, :duplicate_job} since we just deleted
@@ -89,8 +88,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
     source
     |> Media.list_pending_media_items_for()
     |> Enum.each(fn media_item ->
-      media_item
-      |> Map.take([:id])
+      %{id: media_item.id}
       |> MediaDownloadWorker.new()
       |> Tasks.create_job_with_task(media_item)
     end)
@@ -159,8 +157,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
         if source.download_media && Media.pending_download?(media_item) do
           Logger.debug("FileFollowerServer Handler: Enqueuing download task for #{inspect(media_attrs)}")
 
-          media_item
-          |> Map.take([:id])
+          %{id: media_item.id}
           |> MediaDownloadWorker.new()
           |> Tasks.create_job_with_task(media_item)
         end
@@ -171,16 +168,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
   end
 
   defp create_media_item_from_attributes(source, media_attrs) do
-    attrs = %{
-      source_id: source.id,
-      title: media_attrs["title"],
-      media_id: media_attrs["id"],
-      original_url: media_attrs["original_url"],
-      livestream: media_attrs["was_live"],
-      description: media_attrs["description"]
-    }
-
-    case Media.create_media_item(attrs) do
+    case Media.create_media_item_from_backend_attrs(source, media_attrs) do
       {:ok, media_item} -> media_item
       {:error, changeset} -> changeset
     end

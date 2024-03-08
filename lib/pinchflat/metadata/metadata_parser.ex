@@ -23,7 +23,6 @@ defmodule Pinchflat.Metadata.MetadataParser do
     |> Map.merge(parse_infojson_metadata(metadata))
   end
 
-  # TODO: test new
   defp parse_media_metadata(metadata) do
     %{
       media_id: metadata["id"],

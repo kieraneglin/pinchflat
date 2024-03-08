@@ -11,7 +11,7 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
   alias Pinchflat.Tasks.Task
   alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.Workers.MediaIndexingWorker
+  alias Pinchflat.Workers.MediaCollectionIndexingWorker
   alias Pinchflat.Workers.MediaDownloadWorker
 
   setup :verify_on_exit!
@@ -22,7 +22,7 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
 
       assert {:ok, _} = SourceTasks.kickoff_indexing_task(source)
 
-      assert_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
+      assert_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
     end
 
     test "it creates and attaches a task" do
@@ -35,7 +35,7 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
 
     test "it deletes any pending tasks for the source" do
       source = source_fixture()
-      {:ok, job} = Oban.insert(MediaIndexingWorker.new(%{"id" => source.id}))
+      {:ok, job} = Oban.insert(MediaCollectionIndexingWorker.new(%{"id" => source.id}))
       task = task_fixture(source_id: source.id, job_id: job.id)
 
       assert {:ok, _} = SourceTasks.kickoff_indexing_task(source)

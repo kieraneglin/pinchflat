@@ -40,7 +40,13 @@ config :pinchflat, Oban,
   # Keep old jobs for 30 days for display in the UI
   plugins: [{Oban.Plugins.Pruner, max_age: 30 * 24 * 60 * 60}],
   # TODO: consider making this an env var or something?
-  queues: [default: 10, media_indexing: 2, media_fetching: 2, media_local_metadata: 8]
+  queues: [
+    default: 10,
+    media_indexing: 2,
+    media_collection_indexing: 2,
+    media_fetching: 2,
+    media_local_metadata: 8
+  ]
 
 # Configures the mailer
 #

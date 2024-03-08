@@ -3,6 +3,7 @@ defmodule Pinchflat.YtDlp.Backend.MediaCollectionTest do
   import Mox
   import Pinchflat.SourcesFixtures
 
+  alias Pinchflat.YtDlp.Backend.Media
   alias Pinchflat.YtDlp.Backend.MediaCollection
 
   @channel_url "https://www.youtube.com/c/TheUselessTrials"
@@ -22,7 +23,7 @@ defmodule Pinchflat.YtDlp.Backend.MediaCollectionTest do
     test "it passes the expected default args" do
       expect(YtDlpRunnerMock, :run, fn _url, opts, ot, _addl_opts ->
         assert opts == [:simulate, :skip_download]
-        assert ot == "%(.{id,title,was_live,original_url,description})j"
+        assert ot == Media.indexing_output_template()
 
         {:ok, ""}
       end)

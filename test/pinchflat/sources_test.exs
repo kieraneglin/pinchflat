@@ -9,7 +9,7 @@ defmodule Pinchflat.SourcesTest do
   alias Pinchflat.Sources
   alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Sources.Source
-  alias Pinchflat.Workers.MediaIndexingWorker
+  alias Pinchflat.Workers.MediaCollectionIndexingWorker
   alias Pinchflat.Workers.MediaDownloadWorker
 
   @invalid_source_attrs %{name: nil, collection_id: nil}
@@ -166,7 +166,7 @@ defmodule Pinchflat.SourcesTest do
 
       assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
 
-      assert_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
+      assert_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
     end
 
     test "creation schedules an index test even if the index frequency is 0" do
@@ -180,7 +180,7 @@ defmodule Pinchflat.SourcesTest do
 
       assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
 
-      assert_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
+      assert_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
     end
   end
 
@@ -230,7 +230,7 @@ defmodule Pinchflat.SourcesTest do
 
       assert {:ok, %Source{} = source} = Sources.update_source(source, update_attrs)
       assert source.index_frequency_minutes == 123
-      assert_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
+      assert_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
     end
 
     test "updating the index frequency to 0 will not re-schedule the indexing task" do
@@ -239,12 +239,12 @@ defmodule Pinchflat.SourcesTest do
 
       assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
 
-      refute_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
+      refute_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
     end
 
     test "updating the index frequency to 0 will delete any pending tasks" do
       source = source_fixture()
-      {:ok, job} = Oban.insert(MediaIndexingWorker.new(%{"id" => source.id}))
+      {:ok, job} = Oban.insert(MediaCollectionIndexingWorker.new(%{"id" => source.id}))
       task = task_fixture(source_id: source.id, job_id: job.id)
       update_attrs = %{index_frequency_minutes: 0}
 
@@ -261,7 +261,7 @@ defmodule Pinchflat.SourcesTest do
       assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
 
       assert Repo.reload!(task)
-      refute_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
+      refute_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
     end
 
     test "enabling the download_media attribute will schedule a download task" do

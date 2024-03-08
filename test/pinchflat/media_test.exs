@@ -368,6 +368,20 @@ defmodule Pinchflat.MediaTest do
     end
   end
 
+  describe "create_media_item_from_backend_attrs/2" do
+    test "creates a media item for a given source and attributes" do
+      source = source_fixture()
+      media_attrs = Phoenix.json_library().decode!(media_attributes_return_fixture())
+
+      assert {:ok, %MediaItem{} = media_item} = Media.create_media_item_from_backend_attrs(source, media_attrs)
+      assert media_item.source_id == source.id
+      assert media_item.title == media_attrs["title"]
+      assert media_item.media_id == media_attrs["id"]
+      assert media_item.original_url == media_attrs["original_url"]
+      assert media_item.description == media_attrs["description"]
+    end
+  end
+
   describe "update_media_item/2" do
     test "updating with valid data updates the media_item" do
       media_item = media_item_fixture()

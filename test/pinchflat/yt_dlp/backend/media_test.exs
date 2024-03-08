@@ -1,6 +1,7 @@
 defmodule Pinchflat.YtDlp.Backend.MediaTest do
   use Pinchflat.DataCase
   import Mox
+  import Pinchflat.MediaFixtures
 
   alias Pinchflat.YtDlp.Backend.Media
 
@@ -45,6 +46,41 @@ defmodule Pinchflat.YtDlp.Backend.MediaTest do
       end)
 
       assert {:error, "something"} = Media.download(@media_url)
+    end
+  end
+
+  describe "get_media_attributes/1" do
+    test "returns a list of video attributes" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+        {:ok, media_attributes_return_fixture()}
+      end)
+
+      assert {:ok, %{"description" => _, "id" => _, "original_url" => _, "title" => _, "was_live" => _}} =
+               Media.get_media_attributes(@media_url)
+    end
+
+    test "it passes the expected default args" do
+      expect(YtDlpRunnerMock, :run, fn _url, opts, ot ->
+        assert opts == [:simulate, :skip_download]
+        assert ot == Media.indexing_output_template()
+
+        {:ok, "{}"}
+      end)
+
+      assert {:ok, _} = Media.get_media_attributes(@media_url)
+    end
+
+    test "returns the error straight through when the command fails" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:error, "Big issue", 1} end)
+
+      assert {:error, "Big issue", 1} = Media.get_media_attributes(@media_url)
+    end
+  end
+
+  describe "indexing_output_template/0" do
+    test "contains all the greatest hits" do
+      assert "%(.{id,title,was_live,original_url,description})j" ==
+               Media.indexing_output_template()
     end
   end
 end
