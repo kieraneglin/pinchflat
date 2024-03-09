@@ -182,6 +182,36 @@ defmodule Pinchflat.SourcesTest do
 
       assert_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
     end
+
+    test "fast_index forces the index frequency to be a default value" do
+      expect(YtDlpRunnerMock, :run, &channel_mock/3)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123",
+        fast_index: true,
+        index_frequency_minutes: 0
+      }
+
+      assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
+
+      assert source.index_frequency_minutes == Source.index_frequency_when_fast_indexing()
+    end
+
+    test "disabling fast index will not change the index frequency" do
+      expect(YtDlpRunnerMock, :run, &channel_mock/3)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123",
+        fast_index: false,
+        index_frequency_minutes: 0
+      }
+
+      assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
+
+      assert source.index_frequency_minutes == 0
+    end
   end
 
   describe "update_source/2" do
@@ -292,6 +322,24 @@ defmodule Pinchflat.SourcesTest do
                Sources.update_source(source, @invalid_source_attrs)
 
       assert source == Sources.get_source!(source.id)
+    end
+
+    test "fast_index forces the index frequency to be a default value" do
+      source = source_fixture(%{fast_index: true})
+      update_attrs = %{index_frequency_minutes: 0}
+
+      assert {:ok, source} = Sources.update_source(source, update_attrs)
+
+      assert source.index_frequency_minutes == Source.index_frequency_when_fast_indexing()
+    end
+
+    test "disabling fast index will not change the index frequency" do
+      source = source_fixture(%{fast_index: false})
+      update_attrs = %{index_frequency_minutes: 0}
+
+      assert {:ok, source} = Sources.update_source(source, update_attrs)
+
+      assert source.index_frequency_minutes == 0
     end
   end
 

@@ -46,6 +46,7 @@ defmodule Pinchflat.Sources do
   def create_source(attrs) do
     %Source{}
     |> change_source_from_url(attrs)
+    |> maybe_change_indexing_frequency()
     |> commit_and_handle_tasks()
   end
 
@@ -62,6 +63,7 @@ defmodule Pinchflat.Sources do
   def update_source(%Source{} = source, attrs) do
     source
     |> change_source_from_url(attrs)
+    |> maybe_change_indexing_frequency()
     |> commit_and_handle_tasks()
   end
 
@@ -151,6 +153,22 @@ defmodule Pinchflat.Sources do
     change_source(source, Map.merge(changes, collection_changes))
   end
 
+  defp maybe_change_indexing_frequency(changeset) do
+    fast_index = Ecto.Changeset.get_field(changeset, :fast_index)
+
+    case {changeset.changes, fast_index} do
+      {%{index_frequency_minutes: _}, true} ->
+        Ecto.Changeset.put_change(
+          changeset,
+          :index_frequency_minutes,
+          Source.index_frequency_when_fast_indexing()
+        )
+
+      _ ->
+        changeset
+    end
+  end
+
   defp commit_and_handle_tasks(changeset) do
     case Repo.insert_or_update(changeset) do
       {:ok, %Source{} = source} ->
@@ -189,9 +207,15 @@ defmodule Pinchflat.Sources do
       # indexing frequency has been changed and is now greater than 0
       %{__meta__: %{state: :loaded}} ->
         case changeset.changes do
-          %{index_frequency_minutes: mins} when mins > 0 -> SourceTasks.kickoff_indexing_task(source)
-          %{index_frequency_minutes: _} -> Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker")
-          _ -> :ok
+          %{index_frequency_minutes: mins} when mins > 0 ->
+            SourceTasks.kickoff_indexing_task(source)
+
+          %{index_frequency_minutes: _} ->
+            # TODO: delete the recurring RSS task (when I get there)
+            Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker")
+
+          _ ->
+            :ok
         end
     end
 

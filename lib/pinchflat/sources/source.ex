@@ -65,4 +65,9 @@ defmodule Pinchflat.Sources.Source do
     |> validate_required(@required_fields)
     |> unique_constraint([:collection_id, :media_profile_id])
   end
+
+  @doc false
+  def index_frequency_when_fast_indexing do
+    60 * 24 * 30
+  end
 end
