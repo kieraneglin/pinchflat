@@ -55,7 +55,7 @@ defmodule Pinchflat.YtDlp.Backend.MediaTest do
         {:ok, media_attributes_return_fixture()}
       end)
 
-      assert {:ok, %{"description" => _, "id" => _, "original_url" => _, "title" => _, "was_live" => _}} =
+      assert {:ok, %{description: _, media_id: _, original_url: _, title: _, livestream: _}} =
                Media.get_media_attributes(@media_url)
     end
 

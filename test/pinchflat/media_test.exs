@@ -11,6 +11,8 @@ defmodule Pinchflat.MediaTest do
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Metadata.MetadataFileHelpers
 
+  alias Pinchflat.YtDlp.Backend.Media, as: YtDlpMedia
+
   setup :verify_on_exit!
 
   @invalid_attrs %{title: nil, media_id: nil, media_filepath: nil}
@@ -388,14 +390,18 @@ defmodule Pinchflat.MediaTest do
   describe "create_media_item_from_backend_attrs/2" do
     test "creates a media item for a given source and attributes" do
       source = source_fixture()
-      media_attrs = Phoenix.json_library().decode!(media_attributes_return_fixture())
+
+      media_attrs =
+        media_attributes_return_fixture()
+        |> Phoenix.json_library().decode!()
+        |> YtDlpMedia.response_to_struct()
 
       assert {:ok, %MediaItem{} = media_item} = Media.create_media_item_from_backend_attrs(source, media_attrs)
       assert media_item.source_id == source.id
-      assert media_item.title == media_attrs["title"]
-      assert media_item.media_id == media_attrs["id"]
-      assert media_item.original_url == media_attrs["original_url"]
-      assert media_item.description == media_attrs["description"]
+      assert media_item.title == media_attrs.title
+      assert media_item.media_id == media_attrs.media_id
+      assert media_item.original_url == media_attrs.original_url
+      assert media_item.description == media_attrs.description
     end
   end
 
