@@ -211,7 +211,8 @@ defmodule Pinchflat.Sources do
             SourceTasks.kickoff_indexing_task(source)
 
           %{index_frequency_minutes: _} ->
-            # TODO: delete the recurring RSS task (when I get there)
+            Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
+            Tasks.delete_pending_tasks_for(source, "MediaIndexingWorker")
             Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker")
 
           _ ->

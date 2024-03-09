@@ -42,6 +42,7 @@ config :pinchflat, Oban,
   # TODO: consider making this an env var or something?
   queues: [
     default: 10,
+    fast_indexing: 6,
     media_indexing: 2,
     media_collection_indexing: 2,
     media_fetching: 2,

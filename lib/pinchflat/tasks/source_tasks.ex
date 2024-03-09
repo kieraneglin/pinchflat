@@ -24,11 +24,13 @@ defmodule Pinchflat.Tasks.SourceTasks do
 
   @doc """
   Starts tasks for indexing a source's media regardless of the source's indexing
-  frequency. It's assumed the caller will check for that.
+  frequency. It's assumed the caller will check for indexing frequency.
 
   Returns {:ok, %Task{}}.
   """
   def kickoff_indexing_task(%Source{} = source) do
+    Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
+    Tasks.delete_pending_tasks_for(source, "MediaIndexingWorker")
     Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker")
 
     %{id: source.id}
@@ -90,8 +92,8 @@ defmodule Pinchflat.Tasks.SourceTasks do
     # See the method definition below for more info on how file watchers work
     # (important reading if you're not familiar with it)
     {:ok, media_attributes} = get_media_attributes_for_collection_and_setup_file_watcher(source)
-
     result = Enum.map(media_attributes, fn media_attrs -> create_media_item_from_attributes(source, media_attrs) end)
+
     Sources.update_source(source, %{last_indexed_at: DateTime.utc_now()})
     enqueue_pending_media_tasks(source)
 

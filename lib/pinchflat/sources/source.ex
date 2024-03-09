@@ -68,6 +68,13 @@ defmodule Pinchflat.Sources.Source do
 
   @doc false
   def index_frequency_when_fast_indexing do
+    # 30 days in minutes
     60 * 24 * 30
+  end
+
+  @doc false
+  def fast_index_frequency do
+    # minutes
+    15
   end
 end

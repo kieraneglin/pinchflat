@@ -9,8 +9,10 @@ defmodule Pinchflat.SourcesTest do
   alias Pinchflat.Sources
   alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Sources.Source
-  alias Pinchflat.Workers.MediaCollectionIndexingWorker
+  alias Pinchflat.Workers.FastIndexingWorker
   alias Pinchflat.Workers.MediaDownloadWorker
+  alias Pinchflat.Workers.MediaIndexingWorker
+  alias Pinchflat.Workers.MediaCollectionIndexingWorker
 
   @invalid_source_attrs %{name: nil, collection_id: nil}
 
@@ -274,13 +276,20 @@ defmodule Pinchflat.SourcesTest do
 
     test "updating the index frequency to 0 will delete any pending tasks" do
       source = source_fixture()
-      {:ok, job} = Oban.insert(MediaCollectionIndexingWorker.new(%{"id" => source.id}))
-      task = task_fixture(source_id: source.id, job_id: job.id)
       update_attrs = %{index_frequency_minutes: 0}
+
+      {:ok, job_1} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
+      task_1 = task_fixture(source_id: source.id, job_id: job_1.id)
+      {:ok, job_2} = Oban.insert(MediaIndexingWorker.new(%{"id" => source.id}))
+      task_2 = task_fixture(source_id: source.id, job_id: job_2.id)
+      {:ok, job_3} = Oban.insert(MediaCollectionIndexingWorker.new(%{"id" => source.id}))
+      task_3 = task_fixture(source_id: source.id, job_id: job_3.id)
 
       assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
 
-      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task_1) end
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task_2) end
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task_3) end
     end
 
     test "not updating the index frequency will not re-schedule the indexing task or delete tasks" do
