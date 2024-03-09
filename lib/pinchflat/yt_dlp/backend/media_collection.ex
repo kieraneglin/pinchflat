@@ -36,6 +36,7 @@ defmodule Pinchflat.YtDlp.Backend.MediaCollection do
         output
         |> String.split("\n", trim: true)
         |> Enum.map(&Phoenix.json_library().decode!/1)
+        |> Enum.map(&YtDlpMedia.response_to_struct/1)
         |> FunctionUtils.wrap_ok()
 
       res ->

@@ -20,6 +20,8 @@ defmodule Pinchflat.Tasks.SourceTasks do
   alias Pinchflat.Workers.MediaCollectionIndexingWorker
   alias Pinchflat.Utils.FilesystemUtils.FileFollowerServer
 
+  alias Pinchflat.YtDlp.Backend.Media, as: YtDlpMedia
+
   @doc """
   Starts tasks for indexing a source's media regardless of the source's indexing
   frequency. It's assumed the caller will check for that.
@@ -162,7 +164,8 @@ defmodule Pinchflat.Tasks.SourceTasks do
         {:ok, media_attrs} ->
           Logger.debug("FileFollowerServer Handler: Got media attributes: #{inspect(media_attrs)}")
 
-          create_media_item_and_enqueue_download(source, media_attrs)
+          media_struct = YtDlpMedia.response_to_struct(media_attrs)
+          create_media_item_and_enqueue_download(source, media_struct)
 
         err ->
           Logger.debug("FileFollowerServer Handler: Error decoding JSON: #{inspect(err)}")

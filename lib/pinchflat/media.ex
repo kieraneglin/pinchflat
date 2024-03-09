@@ -188,17 +188,10 @@ defmodule Pinchflat.Media do
 
   Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}
   """
-  def create_media_item_from_backend_attrs(source, media_attrs) do
-    attrs = %{
-      source_id: source.id,
-      title: media_attrs["title"],
-      media_id: media_attrs["id"],
-      original_url: media_attrs["original_url"],
-      livestream: media_attrs["was_live"],
-      description: media_attrs["description"]
-    }
-
-    create_media_item(attrs)
+  def create_media_item_from_backend_attrs(source, media_attrs_struct) do
+    %{source_id: source.id}
+    |> Map.merge(Map.from_struct(media_attrs_struct))
+    |> create_media_item()
   end
 
   @doc """
@@ -264,7 +257,7 @@ defmodule Pinchflat.Media do
         {{:shorts_behaviour, :only}, %{livestream_behaviour: :only}} ->
           dynamic(
             [mi],
-            ^dynamic and (mi.livestream == true or fragment("LOWER(?) LIKE LOWER(?)", mi.original_url, "%/shorts/%"))
+            ^dynamic and (mi.livestream == true or mi.short_form_content == true)
           )
 
         # Technically redundant, but makes the other clauses easier to parse
@@ -273,16 +266,13 @@ defmodule Pinchflat.Media do
           dynamic
 
         {{:shorts_behaviour, :only}, _} ->
-          # return records with /shorts/ in the original_url
-          dynamic([mi], ^dynamic and fragment("LOWER(?) LIKE LOWER(?)", mi.original_url, "%/shorts/%"))
+          dynamic([mi], ^dynamic and mi.short_form_content == true)
 
         {{:livestream_behaviour, :only}, _} ->
-          # return records with livestream: true
           dynamic([mi], ^dynamic and mi.livestream == true)
 
         {{:shorts_behaviour, :exclude}, %{livestream_behaviour: lb}} when lb != :only ->
-          # return records without /shorts/ in the original_url
-          dynamic([mi], ^dynamic and fragment("LOWER(?) NOT LIKE LOWER(?)", mi.original_url, "%/shorts/%"))
+          dynamic([mi], ^dynamic and mi.short_form_content == false)
 
         {{:livestream_behaviour, :exclude}, %{shorts_behaviour: sb}} when sb != :only ->
           # return records with livestream: false

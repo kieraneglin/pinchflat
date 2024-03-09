@@ -16,7 +16,7 @@ defmodule Pinchflat.YtDlp.Backend.MediaCollectionTest do
         {:ok, source_attributes_return_fixture() <> "\n\n"}
       end)
 
-      assert {:ok, [%{"id" => "video1"}, %{"id" => "video2"}, %{"id" => "video3"}]} =
+      assert {:ok, [%Media{media_id: "video1"}, %Media{media_id: "video2"}, %Media{media_id: "video3"}]} =
                MediaCollection.get_media_attributes_for_collection(@channel_url)
     end
 

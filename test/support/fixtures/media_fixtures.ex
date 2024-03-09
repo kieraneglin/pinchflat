@@ -19,6 +19,7 @@ defmodule Pinchflat.MediaFixtures do
         title: Faker.Commerce.product_name(),
         original_url: "https://www.youtube.com/watch?v=#{media_id}",
         livestream: false,
+        short_form_content: false,
         media_filepath: "/video/#{Faker.File.file_name(:video)}",
         source_id: SourcesFixtures.source_fixture().id
       })
@@ -70,9 +71,11 @@ defmodule Pinchflat.MediaFixtures do
     media_attributes = %{
       id: "video1",
       title: "Video 1",
-      original_url: "https://example.com/video1",
+      webpage_url: "https://example.com/video1",
       was_live: false,
-      description: "desc1"
+      description: "desc1",
+      aspect_ratio: 1.67,
+      duration: 123.45
     }
 
     Phoenix.json_library().encode!(media_attributes)
