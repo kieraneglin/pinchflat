@@ -19,6 +19,7 @@ defmodule Pinchflat.MediaFixtures do
         title: Faker.Commerce.product_name(),
         original_url: "https://www.youtube.com/watch?v=#{media_id}",
         livestream: false,
+        short_form_content: false,
         media_filepath: "/video/#{Faker.File.file_name(:video)}",
         source_id: SourcesFixtures.source_fixture().id
       })

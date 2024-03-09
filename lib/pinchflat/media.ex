@@ -189,16 +189,9 @@ defmodule Pinchflat.Media do
   Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}
   """
   def create_media_item_from_backend_attrs(source, media_attrs_struct) do
-    attrs = %{
-      source_id: source.id,
-      title: media_attrs_struct.title,
-      media_id: media_attrs_struct.media_id,
-      original_url: media_attrs_struct.original_url,
-      livestream: media_attrs_struct.livestream,
-      description: media_attrs_struct.description
-    }
-
-    create_media_item(attrs)
+    %{source_id: source.id}
+    |> Map.merge(Map.from_struct(media_attrs_struct))
+    |> create_media_item()
   end
 
   @doc """
