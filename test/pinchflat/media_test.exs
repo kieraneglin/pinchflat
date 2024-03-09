@@ -97,7 +97,7 @@ defmodule Pinchflat.MediaTest do
     test "returns shorts and normal media when shorts_behaviour is :include" do
       source = source_fixture(%{media_profile_id: media_profile_fixture(%{shorts_behaviour: :include}).id})
       normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
-      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, short_form_content: true})
 
       assert Media.list_pending_media_items_for(source) == [normal, short]
     end
@@ -105,7 +105,7 @@ defmodule Pinchflat.MediaTest do
     test "returns only shorts when shorts_behaviour is :only" do
       source = source_fixture(%{media_profile_id: media_profile_fixture(%{shorts_behaviour: :only}).id})
       _normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
-      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, short_form_content: true})
 
       assert Media.list_pending_media_items_for(source) == [short]
     end
@@ -113,7 +113,7 @@ defmodule Pinchflat.MediaTest do
     test "returns only normal media when shorts_behaviour is :exclude" do
       source = source_fixture(%{media_profile_id: media_profile_fixture(%{shorts_behaviour: :exclude}).id})
       normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
-      _short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+      _short = media_item_fixture(%{source_id: source.id, media_filepath: nil, short_form_content: true})
 
       assert Media.list_pending_media_items_for(source) == [normal]
     end
@@ -158,7 +158,7 @@ defmodule Pinchflat.MediaTest do
 
       normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
       livestream = media_item_fixture(%{source_id: source.id, media_filepath: nil, livestream: true})
-      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, short_form_content: true})
 
       assert Media.list_pending_media_items_for(source) == [normal, livestream, short]
     end
@@ -175,7 +175,7 @@ defmodule Pinchflat.MediaTest do
 
       _normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
       livestream = media_item_fixture(%{source_id: source.id, media_filepath: nil, livestream: true})
-      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, short_form_content: true})
 
       assert Media.list_pending_media_items_for(source) == [livestream, short]
     end
@@ -192,7 +192,7 @@ defmodule Pinchflat.MediaTest do
 
       normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
       _livestream = media_item_fixture(%{source_id: source.id, media_filepath: nil, livestream: true})
-      _short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+      _short = media_item_fixture(%{source_id: source.id, media_filepath: nil, short_form_content: true})
 
       assert Media.list_pending_media_items_for(source) == [normal]
     end
@@ -209,7 +209,7 @@ defmodule Pinchflat.MediaTest do
 
       _normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
       _livestream = media_item_fixture(%{source_id: source.id, media_filepath: nil, livestream: true})
-      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, short_form_content: true})
 
       assert Media.list_pending_media_items_for(source) == [short]
     end
@@ -249,7 +249,7 @@ defmodule Pinchflat.MediaTest do
 
     test "returns false if the media hasn't been downloaded but the profile doesn't DL shorts" do
       source = source_fixture(%{media_profile_id: media_profile_fixture(%{shorts_behaviour: :exclude}).id})
-      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, short_form_content: true})
 
       refute Media.pending_download?(media_item)
     end
