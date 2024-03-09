@@ -64,7 +64,7 @@ defmodule Pinchflat.YtDlp.Backend.MediaTest do
         assert opts == [:simulate, :skip_download]
         assert ot == Media.indexing_output_template()
 
-        {:ok, "{}"}
+        {:ok, media_attributes_return_fixture()}
       end)
 
       assert {:ok, _} = Media.get_media_attributes(@media_url)
@@ -79,8 +79,61 @@ defmodule Pinchflat.YtDlp.Backend.MediaTest do
 
   describe "indexing_output_template/0" do
     test "contains all the greatest hits" do
-      assert "%(.{id,title,was_live,original_url,description})j" ==
+      assert "%(.{id,title,was_live,webpage_url,description,aspect_ratio,duration})j" ==
                Media.indexing_output_template()
+    end
+  end
+
+  describe "response_to_struct/1" do
+    test "transforms a response into a struct" do
+      response = %{
+        "id" => "TiZPUDkDYbk",
+        "title" => "Trying to Wheelie Without the Rear Brake",
+        "description" => "I'm not sure what I expected.",
+        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "was_live" => false,
+        "aspect_ratio" => 1.0,
+        "duration" => 60
+      }
+
+      assert %Media{
+               media_id: "TiZPUDkDYbk",
+               title: "Trying to Wheelie Without the Rear Brake",
+               description: "I'm not sure what I expected.",
+               original_url: "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+               livestream: false,
+               short_form_content: false
+             } = Media.response_to_struct(response)
+    end
+
+    test "sets short_form_content to true if the URL contains /shorts/" do
+      response = %{
+        "webpage_url" => "https://www.youtube.com/shorts/TiZPUDkDYbk",
+        "aspect_ratio" => 1.0,
+        "duration" => 61
+      }
+
+      assert %Media{short_form_content: true} = Media.response_to_struct(response)
+    end
+
+    test "sets short_form_content to true if the aspect ratio are duration are right" do
+      response = %{
+        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "aspect_ratio" => 0.5,
+        "duration" => 59
+      }
+
+      assert %Media{short_form_content: true} = Media.response_to_struct(response)
+    end
+
+    test "sets short_form_content to false otherwise" do
+      response = %{
+        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "aspect_ratio" => 1.0,
+        "duration" => 61
+      }
+
+      assert %Media{short_form_content: false} = Media.response_to_struct(response)
     end
   end
 end

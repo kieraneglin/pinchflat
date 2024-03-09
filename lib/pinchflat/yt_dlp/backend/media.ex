@@ -3,12 +3,22 @@ defmodule Pinchflat.YtDlp.Backend.Media do
   Contains utilities for working with singular pieces of media
   """
 
+  @enforce_keys [
+    :media_id,
+    :title,
+    :description,
+    :original_url,
+    :livestream,
+    :short_form_content
+  ]
+
   defstruct [
     :media_id,
     :title,
     :description,
     :original_url,
-    :livestream
+    :livestream,
+    :short_form_content
   ]
 
   alias __MODULE__
@@ -57,18 +67,37 @@ defmodule Pinchflat.YtDlp.Backend.Media do
   Returns the output template for yt-dlp's indexing command.
   """
   def indexing_output_template do
-    "%(.{id,title,was_live,original_url,description})j"
+    "%(.{id,title,was_live,webpage_url,description,aspect_ratio,duration})j"
   end
 
-  # TODO: test
+  @doc """
+  Transforms a response from yt-dlp into a struct. Interprets the response to
+  determine if the media is short-form content.
+
+  Returns %Media{}.
+  """
   def response_to_struct(response) do
     %Media{
       media_id: response["id"],
       title: response["title"],
       description: response["description"],
-      original_url: response["original_url"],
-      livestream: response["was_live"]
+      original_url: response["webpage_url"],
+      livestream: response["was_live"],
+      short_form_content: short_form_content?(response)
     }
+  end
+
+  defp short_form_content?(response) do
+    if String.contains?(response["webpage_url"], "/shorts/") do
+      true
+    else
+      # Sometimes shorts are returned without /shorts/ in the URL,
+      # so we need to do our best to determine if it's a short. This
+      # WILL returns false positives, but it's a best-effort approach
+      # that should work for most cases. The aspect_ratio check is
+      # based on a gut feeling and may need to be tweaked.
+      response["duration"] <= 60 && response["aspect_ratio"] < 0.8
+    end
   end
 
   defp backend_runner do

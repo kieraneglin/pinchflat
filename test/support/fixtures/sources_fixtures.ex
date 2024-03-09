@@ -35,23 +35,29 @@ defmodule Pinchflat.SourcesFixtures do
       %{
         id: "video1",
         title: "Video 1",
-        original_url: "https://example.com/video1",
+        webpage_url: "https://example.com/video1",
         was_live: false,
-        description: "desc1"
+        description: "desc1",
+        aspect_ratio: 1.67,
+        duration: 12.34
       },
       %{
         id: "video2",
         title: "Video 2",
-        original_url: "https://example.com/video2",
+        webpage_url: "https://example.com/video2",
         was_live: true,
-        description: "desc2"
+        description: "desc2",
+        aspect_ratio: 1.67,
+        duration: 345.67
       },
       %{
         id: "video3",
         title: "Video 3",
-        original_url: "https://example.com/video3",
+        webpage_url: "https://example.com/video3",
         was_live: false,
-        description: "desc3"
+        description: "desc3",
+        aspect_ratio: 1.0,
+        duration: 678.90
       }
     ]
 

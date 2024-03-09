@@ -84,9 +84,11 @@ defmodule Pinchflat.Tasks.MediaItemTasksTest do
           Phoenix.json_library().encode!(%{
             id: "video2",
             title: "Video 2",
-            original_url: "https://example.com/shorts/video2",
+            webpage_url: "https://example.com/shorts/video2",
             was_live: true,
-            description: "desc2"
+            description: "desc2",
+            aspect_ratio: 1.67,
+            duration: 345.67
           })
 
         {:ok, output}
