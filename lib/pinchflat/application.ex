@@ -10,9 +10,9 @@ defmodule Pinchflat.Application do
     children = [
       PinchflatWeb.Telemetry,
       Pinchflat.Repo,
-      # {Task, &run_startup_tasks/0},
-      Pinchflat.StartupTasks,
+      # Must be before startup tasks
       {Oban, Application.fetch_env!(:pinchflat, Oban)},
+      Pinchflat.StartupTasks,
       {DNSCluster, query: Application.get_env(:pinchflat, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Pinchflat.PubSub},
       # Start the Finch HTTP client for sending emails
