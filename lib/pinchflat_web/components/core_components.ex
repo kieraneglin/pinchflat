@@ -263,7 +263,7 @@ defmodule PinchflatWeb.CoreComponents do
   attr :inputclass, :string, default: ""
 
   attr :rest, :global, include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
-                multiple pattern placeholder readonly required rows size step x-model)
+                multiple pattern placeholder readonly required rows size step)
 
   slot :inner_block
 
