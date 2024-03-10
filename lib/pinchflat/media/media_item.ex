@@ -20,6 +20,7 @@ defmodule Pinchflat.Media.MediaItem do
     :livestream,
     :source_id,
     :short_form_content,
+    :uploaded_at,
     # these fields are captured only on download
     :media_downloaded_at,
     :media_filepath,
@@ -28,7 +29,16 @@ defmodule Pinchflat.Media.MediaItem do
     :thumbnail_filepath,
     :metadata_filepath
   ]
-  @required_fields ~w(title original_url livestream media_id source_id short_form_content)a
+  # Pretty much all the fields captured at index are required.
+  @required_fields ~w(
+    title
+    original_url
+    livestream
+    media_id
+    source_id
+    uploaded_at
+    short_form_content
+    )a
 
   schema "media_items" do
     field :title, :string
@@ -38,6 +48,7 @@ defmodule Pinchflat.Media.MediaItem do
     field :livestream, :boolean, default: false
     field :short_form_content, :boolean, default: false
     field :media_downloaded_at, :utc_datetime
+    field :uploaded_at, :utc_datetime
 
     field :media_filepath, :string
     field :media_size_bytes, :integer

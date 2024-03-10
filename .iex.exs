@@ -1,3 +1,4 @@
+import Ecto.Query, warn: false
 alias Pinchflat.Repo
 
 alias Pinchflat.Tasks.Task
@@ -33,6 +34,10 @@ defmodule IexHelpers do
 
   def video_url do
     "https://www.youtube.com/watch?v=bR52O78ZIUw"
+  end
+
+  def last_media_item do
+    Repo.one(from m in MediaItem, limit: 1)
   end
 
   def details(type) do
