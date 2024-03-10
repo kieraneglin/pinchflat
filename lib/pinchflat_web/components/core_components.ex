@@ -63,13 +63,13 @@ defmodule PinchflatWeb.CoreComponents do
         tabindex="0"
       >
         <div class="flex min-h-full items-center justify-center">
-          <div class="w-full max-w-3xl p-4 sm:p-6 lg:py-8">
+          <div class="w-full max-w-3xl p-2 sm:p-6 lg:py-8">
             <div
               id={"#{@id}-container"}
               phx-window-keydown={@allow_close && JS.exec("data-cancel", to: "##{@id}")}
               phx-key="escape"
               phx-click-away={@allow_close && JS.exec("data-cancel", to: "##{@id}")}
-              class="shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-graydark p-14 shadow-lg ring-1 transition"
+              class="shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-graydark p-8 sm:p-14 shadow-lg ring-1 transition"
             >
               <div :if={@allow_close} class="absolute top-6 right-5">
                 <button
@@ -244,6 +244,7 @@ defmodule PinchflatWeb.CoreComponents do
   attr :id, :any, default: nil
   attr :name, :any
   attr :label, :string, default: nil
+  attr :label_suffix, :string, default: nil
   attr :value, :any
   attr :help, :string, default: nil
 
@@ -295,6 +296,7 @@ defmodule PinchflatWeb.CoreComponents do
           {@rest}
         />
         <%= @label %>
+        <span :if={@label_suffix} class="text-xs text-bodydark"><%= @label_suffix %></span>
       </label>
       <.help :if={@help}><%= @help %></.help>
       <.error :for={msg <- @errors}><%= msg %></.error>
@@ -310,7 +312,10 @@ defmodule PinchflatWeb.CoreComponents do
 
     ~H"""
     <div x-data={"{ enabled: #{@checked}}"}>
-      <.label for={@id}><%= @label %></.label>
+      <.label for={@id}>
+        <%= @label %>
+        <span :if={@label_suffix} class="text-xs text-bodydark"><%= @label_suffix %></span>
+      </.label>
       <div class="relative">
         <input type="hidden" name={@name} value="false" />
         <input
@@ -344,7 +349,9 @@ defmodule PinchflatWeb.CoreComponents do
   def input(%{type: "select"} = assigns) do
     ~H"""
     <div phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
+      <.label for={@id}>
+        <%= @label %><span :if={@label_suffix} class="text-xs text-bodydark"><%= @label_suffix %></span>
+      </.label>
       <select
         id={@id}
         name={@name}
@@ -368,7 +375,9 @@ defmodule PinchflatWeb.CoreComponents do
   def input(%{type: "textarea"} = assigns) do
     ~H"""
     <div phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
+      <.label for={@id}>
+        <%= @label %><span :if={@label_suffix} class="text-xs text-bodydark"><%= @label_suffix %></span>
+      </.label>
       <textarea
         id={@id}
         name={@name}
@@ -391,7 +400,9 @@ defmodule PinchflatWeb.CoreComponents do
   def input(assigns) do
     ~H"""
     <div phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
+      <.label for={@id}>
+        <%= @label %><span :if={@label_suffix} class="text-xs text-bodydark"><%= @label_suffix %></span>
+      </.label>
       <input
         type={@type}
         name={@name}
