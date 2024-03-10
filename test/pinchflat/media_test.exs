@@ -373,7 +373,8 @@ defmodule Pinchflat.MediaTest do
         title: Faker.Commerce.product_name(),
         media_filepath: "/video/#{Faker.File.file_name(:video)}",
         source_id: source_fixture().id,
-        original_url: "https://www.youtube.com/channel/#{Faker.String.base64(12)}"
+        original_url: "https://www.youtube.com/channel/#{Faker.String.base64(12)}",
+        upload_date: Date.utc_today()
       }
 
       assert {:ok, %MediaItem{} = media_item} = Media.create_media_item(valid_attrs)

@@ -20,7 +20,7 @@ defmodule Pinchflat.Media.MediaItem do
     :livestream,
     :source_id,
     :short_form_content,
-    :uploaded_at,
+    :upload_date,
     # these fields are captured only on download
     :media_downloaded_at,
     :media_filepath,
@@ -36,7 +36,7 @@ defmodule Pinchflat.Media.MediaItem do
     livestream
     media_id
     source_id
-    uploaded_at
+    upload_date
     short_form_content
     )a
 
@@ -48,7 +48,7 @@ defmodule Pinchflat.Media.MediaItem do
     field :livestream, :boolean, default: false
     field :short_form_content, :boolean, default: false
     field :media_downloaded_at, :utc_datetime
-    field :uploaded_at, :utc_datetime
+    field :upload_date, :date
 
     field :media_filepath, :string
     field :media_size_bytes, :integer

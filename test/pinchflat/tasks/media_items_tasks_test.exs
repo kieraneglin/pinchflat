@@ -88,7 +88,8 @@ defmodule Pinchflat.Tasks.MediaItemTasksTest do
             was_live: true,
             description: "desc2",
             aspect_ratio: 1.67,
-            duration: 345.67
+            duration: 345.67,
+            upload_date: "20210101"
           })
 
         {:ok, output}

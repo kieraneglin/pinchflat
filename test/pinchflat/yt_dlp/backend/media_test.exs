@@ -79,7 +79,7 @@ defmodule Pinchflat.YtDlp.Backend.MediaTest do
 
   describe "indexing_output_template/0" do
     test "contains all the greatest hits" do
-      assert "%(.{id,title,was_live,webpage_url,description,aspect_ratio,duration})j" ==
+      assert "%(.{id,title,was_live,webpage_url,description,aspect_ratio,duration,upload_date})j" ==
                Media.indexing_output_template()
     end
   end
@@ -93,7 +93,8 @@ defmodule Pinchflat.YtDlp.Backend.MediaTest do
         "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
         "was_live" => false,
         "aspect_ratio" => 1.0,
-        "duration" => 60
+        "duration" => 60,
+        "upload_date" => "20210101"
       }
 
       assert %Media{
@@ -102,15 +103,17 @@ defmodule Pinchflat.YtDlp.Backend.MediaTest do
                description: "I'm not sure what I expected.",
                original_url: "https://www.youtube.com/watch?v=TiZPUDkDYbk",
                livestream: false,
-               short_form_content: false
-             } = Media.response_to_struct(response)
+               short_form_content: false,
+               upload_date: Date.from_iso8601!("2021-01-01")
+             } == Media.response_to_struct(response)
     end
 
     test "sets short_form_content to true if the URL contains /shorts/" do
       response = %{
         "webpage_url" => "https://www.youtube.com/shorts/TiZPUDkDYbk",
         "aspect_ratio" => 1.0,
-        "duration" => 61
+        "duration" => 61,
+        "upload_date" => "20210101"
       }
 
       assert %Media{short_form_content: true} = Media.response_to_struct(response)
@@ -120,7 +123,8 @@ defmodule Pinchflat.YtDlp.Backend.MediaTest do
       response = %{
         "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
         "aspect_ratio" => 0.5,
-        "duration" => 59
+        "duration" => 59,
+        "upload_date" => "20210101"
       }
 
       assert %Media{short_form_content: true} = Media.response_to_struct(response)
@@ -130,7 +134,8 @@ defmodule Pinchflat.YtDlp.Backend.MediaTest do
       response = %{
         "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
         "aspect_ratio" => 1.0,
-        "duration" => 61
+        "duration" => 61,
+        "upload_date" => "20210101"
       }
 
       assert %Media{short_form_content: false} = Media.response_to_struct(response)
