@@ -14,7 +14,11 @@ defmodule Pinchflat.Workers.FastIndexingWorker do
 
   @impl Oban.Worker
   @doc """
-  TODO
+  Kicks off the fast indexing process for a source, reschedules the job to run again
+  once complete. See `MediaCollectionIndexingWorker` and `MediaIndexingWorker` comments
+  for more
+
+  Returns :ok | {:ok, :job_exists} | {:ok, %Task{}}
   """
   def perform(%Oban.Job{args: %{"id" => source_id}}) do
     source = Sources.get_source!(source_id)
