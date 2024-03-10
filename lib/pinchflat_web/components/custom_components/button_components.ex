@@ -14,7 +14,9 @@ defmodule PinchflatWeb.CustomComponents.ButtonComponents do
   attr :color, :string, default: "bg-primary"
   attr :rounding, :string, default: "rounded-sm"
   attr :class, :string, default: ""
+  attr :type, :string, default: "submit"
   attr :disabled, :boolean, default: false
+  attr :rest, :global
 
   slot :inner_block, required: true
 
@@ -26,9 +28,11 @@ defmodule PinchflatWeb.CustomComponents.ButtonComponents do
         "#{@rounding} inline-flex items-center justify-center px-8 py-4",
         "#{@color}",
         "hover:bg-opacity-90 lg:px-8 xl:px-10",
+        "disabled:bg-opacity-50 disabled:cursor-not-allowed disabled:text-gray-2",
         @class
       ]}
       disabled={@disabled}
+      {@rest}
     >
       <%= render_slot(@inner_block) %>
     </button>
