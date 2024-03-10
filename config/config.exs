@@ -26,6 +26,8 @@ config :pinchflat,
 # Configures the endpoint
 config :pinchflat, PinchflatWeb.Endpoint,
   url: [host: "localhost", port: 8945],
+  # NOTE: this must be updated if ever deployed traditionally (ie: not self-hosted)
+  check_origin: false,
   adapter: Phoenix.Endpoint.Cowboy2Adapter,
   render_errors: [
     formats: [html: PinchflatWeb.ErrorHTML, json: PinchflatWeb.ErrorJSON],
