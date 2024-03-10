@@ -324,6 +324,26 @@ defmodule Pinchflat.SourcesTest do
       refute_enqueued(worker: MediaDownloadWorker)
     end
 
+    test "enabling fast_index will schedule a fast indexing task" do
+      source = source_fixture(fast_index: false)
+      update_attrs = %{fast_index: true}
+
+      refute_enqueued(worker: FastIndexingWorker)
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      assert_enqueued(worker: FastIndexingWorker, args: %{"id" => source.id})
+    end
+
+    test "disabling fast_index will cancel the fast indexing task" do
+      source = source_fixture(fast_index: true)
+      update_attrs = %{fast_index: false}
+      {:ok, job} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
+      task_fixture(source_id: source.id, job_id: job.id)
+
+      assert_enqueued(worker: FastIndexingWorker, args: %{"id" => source.id})
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      refute_enqueued(worker: FastIndexingWorker)
+    end
+
     test "updates with invalid data returns error changeset" do
       source = source_fixture()
 

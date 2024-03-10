@@ -3,6 +3,8 @@ defmodule Pinchflat.Api.YoutubeRss do
   Methods for interacting with YouTube RSS feeds
   """
 
+  require Logger
+
   alias Pinchflat.Sources.Source
 
   @doc """
@@ -11,6 +13,8 @@ defmodule Pinchflat.Api.YoutubeRss do
   Returns {:ok, [binary()]} | {:error, binary()}
   """
   def get_recent_media_ids_from_rss(%Source{} = source) do
+    Logger.debug("Fetching recent media IDs from YouTube RSS feed for source: #{source.collection_id}")
+
     case http_client().get(rss_url_for_source(source)) do
       {:ok, response} ->
         response = to_string(response)
@@ -24,6 +28,8 @@ defmodule Pinchflat.Api.YoutubeRss do
           |> Enum.map(fn [_, id] -> String.trim(id) end)
           |> Enum.filter(&(String.length(&1) > 0))
           |> Enum.uniq()
+
+        Logger.debug("Media ids fetched from RSS: #{inspect(media_ids)}")
 
         {:ok, media_ids}
 

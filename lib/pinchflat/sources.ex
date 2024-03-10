@@ -156,16 +156,14 @@ defmodule Pinchflat.Sources do
   defp maybe_change_indexing_frequency(changeset) do
     fast_index = Ecto.Changeset.get_field(changeset, :fast_index)
 
-    case {changeset.changes, fast_index} do
-      {%{index_frequency_minutes: _}, true} ->
-        Ecto.Changeset.put_change(
-          changeset,
-          :index_frequency_minutes,
-          Source.index_frequency_when_fast_indexing()
-        )
-
-      _ ->
-        changeset
+    if fast_index do
+      Ecto.Changeset.put_change(
+        changeset,
+        :index_frequency_minutes,
+        Source.index_frequency_when_fast_indexing()
+      )
+    else
+      changeset
     end
   end
 
@@ -206,20 +204,38 @@ defmodule Pinchflat.Sources do
       # If the record has been persisted, only run indexing if the
       # indexing frequency has been changed and is now greater than 0
       %{__meta__: %{state: :loaded}} ->
-        case changeset.changes do
-          %{index_frequency_minutes: mins} when mins > 0 ->
-            SourceTasks.kickoff_indexing_task(source)
-
-          %{index_frequency_minutes: _} ->
-            Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
-            Tasks.delete_pending_tasks_for(source, "MediaIndexingWorker")
-            Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker")
-
-          _ ->
-            :ok
-        end
+        maybe_update_slow_indexing_task(changeset, source)
+        maybe_update_fast_indexing_task(changeset, source)
     end
 
     {:ok, source}
+  end
+
+  defp maybe_update_slow_indexing_task(changeset, source) do
+    case changeset.changes do
+      %{index_frequency_minutes: mins} when mins > 0 ->
+        SourceTasks.kickoff_indexing_task(source)
+
+      %{index_frequency_minutes: _} ->
+        Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
+        Tasks.delete_pending_tasks_for(source, "MediaIndexingWorker")
+        Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker")
+
+      _ ->
+        :ok
+    end
+  end
+
+  defp maybe_update_fast_indexing_task(changeset, source) do
+    case changeset.changes do
+      %{fast_index: true} ->
+        SourceTasks.kickoff_fast_indexing_task(source)
+
+      %{fast_index: false} ->
+        Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
+
+      _ ->
+        :ok
+    end
   end
 end

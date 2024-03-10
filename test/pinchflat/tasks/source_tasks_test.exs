@@ -66,6 +66,34 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
     end
   end
 
+  describe "kickoff_fast_indexing_task/1" do
+    test "it schedules a job" do
+      source = source_fixture()
+
+      assert {:ok, _} = SourceTasks.kickoff_fast_indexing_task(source)
+
+      assert_enqueued(worker: FastIndexingWorker, args: %{"id" => source.id})
+    end
+
+    test "it creates and attaches a task" do
+      source = source_fixture()
+
+      assert {:ok, %Task{} = task} = SourceTasks.kickoff_fast_indexing_task(source)
+
+      assert task.source_id == source.id
+    end
+
+    test "it deletes any fast indexing tasks for the source" do
+      source = source_fixture()
+      {:ok, job} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
+      task = task_fixture(source_id: source.id, job_id: job.id)
+
+      assert {:ok, _} = SourceTasks.kickoff_fast_indexing_task(source)
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+  end
+
   describe "kickoff_indexing_tasks_from_youtube_rss_feed/1" do
     setup do
       {:ok, [source: source_fixture()]}
