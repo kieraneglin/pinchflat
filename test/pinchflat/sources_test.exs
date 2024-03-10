@@ -9,8 +9,10 @@ defmodule Pinchflat.SourcesTest do
   alias Pinchflat.Sources
   alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Sources.Source
-  alias Pinchflat.Workers.MediaIndexingWorker
+  alias Pinchflat.Workers.FastIndexingWorker
   alias Pinchflat.Workers.MediaDownloadWorker
+  alias Pinchflat.Workers.MediaIndexingWorker
+  alias Pinchflat.Workers.MediaCollectionIndexingWorker
 
   @invalid_source_attrs %{name: nil, collection_id: nil}
 
@@ -166,7 +168,7 @@ defmodule Pinchflat.SourcesTest do
 
       assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
 
-      assert_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
+      assert_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
     end
 
     test "creation schedules an index test even if the index frequency is 0" do
@@ -180,7 +182,37 @@ defmodule Pinchflat.SourcesTest do
 
       assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
 
-      assert_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
+      assert_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
+    end
+
+    test "fast_index forces the index frequency to be a default value" do
+      expect(YtDlpRunnerMock, :run, &channel_mock/3)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123",
+        fast_index: true,
+        index_frequency_minutes: 0
+      }
+
+      assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
+
+      assert source.index_frequency_minutes == Source.index_frequency_when_fast_indexing()
+    end
+
+    test "disabling fast index will not change the index frequency" do
+      expect(YtDlpRunnerMock, :run, &channel_mock/3)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123",
+        fast_index: false,
+        index_frequency_minutes: 0
+      }
+
+      assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
+
+      assert source.index_frequency_minutes == 0
     end
   end
 
@@ -230,7 +262,7 @@ defmodule Pinchflat.SourcesTest do
 
       assert {:ok, %Source{} = source} = Sources.update_source(source, update_attrs)
       assert source.index_frequency_minutes == 123
-      assert_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
+      assert_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
     end
 
     test "updating the index frequency to 0 will not re-schedule the indexing task" do
@@ -239,18 +271,25 @@ defmodule Pinchflat.SourcesTest do
 
       assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
 
-      refute_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
+      refute_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
     end
 
     test "updating the index frequency to 0 will delete any pending tasks" do
       source = source_fixture()
-      {:ok, job} = Oban.insert(MediaIndexingWorker.new(%{"id" => source.id}))
-      task = task_fixture(source_id: source.id, job_id: job.id)
       update_attrs = %{index_frequency_minutes: 0}
+
+      {:ok, job_1} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
+      task_1 = task_fixture(source_id: source.id, job_id: job_1.id)
+      {:ok, job_2} = Oban.insert(MediaIndexingWorker.new(%{"id" => source.id}))
+      task_2 = task_fixture(source_id: source.id, job_id: job_2.id)
+      {:ok, job_3} = Oban.insert(MediaCollectionIndexingWorker.new(%{"id" => source.id}))
+      task_3 = task_fixture(source_id: source.id, job_id: job_3.id)
 
       assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
 
-      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task_1) end
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task_2) end
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task_3) end
     end
 
     test "not updating the index frequency will not re-schedule the indexing task or delete tasks" do
@@ -261,7 +300,7 @@ defmodule Pinchflat.SourcesTest do
       assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
 
       assert Repo.reload!(task)
-      refute_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
+      refute_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
     end
 
     test "enabling the download_media attribute will schedule a download task" do
@@ -285,6 +324,26 @@ defmodule Pinchflat.SourcesTest do
       refute_enqueued(worker: MediaDownloadWorker)
     end
 
+    test "enabling fast_index will schedule a fast indexing task" do
+      source = source_fixture(fast_index: false)
+      update_attrs = %{fast_index: true}
+
+      refute_enqueued(worker: FastIndexingWorker)
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      assert_enqueued(worker: FastIndexingWorker, args: %{"id" => source.id})
+    end
+
+    test "disabling fast_index will cancel the fast indexing task" do
+      source = source_fixture(fast_index: true)
+      update_attrs = %{fast_index: false}
+      {:ok, job} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
+      task_fixture(source_id: source.id, job_id: job.id)
+
+      assert_enqueued(worker: FastIndexingWorker, args: %{"id" => source.id})
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      refute_enqueued(worker: FastIndexingWorker)
+    end
+
     test "updates with invalid data returns error changeset" do
       source = source_fixture()
 
@@ -292,6 +351,24 @@ defmodule Pinchflat.SourcesTest do
                Sources.update_source(source, @invalid_source_attrs)
 
       assert source == Sources.get_source!(source.id)
+    end
+
+    test "fast_index forces the index frequency to be a default value" do
+      source = source_fixture(%{fast_index: true})
+      update_attrs = %{index_frequency_minutes: 0}
+
+      assert {:ok, source} = Sources.update_source(source, update_attrs)
+
+      assert source.index_frequency_minutes == Source.index_frequency_when_fast_indexing()
+    end
+
+    test "disabling fast index will not change the index frequency" do
+      source = source_fixture(%{fast_index: false})
+      update_attrs = %{index_frequency_minutes: 0}
+
+      assert {:ok, source} = Sources.update_source(source, update_attrs)
+
+      assert source.index_frequency_minutes == 0
     end
   end
 

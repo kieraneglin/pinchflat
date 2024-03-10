@@ -12,14 +12,15 @@ defmodule Pinchflat.Media.MediaItem do
   alias Pinchflat.Media.MediaItemSearchIndex
 
   @allowed_fields [
-    # these fields are captured on indexing
+    # these fields are captured on indexing (and again on download)
     :title,
     :media_id,
     :description,
     :original_url,
     :livestream,
     :source_id,
-    # these fields are captured on download
+    :short_form_content,
+    # these fields are captured only on download
     :media_downloaded_at,
     :media_filepath,
     :media_size_bytes,
@@ -27,7 +28,7 @@ defmodule Pinchflat.Media.MediaItem do
     :thumbnail_filepath,
     :metadata_filepath
   ]
-  @required_fields ~w(title original_url livestream media_id source_id)a
+  @required_fields ~w(title original_url livestream media_id source_id short_form_content)a
 
   schema "media_items" do
     field :title, :string
@@ -35,6 +36,7 @@ defmodule Pinchflat.Media.MediaItem do
     field :description, :string
     field :original_url, :string
     field :livestream, :boolean, default: false
+    field :short_form_content, :boolean, default: false
     field :media_downloaded_at, :utc_datetime
 
     field :media_filepath, :string

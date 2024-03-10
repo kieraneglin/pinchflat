@@ -11,7 +11,7 @@ defmodule Pinchflat.Sources do
   alias Pinchflat.Sources.Source
   alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Profiles.MediaProfile
-  alias Pinchflat.MediaClient.SourceDetails
+  alias Pinchflat.YtDlp.Backend.MediaCollection
 
   @doc """
   Returns the list of sources. Returns [%Source{}, ...]
@@ -46,6 +46,7 @@ defmodule Pinchflat.Sources do
   def create_source(attrs) do
     %Source{}
     |> change_source_from_url(attrs)
+    |> maybe_change_indexing_frequency()
     |> commit_and_handle_tasks()
   end
 
@@ -62,6 +63,7 @@ defmodule Pinchflat.Sources do
   def update_source(%Source{} = source, attrs) do
     source
     |> change_source_from_url(attrs)
+    |> maybe_change_indexing_frequency()
     |> commit_and_handle_tasks()
   end
 
@@ -116,7 +118,7 @@ defmodule Pinchflat.Sources do
   defp add_source_details_to_changeset(source, changeset) do
     %Ecto.Changeset{changes: changes} = changeset
 
-    case SourceDetails.get_source_details(changes.original_url) do
+    case MediaCollection.get_source_details(changes.original_url) do
       {:ok, source_details} ->
         add_source_details_by_collection_type(source, changeset, source_details)
 
@@ -149,6 +151,20 @@ defmodule Pinchflat.Sources do
       end
 
     change_source(source, Map.merge(changes, collection_changes))
+  end
+
+  defp maybe_change_indexing_frequency(changeset) do
+    fast_index = Ecto.Changeset.get_field(changeset, :fast_index)
+
+    if fast_index do
+      Ecto.Changeset.put_change(
+        changeset,
+        :index_frequency_minutes,
+        Source.index_frequency_when_fast_indexing()
+      )
+    else
+      changeset
+    end
   end
 
   defp commit_and_handle_tasks(changeset) do
@@ -188,13 +204,38 @@ defmodule Pinchflat.Sources do
       # If the record has been persisted, only run indexing if the
       # indexing frequency has been changed and is now greater than 0
       %{__meta__: %{state: :loaded}} ->
-        case changeset.changes do
-          %{index_frequency_minutes: mins} when mins > 0 -> SourceTasks.kickoff_indexing_task(source)
-          %{index_frequency_minutes: _} -> Tasks.delete_pending_tasks_for(source, "MediaIndexingWorker")
-          _ -> :ok
-        end
+        maybe_update_slow_indexing_task(changeset, source)
+        maybe_update_fast_indexing_task(changeset, source)
     end
 
     {:ok, source}
+  end
+
+  defp maybe_update_slow_indexing_task(changeset, source) do
+    case changeset.changes do
+      %{index_frequency_minutes: mins} when mins > 0 ->
+        SourceTasks.kickoff_indexing_task(source)
+
+      %{index_frequency_minutes: _} ->
+        Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
+        Tasks.delete_pending_tasks_for(source, "MediaIndexingWorker")
+        Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker")
+
+      _ ->
+        :ok
+    end
+  end
+
+  defp maybe_update_fast_indexing_task(changeset, source) do
+    case changeset.changes do
+      %{fast_index: true} ->
+        SourceTasks.kickoff_fast_indexing_task(source)
+
+      %{fast_index: false} ->
+        Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
+
+      _ ->
+        :ok
+    end
   end
 end

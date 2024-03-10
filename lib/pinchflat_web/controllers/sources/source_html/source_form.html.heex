@@ -3,6 +3,10 @@
     Oops, something went wrong! Please check the errors below.
   </.error>
 
+  <h3 class="mt-8 text-2xl text-black dark:text-white">
+    General Options
+  </h3>
+
   <.input
     field={f[:custom_name]}
     type="text"
@@ -19,6 +23,10 @@
     label="Media Profile"
   />
 
+  <h3 class="mt-8 text-2xl text-black dark:text-white">
+    Indexing Options
+  </h3>
+
   <.input
     field={f[:index_frequency_minutes]}
     options={friendly_index_frequencies()}
@@ -27,6 +35,21 @@
     help="Time between one index of this source finishing and the next one starting. Setting to 'On Create' will still run an initial index but no subsequent ones"
   />
 
+  <%!-- TODO: use Alpine to disable the index frequency when fast indexing is enabled --%>
+  <div phx-click={show_modal("upgrade-modal")}>
+    <.input
+      field={f[:fast_index]}
+      type="toggle"
+      label="Use Fast Indexing?"
+      label_suffix="(pro)"
+      help="Experimental. Ignores 'Index Frequency'. Recommended for large channels that upload frequently. See below for more info"
+    />
+  </div>
+
+  <h3 class="mt-8 text-2xl text-black dark:text-white">
+    Downloading Options
+  </h3>
+
   <.input
     field={f[:download_media]}
     type="toggle"
@@ -34,7 +57,9 @@
     help="Unchecking still indexes media but it won't be downloaded until you enable this option"
   />
 
-  <:actions>
-    <.button class="my-10 sm:mb-7.5 w-full sm:w-auto">Save Source</.button>
-  </:actions>
+  <.button class="my-10 sm:mb-7.5 w-full sm:w-auto">Save Source</.button>
+
+  <div class="rounded-sm dark:bg-meta-4 p-4 md:p-6 mb-5">
+    <.fast_indexing_help />
+  </div>
 </.simple_form>

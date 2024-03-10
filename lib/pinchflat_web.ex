@@ -54,8 +54,9 @@ defmodule PinchflatWeb do
 
   def live_view do
     quote do
-      use Phoenix.LiveView,
-        layout: {PinchflatWeb.Layouts, :app}
+      use Phoenix.Component, global_prefixes: ~w(x-)
+
+      use Phoenix.LiveView
 
       alias Pinchflat.Settings
 
@@ -75,7 +76,7 @@ defmodule PinchflatWeb do
 
   def html do
     quote do
-      use Phoenix.Component
+      use Phoenix.Component, global_prefixes: ~w(x-)
 
       # Import convenience functions from controllers
       import Phoenix.Controller,

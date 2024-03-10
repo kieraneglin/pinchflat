@@ -1,7 +1,7 @@
 <div class="mb-6 flex gap-3 flex-row items-center justify-between">
   <h2 class="text-title-md2 font-bold text-black dark:text-white">Sources</h2>
   <nav>
-    <.link navigate={~p"/sources/new"}>
+    <.link href={~p"/sources/new"}>
       <.button color="bg-primary" rounding="rounded-full">
         <span class="font-bold mx-2">+</span> New <span class="hidden sm:inline pl-1">Source</span>
       </.button>
@@ -22,7 +22,7 @@
         </:col>
         <:col :let={source} label="Media Profile">
           <.link
-            navigate={~p"/media_profiles/#{source.media_profile_id}"}
+            href={~p"/media_profiles/#{source.media_profile_id}"}
             class="hover:text-secondary duration-200 ease-in-out"
           >
             <%= source.media_profile.name %>

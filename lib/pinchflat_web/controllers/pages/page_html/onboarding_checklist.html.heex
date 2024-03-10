@@ -10,7 +10,7 @@
         <p class="text-md text-bodydark">Media Profiles set your preferences for fetching and downloading media.</p>
         <p class="text-md text-bodydark">Don't worry, you can create more Media Profiles later!</p>
         <div class="mt-8">
-          <.link navigate={~p"/media_profiles/new"}>
+          <.link href={~p"/media_profiles/new"}>
             <.button color="bg-primary" rounding="rounded-full" disabled={@media_profiles_exist}>
               <span class="font-bold mx-2">+</span> New Media Profile
             </.button>
@@ -24,7 +24,7 @@
           Each Media Profile can control many Sources so it's easy to add more content!
         </p>
         <div class="mt-8">
-          <.link navigate={~p"/sources/new"}>
+          <.link href={~p"/sources/new"}>
             <.button color="bg-primary" rounding="rounded-full" disabled={not @media_profiles_exist}>
               <span class="font-bold mx-2">+</span> New Source
             </.button>
@@ -39,7 +39,7 @@
         </p>
         <p class="text-md text-bodydark">Feel free to add more Media Profiles or Sources in the meantime!</p>
         <div class="mt-8">
-          <.link navigate={~p"/"}>
+          <.link href={~p"/"}>
             <.button color="bg-primary" rounding="rounded-full" disabled={not @sources_exist}>
               Let's Go <span class="font-bold mx-2">🚀</span>
             </.button>

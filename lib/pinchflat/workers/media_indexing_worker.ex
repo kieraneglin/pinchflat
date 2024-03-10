@@ -6,67 +6,48 @@ defmodule Pinchflat.Workers.MediaIndexingWorker do
     unique: [period: :infinity, states: [:available, :scheduled, :retryable]],
     tags: ["media_source", "media_indexing"]
 
-  alias __MODULE__
-  alias Pinchflat.Tasks
+  require Logger
+
   alias Pinchflat.Sources
-  alias Pinchflat.Tasks.SourceTasks
+  alias Pinchflat.Tasks.MediaItemTasks
 
   @impl Oban.Worker
   @doc """
-  The ID is that of a source _record_, not a YouTube channel/playlist ID. Indexes
-  the provided source, kicks off downloads for each new MediaItem, and
-  reschedules the job to run again in the future. It will ALWAYS index a source
-  if it's never been indexed before, but rescheduling is determined by the
-  `index_frequency_minutes` field.
+  Similar to `MediaCollectionIndexingWorker`, but for individual media items.
+  Does not reschedule or check anything to do with a source's indexing
+  frequency - only collects initial metadata then kicks off a download.
+  `MediaCollectionIndexingWorker` should be preferred in general, but this is
+  useful for downloading one-off media items based on a URL (like for fast indexing).
 
-  README: Re-scheduling here works a little different than you may expect.
-  The reschedule time is relative to the time the job has actually _completed_.
-  This has some benefits but also side effects to be aware of:
+  Only downloads media that _should_ be downloaded (ie: the source is set to download
+  and the media matches the profile's format preferences)
 
-  - Benefit: No chance for jobs to overlap if a job takes longer than the
-    scheduled interval. Less likely to hit API rate limits.
-  - Side effect: Intervals are "soft" and _always_ walk forward. This may cause
-    user confusion since a 30-minute job scheduled for every hour will
-    actually run every 1 hour and 30 minutes. The tradeoff of not inundating
-    the API with requests and also not overlapping jobs is worth it, IMO.
+  Order of operations:
+    1. SourceTasks.kickoff_indexing_tasks_from_youtube_rss_feed/1 (which is running
+       in its own worker) periodically checks the YouTube RSS feed for new media
+    2. If new media is found, it enqueues a MediaIndexingWorker (this module) for each new media
+       item
+    3. This worker fetches the media metadata and uses that to determine if it should be
+       downloaded. If so, it enqueues a MediaDownloadWorker
 
-  NOTE: Since indexing can take a LONG time, I should check what happens if an
-  application restart occurs while a job is running. Will the job be lost?
+  Each is a worker because they all either need to be scheduled periodically or call out to
+  an external service and will be long-running. They're split into different jobs to separate
+  retry logic for each step and allow us to better optimize various queues (eg: the indexing
+  steps can keep running while the slow download steps are worked through).
 
-  IDEA: Should I use paging and do indexing in chunks? Is that even faster?
-
-  Returns :ok | {:ok, %Task{}}
+  Returns :ok
   """
-  def perform(%Oban.Job{args: %{"id" => source_id}}) do
+  def perform(%Oban.Job{args: %{"id" => source_id, "media_url" => media_url}}) do
     source = Sources.get_source!(source_id)
 
-    case {source.index_frequency_minutes, source.last_indexed_at} do
-      {index_freq, _} when index_freq > 0 ->
-        # If the indexing is on a schedule simply run indexing and reschedule
-        SourceTasks.index_and_enqueue_download_for_media_items(source)
-        reschedule_indexing(source)
+    case MediaItemTasks.index_and_enqueue_download_for_media_item(source, media_url) do
+      {:ok, media_item} ->
+        Logger.debug("Indexed and enqueued download for url: #{media_url} (media item: #{media_item.id})")
 
-      {_, nil} ->
-        # If the source has never been indexed, index it once
-        # even if it's not meant to reschedule
-        SourceTasks.index_and_enqueue_download_for_media_items(source)
-        :ok
-
-      _ ->
-        # If the source HAS been indexed and is not meant to reschedule,
-        # perform a no-op
-        :ok
+      {:error, reason} ->
+        Logger.debug("Failed to index and enqueue download for url: #{media_url} (reason: #{inspect(reason)})")
     end
-  end
 
-  defp reschedule_indexing(source) do
-    source
-    |> Map.take([:id])
-    |> MediaIndexingWorker.new(schedule_in: source.index_frequency_minutes * 60)
-    |> Tasks.create_job_with_task(source)
-    |> case do
-      {:ok, task} -> {:ok, task}
-      {:error, :duplicate_job} -> {:ok, :job_exists}
-    end
+    :ok
   end
 end
