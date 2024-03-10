@@ -6,14 +6,16 @@ defmodule PinchflatWeb.Layouts do
 
   attr :icon, :string, required: true
   attr :text, :string, required: true
-  attr :navigate, :any, required: true
+  attr :href, :any, required: true
+  attr :target, :any, default: "_self"
 
   def sidebar_item(assigns) do
     # I'm testing out grouping classes here. Tentative order: font, layout, color, animation, state-modifiers
     ~H"""
     <li>
       <.link
-        navigate={@navigate}
+        href={@href}
+        target={@target}
         class={[
           "font-medium text-bodydark1",
           "group relative flex items-center gap-2.5 rounded-sm px-4 py-2 duration-300 ease-in-out",

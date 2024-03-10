@@ -75,6 +75,6 @@ defmodule Pinchflat.Sources.Source do
   @doc false
   def fast_index_frequency do
     # minutes
-    15
+    2
   end
 end

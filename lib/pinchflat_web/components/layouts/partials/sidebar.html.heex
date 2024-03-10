@@ -1,31 +1,45 @@
 <aside
   x-bind:class="sidebarVisible ? 'translate-x-0' : '-translate-x-full'"
   class={[
-    "-translate-x-full absolute left-0 top-0 z-9999 flex h-screen w-60 flex-col overflow-y-hidden",
+    "-translate-x-full absolute left-0 top-0 z-9999 flex h-screen w-60 flex-col overflow-y-hidden justify-between",
     "bg-black duration-300 ease-linear shadow-lg sm:shadow-none dark:bg-boxdark lg:static lg:translate-x-0"
   ]}
   @click.outside="sidebarVisible = false"
 >
-  <div class="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
-    <a href="/" class="flex items-center">
-      <img src={~p"/images/logo.png?cachebust=2024-02-29"} alt="Pinchflat" class="w-9 h-9" />
-      <h2 class="text-xl font-bold text-white pl-2">Pinchflat</h2>
-    </a>
+  <section>
+    <div class="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
+      <a href="/" class="flex items-center">
+        <img src={~p"/images/logo.png?cachebust=2024-02-29"} alt="Pinchflat" class="w-9 h-9" />
+        <h2 class="text-xl font-bold text-white pl-2">Pinchflat</h2>
+      </a>
 
-    <button class="block lg:hidden" @click.stop="sidebarVisible = !sidebarVisible">
-      <.icon name="hero-arrow-left" class="fill-current" />
-    </button>
-  </div>
-  <div class="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
-    <nav class="mt-5 px-4 py-4 lg:mt-9 lg:px-6">
-      <div>
+      <button class="block lg:hidden" @click.stop="sidebarVisible = !sidebarVisible">
+        <.icon name="hero-arrow-left" class="fill-current" />
+      </button>
+    </div>
+    <div class="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
+      <nav class="mt-5 px-4 py-4 lg:mt-9 lg:px-6">
         <h3 class="mb-4 ml-4 text-sm font-medium text-bodydark2">MENU</h3>
-        <ul class="mb-6 flex flex-col gap-1.5">
-          <.sidebar_item icon="hero-home" text="Home" navigate={~p"/"} />
-          <.sidebar_item icon="hero-tv" text="Sources" navigate={~p"/sources"} />
-          <.sidebar_item icon="hero-adjustments-vertical" text="Media Profiles" navigate={~p"/media_profiles"} />
-        </ul>
-      </div>
+        <div class="flex flex-col justify-between">
+          <ul class="mb-6 flex flex-col gap-1.5">
+            <.sidebar_item icon="hero-home" text="Home" href={~p"/"} />
+            <.sidebar_item icon="hero-tv" text="Sources" href={~p"/sources"} />
+            <.sidebar_item icon="hero-adjustments-vertical" text="Media Profiles" href={~p"/media_profiles"} />
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </section>
+  <section>
+    <nav class="mt-5 px-4 py-4 lg:mt-9 lg:px-6">
+      <ul class="mb-6 flex flex-col gap-1.5">
+        <.sidebar_item
+          icon="hero-code-bracket"
+          text="Github"
+          target="_blank"
+          href="https://github.com/kieraneglin/pinchflat"
+        />
+      </ul>
     </nav>
-  </div>
+  </section>
 </aside>
