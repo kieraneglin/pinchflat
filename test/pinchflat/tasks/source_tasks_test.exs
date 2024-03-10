@@ -11,6 +11,7 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
   alias Pinchflat.Tasks.Task
   alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Media.MediaItem
+  alias Pinchflat.Workers.FastIndexingWorker
   alias Pinchflat.Workers.MediaDownloadWorker
   alias Pinchflat.Workers.MediaIndexingWorker
   alias Pinchflat.Workers.MediaCollectionIndexingWorker
@@ -34,12 +35,60 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
       assert task.source_id == source.id
     end
 
-    test "it deletes any pending tasks for the source" do
+    test "it deletes any pending media collection tasks for the source" do
       source = source_fixture()
       {:ok, job} = Oban.insert(MediaCollectionIndexingWorker.new(%{"id" => source.id}))
       task = task_fixture(source_id: source.id, job_id: job.id)
 
       assert {:ok, _} = SourceTasks.kickoff_indexing_task(source)
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+
+    test "it deletes any pending media tasks for the source" do
+      source = source_fixture()
+      {:ok, job} = Oban.insert(MediaIndexingWorker.new(%{"id" => source.id}))
+      task = task_fixture(source_id: source.id, job_id: job.id)
+
+      assert {:ok, _} = SourceTasks.kickoff_indexing_task(source)
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+
+    test "it deletes any fast indexing tasks for the source" do
+      source = source_fixture()
+      {:ok, job} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
+      task = task_fixture(source_id: source.id, job_id: job.id)
+
+      assert {:ok, _} = SourceTasks.kickoff_indexing_task(source)
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+  end
+
+  describe "kickoff_fast_indexing_task/1" do
+    test "it schedules a job" do
+      source = source_fixture()
+
+      assert {:ok, _} = SourceTasks.kickoff_fast_indexing_task(source)
+
+      assert_enqueued(worker: FastIndexingWorker, args: %{"id" => source.id})
+    end
+
+    test "it creates and attaches a task" do
+      source = source_fixture()
+
+      assert {:ok, %Task{} = task} = SourceTasks.kickoff_fast_indexing_task(source)
+
+      assert task.source_id == source.id
+    end
+
+    test "it deletes any fast indexing tasks for the source" do
+      source = source_fixture()
+      {:ok, job} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
+      task = task_fixture(source_id: source.id, job_id: job.id)
+
+      assert {:ok, _} = SourceTasks.kickoff_fast_indexing_task(source)
 
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
     end

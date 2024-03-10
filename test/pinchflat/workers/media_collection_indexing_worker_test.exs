@@ -2,12 +2,15 @@ defmodule Pinchflat.Workers.MediaCollectionIndexingWorkerTest do
   use Pinchflat.DataCase
 
   import Mox
+  import Pinchflat.TasksFixtures
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
 
   alias Pinchflat.Tasks
-  alias Pinchflat.Workers.MediaCollectionIndexingWorker
+  alias Pinchflat.Sources.Source
+  alias Pinchflat.Workers.FastIndexingWorker
   alias Pinchflat.Workers.MediaDownloadWorker
+  alias Pinchflat.Workers.MediaCollectionIndexingWorker
 
   setup :verify_on_exit!
 
@@ -103,6 +106,40 @@ defmodule Pinchflat.Workers.MediaCollectionIndexingWorkerTest do
       assert_changed([from: 0, to: 1], task_count_fetcher, fn ->
         perform_job(MediaCollectionIndexingWorker, %{id: source.id})
       end)
+    end
+
+    test "it creates a future task for fast indexing if appropriate" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:ok, ""} end)
+
+      source = source_fixture(index_frequency_minutes: 10, fast_index: true)
+      perform_job(MediaCollectionIndexingWorker, %{id: source.id})
+
+      assert_enqueued(
+        worker: FastIndexingWorker,
+        args: %{"id" => source.id},
+        scheduled_at: now_plus(Source.fast_index_frequency(), :minutes)
+      )
+    end
+
+    test "it deletes existing fast indexing tasks if a new one is created" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:ok, ""} end)
+
+      source = source_fixture(index_frequency_minutes: 10, fast_index: true)
+      {:ok, job} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
+      task = task_fixture(source_id: source.id, job_id: job.id)
+
+      perform_job(MediaCollectionIndexingWorker, %{id: source.id})
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+
+    test "it does not create a task for fast indexing otherwise" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:ok, ""} end)
+
+      source = source_fixture(index_frequency_minutes: 10, fast_index: false)
+      perform_job(MediaCollectionIndexingWorker, %{id: source.id})
+
+      refute_enqueued(worker: FastIndexingWorker)
     end
 
     test "it creates the basic media_item records" do

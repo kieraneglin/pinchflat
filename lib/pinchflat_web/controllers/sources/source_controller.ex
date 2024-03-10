@@ -3,8 +3,9 @@ defmodule PinchflatWeb.Sources.SourceController do
 
   alias Pinchflat.Repo
   alias Pinchflat.Media
-  alias Pinchflat.Profiles
+  alias Pinchflat.Tasks
   alias Pinchflat.Sources
+  alias Pinchflat.Profiles
   alias Pinchflat.Sources.Source
 
   def index(conn, _params) do
@@ -43,15 +44,18 @@ defmodule PinchflatWeb.Sources.SourceController do
   end
 
   def show(conn, %{"id" => id}) do
-    source =
-      id
-      |> Sources.get_source!()
-      |> Repo.preload([:media_profile, tasks: [:job]])
+    source = Repo.preload(Sources.get_source!(id), :media_profile)
 
+    pending_tasks = Repo.preload(Tasks.list_pending_tasks_for(:source_id, source.id), :job)
     pending_media = Media.list_pending_media_items_for(source, limit: 100)
     downloaded_media = Media.list_downloaded_media_items_for(source, limit: 100)
 
-    render(conn, :show, source: source, pending_media: pending_media, downloaded_media: downloaded_media)
+    render(conn, :show,
+      source: source,
+      pending_tasks: pending_tasks,
+      pending_media: pending_media,
+      downloaded_media: downloaded_media
+    )
   end
 
   def edit(conn, %{"id" => id}) do

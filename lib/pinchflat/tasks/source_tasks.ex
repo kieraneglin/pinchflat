@@ -14,6 +14,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
   alias Pinchflat.Sources.Source
   alias Pinchflat.Api.YoutubeRss
   alias Pinchflat.Media.MediaItem
+  alias Pinchflat.Workers.FastIndexingWorker
   alias Pinchflat.Workers.MediaDownloadWorker
   alias Pinchflat.Workers.MediaIndexingWorker
   alias Pinchflat.YtDlp.Backend.MediaCollection
@@ -24,22 +25,38 @@ defmodule Pinchflat.Tasks.SourceTasks do
 
   @doc """
   Starts tasks for indexing a source's media regardless of the source's indexing
-  frequency. It's assumed the caller will check for that.
+  frequency. It's assumed the caller will check for indexing frequency.
 
   Returns {:ok, %Task{}}.
   """
   def kickoff_indexing_task(%Source{} = source) do
+    Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
+    Tasks.delete_pending_tasks_for(source, "MediaIndexingWorker")
     Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker")
 
     %{id: source.id}
     # Schedule this one immediately, but future ones will be on an interval
     |> MediaCollectionIndexingWorker.new()
     |> Tasks.create_job_with_task(source)
-    |> case do
-      # This should never return {:error, :duplicate_job} since we just deleted
-      # any pending tasks. I'm being assertive about it so it's obvious if I'm wrong
-      {:ok, task} -> {:ok, task}
-    end
+  end
+
+  @doc """
+  Starts tasks for running a fast indexing task for a source's media
+  regardless of the source's fast_index state. It's assumed the
+  caller will check for fast_index.
+
+  This is used for running fast index tasks on update. On creation, the
+  fast index is enqueued after the slow index is complete.
+
+  Returns {:ok, %Task{}}.
+  """
+  def kickoff_fast_indexing_task(%Source{} = source) do
+    Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
+
+    %{id: source.id}
+    # Schedule this one immediately, but future ones will be on an interval
+    |> FastIndexingWorker.new()
+    |> Tasks.create_job_with_task(source)
   end
 
   @doc """
@@ -90,8 +107,8 @@ defmodule Pinchflat.Tasks.SourceTasks do
     # See the method definition below for more info on how file watchers work
     # (important reading if you're not familiar with it)
     {:ok, media_attributes} = get_media_attributes_for_collection_and_setup_file_watcher(source)
-
     result = Enum.map(media_attributes, fn media_attrs -> create_media_item_from_attributes(source, media_attrs) end)
+
     Sources.update_source(source, %{last_indexed_at: DateTime.utc_now()})
     enqueue_pending_media_tasks(source)
 

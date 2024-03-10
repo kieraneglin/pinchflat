@@ -84,9 +84,9 @@
           <p class="text-black dark:text-white">Nothing Here!</p>
         <% end %>
       </:tab>
-      <:tab title="Tasks">
-        <%= if match?([_|_], @source.tasks) do %>
-          <.table rows={@source.tasks} table_class="text-black dark:text-white">
+      <:tab title="Pending Tasks">
+        <%= if match?([_|_], @pending_tasks) do %>
+          <.table rows={@pending_tasks} table_class="text-black dark:text-white">
             <:col :let={task} label="Worker">
               <%= task.job.worker %>
             </:col>
