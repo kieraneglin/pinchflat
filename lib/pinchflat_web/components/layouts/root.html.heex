@@ -12,7 +12,14 @@
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
   </head>
-  <body x-data="{ sidebarVisible: false }" class="dark text-bodydark bg-boxdark-2">
+  <body
+    x-data={"{ sidebarVisible: false, proEnabled: #{Settings.get!(:pro_enabled)} }"}
+    class="dark text-bodydark bg-boxdark-2"
+  >
     <%= @inner_content %>
+
+    <template x-if="!proEnabled">
+      <.upgrade_modal conn={@conn} />
+    </template>
   </body>
 </html>
