@@ -12,31 +12,72 @@ defmodule Pinchflat.Tasks.SourceTasks do
   alias Pinchflat.Tasks
   alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Api.YoutubeRss
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.MediaClient.SourceDetails
-  alias Pinchflat.Workers.MediaIndexingWorker
+  alias Pinchflat.Workers.FastIndexingWorker
   alias Pinchflat.Workers.MediaDownloadWorker
+  alias Pinchflat.Workers.MediaIndexingWorker
+  alias Pinchflat.YtDlp.Backend.MediaCollection
+  alias Pinchflat.Workers.MediaCollectionIndexingWorker
   alias Pinchflat.Utils.FilesystemUtils.FileFollowerServer
+
+  alias Pinchflat.YtDlp.Backend.Media, as: YtDlpMedia
 
   @doc """
   Starts tasks for indexing a source's media regardless of the source's indexing
-  frequency. It's assumed the caller will check for that.
+  frequency. It's assumed the caller will check for indexing frequency.
 
   Returns {:ok, %Task{}}.
   """
   def kickoff_indexing_task(%Source{} = source) do
+    Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
     Tasks.delete_pending_tasks_for(source, "MediaIndexingWorker")
+    Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker")
 
-    source
-    |> Map.take([:id])
+    %{id: source.id}
     # Schedule this one immediately, but future ones will be on an interval
-    |> MediaIndexingWorker.new()
+    |> MediaCollectionIndexingWorker.new()
     |> Tasks.create_job_with_task(source)
-    |> case do
-      # This should never return {:error, :duplicate_job} since we just deleted
-      # any pending tasks. I'm being assertive about it so it's obvious if I'm wrong
-      {:ok, task} -> {:ok, task}
-    end
+  end
+
+  @doc """
+  Starts tasks for running a fast indexing task for a source's media
+  regardless of the source's fast_index state. It's assumed the
+  caller will check for fast_index.
+
+  This is used for running fast index tasks on update. On creation, the
+  fast index is enqueued after the slow index is complete.
+
+  Returns {:ok, %Task{}}.
+  """
+  def kickoff_fast_indexing_task(%Source{} = source) do
+    Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
+
+    %{id: source.id}
+    # Schedule this one immediately, but future ones will be on an interval
+    |> FastIndexingWorker.new()
+    |> Tasks.create_job_with_task(source)
+  end
+
+  @doc """
+  Fetches new media IDs from a source's YouTube RSS feed and kicks off indexing tasks
+  for any new media items. See comments in `MediaIndexingWorker` for more info on the
+  order of operations and how this fits into the indexing process.
+
+  Returns :ok
+  """
+  def kickoff_indexing_tasks_from_youtube_rss_feed(%Source{} = source) do
+    {:ok, media_ids} = YoutubeRss.get_recent_media_ids_from_rss(source)
+    existing_media_items = Media.list_media_items_by_media_id_for(source, media_ids)
+    new_media_ids = media_ids -- Enum.map(existing_media_items, & &1.media_id)
+
+    Enum.each(new_media_ids, fn media_id ->
+      url = "https://www.youtube.com/watch?v=#{media_id}"
+
+      %{id: source.id, media_url: url}
+      |> MediaIndexingWorker.new()
+      |> Tasks.create_job_with_task(source)
+    end)
   end
 
   @doc """
@@ -65,9 +106,9 @@ defmodule Pinchflat.Tasks.SourceTasks do
   def index_and_enqueue_download_for_media_items(%Source{} = source) do
     # See the method definition below for more info on how file watchers work
     # (important reading if you're not familiar with it)
-    {:ok, media_attributes} = get_media_attributes_and_setup_file_watcher(source)
-
+    {:ok, media_attributes} = get_media_attributes_for_collection_and_setup_file_watcher(source)
     result = Enum.map(media_attributes, fn media_attrs -> create_media_item_from_attributes(source, media_attrs) end)
+
     Sources.update_source(source, %{last_indexed_at: DateTime.utc_now()})
     enqueue_pending_media_tasks(source)
 
@@ -89,8 +130,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
     source
     |> Media.list_pending_media_items_for()
     |> Enum.each(fn media_item ->
-      media_item
-      |> Map.take([:id])
+      %{id: media_item.id}
       |> MediaDownloadWorker.new()
       |> Tasks.create_job_with_task(media_item)
     end)
@@ -116,7 +156,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
   # lines (ie: you should gracefully fail if you can't parse a line).
   #
   # This works in-tandem with the normal (blocking) media indexing behaviour. When
-  # the `get_media_attributes` method completes it'll return the FULL result to
+  # the `get_media_attributes_for_collection` method completes it'll return the FULL result to
   # the caller for parsing. Ideally, every item in the list will have already
   # been processed by the file follower, but if not, the caller handles creation
   # of any media items that were missed/initially failed.
@@ -124,11 +164,11 @@ defmodule Pinchflat.Tasks.SourceTasks do
   # It attempts a graceful shutdown of the file follower after the indexing is done,
   # but the FileFollowerServer will also stop itself if it doesn't see any activity
   # for a sufficiently long time.
-  defp get_media_attributes_and_setup_file_watcher(source) do
+  defp get_media_attributes_for_collection_and_setup_file_watcher(source) do
     {:ok, pid} = FileFollowerServer.start_link()
 
     handler = fn filepath -> setup_file_follower_watcher(pid, filepath, source) end
-    result = SourceDetails.get_media_attributes(source.original_url, file_listener_handler: handler)
+    result = MediaCollection.get_media_attributes_for_collection(source.original_url, file_listener_handler: handler)
 
     FileFollowerServer.stop(pid)
 
@@ -141,7 +181,8 @@ defmodule Pinchflat.Tasks.SourceTasks do
         {:ok, media_attrs} ->
           Logger.debug("FileFollowerServer Handler: Got media attributes: #{inspect(media_attrs)}")
 
-          create_media_item_and_enqueue_download(source, media_attrs)
+          media_struct = YtDlpMedia.response_to_struct(media_attrs)
+          create_media_item_and_enqueue_download(source, media_struct)
 
         err ->
           Logger.debug("FileFollowerServer Handler: Error decoding JSON: #{inspect(err)}")
@@ -159,8 +200,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
         if source.download_media && Media.pending_download?(media_item) do
           Logger.debug("FileFollowerServer Handler: Enqueuing download task for #{inspect(media_attrs)}")
 
-          media_item
-          |> Map.take([:id])
+          %{id: media_item.id}
           |> MediaDownloadWorker.new()
           |> Tasks.create_job_with_task(media_item)
         end
@@ -171,16 +211,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
   end
 
   defp create_media_item_from_attributes(source, media_attrs) do
-    attrs = %{
-      source_id: source.id,
-      title: media_attrs["title"],
-      media_id: media_attrs["id"],
-      original_url: media_attrs["original_url"],
-      livestream: media_attrs["was_live"],
-      description: media_attrs["description"]
-    }
-
-    case Media.create_media_item(attrs) do
+    case Media.create_media_item_from_backend_attrs(source, media_attrs) do
       {:ok, media_item} -> media_item
       {:error, changeset} -> changeset
     end

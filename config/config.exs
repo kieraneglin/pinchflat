@@ -12,7 +12,7 @@ config :pinchflat,
   generators: [timestamp_type: :utc_datetime],
   # Specifying backend data here makes mocking and local testing SUPER easy
   yt_dlp_executable: System.find_executable("yt-dlp"),
-  yt_dlp_runner: Pinchflat.MediaClient.Backends.YtDlp.CommandRunner,
+  yt_dlp_runner: Pinchflat.YtDlp.Backend.CommandRunner,
   media_directory: "/downloads",
   # The user may or may not store metadata for their needs, but the app will always store its copy
   metadata_directory: "/config/metadata",
@@ -40,7 +40,14 @@ config :pinchflat, Oban,
   # Keep old jobs for 30 days for display in the UI
   plugins: [{Oban.Plugins.Pruner, max_age: 30 * 24 * 60 * 60}],
   # TODO: consider making this an env var or something?
-  queues: [default: 10, media_indexing: 2, media_fetching: 2, media_local_metadata: 8]
+  queues: [
+    default: 10,
+    fast_indexing: 6,
+    media_indexing: 2,
+    media_collection_indexing: 2,
+    media_fetching: 2,
+    media_local_metadata: 8
+  ]
 
 # Configures the mailer
 #

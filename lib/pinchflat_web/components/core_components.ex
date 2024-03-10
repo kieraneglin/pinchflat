@@ -40,6 +40,7 @@ defmodule PinchflatWeb.CoreComponents do
   """
   attr :id, :string, required: true
   attr :show, :boolean, default: false
+  attr :allow_close, :boolean, default: true
   attr :on_cancel, JS, default: %JS{}
   slot :inner_block, required: true
 
@@ -50,9 +51,9 @@ defmodule PinchflatWeb.CoreComponents do
       phx-mounted={@show && show_modal(@id)}
       phx-remove={hide_modal(@id)}
       data-cancel={JS.exec(@on_cancel, "phx-remove")}
-      class="relative z-50 hidden"
+      class="relative z-99999 hidden"
     >
-      <div id={"#{@id}-bg"} class="bg-zinc-50/90 fixed inset-0 transition-opacity" aria-hidden="true" />
+      <div id={"#{@id}-bg"} class="bg-black-2/80 fixed inset-0 transition-opacity" aria-hidden="true" />
       <div
         class="fixed inset-0 overflow-y-auto"
         aria-labelledby={"#{@id}-title"}
@@ -62,28 +63,28 @@ defmodule PinchflatWeb.CoreComponents do
         tabindex="0"
       >
         <div class="flex min-h-full items-center justify-center">
-          <div class="w-full max-w-3xl p-4 sm:p-6 lg:py-8">
-            <.focus_wrap
+          <div class="w-full max-w-3xl p-2 sm:p-6 lg:py-8">
+            <div
               id={"#{@id}-container"}
-              phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
+              phx-window-keydown={@allow_close && JS.exec("data-cancel", to: "##{@id}")}
               phx-key="escape"
-              phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
-              class="shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-white p-14 shadow-lg ring-1 transition"
+              phx-click-away={@allow_close && JS.exec("data-cancel", to: "##{@id}")}
+              class="shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-graydark p-8 sm:p-14 shadow-lg ring-1 transition"
             >
-              <div class="absolute top-6 right-5">
+              <div :if={@allow_close} class="absolute top-6 right-5">
                 <button
                   phx-click={JS.exec("data-cancel", to: "##{@id}")}
                   type="button"
-                  class="-m-3 flex-none p-3 opacity-20 hover:opacity-40"
+                  class="-m-3 flex-none p-3 opacity-60 hover:opacity-80"
                   aria-label={gettext("close")}
                 >
-                  <.icon name="hero-x-mark-solid" class="h-5 w-5" />
+                  <.icon name="hero-x-mark-solid" class="h-5 w-5 text-white" />
                 </button>
               </div>
               <div id={"#{@id}-content"}>
                 <%= render_slot(@inner_block) %>
               </div>
-            </.focus_wrap>
+            </div>
           </div>
         </div>
       </div>
@@ -243,6 +244,7 @@ defmodule PinchflatWeb.CoreComponents do
   attr :id, :any, default: nil
   attr :name, :any
   attr :label, :string, default: nil
+  attr :label_suffix, :string, default: nil
   attr :value, :any
   attr :help, :string, default: nil
 
@@ -294,6 +296,7 @@ defmodule PinchflatWeb.CoreComponents do
           {@rest}
         />
         <%= @label %>
+        <span :if={@label_suffix} class="text-xs text-bodydark"><%= @label_suffix %></span>
       </label>
       <.help :if={@help}><%= @help %></.help>
       <.error :for={msg <- @errors}><%= msg %></.error>
@@ -309,7 +312,10 @@ defmodule PinchflatWeb.CoreComponents do
 
     ~H"""
     <div x-data={"{ enabled: #{@checked}}"}>
-      <.label for={@id}><%= @label %></.label>
+      <.label for={@id}>
+        <%= @label %>
+        <span :if={@label_suffix} class="text-xs text-bodydark"><%= @label_suffix %></span>
+      </.label>
       <div class="relative">
         <input type="hidden" name={@name} value="false" />
         <input
@@ -343,7 +349,9 @@ defmodule PinchflatWeb.CoreComponents do
   def input(%{type: "select"} = assigns) do
     ~H"""
     <div phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
+      <.label for={@id}>
+        <%= @label %><span :if={@label_suffix} class="text-xs text-bodydark"><%= @label_suffix %></span>
+      </.label>
       <select
         id={@id}
         name={@name}
@@ -367,7 +375,9 @@ defmodule PinchflatWeb.CoreComponents do
   def input(%{type: "textarea"} = assigns) do
     ~H"""
     <div phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
+      <.label for={@id}>
+        <%= @label %><span :if={@label_suffix} class="text-xs text-bodydark"><%= @label_suffix %></span>
+      </.label>
       <textarea
         id={@id}
         name={@name}
@@ -390,7 +400,9 @@ defmodule PinchflatWeb.CoreComponents do
   def input(assigns) do
     ~H"""
     <div phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
+      <.label for={@id}>
+        <%= @label %><span :if={@label_suffix} class="text-xs text-bodydark"><%= @label_suffix %></span>
+      </.label>
       <input
         type={@type}
         name={@name}
@@ -608,15 +620,15 @@ defmodule PinchflatWeb.CoreComponents do
 
   ## Examples
 
-      <.back navigate={~p"/posts"}>Back to posts</.back>
+      <.back href={~p"/posts"}>Back to posts</.back>
   """
-  attr :navigate, :any, required: true
+  attr :href, :any, required: true
   slot :inner_block, required: true
 
   def back(assigns) do
     ~H"""
     <div class="mt-16">
-      <.link navigate={@navigate} class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700">
+      <.link href={@href} class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700">
         <.icon name="hero-arrow-left-solid" class="h-3 w-3" />
         <%= render_slot(@inner_block) %>
       </.link>
@@ -685,7 +697,6 @@ defmodule PinchflatWeb.CoreComponents do
     )
     |> show("##{id}-container")
     |> JS.add_class("overflow-hidden", to: "body")
-    |> JS.focus_first(to: "##{id}-content")
   end
 
   def hide_modal(js \\ %JS{}, id) do
@@ -697,7 +708,6 @@ defmodule PinchflatWeb.CoreComponents do
     |> hide("##{id}-container")
     |> JS.hide(to: "##{id}", transition: {"block", "block", "hidden"})
     |> JS.remove_class("overflow-hidden", to: "body")
-    |> JS.pop_focus()
   end
 
   @doc """

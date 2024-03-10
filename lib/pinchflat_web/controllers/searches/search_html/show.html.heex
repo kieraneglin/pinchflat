@@ -17,7 +17,7 @@
           </:col>
           <:col :let={result} label="" class="flex place-content-evenly">
             <.link
-              navigate={~p"/sources/#{result.source_id}/media/#{result.id}"}
+              href={~p"/sources/#{result.source_id}/media/#{result.id}"}
               class="hover:text-secondary duration-200 ease-in-out mx-0.5"
             >
               <.icon name="hero-eye" />

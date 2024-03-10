@@ -32,6 +32,22 @@ defmodule Pinchflat.Media do
   end
 
   @doc """
+  Fetches all media items belonging to a given source that have a media_id in the given list.
+  Useful for determining the what media items we DON'T already have for fast indexing.
+
+  NOTE: These queries are getting a little tedious. When I have the time, I should see about
+  implementing a query pattern and having these compose queries from a common base. This would
+  also let me compose simple queries in the module using them for one-off methods
+
+  Returns [%MediaItem{}, ...].
+  """
+  def list_media_items_by_media_id_for(%Source{} = source, media_ids) do
+    MediaItem
+    |> where([mi], mi.source_id == ^source.id and mi.media_id in ^media_ids)
+    |> Repo.all()
+  end
+
+  @doc """
   Returns a list of pending media_items for a given source, where
   pending means the `media_filepath` is `nil` AND the media_item
   matches the format selection rules of the parent media_profile.
@@ -156,7 +172,9 @@ defmodule Pinchflat.Media do
   end
 
   @doc """
-  Creates a media_item. Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}.
+  Creates a media_item.
+
+  Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}
   """
   def create_media_item(attrs) do
     %MediaItem{}
@@ -165,7 +183,21 @@ defmodule Pinchflat.Media do
   end
 
   @doc """
-  Updates a media_item. Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}.
+  Creates a media item from the attributes returned by the video backend
+  (read: yt-dlp)
+
+  Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}
+  """
+  def create_media_item_from_backend_attrs(source, media_attrs_struct) do
+    %{source_id: source.id}
+    |> Map.merge(Map.from_struct(media_attrs_struct))
+    |> create_media_item()
+  end
+
+  @doc """
+  Updates a media_item.
+
+  Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}
   """
   def update_media_item(%MediaItem{} = media_item, attrs) do
     media_item
@@ -177,7 +209,7 @@ defmodule Pinchflat.Media do
   Deletes a media_item and its associated tasks.
   Can optionally delete the media_item's files.
 
-  Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}.
+  Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}
   """
   def delete_media_item(%MediaItem{} = media_item, opts \\ []) do
     delete_files = Keyword.get(opts, :delete_files, false)
@@ -225,7 +257,7 @@ defmodule Pinchflat.Media do
         {{:shorts_behaviour, :only}, %{livestream_behaviour: :only}} ->
           dynamic(
             [mi],
-            ^dynamic and (mi.livestream == true or fragment("LOWER(?) LIKE LOWER(?)", mi.original_url, "%/shorts/%"))
+            ^dynamic and (mi.livestream == true or mi.short_form_content == true)
           )
 
         # Technically redundant, but makes the other clauses easier to parse
@@ -234,16 +266,13 @@ defmodule Pinchflat.Media do
           dynamic
 
         {{:shorts_behaviour, :only}, _} ->
-          # return records with /shorts/ in the original_url
-          dynamic([mi], ^dynamic and fragment("LOWER(?) LIKE LOWER(?)", mi.original_url, "%/shorts/%"))
+          dynamic([mi], ^dynamic and mi.short_form_content == true)
 
         {{:livestream_behaviour, :only}, _} ->
-          # return records with livestream: true
           dynamic([mi], ^dynamic and mi.livestream == true)
 
         {{:shorts_behaviour, :exclude}, %{livestream_behaviour: lb}} when lb != :only ->
-          # return records without /shorts/ in the original_url
-          dynamic([mi], ^dynamic and fragment("LOWER(?) NOT LIKE LOWER(?)", mi.original_url, "%/shorts/%"))
+          dynamic([mi], ^dynamic and mi.short_form_content == false)
 
         {{:livestream_behaviour, :exclude}, %{shorts_behaviour: sb}} when sb != :only ->
           # return records with livestream: false

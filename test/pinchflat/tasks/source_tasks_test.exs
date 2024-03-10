@@ -11,8 +11,10 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
   alias Pinchflat.Tasks.Task
   alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.Workers.MediaIndexingWorker
+  alias Pinchflat.Workers.FastIndexingWorker
   alias Pinchflat.Workers.MediaDownloadWorker
+  alias Pinchflat.Workers.MediaIndexingWorker
+  alias Pinchflat.Workers.MediaCollectionIndexingWorker
 
   setup :verify_on_exit!
 
@@ -22,7 +24,7 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
 
       assert {:ok, _} = SourceTasks.kickoff_indexing_task(source)
 
-      assert_enqueued(worker: MediaIndexingWorker, args: %{"id" => source.id})
+      assert_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
     end
 
     test "it creates and attaches a task" do
@@ -33,7 +35,17 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
       assert task.source_id == source.id
     end
 
-    test "it deletes any pending tasks for the source" do
+    test "it deletes any pending media collection tasks for the source" do
+      source = source_fixture()
+      {:ok, job} = Oban.insert(MediaCollectionIndexingWorker.new(%{"id" => source.id}))
+      task = task_fixture(source_id: source.id, job_id: job.id)
+
+      assert {:ok, _} = SourceTasks.kickoff_indexing_task(source)
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+
+    test "it deletes any pending media tasks for the source" do
       source = source_fixture()
       {:ok, job} = Oban.insert(MediaIndexingWorker.new(%{"id" => source.id}))
       task = task_fixture(source_id: source.id, job_id: job.id)
@@ -41,6 +53,69 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
       assert {:ok, _} = SourceTasks.kickoff_indexing_task(source)
 
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+
+    test "it deletes any fast indexing tasks for the source" do
+      source = source_fixture()
+      {:ok, job} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
+      task = task_fixture(source_id: source.id, job_id: job.id)
+
+      assert {:ok, _} = SourceTasks.kickoff_indexing_task(source)
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+  end
+
+  describe "kickoff_fast_indexing_task/1" do
+    test "it schedules a job" do
+      source = source_fixture()
+
+      assert {:ok, _} = SourceTasks.kickoff_fast_indexing_task(source)
+
+      assert_enqueued(worker: FastIndexingWorker, args: %{"id" => source.id})
+    end
+
+    test "it creates and attaches a task" do
+      source = source_fixture()
+
+      assert {:ok, %Task{} = task} = SourceTasks.kickoff_fast_indexing_task(source)
+
+      assert task.source_id == source.id
+    end
+
+    test "it deletes any fast indexing tasks for the source" do
+      source = source_fixture()
+      {:ok, job} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
+      task = task_fixture(source_id: source.id, job_id: job.id)
+
+      assert {:ok, _} = SourceTasks.kickoff_fast_indexing_task(source)
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+  end
+
+  describe "kickoff_indexing_tasks_from_youtube_rss_feed/1" do
+    setup do
+      {:ok, [source: source_fixture()]}
+    end
+
+    test "enqueues a new worker for each new media_id in the source's RSS feed", %{source: source} do
+      expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
+
+      assert :ok = SourceTasks.kickoff_indexing_tasks_from_youtube_rss_feed(source)
+
+      assert [worker] = all_enqueued(worker: MediaIndexingWorker)
+      assert worker.args["id"] == source.id
+      assert worker.args["media_url"] == "https://www.youtube.com/watch?v=test_1"
+    end
+
+    test "does not enqueue a new worker for the source's media IDs we already know about", %{source: source} do
+      expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
+      media_item_fixture(source_id: source.id, media_id: "test_1")
+
+      assert :ok = SourceTasks.kickoff_indexing_tasks_from_youtube_rss_feed(source)
+
+      refute_enqueued(worker: MediaIndexingWorker)
     end
   end
 
@@ -203,9 +278,11 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
           Phoenix.json_library().encode!(%{
             id: "video2",
             title: "Video 2",
-            original_url: "https://example.com/shorts/video2",
+            webpage_url: "https://example.com/shorts/video2",
             was_live: true,
-            description: "desc2"
+            description: "desc2",
+            aspect_ratio: 1.67,
+            duration: 345.67
           })
 
         File.write(filepath, contents)

@@ -9,7 +9,9 @@ defmodule Pinchflat.MediaTest do
 
   alias Pinchflat.Media
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.MediaClient.Backends.YtDlp.MetadataFileHelpers
+  alias Pinchflat.Metadata.MetadataFileHelpers
+
+  alias Pinchflat.YtDlp.Backend.Media, as: YtDlpMedia
 
   setup :verify_on_exit!
 
@@ -42,6 +44,23 @@ defmodule Pinchflat.MediaTest do
       media_item = media_item_fixture(%{source_id: source.id})
 
       assert Media.list_media_items_for(source) == [media_item]
+    end
+  end
+
+  describe "list_media_items_by_media_id_for/2" do
+    test "returns media_items for a given source and media_ids" do
+      source = source_fixture()
+      media_item = media_item_fixture(%{source_id: source.id, media_id: "123"})
+
+      assert Media.list_media_items_by_media_id_for(source, ["123"]) == [media_item]
+    end
+
+    test "does not return matching media_ids for a different source" do
+      source = source_fixture()
+      other_source = source_fixture()
+      _media_item = media_item_fixture(%{source_id: other_source.id, media_id: "123"})
+
+      assert Media.list_media_items_by_media_id_for(source, ["123"]) == []
     end
   end
 
@@ -78,7 +97,7 @@ defmodule Pinchflat.MediaTest do
     test "returns shorts and normal media when shorts_behaviour is :include" do
       source = source_fixture(%{media_profile_id: media_profile_fixture(%{shorts_behaviour: :include}).id})
       normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
-      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, short_form_content: true})
 
       assert Media.list_pending_media_items_for(source) == [normal, short]
     end
@@ -86,7 +105,7 @@ defmodule Pinchflat.MediaTest do
     test "returns only shorts when shorts_behaviour is :only" do
       source = source_fixture(%{media_profile_id: media_profile_fixture(%{shorts_behaviour: :only}).id})
       _normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
-      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, short_form_content: true})
 
       assert Media.list_pending_media_items_for(source) == [short]
     end
@@ -94,7 +113,7 @@ defmodule Pinchflat.MediaTest do
     test "returns only normal media when shorts_behaviour is :exclude" do
       source = source_fixture(%{media_profile_id: media_profile_fixture(%{shorts_behaviour: :exclude}).id})
       normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
-      _short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+      _short = media_item_fixture(%{source_id: source.id, media_filepath: nil, short_form_content: true})
 
       assert Media.list_pending_media_items_for(source) == [normal]
     end
@@ -139,7 +158,7 @@ defmodule Pinchflat.MediaTest do
 
       normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
       livestream = media_item_fixture(%{source_id: source.id, media_filepath: nil, livestream: true})
-      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, short_form_content: true})
 
       assert Media.list_pending_media_items_for(source) == [normal, livestream, short]
     end
@@ -156,7 +175,7 @@ defmodule Pinchflat.MediaTest do
 
       _normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
       livestream = media_item_fixture(%{source_id: source.id, media_filepath: nil, livestream: true})
-      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, short_form_content: true})
 
       assert Media.list_pending_media_items_for(source) == [livestream, short]
     end
@@ -173,7 +192,7 @@ defmodule Pinchflat.MediaTest do
 
       normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
       _livestream = media_item_fixture(%{source_id: source.id, media_filepath: nil, livestream: true})
-      _short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+      _short = media_item_fixture(%{source_id: source.id, media_filepath: nil, short_form_content: true})
 
       assert Media.list_pending_media_items_for(source) == [normal]
     end
@@ -190,7 +209,7 @@ defmodule Pinchflat.MediaTest do
 
       _normal = media_item_fixture(%{source_id: source.id, media_filepath: nil})
       _livestream = media_item_fixture(%{source_id: source.id, media_filepath: nil, livestream: true})
-      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+      short = media_item_fixture(%{source_id: source.id, media_filepath: nil, short_form_content: true})
 
       assert Media.list_pending_media_items_for(source) == [short]
     end
@@ -230,7 +249,7 @@ defmodule Pinchflat.MediaTest do
 
     test "returns false if the media hasn't been downloaded but the profile doesn't DL shorts" do
       source = source_fixture(%{media_profile_id: media_profile_fixture(%{shorts_behaviour: :exclude}).id})
-      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, original_url: "/shorts/"})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, short_form_content: true})
 
       refute Media.pending_download?(media_item)
     end
@@ -365,6 +384,24 @@ defmodule Pinchflat.MediaTest do
 
     test "creating with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Media.create_media_item(@invalid_attrs)
+    end
+  end
+
+  describe "create_media_item_from_backend_attrs/2" do
+    test "creates a media item for a given source and attributes" do
+      source = source_fixture()
+
+      media_attrs =
+        media_attributes_return_fixture()
+        |> Phoenix.json_library().decode!()
+        |> YtDlpMedia.response_to_struct()
+
+      assert {:ok, %MediaItem{} = media_item} = Media.create_media_item_from_backend_attrs(source, media_attrs)
+      assert media_item.source_id == source.id
+      assert media_item.title == media_attrs.title
+      assert media_item.media_id == media_attrs.media_id
+      assert media_item.original_url == media_attrs.original_url
+      assert media_item.description == media_attrs.description
     end
   end
 

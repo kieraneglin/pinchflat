@@ -32,5 +32,6 @@ defmodule Pinchflat.StartupTasks do
 
   defp apply_default_settings do
     Settings.fetch!(:onboarding, true)
+    Settings.fetch!(:pro_enabled, false)
   end
 end

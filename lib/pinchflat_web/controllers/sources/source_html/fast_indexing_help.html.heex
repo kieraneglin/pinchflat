@@ -1,0 +1,21 @@
+<aside>
+  <h2 class="text-xl font-bold mb-2">What is fast indexing (experimental)?</h2>
+  <section class="ml-2 md:ml-4 mb-4 max-w-prose">
+    <p>
+      Indexing is the act of scanning a channel or playlist (aka: source) for new media.
+    </p>
+    <p class="mt-2">
+      Normal indexing uses <code class="text-sm">yt-dlp</code>
+      to scan the entire source on your specified frequency, but it's very slow for large sources. This is the most accurate way to find uploaded media with the tradeoff being that pairing a large source with a low index frequency will result in you spending most of your time indexing. Only so many indexing operations can be running at the same time, so this can impact your other source's ability to index.
+    </p>
+    <p class="mt-2">
+      Fast indexing takes a different approach. It still does an initial scan the slow way but after that it uses an RSS feed to frequently check for new videos. This has the potential to be hundreds of times faster, but it can miss videos if the uploader un-privates an old video or uploads dozens of videos in the space of a few minutes. It works well for most channels or playlists but it's not perfect.
+    </p>
+    <p class="mt-2">
+      To make up for this limitation, a normal index is still run monthly to catch any videos that were missed by fast indexing. Fast indexing overrides the normal index frequency.
+    </p>
+    <p class="mt-2">
+      Fast indexing is experimental so please report any issues on GitHub. It's only recommended for sources with over 200-ish videos and that upload frequently. Not recommended for small or inactive sources.
+    </p>
+  </section>
+</aside>

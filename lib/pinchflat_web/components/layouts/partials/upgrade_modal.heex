@@ -1,0 +1,28 @@
+<.modal id="upgrade-modal" allow_close={false}>
+  <section>
+    <h3 class="text-2xl text-white">Pro Mode</h3>
+    <p class="text-sm">Don't worry - Pinchflat is completely free :&rpar;</p>
+    <p class="mt-4">
+      If you find the project valuable and want to support its development, a
+      <.inline_link href="https://www.paypal.me/kieraneglin">donation</.inline_link>
+      would be greatly appreciated.
+    </p>
+    <p class="mt-4">
+      Plus, $5 USD from any donation over $10 USD will be donated to
+      <.inline_link href="https://www.eff.org/">The Electronic Frontier Foundation</.inline_link>
+      who defend your online liberties and backed
+      <.inline_code>youtube-dl</.inline_code>
+      when Google took them down<.inline_link href="https://github.com/github/dmca/blob/9a85e0f021f7967af80e186b890776a50443f06c/2020/11/2020-11-16-RIAA-reversal-effletter.pdf">
+        <.icon name="hero-arrow-top-right-on-square" class="h-3 w-3" />
+      </.inline_link>. <strong>You do not need to donate to unlock Pro</strong>. It's just a way to say thanks!
+    </p>
+
+    <p class="mt-4">
+      To unlock Pro, simply type
+      <.inline_code>got it!</.inline_code>
+      into the text box and press the button.
+    </p>
+
+    <%= live_render(@conn, Pinchflat.UpgradeButtonLive) %>
+  </section>
+</.modal>

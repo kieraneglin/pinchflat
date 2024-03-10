@@ -1,6 +1,6 @@
 <div class="mb-6 flex gap-3 flex-row items-center justify-between">
   <div class="flex gap-3 items-center">
-    <.link navigate={~p"/sources"}>
+    <.link href={~p"/sources"}>
       <.icon name="hero-arrow-left" class="w-10 h-10 hover:dark:text-white" />
     </.link>
     <h2 class="text-title-md2 font-bold text-black dark:text-white ml-4">
@@ -9,7 +9,7 @@
   </div>
 
   <nav>
-    <.link navigate={~p"/sources/#{@source}/edit"}>
+    <.link href={~p"/sources/#{@source}/edit"}>
       <.button color="bg-primary" rounding="rounded-full">
         <.icon name="hero-pencil-square" class="mr-2" /> Edit <span class="hidden sm:inline pl-1">Source</span>
       </.button>
@@ -84,9 +84,9 @@
           <p class="text-black dark:text-white">Nothing Here!</p>
         <% end %>
       </:tab>
-      <:tab title="Tasks">
-        <%= if match?([_|_], @source.tasks) do %>
-          <.table rows={@source.tasks} table_class="text-black dark:text-white">
+      <:tab title="Pending Tasks">
+        <%= if match?([_|_], @pending_tasks) do %>
+          <.table rows={@pending_tasks} table_class="text-black dark:text-white">
             <:col :let={task} label="Worker">
               <%= task.job.worker %>
             </:col>
