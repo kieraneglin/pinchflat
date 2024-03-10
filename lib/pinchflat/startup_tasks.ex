@@ -8,8 +8,11 @@ defmodule Pinchflat.StartupTasks do
 
   # restart: :temporary means that this process will never be restarted (ie: will run once and then die)
   use GenServer, restart: :temporary
+  import Ecto.Query, warn: false
 
+  alias Pinchflat.Repo
   alias Pinchflat.Settings
+  alias Pinchflat.Workers.DataBackfillWorker
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, %{}, opts)
@@ -21,11 +24,13 @@ defmodule Pinchflat.StartupTasks do
   Any code defined here will run every time the application starts. You must
   make sure that the code is idempotent and safe to run multiple times.
 
-  This is a good place to set up default settings, create initial records, stuff like that
+  This is a good place to set up default settings, create initial records, stuff like that.
+  Should be fast - anything with the potential to be slow should be kicked off as a job instead.
   """
   @impl true
   def init(state) do
     apply_default_settings()
+    enqueue_backfill_worker()
 
     {:ok, state}
   end
@@ -33,5 +38,13 @@ defmodule Pinchflat.StartupTasks do
   defp apply_default_settings do
     Settings.fetch!(:onboarding, true)
     Settings.fetch!(:pro_enabled, false)
+  end
+
+  defp enqueue_backfill_worker do
+    DataBackfillWorker.cancel_pending_backfill_jobs()
+
+    %{}
+    |> DataBackfillWorker.new()
+    |> Repo.insert_unique_job()
   end
 end

@@ -14,10 +14,23 @@ defmodule Pinchflat.Workers.DataBackfillWorker do
   # I'm just trying out that pattern and seeing if I like it better
   # so this may change.
   import Ecto.Query, warn: false
+  require Logger
 
   alias __MODULE__
   alias Pinchflat.Repo
   alias Pinchflat.Media.MediaItem
+
+  @doc """
+  Cancels all pending backfill jobs. Useful for ensuring worker runs immediately
+  on app boot.
+
+  Returns {:ok, integer()}
+  """
+  def cancel_pending_backfill_jobs do
+    Oban.Job
+    |> where(worker: "Pinchflat.Workers.DataBackfillWorker")
+    |> Oban.cancel_all_jobs()
+  end
 
   @impl Oban.Worker
   @doc """
@@ -30,6 +43,7 @@ defmodule Pinchflat.Workers.DataBackfillWorker do
   Returns :ok
   """
   def perform(%Oban.Job{}) do
+    Logger.info("Running data backfill worker")
     backfill_shorts_data()
 
     reschedule_backfill()
@@ -45,7 +59,9 @@ defmodule Pinchflat.Workers.DataBackfillWorker do
         where: m.short_form_content == false
       )
 
-    Repo.update_all(query, set: [short_form_content: true])
+    {count, _} = Repo.update_all(query, set: [short_form_content: true])
+
+    Logger.info("Backfill worker set short_form_content to true for #{count} media items.")
   end
 
   defp reschedule_backfill do
