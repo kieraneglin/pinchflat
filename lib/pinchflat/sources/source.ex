@@ -21,6 +21,7 @@ defmodule Pinchflat.Sources.Source do
     download_media
     last_indexed_at
     original_url
+    download_cutoff_date
     media_profile_id
   )a
 
@@ -45,8 +46,8 @@ defmodule Pinchflat.Sources.Source do
     field :fast_index, :boolean, default: false
     field :download_media, :boolean, default: true
     field :last_indexed_at, :utc_datetime
-    # This should only be used for user reference going forward
-    # as the collection_id should be used for all API calls
+    # Only download media items that were published after this date
+    field :download_cutoff_date, :date
     field :original_url, :string
 
     belongs_to :media_profile, MediaProfile
