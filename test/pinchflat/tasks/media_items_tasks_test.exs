@@ -49,10 +49,11 @@ defmodule Pinchflat.Tasks.MediaItemTasksTest do
     end
 
     test "won't duplicate media_items based on media_id and source", %{source: source} do
-      assert {:ok, _} = MediaItemTasks.index_and_enqueue_download_for_media_item(source, @media_url)
-      assert {:error, _} = MediaItemTasks.index_and_enqueue_download_for_media_item(source, @media_url)
+      assert {:ok, mi_1} = MediaItemTasks.index_and_enqueue_download_for_media_item(source, @media_url)
+      assert {:ok, mi_2} = MediaItemTasks.index_and_enqueue_download_for_media_item(source, @media_url)
 
       assert Repo.aggregate(MediaItem, :count) == 1
+      assert mi_1.id == mi_2.id
     end
 
     test "enqueues a download job", %{source: source} do
@@ -88,7 +89,8 @@ defmodule Pinchflat.Tasks.MediaItemTasksTest do
             was_live: true,
             description: "desc2",
             aspect_ratio: 1.67,
-            duration: 345.67
+            duration: 345.67,
+            upload_date: "20210101"
           })
 
         {:ok, output}

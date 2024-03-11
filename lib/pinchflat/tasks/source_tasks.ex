@@ -96,12 +96,10 @@ defmodule Pinchflat.Tasks.SourceTasks do
   job run. This should ensure that any stragglers are caught if, for some reason, they
   weren't enqueued or somehow got de-queued.
 
-  Since indexing returns all media data EVERY TIME, we rely on the unique index of the
-  media_id to prevent duplicates. Due to both the file follower and the fact that future
-  indexing will index a lot of existing data, this method will MOSTLY return error
-  changesets (from the unique index violation) and not media items. This is intended.
+  Since indexing returns all media data EVERY TIME, we that that opportunity to update
+  indexing metadata for media items that have already been created.
 
-  Returns [%MediaItem{}, ...] | [%Ecto.Changeset{}, ...]
+  Returns [%MediaItem{}, ...]
   """
   def index_and_enqueue_download_for_media_items(%Source{} = source) do
     # See the method definition below for more info on how file watchers work

@@ -41,13 +41,24 @@ defmodule Pinchflat.Sources do
   original_url (if provided). Will attempt to start indexing the source's
   media if successfully inserted.
 
+  Runs an initial `change_source` check to ensure most of the source is valid
+  before making an expensive API call. Runs it through `Repo.insert` even
+  though we know it's going to fail so it picks up any addl. database errors
+  and fulfills our return contract.
+
   Returns {:ok, %Source{}} | {:error, %Ecto.Changeset{}}
   """
   def create_source(attrs) do
-    %Source{}
-    |> change_source_from_url(attrs)
-    |> maybe_change_indexing_frequency()
-    |> commit_and_handle_tasks()
+    case change_source(%Source{}, attrs, :initial) do
+      %Ecto.Changeset{valid?: true} ->
+        %Source{}
+        |> change_source_from_url(attrs)
+        |> maybe_change_indexing_frequency()
+        |> commit_and_handle_tasks()
+
+      changeset ->
+        Repo.insert(changeset)
+    end
   end
 
   @doc """
@@ -58,13 +69,24 @@ defmodule Pinchflat.Sources do
   Existing indexing tasks will be cancelled if the indexing frequency has been
   changed (logic in `SourceTasks.kickoff_indexing_task`)
 
+  Runs an initial `change_source` check to ensure most of the source is valid
+  before making an expensive API call. Runs it through `Repo.update` even
+  though we know it's going to fail so it picks up any addl. database errors
+  and fulfills our return contract.
+
   Returns {:ok, %Source{}} | {:error, %Ecto.Changeset{}}
   """
   def update_source(%Source{} = source, attrs) do
-    source
-    |> change_source_from_url(attrs)
-    |> maybe_change_indexing_frequency()
-    |> commit_and_handle_tasks()
+    case change_source(source, attrs, :initial) do
+      %Ecto.Changeset{valid?: true} ->
+        source
+        |> change_source_from_url(attrs)
+        |> maybe_change_indexing_frequency()
+        |> commit_and_handle_tasks()
+
+      changeset ->
+        Repo.update(changeset)
+    end
   end
 
   @doc """
@@ -89,8 +111,8 @@ defmodule Pinchflat.Sources do
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking source changes.
   """
-  def change_source(%Source{} = source, attrs \\ %{}) do
-    Source.changeset(source, attrs)
+  def change_source(%Source{} = source, attrs \\ %{}, validation_stage \\ :pre_insert) do
+    Source.changeset(source, attrs, validation_stage)
   end
 
   @doc """

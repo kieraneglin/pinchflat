@@ -11,6 +11,14 @@ defmodule Pinchflat.TestingHelperMethods do
     DateTime.add(now(), offset, :minute)
   end
 
+  def now_minus(offset, unit) when unit in [:minute, :minutes] do
+    DateTime.add(now(), -offset, :minute)
+  end
+
+  def now_minus(offset, unit) when unit in [:day, :days] do
+    DateTime.add(now(), -offset, :day)
+  end
+
   def assert_changed(checker_fun, action_fn) do
     before_res = checker_fun.()
     action_fn.()

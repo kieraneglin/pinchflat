@@ -57,6 +57,14 @@
     help="Unchecking still indexes media but it won't be downloaded until you enable this option"
   />
 
+  <.input
+    field={f[:download_cutoff_date]}
+    type="text"
+    label="Download Cutoff Date"
+    placeholder="YYYY-MM-DD"
+    help="Only download media uploaded after this date. Leave blank to download all media. Must be in YYYY-MM-DD format"
+  />
+
   <.button class="my-10 sm:mb-7.5 w-full sm:w-auto">Save Source</.button>
 
   <div class="rounded-sm dark:bg-meta-4 p-4 md:p-6 mb-5">

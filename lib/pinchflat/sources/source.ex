@@ -21,20 +21,29 @@ defmodule Pinchflat.Sources.Source do
     download_media
     last_indexed_at
     original_url
+    download_cutoff_date
     media_profile_id
   )a
 
-  @required_fields ~w(
-    collection_name
-    collection_id
-    collection_type
-    custom_name
+  # Expensive API calls are made when a source is inserted/updated so
+  # we want to ensure that the source is valid before making the call.
+  # This way, we check that the other attributes are valid before ensuring
+  # that all fields are valid.
+  @initially_required_fields ~w(
     index_frequency_minutes
     fast_index
     download_media
     original_url
     media_profile_id
   )a
+
+  @pre_insert_required_fields @initially_required_fields ++
+                                ~w(
+                                  custom_name
+                                  collection_name
+                                  collection_id
+                                  collection_type
+                                )a
 
   schema "sources" do
     field :custom_name, :string
@@ -45,8 +54,8 @@ defmodule Pinchflat.Sources.Source do
     field :fast_index, :boolean, default: false
     field :download_media, :boolean, default: true
     field :last_indexed_at, :utc_datetime
-    # This should only be used for user reference going forward
-    # as the collection_id should be used for all API calls
+    # Only download media items that were published after this date
+    field :download_cutoff_date, :date
     field :original_url, :string
 
     belongs_to :media_profile, MediaProfile
@@ -58,11 +67,19 @@ defmodule Pinchflat.Sources.Source do
   end
 
   @doc false
-  def changeset(source, attrs) do
+  def changeset(source, attrs, validation_stage) do
+    # See above for rationale
+    required_fields =
+      if validation_stage == :initial do
+        @initially_required_fields
+      else
+        @pre_insert_required_fields
+      end
+
     source
     |> cast(attrs, @allowed_fields)
     |> dynamic_default(:custom_name, fn cs -> get_field(cs, :collection_name) end)
-    |> validate_required(@required_fields)
+    |> validate_required(required_fields)
     |> unique_constraint([:collection_id, :media_profile_id])
   end
 

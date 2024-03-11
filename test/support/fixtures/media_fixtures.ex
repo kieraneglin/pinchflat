@@ -21,7 +21,8 @@ defmodule Pinchflat.MediaFixtures do
         livestream: false,
         short_form_content: false,
         media_filepath: "/video/#{Faker.File.file_name(:video)}",
-        source_id: SourcesFixtures.source_fixture().id
+        source_id: SourcesFixtures.source_fixture().id,
+        upload_date: DateTime.utc_now()
       })
       |> Pinchflat.Media.create_media_item()
 
@@ -75,7 +76,8 @@ defmodule Pinchflat.MediaFixtures do
       was_live: false,
       description: "desc1",
       aspect_ratio: 1.67,
-      duration: 123.45
+      duration: 123.45,
+      upload_date: "20210101"
     }
 
     Phoenix.json_library().encode!(media_attributes)

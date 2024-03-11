@@ -215,6 +215,30 @@ defmodule Pinchflat.MediaTest do
     end
   end
 
+  describe "list_pending_media_items_for/1 when testing cutoff dates" do
+    test "does not return media items with an upload date before the cutoff date" do
+      source = source_fixture(%{download_cutoff_date: now_minus(1, :day)})
+
+      _old_media_item =
+        media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now_minus(2, :days)})
+
+      new_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now()})
+
+      assert Media.list_pending_media_items_for(source) == [new_media_item]
+    end
+
+    test "does not apply a cutoff if there is no cutoff date" do
+      source = source_fixture(%{download_cutoff_date: nil})
+
+      old_media_item =
+        media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now_minus(2, :days)})
+
+      new_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now()})
+
+      assert Media.list_pending_media_items_for(source) == [old_media_item, new_media_item]
+    end
+  end
+
   describe "list_downloaded_media_items_for/1" do
     test "returns only media items with a media_filepath" do
       source = source_fixture()
@@ -259,6 +283,27 @@ defmodule Pinchflat.MediaTest do
       media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, livestream: true})
 
       refute Media.pending_download?(media_item)
+    end
+
+    test "returns true if there is a cutoff date before the media's upload date" do
+      source = source_fixture(%{download_cutoff_date: now_minus(2, :days)})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now_minus(1, :day)})
+
+      assert Media.pending_download?(media_item)
+    end
+
+    test "returns false if there is a cutoff date after the media's upload date" do
+      source = source_fixture(%{download_cutoff_date: now_minus(1, :day)})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now_minus(2, :days)})
+
+      refute Media.pending_download?(media_item)
+    end
+
+    test "returns true if there is no cutoff date" do
+      source = source_fixture(%{download_cutoff_date: nil})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now_minus(1, :day)})
+
+      assert Media.pending_download?(media_item)
     end
   end
 
@@ -373,10 +418,12 @@ defmodule Pinchflat.MediaTest do
         title: Faker.Commerce.product_name(),
         media_filepath: "/video/#{Faker.File.file_name(:video)}",
         source_id: source_fixture().id,
-        original_url: "https://www.youtube.com/channel/#{Faker.String.base64(12)}"
+        original_url: "https://www.youtube.com/channel/#{Faker.String.base64(12)}",
+        upload_date: Date.utc_today()
       }
 
       assert {:ok, %MediaItem{} = media_item} = Media.create_media_item(valid_attrs)
+
       assert media_item.title == valid_attrs.title
       assert media_item.media_id == valid_attrs.media_id
       assert media_item.media_filepath == valid_attrs.media_filepath
@@ -397,11 +444,29 @@ defmodule Pinchflat.MediaTest do
         |> YtDlpMedia.response_to_struct()
 
       assert {:ok, %MediaItem{} = media_item} = Media.create_media_item_from_backend_attrs(source, media_attrs)
+
       assert media_item.source_id == source.id
       assert media_item.title == media_attrs.title
       assert media_item.media_id == media_attrs.media_id
       assert media_item.original_url == media_attrs.original_url
       assert media_item.description == media_attrs.description
+    end
+
+    test "updates the media item if it already exists" do
+      source = source_fixture()
+
+      media_attrs =
+        media_attributes_return_fixture()
+        |> Phoenix.json_library().decode!()
+        |> YtDlpMedia.response_to_struct()
+
+      different_attrs = %YtDlpMedia{media_attrs | title: "Different title"}
+
+      assert {:ok, %MediaItem{} = media_item_1} = Media.create_media_item_from_backend_attrs(source, media_attrs)
+      assert {:ok, %MediaItem{} = media_item_2} = Media.create_media_item_from_backend_attrs(source, different_attrs)
+
+      assert media_item_1.id == media_item_2.id
+      assert media_item_2.title == different_attrs.title
     end
   end
 
