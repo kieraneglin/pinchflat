@@ -141,14 +141,6 @@ defmodule Pinchflat.YtDlp.DownloadOptionBuilderTest do
       assert :embed_thumbnail in res
     end
 
-    test "doesn't include :embed_thumbnail option when preferred_resolution is :audio", %{media_item: media_item} do
-      media_item = update_media_profile_attribute(media_item, %{embed_thumbnail: true, preferred_resolution: :audio})
-
-      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
-
-      refute :embed_thumbnail in res
-    end
-
     test "doesn't include these options when not specified", %{media_item: media_item} do
       media_item = update_media_profile_attribute(media_item, %{embed_thumbnail: false, download_thumbnail: false})
 
@@ -177,14 +169,6 @@ defmodule Pinchflat.YtDlp.DownloadOptionBuilderTest do
       assert :embed_metadata in res
     end
 
-    test "doesn't include :embed_metadata option when preferred_resolution is :audio", %{media_item: media_item} do
-      media_item = update_media_profile_attribute(media_item, %{embed_metadata: true, preferred_resolution: :audio})
-
-      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
-
-      refute :embed_metadata in res
-    end
-
     test "doesn't include these options when not specified", %{media_item: media_item} do
       media_item = update_media_profile_attribute(media_item, %{embed_metadata: false, download_metadata: false})
 
@@ -210,8 +194,8 @@ defmodule Pinchflat.YtDlp.DownloadOptionBuilderTest do
 
       assert {:ok, res} = DownloadOptionBuilder.build(media_item)
 
-      assert {:format, "bestaudio"} in res
-      assert {:format_sort, "ext"} in res
+      assert :extract_audio in res
+      assert {:format, "bestaudio[ext=m4a]"} in res
     end
   end
 

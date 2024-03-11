@@ -61,11 +61,11 @@ defmodule Pinchflat.YtDlp.DownloadOptionBuilder do
     mapped_struct = Map.from_struct(media_profile)
 
     Enum.reduce(mapped_struct, [], fn attr, acc ->
-      case {attr, media_profile} do
-        {{:download_thumbnail, true}, _} ->
+      case attr do
+        {:download_thumbnail, true} ->
           acc ++ [:write_thumbnail, convert_thumbnail: "jpg"]
 
-        {{:embed_thumbnail, true}, %{preferred_resolution: pr}} when pr != :audio ->
+        {:embed_thumbnail, true} ->
           acc ++ [:embed_thumbnail]
 
         _ ->
@@ -78,31 +78,26 @@ defmodule Pinchflat.YtDlp.DownloadOptionBuilder do
     mapped_struct = Map.from_struct(media_profile)
 
     Enum.reduce(mapped_struct, [], fn attr, acc ->
-      case {attr, media_profile} do
-        {{:download_metadata, true}, _} ->
-          acc ++ [:write_info_json, :clean_info_json]
-
-        {{:embed_metadata, true}, %{preferred_resolution: pr}} when pr != :audio ->
-          acc ++ [:embed_metadata]
-
-        _ ->
-          acc
+      case attr do
+        {:download_metadata, true} -> acc ++ [:write_info_json, :clean_info_json]
+        {:embed_metadata, true} -> acc ++ [:embed_metadata]
+        _ -> acc
       end
     end)
   end
 
   defp quality_options(media_profile) do
-    codec_options = "+codec:avc:m4a"
+    video_codec_options = "+codec:avc:m4a"
 
     case media_profile.preferred_resolution do
-      # Also be aware that :audio disabled all embedding options for thumbnails, subtitles, and metadata
-      :audio -> [format_sort: "ext", format: "bestaudio"]
-      :"360p" -> [format_sort: "res:360,#{codec_options}"]
-      :"480p" -> [format_sort: "res:480,#{codec_options}"]
-      :"720p" -> [format_sort: "res:720,#{codec_options}"]
-      :"1080p" -> [format_sort: "res:1080,#{codec_options}"]
-      :"1440p" -> [format_sort: "res:1440,#{codec_options}"]
-      :"2160p" -> [format_sort: "res:2160,#{codec_options}"]
+      # Also be aware that :audio disabled all embedding options for subtitles
+      :audio -> [:extract_audio, format: "bestaudio[ext=m4a]"]
+      :"360p" -> [format_sort: "res:360,#{video_codec_options}"]
+      :"480p" -> [format_sort: "res:480,#{video_codec_options}"]
+      :"720p" -> [format_sort: "res:720,#{video_codec_options}"]
+      :"1080p" -> [format_sort: "res:1080,#{video_codec_options}"]
+      :"1440p" -> [format_sort: "res:1440,#{video_codec_options}"]
+      :"2160p" -> [format_sort: "res:2160,#{video_codec_options}"]
     end
   end
 
