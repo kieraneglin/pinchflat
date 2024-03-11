@@ -598,9 +598,14 @@ defmodule PinchflatWeb.CoreComponents do
   def list_items_from_map(assigns) do
     attrs =
       Enum.filter(assigns.map, fn
-        {_, %{__struct__: _}} -> false
-        {_, [%{__meta__: _} | _]} -> false
-        _ -> true
+        {_, %{__struct__: s}} when s not in [Date, DateTime] ->
+          false
+
+        {_, [%{__meta__: _} | _]} ->
+          false
+
+        _ ->
+          true
       end)
 
     assigns = assign(assigns, iterable_attributes: attrs)

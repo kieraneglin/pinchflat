@@ -15,15 +15,19 @@ defmodule Pinchflat.SourcesFixtures do
     {:ok, source} =
       %Source{}
       |> Source.changeset(
-        Enum.into(attrs, %{
-          collection_name: "Source ##{:rand.uniform(1_000_000)}",
-          collection_id: Base.encode16(:crypto.hash(:md5, "#{:rand.uniform(1_000_000)}")),
-          collection_type: "channel",
-          custom_name: "Cool and good internal name!",
-          original_url: "https://www.youtube.com/channel/#{Faker.String.base64(12)}",
-          media_profile_id: ProfilesFixtures.media_profile_fixture().id,
-          index_frequency_minutes: 60
-        })
+        Enum.into(
+          attrs,
+          %{
+            collection_name: "Source ##{:rand.uniform(1_000_000)}",
+            collection_id: Base.encode16(:crypto.hash(:md5, "#{:rand.uniform(1_000_000)}")),
+            collection_type: "channel",
+            custom_name: "Cool and good internal name!",
+            original_url: "https://www.youtube.com/channel/#{Faker.String.base64(12)}",
+            media_profile_id: ProfilesFixtures.media_profile_fixture().id,
+            index_frequency_minutes: 60
+          }
+        ),
+        :pre_insert
       )
       |> Repo.insert()
 
@@ -39,7 +43,8 @@ defmodule Pinchflat.SourcesFixtures do
         was_live: false,
         description: "desc1",
         aspect_ratio: 1.67,
-        duration: 12.34
+        duration: 12.34,
+        upload_date: "20210101"
       },
       %{
         id: "video2",
@@ -48,7 +53,8 @@ defmodule Pinchflat.SourcesFixtures do
         was_live: true,
         description: "desc2",
         aspect_ratio: 1.67,
-        duration: 345.67
+        duration: 345.67,
+        upload_date: "20220202"
       },
       %{
         id: "video3",
@@ -57,7 +63,8 @@ defmodule Pinchflat.SourcesFixtures do
         was_live: false,
         description: "desc3",
         aspect_ratio: 1.0,
-        duration: 678.90
+        duration: 678.90,
+        upload_date: "20230303"
       }
     ]
 
