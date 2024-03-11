@@ -30,7 +30,7 @@ defmodule Pinchflat.Profiles.MediaProfile do
     field :name, :string
 
     field :output_path_template, :string,
-      default: "/{{ source_custom_name }}/{{ title }}/{{ title }} [{{ id }}].{{ ext }}"
+      default: "/{{ source_custom_name }}/{{ upload_yyyy_mm_dd }} {{ title }}/{{ title }} [{{ id }}].{{ ext }}"
 
     field :download_subs, :boolean, default: true
     field :download_auto_subs, :boolean, default: true
