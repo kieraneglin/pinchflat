@@ -168,12 +168,14 @@ defmodule Pinchflat.Tasks.SourceTasksTest do
                Enum.map(media_items_other_source, & &1.media_id)
     end
 
-    test "it returns a list of media_items or changesets", %{source: source} do
+    test "it returns a list of media_items", %{source: source} do
       first_run = SourceTasks.index_and_enqueue_download_for_media_items(source)
       duplicate_run = SourceTasks.index_and_enqueue_download_for_media_items(source)
 
-      assert Enum.all?(first_run, fn %MediaItem{} -> true end)
-      assert Enum.all?(duplicate_run, fn %Ecto.Changeset{} -> true end)
+      first_ids = Enum.map(first_run, & &1.id)
+      duplicate_ids = Enum.map(duplicate_run, & &1.id)
+
+      assert first_ids == duplicate_ids
     end
 
     test "it updates the source's last_indexed_at field", %{source: source} do

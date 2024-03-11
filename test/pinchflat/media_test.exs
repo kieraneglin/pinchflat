@@ -378,6 +378,7 @@ defmodule Pinchflat.MediaTest do
       }
 
       assert {:ok, %MediaItem{} = media_item} = Media.create_media_item(valid_attrs)
+
       assert media_item.title == valid_attrs.title
       assert media_item.media_id == valid_attrs.media_id
       assert media_item.media_filepath == valid_attrs.media_filepath
@@ -398,11 +399,29 @@ defmodule Pinchflat.MediaTest do
         |> YtDlpMedia.response_to_struct()
 
       assert {:ok, %MediaItem{} = media_item} = Media.create_media_item_from_backend_attrs(source, media_attrs)
+
       assert media_item.source_id == source.id
       assert media_item.title == media_attrs.title
       assert media_item.media_id == media_attrs.media_id
       assert media_item.original_url == media_attrs.original_url
       assert media_item.description == media_attrs.description
+    end
+
+    test "updates the media item if it already exists" do
+      source = source_fixture()
+
+      media_attrs =
+        media_attributes_return_fixture()
+        |> Phoenix.json_library().decode!()
+        |> YtDlpMedia.response_to_struct()
+
+      different_attrs = %YtDlpMedia{media_attrs | title: "Different title"}
+
+      assert {:ok, %MediaItem{} = media_item_1} = Media.create_media_item_from_backend_attrs(source, media_attrs)
+      assert {:ok, %MediaItem{} = media_item_2} = Media.create_media_item_from_backend_attrs(source, different_attrs)
+
+      assert media_item_1.id == media_item_2.id
+      assert media_item_2.title == different_attrs.title
     end
   end
 

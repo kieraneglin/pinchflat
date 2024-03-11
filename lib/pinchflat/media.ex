@@ -184,14 +184,25 @@ defmodule Pinchflat.Media do
 
   @doc """
   Creates a media item from the attributes returned by the video backend
-  (read: yt-dlp)
+  (read: yt-dlp).
+
+  Unlike `create_media_item`, this will attempt an update if the media_item
+  already exists. This is so that future indexing can pick up attributes that
+  we may not have asked for in the past (eg: upload_date)
 
   Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}
   """
   def create_media_item_from_backend_attrs(source, media_attrs_struct) do
-    %{source_id: source.id}
-    |> Map.merge(Map.from_struct(media_attrs_struct))
-    |> create_media_item()
+    attrs = Map.merge(%{source_id: source.id}, Map.from_struct(media_attrs_struct))
+
+    %MediaItem{}
+    |> MediaItem.changeset(attrs)
+    |> Repo.insert(
+      on_conflict: [
+        set: Map.to_list(attrs)
+      ],
+      conflict_target: [:source_id, :media_id]
+    )
   end
 
   @doc """
