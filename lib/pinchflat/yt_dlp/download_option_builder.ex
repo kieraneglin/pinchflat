@@ -63,7 +63,7 @@ defmodule Pinchflat.YtDlp.DownloadOptionBuilder do
     Enum.reduce(mapped_struct, [], fn attr, acc ->
       case {attr, media_profile} do
         {{:download_thumbnail, true}, _} ->
-          acc ++ [:write_thumbnail]
+          acc ++ [:write_thumbnail, convert_thumbnail: "jpg"]
 
         {{:embed_thumbnail, true}, %{preferred_resolution: pr}} when pr != :audio ->
           acc ++ [:embed_thumbnail]
