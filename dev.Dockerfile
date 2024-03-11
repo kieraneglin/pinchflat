@@ -5,6 +5,11 @@ ARG DEV_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEB
 
 FROM ${DEV_IMAGE}
 
+# Set the locale deets
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
 # Install debian packages
 RUN apt-get update -qq
 RUN apt-get install -y inotify-tools ffmpeg curl git openssh-client \
