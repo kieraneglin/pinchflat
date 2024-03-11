@@ -115,6 +115,12 @@ defmodule Pinchflat.SourcesTest do
       assert {:error, %Ecto.Changeset{}} = Sources.create_source(@invalid_source_attrs)
     end
 
+    test "creation with invalid data fails fast and does not call the runner" do
+      expect(YtDlpRunnerMock, :run, 0, &channel_mock/3)
+
+      assert {:error, %Ecto.Changeset{}} = Sources.create_source(@invalid_source_attrs)
+    end
+
     test "creation enforces uniqueness of collection_id scoped to the media_profile" do
       expect(YtDlpRunnerMock, :run, 2, fn _url, _opts, _ot ->
         {:ok,
@@ -223,6 +229,14 @@ defmodule Pinchflat.SourcesTest do
 
       assert {:ok, %Source{} = source} = Sources.update_source(source, update_attrs)
       assert source.collection_name == "some updated name"
+    end
+
+    test "updates with invalid data fails fast and does not call the runner" do
+      expect(YtDlpRunnerMock, :run, 0, &channel_mock/3)
+
+      source = source_fixture()
+
+      assert {:error, %Ecto.Changeset{}} = Sources.update_source(source, @invalid_source_attrs)
     end
 
     test "updating the original_url will re-fetch the source details for channels" do
@@ -430,7 +444,7 @@ defmodule Pinchflat.SourcesTest do
     end
   end
 
-  describe "change_source/2" do
+  describe "change_source/3" do
     test "it returns a changeset" do
       source = source_fixture()
 

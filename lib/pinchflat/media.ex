@@ -64,6 +64,7 @@ defmodule Pinchflat.Media do
     MediaItem
     |> where([mi], mi.source_id == ^source.id and is_nil(mi.media_filepath))
     |> where(^build_format_clauses(media_profile))
+    |> where(^maybe_apply_cutoff_date(source))
     |> Repo.maybe_limit(limit)
     |> Repo.all()
   end
@@ -92,11 +93,12 @@ defmodule Pinchflat.Media do
   Returns boolean()
   """
   def pending_download?(%MediaItem{} = media_item) do
-    media_profile = Repo.preload(media_item, source: :media_profile).source.media_profile
+    media_item = Repo.preload(media_item, source: :media_profile)
 
     MediaItem
     |> where([mi], mi.id == ^media_item.id and is_nil(mi.media_filepath))
-    |> where(^build_format_clauses(media_profile))
+    |> where(^build_format_clauses(media_item.source.media_profile))
+    |> where(^maybe_apply_cutoff_date(media_item.source))
     |> Repo.exists?()
   end
 
@@ -258,6 +260,14 @@ defmodule Pinchflat.Media do
     end
 
     {:ok, media_item}
+  end
+
+  defp maybe_apply_cutoff_date(source) do
+    if source.download_cutoff_date do
+      dynamic([mi], mi.upload_date >= ^source.download_cutoff_date)
+    else
+      dynamic(true)
+    end
   end
 
   defp build_format_clauses(media_profile) do

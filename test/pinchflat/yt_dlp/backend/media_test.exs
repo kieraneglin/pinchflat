@@ -140,5 +140,18 @@ defmodule Pinchflat.YtDlp.Backend.MediaTest do
 
       assert %Media{short_form_content: false} = Media.response_to_struct(response)
     end
+
+    test "parses the upload date" do
+      response = %{
+        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "aspect_ratio" => 1.0,
+        "duration" => 61,
+        "upload_date" => "20210101"
+      }
+
+      expected_date = Date.from_iso8601!("2021-01-01")
+
+      assert %Media{upload_date: ^expected_date} = Media.response_to_struct(response)
+    end
   end
 end

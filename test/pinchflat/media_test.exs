@@ -215,6 +215,30 @@ defmodule Pinchflat.MediaTest do
     end
   end
 
+  describe "list_pending_media_items_for/1 when testing cutoff dates" do
+    test "does not return media items with an upload date before the cutoff date" do
+      source = source_fixture(%{download_cutoff_date: now_minus(1, :day)})
+
+      _old_media_item =
+        media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now_minus(2, :days)})
+
+      new_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now()})
+
+      assert Media.list_pending_media_items_for(source) == [new_media_item]
+    end
+
+    test "does not apply a cutoff if there is no cutoff date" do
+      source = source_fixture(%{download_cutoff_date: nil})
+
+      old_media_item =
+        media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now_minus(2, :days)})
+
+      new_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now()})
+
+      assert Media.list_pending_media_items_for(source) == [old_media_item, new_media_item]
+    end
+  end
+
   describe "list_downloaded_media_items_for/1" do
     test "returns only media items with a media_filepath" do
       source = source_fixture()
@@ -259,6 +283,27 @@ defmodule Pinchflat.MediaTest do
       media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, livestream: true})
 
       refute Media.pending_download?(media_item)
+    end
+
+    test "returns true if there is a cutoff date before the media's upload date" do
+      source = source_fixture(%{download_cutoff_date: now_minus(2, :days)})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now_minus(1, :day)})
+
+      assert Media.pending_download?(media_item)
+    end
+
+    test "returns false if there is a cutoff date after the media's upload date" do
+      source = source_fixture(%{download_cutoff_date: now_minus(1, :day)})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now_minus(2, :days)})
+
+      refute Media.pending_download?(media_item)
+    end
+
+    test "returns true if there is no cutoff date" do
+      source = source_fixture(%{download_cutoff_date: nil})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now_minus(1, :day)})
+
+      assert Media.pending_download?(media_item)
     end
   end
 
