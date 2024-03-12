@@ -11,8 +11,9 @@ defmodule Pinchflat.Application do
       PinchflatWeb.Telemetry,
       Pinchflat.Repo,
       # Must be before startup tasks
+      Pinchflat.Boot.PreJobStartupTasks,
       {Oban, Application.fetch_env!(:pinchflat, Oban)},
-      Pinchflat.Boot.StartupTasks,
+      Pinchflat.Boot.PostJobStartupTasks,
       {DNSCluster, query: Application.get_env(:pinchflat, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Pinchflat.PubSub},
       # Start the Finch HTTP client for sending emails

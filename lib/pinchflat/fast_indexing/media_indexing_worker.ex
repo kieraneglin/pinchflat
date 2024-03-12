@@ -1,8 +1,6 @@
 defmodule Pinchflat.FastIndexing.MediaIndexingWorker do
   @moduledoc false
 
-  # TODO: make a startup task to rename all existing workers so they still run
-
   use Oban.Worker,
     queue: :media_indexing,
     unique: [period: :infinity, states: [:available, :scheduled, :retryable]],

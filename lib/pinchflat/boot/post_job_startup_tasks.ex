@@ -1,4 +1,4 @@
-defmodule Pinchflat.Boot.StartupTasks do
+defmodule Pinchflat.Boot.PostJobStartupTasks do
   @moduledoc """
   This module is responsible for running startup tasks on app boot
   AFTER the job runner has initiallized.
@@ -12,7 +12,6 @@ defmodule Pinchflat.Boot.StartupTasks do
   import Ecto.Query, warn: false
 
   alias Pinchflat.Repo
-  alias Pinchflat.Settings
   alias Pinchflat.Boot.DataBackfillWorker
 
   def start_link(opts \\ []) do
@@ -30,15 +29,9 @@ defmodule Pinchflat.Boot.StartupTasks do
   """
   @impl true
   def init(state) do
-    apply_default_settings()
     enqueue_backfill_worker()
 
     {:ok, state}
-  end
-
-  defp apply_default_settings do
-    Settings.fetch!(:onboarding, true)
-    Settings.fetch!(:pro_enabled, false)
   end
 
   defp enqueue_backfill_worker do
