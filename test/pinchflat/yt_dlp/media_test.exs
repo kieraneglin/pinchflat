@@ -141,6 +141,16 @@ defmodule Pinchflat.YtDlp.MediaTest do
       assert %Media{short_form_content: false} = Media.response_to_struct(response)
     end
 
+    test "doesn't blow up if short form content-related fields are missing" do
+      response = %{
+        "webpage_url" => nil,
+        "aspect_ratio" => nil,
+        "duration" => nil
+      }
+
+      assert %Media{short_form_content: nil} = Media.response_to_struct(response)
+    end
+
     test "parses the upload date" do
       response = %{
         "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
@@ -152,6 +162,17 @@ defmodule Pinchflat.YtDlp.MediaTest do
       expected_date = Date.from_iso8601!("2021-01-01")
 
       assert %Media{upload_date: ^expected_date} = Media.response_to_struct(response)
+    end
+
+    test "doesn't blow up if upload date is missing" do
+      response = %{
+        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "aspect_ratio" => 1.0,
+        "duration" => 61,
+        "upload_date" => nil
+      }
+
+      assert %Media{upload_date: nil} = Media.response_to_struct(response)
     end
   end
 end
