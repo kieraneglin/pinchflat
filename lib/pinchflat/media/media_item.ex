@@ -9,7 +9,7 @@ defmodule Pinchflat.Media.MediaItem do
   alias Pinchflat.Tasks.Task
   alias Pinchflat.Sources.Source
   alias Pinchflat.Metadata.MediaMetadata
-  alias Pinchflat.Media.MediaItemSearchIndex
+  alias Pinchflat.Media.MediaItemsSearchIndex
 
   @allowed_fields [
     # these fields are captured on indexing (and again on download)
@@ -64,7 +64,7 @@ defmodule Pinchflat.Media.MediaItem do
     belongs_to :source, Source
 
     has_one :metadata, MediaMetadata, on_replace: :update
-    has_one :media_items_search_index, MediaItemSearchIndex, foreign_key: :id
+    has_one :media_items_search_index, MediaItemsSearchIndex, foreign_key: :id
 
     has_many :tasks, Task
 
