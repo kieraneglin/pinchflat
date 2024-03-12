@@ -39,7 +39,8 @@ defmodule Pinchflat.Profiles.OutputPathBuilder do
       # Individual parts of the upload date
       "upload_year" => "%(upload_date>%Y)S",
       "upload_month" => "%(upload_date>%m)S",
-      "upload_day" => "%(upload_date>%d)S"
+      "upload_day" => "%(upload_date>%d)S",
+      "upload_yyyy_mm_dd" => "%(upload_date>%Y)S-%(upload_date>%m)S-%(upload_date>%d)S"
     }
   end
 end

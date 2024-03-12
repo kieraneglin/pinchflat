@@ -13,13 +13,17 @@
     </script>
   </head>
   <body
-    x-data={"{ sidebarVisible: false, proEnabled: #{Settings.get!(:pro_enabled)} }"}
+    x-data={"{ 
+      sidebarVisible: false,
+      proEnabled: #{Settings.get!(:pro_enabled)},
+      onboarding: #{Settings.get!(:onboarding)}
+    }"}
     class="dark text-bodydark bg-boxdark-2"
   >
     <%= @inner_content %>
 
     <.donate_modal conn={@conn} />
-    <template x-if="!proEnabled">
+    <template x-if="!proEnabled && !onboarding">
       <.upgrade_modal conn={@conn} />
     </template>
   </body>
