@@ -9,10 +9,11 @@ defmodule Pinchflat.SourcesTest do
   alias Pinchflat.Sources
   alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.FastIndexing.FastIndexingWorker
-  alias Pinchflat.Workers.MediaDownloadWorker
-  alias Pinchflat.Workers.MediaIndexingWorker
-  alias Pinchflat.Workers.MediaCollectionIndexingWorker
+  alias Pinchflat.Downloading.MediaDownloadWorker
+  alias Pinchflat.FastIndexing.MediaIndexingWorker
+  alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
 
   @invalid_source_attrs %{name: nil, collection_id: nil}
 
@@ -331,7 +332,7 @@ defmodule Pinchflat.SourcesTest do
       source = source_fixture(download_media: true)
       media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
       update_attrs = %{download_media: false}
-      SourceTasks.enqueue_pending_media_tasks(source)
+      DownloadingHelpers.enqueue_pending_download_tasks(source)
 
       assert_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
       assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)

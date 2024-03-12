@@ -1,4 +1,4 @@
-defmodule Pinchflat.Workers.MediaDownloadWorker do
+defmodule Pinchflat.Downloading.MediaDownloadWorker do
   @moduledoc false
 
   use Oban.Worker,

@@ -12,7 +12,7 @@ defmodule Pinchflat.Application do
       Pinchflat.Repo,
       # Must be before startup tasks
       {Oban, Application.fetch_env!(:pinchflat, Oban)},
-      Pinchflat.StartupTasks,
+      Pinchflat.Boot.StartupTasks,
       {DNSCluster, query: Application.get_env(:pinchflat, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Pinchflat.PubSub},
       # Start the Finch HTTP client for sending emails

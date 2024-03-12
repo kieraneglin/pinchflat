@@ -8,7 +8,7 @@ defmodule Pinchflat.Tasks.MediaItemTasks do
   alias Pinchflat.Media
   alias Pinchflat.Tasks
   alias Pinchflat.Sources.Source
-  alias Pinchflat.Workers.MediaDownloadWorker
+  alias Pinchflat.Downloading.MediaDownloadWorker
 
   alias Pinchflat.YtDlp.Backend.Media, as: YtDlpMedia
 

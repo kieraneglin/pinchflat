@@ -1,4 +1,4 @@
-defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
+defmodule Pinchflat.FastIndexing.MediaIndexingWorkerTest do
   use Pinchflat.DataCase
 
   import Mox
@@ -6,8 +6,8 @@ defmodule Pinchflat.Workers.MediaIndexingWorkerTest do
   import Pinchflat.SourcesFixtures
 
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.Workers.MediaIndexingWorker
-  alias Pinchflat.Workers.MediaDownloadWorker
+  alias Pinchflat.FastIndexing.MediaIndexingWorker
+  alias Pinchflat.Downloading.MediaDownloadWorker
 
   @media_url "https://www.youtube.com/watch?v=1234567890"
 

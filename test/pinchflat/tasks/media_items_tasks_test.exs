@@ -9,7 +9,7 @@ defmodule Pinchflat.Tasks.MediaItemTasksTest do
   alias Pinchflat.Tasks
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Tasks.MediaItemTasks
-  alias Pinchflat.Workers.MediaDownloadWorker
+  alias Pinchflat.Downloading.MediaDownloadWorker
 
   setup :verify_on_exit!
 

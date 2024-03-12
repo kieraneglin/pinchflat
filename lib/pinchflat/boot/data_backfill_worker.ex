@@ -1,4 +1,4 @@
-defmodule Pinchflat.Workers.DataBackfillWorker do
+defmodule Pinchflat.Boot.DataBackfillWorker do
   @moduledoc false
 
   use Oban.Worker,
@@ -28,7 +28,7 @@ defmodule Pinchflat.Workers.DataBackfillWorker do
   """
   def cancel_pending_backfill_jobs do
     Oban.Job
-    |> where(worker: "Pinchflat.Workers.DataBackfillWorker")
+    |> where(worker: "Pinchflat.Boot.DataBackfillWorker")
     |> Oban.cancel_all_jobs()
   end
 

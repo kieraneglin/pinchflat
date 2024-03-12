@@ -1,6 +1,7 @@
-defmodule Pinchflat.StartupTasks do
+defmodule Pinchflat.Boot.StartupTasks do
   @moduledoc """
-  This module is responsible for running startup tasks on app boot.
+  This module is responsible for running startup tasks on app boot
+  AFTER the job runner has initiallized.
 
   It's a GenServer because that plays REALLY nicely with the existing
   Phoenix supervision tree.
@@ -12,7 +13,7 @@ defmodule Pinchflat.StartupTasks do
 
   alias Pinchflat.Repo
   alias Pinchflat.Settings
-  alias Pinchflat.Workers.DataBackfillWorker
+  alias Pinchflat.Boot.DataBackfillWorker
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, %{}, opts)

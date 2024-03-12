@@ -11,11 +11,11 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
   alias Pinchflat.Tasks.Task
   alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.Workers.MediaDownloadWorker
-  alias Pinchflat.Workers.MediaIndexingWorker
+  alias Pinchflat.Downloading.MediaDownloadWorker
+  alias Pinchflat.FastIndexing.MediaIndexingWorker
   alias Pinchflat.FastIndexing.FastIndexingHelpers
   alias Pinchflat.FastIndexing.FastIndexingWorker
-  alias Pinchflat.Workers.MediaCollectionIndexingWorker
+  alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
 
   setup :verify_on_exit!
 

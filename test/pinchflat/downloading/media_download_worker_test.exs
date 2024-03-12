@@ -1,11 +1,11 @@
-defmodule Pinchflat.Workers.MediaDownloadWorkerTest do
+defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
   use Pinchflat.DataCase
 
   import Mox
   import Pinchflat.MediaFixtures
 
   alias Pinchflat.Sources
-  alias Pinchflat.Workers.MediaDownloadWorker
+  alias Pinchflat.Downloading.MediaDownloadWorker
   alias Pinchflat.Workers.FilesystemDataWorker
 
   setup :verify_on_exit!

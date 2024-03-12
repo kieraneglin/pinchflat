@@ -1,4 +1,4 @@
-defmodule Pinchflat.Workers.MediaCollectionIndexingWorker do
+defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorker do
   @moduledoc false
 
   use Oban.Worker,
@@ -12,6 +12,7 @@ defmodule Pinchflat.Workers.MediaCollectionIndexingWorker do
   alias Pinchflat.Sources.Source
   alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.FastIndexing.FastIndexingWorker
+  alias Pinchflat.SlowIndexing.SlowIndexingHelpers
 
   @impl Oban.Worker
   @doc """
@@ -40,7 +41,7 @@ defmodule Pinchflat.Workers.MediaCollectionIndexingWorker do
        by the `download_media` field on the source as well as the profile's
        shorts/livestream behaviour. At this step we also attach a file reader
        to the `yt-dlp` output file so we can create media items as they come in
-       for a little speedup (see SourceTasks comments for more)
+       for a little speedup (see {Fast,Slow}IndexingHelpers comments for more)
     4. If this job is meant to reschedule (ie: has an index frequency > 0),
        it reschedules itself. If not, it runs once and does not reschedule
     5. If the source uses fast indexing, that job is kicked off as well. It
@@ -56,8 +57,6 @@ defmodule Pinchflat.Workers.MediaCollectionIndexingWorker do
   NOTE: Since indexing can take a LONG time, I should check what happens if an
   application restart occurs while a job is running. Will the job be lost?
 
-  IDEA: Should I use paging and do indexing in chunks? Is that even faster?
-
   Returns :ok | {:ok, %Task{}}
   """
   def perform(%Oban.Job{args: %{"id" => source_id}}) do
@@ -66,14 +65,14 @@ defmodule Pinchflat.Workers.MediaCollectionIndexingWorker do
     case {source.index_frequency_minutes, source.last_indexed_at} do
       {index_freq, _} when index_freq > 0 ->
         # If the indexing is on a schedule simply run indexing and reschedule
-        SourceTasks.index_and_enqueue_download_for_media_items(source)
+        SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
         maybe_enqueue_fast_indexing_task(source)
         reschedule_indexing(source)
 
       {_, nil} ->
         # If the source has never been indexed, index it once
         # even if it's not meant to reschedule
-        SourceTasks.index_and_enqueue_download_for_media_items(source)
+        SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
         :ok
 
       _ ->

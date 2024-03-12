@@ -6,10 +6,10 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
   alias Pinchflat.FastIndexing.YoutubeRss
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.FastIndexing.FastIndexingWorker
-  alias Pinchflat.Workers.MediaDownloadWorker
-  alias Pinchflat.Workers.MediaIndexingWorker
+  alias Pinchflat.Downloading.MediaDownloadWorker
+  alias Pinchflat.FastIndexing.MediaIndexingWorker
   alias Pinchflat.YtDlp.Backend.MediaCollection
-  alias Pinchflat.Workers.MediaCollectionIndexingWorker
+  alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
   alias Pinchflat.Utils.FilesystemUtils.FileFollowerServer
 
   @doc """

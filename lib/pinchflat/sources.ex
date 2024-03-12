@@ -12,7 +12,9 @@ defmodule Pinchflat.Sources do
   alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Profiles.MediaProfile
   alias Pinchflat.YtDlp.Backend.MediaCollection
+  alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.FastIndexing.FastIndexingHelpers
+  alias Pinchflat.SlowIndexing.SlowIndexingHelpers
 
   @doc """
   Returns the list of sources. Returns [%Source{}, ...]
@@ -68,7 +70,7 @@ defmodule Pinchflat.Sources do
   media if the indexing frequency has been changed.
 
   Existing indexing tasks will be cancelled if the indexing frequency has been
-  changed (logic in `SourceTasks.kickoff_indexing_task`)
+  changed (logic in `SlowIndexingHelpers.kickoff_indexing_task`)
 
   Runs an initial `change_source` check to ensure most of the source is valid
   before making an expensive API call. Runs it through `Repo.update` even
@@ -206,10 +208,10 @@ defmodule Pinchflat.Sources do
   defp maybe_handle_media_tasks(changeset, source) do
     case {changeset.data, changeset.changes} do
       {%{__meta__: %{state: :loaded}}, %{download_media: true}} ->
-        SourceTasks.enqueue_pending_media_tasks(source)
+        DownloadingHelpers.enqueue_pending_download_tasks(source)
 
       {%{__meta__: %{state: :loaded}}, %{download_media: false}} ->
-        SourceTasks.dequeue_pending_media_tasks(source)
+        DownloadingHelpers.dequeue_pending_download_tasks(source)
 
       _ ->
         :ok
@@ -222,7 +224,7 @@ defmodule Pinchflat.Sources do
     case changeset.data do
       # If the changeset is new (not persisted), attempt indexing no matter what
       %{__meta__: %{state: :built}} ->
-        SourceTasks.kickoff_indexing_task(source)
+        SlowIndexingHelpers.kickoff_indexing_task(source)
 
       # If the record has been persisted, only run indexing if the
       # indexing frequency has been changed and is now greater than 0
@@ -237,7 +239,7 @@ defmodule Pinchflat.Sources do
   defp maybe_update_slow_indexing_task(changeset, source) do
     case changeset.changes do
       %{index_frequency_minutes: mins} when mins > 0 ->
-        SourceTasks.kickoff_indexing_task(source)
+        SlowIndexingHelpers.kickoff_indexing_task(source)
 
       %{index_frequency_minutes: _} ->
         Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")

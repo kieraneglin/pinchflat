@@ -1,4 +1,4 @@
-defmodule Pinchflat.StartupTasksTest do
+defmodule Pinchflat.Boot.StartupTasksTest do
   use Pinchflat.DataCase
 
   alias Pinchflat.Settings

@@ -1,4 +1,4 @@
-defmodule Pinchflat.Workers.MediaCollectionIndexingWorkerTest do
+defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorkerTest do
   use Pinchflat.DataCase
 
   import Mox
@@ -9,8 +9,8 @@ defmodule Pinchflat.Workers.MediaCollectionIndexingWorkerTest do
   alias Pinchflat.Tasks
   alias Pinchflat.Sources.Source
   alias Pinchflat.FastIndexing.FastIndexingWorker
-  alias Pinchflat.Workers.MediaDownloadWorker
-  alias Pinchflat.Workers.MediaCollectionIndexingWorker
+  alias Pinchflat.Downloading.MediaDownloadWorker
+  alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
 
   setup :verify_on_exit!
 
