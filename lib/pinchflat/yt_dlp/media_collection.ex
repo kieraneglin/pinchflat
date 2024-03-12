@@ -22,7 +22,10 @@ defmodule Pinchflat.YtDlp.MediaCollection do
   """
   def get_media_attributes_for_collection(url, addl_opts \\ []) do
     runner = Application.get_env(:pinchflat, :yt_dlp_runner)
-    command_opts = [:simulate, :skip_download]
+    # `ignore_no_formats_error` is necessary because yt-dlp will error out if
+    # the first video has not released yet (ie: is a premier). We don't care about
+    # available formats since we're just getting the media details
+    command_opts = [:simulate, :skip_download, :ignore_no_formats_error]
     output_template = YtDlpMedia.indexing_output_template()
     output_filepath = FilesystemHelpers.generate_metadata_tmpfile(:json)
     file_listener_handler = Keyword.get(addl_opts, :file_listener_handler, false)
