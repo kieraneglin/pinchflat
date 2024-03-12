@@ -54,7 +54,10 @@ defmodule Pinchflat.YtDlp.MediaCollection do
   Returns {:ok, map()} | {:error, any, ...}.
   """
   def get_source_details(source_url) do
-    opts = [:simulate, :skip_download, playlist_end: 1]
+    # `ignore_no_formats_error` is necessary because yt-dlp will error out if
+    # the first video has not released yet (ie: is a premier). We don't care about
+    # available formats since we're just getting the source details
+    opts = [:simulate, :skip_download, :ignore_no_formats_error, playlist_end: 1]
     output_template = "%(.{channel,channel_id,playlist_id,playlist_title})j"
 
     with {:ok, output} <- backend_runner().run(source_url, opts, output_template),

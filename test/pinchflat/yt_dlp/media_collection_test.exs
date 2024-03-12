@@ -87,7 +87,7 @@ defmodule Pinchflat.YtDlp.MediaCollectionTest do
 
     test "it passes the expected args to the backend runner" do
       expect(YtDlpRunnerMock, :run, fn @channel_url, opts, ot ->
-        assert opts == [:simulate, :skip_download, playlist_end: 1]
+        assert opts == [:simulate, :skip_download, :ignore_no_formats_error, playlist_end: 1]
         assert ot == "%(.{channel,channel_id,playlist_id,playlist_title})j"
 
         {:ok, "{}"}
