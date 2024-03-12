@@ -5,17 +5,14 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   alias Pinchflat.Tasks
   alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
-  alias Pinchflat.FastIndexing.YoutubeRss
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.FastIndexing.FastIndexingWorker
-  alias Pinchflat.Downloading.MediaDownloadWorker
-  alias Pinchflat.FastIndexing.MediaIndexingWorker
-  alias Pinchflat.YtDlp.Backend.MediaCollection
-  alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
-  alias Pinchflat.Utils.FilesystemUtils.FileFollowerServer
+  alias Pinchflat.YtDlp.MediaCollection
   alias Pinchflat.Downloading.DownloadingHelpers
+  alias Pinchflat.SlowIndexing.FileFollowerServer
+  alias Pinchflat.Downloading.MediaDownloadWorker
+  alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
 
-  alias Pinchflat.YtDlp.Backend.Media, as: YtDlpMedia
+  alias Pinchflat.YtDlp.Media, as: YtDlpMedia
 
   @doc """
   Starts tasks for indexing a source's media regardless of the source's indexing

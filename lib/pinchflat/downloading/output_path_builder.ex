@@ -1,9 +1,9 @@
-defmodule Pinchflat.Profiles.OutputPathBuilder do
+defmodule Pinchflat.Downloading.OutputPathBuilder do
   @moduledoc """
   Builds yt-dlp-friendly output paths for downloaded media
   """
 
-  alias Pinchflat.RenderedString.Parser, as: TemplateParser
+  alias Pinchflat.Downloading.OutputPath.Parser, as: TemplateParser
 
   @doc """
   Builds the actual final filepath from a given template. Optionally, you can pass in

@@ -1,9 +1,9 @@
-defmodule Pinchflat.Workers.FilesystemDataWorkerTest do
+defmodule Pinchflat.Filesystem.FilesystemDataWorkerTest do
   use Pinchflat.DataCase
 
   import Pinchflat.MediaFixtures
 
-  alias Pinchflat.Workers.FilesystemDataWorker
+  alias Pinchflat.Filesystem.FilesystemDataWorker
 
   describe "perform/1" do
     test "Computes and stores the media file size" do

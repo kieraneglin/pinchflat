@@ -7,7 +7,6 @@ defmodule Pinchflat.SourcesTest do
   import Pinchflat.SourcesFixtures
 
   alias Pinchflat.Sources
-  alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Sources.Source
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.FastIndexing.FastIndexingWorker

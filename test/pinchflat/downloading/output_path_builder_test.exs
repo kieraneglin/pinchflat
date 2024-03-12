@@ -1,7 +1,7 @@
-defmodule Pinchflat.Profiles.OutputPathBuilderTest do
+defmodule Pinchflat.Downloading.OutputPathBuilderTest do
   use Pinchflat.DataCase
 
-  alias Pinchflat.Profiles.OutputPathBuilder
+  alias Pinchflat.Downloading.OutputPathBuilder
 
   describe "build/2" do
     test "it expands 'standard' curly brace variables in the template" do

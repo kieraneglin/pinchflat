@@ -9,9 +9,8 @@ defmodule Pinchflat.Sources do
   alias Pinchflat.Media
   alias Pinchflat.Tasks
   alias Pinchflat.Sources.Source
-  alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Profiles.MediaProfile
-  alias Pinchflat.YtDlp.Backend.MediaCollection
+  alias Pinchflat.YtDlp.MediaCollection
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.FastIndexing.FastIndexingHelpers
   alias Pinchflat.SlowIndexing.SlowIndexingHelpers

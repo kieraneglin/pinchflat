@@ -2,20 +2,12 @@ defmodule Pinchflat.Downloading.DownloadingHelpersTest do
   use Pinchflat.DataCase
 
   import Mox
-  import Pinchflat.TasksFixtures
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
-  import Pinchflat.ProfilesFixtures
 
   alias Pinchflat.Tasks
-  alias Pinchflat.Tasks.Task
-  alias Pinchflat.Media.MediaItem
-  alias Pinchflat.FastIndexing.FastIndexingWorker
-  alias Pinchflat.Downloading.MediaDownloadWorker
-  alias Pinchflat.FastIndexing.MediaIndexingWorker
-  alias Pinchflat.SlowIndexing.SlowIndexingHelpers
-  alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
   alias Pinchflat.Downloading.DownloadingHelpers
+  alias Pinchflat.Downloading.MediaDownloadWorker
 
   setup :verify_on_exit!
 

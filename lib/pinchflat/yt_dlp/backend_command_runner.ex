@@ -1,4 +1,4 @@
-defmodule Pinchflat.YtDlp.Backend.BackendCommandRunner do
+defmodule Pinchflat.YtDlp.BackendCommandRunner do
   @moduledoc """
   A behaviour for running CLI commands against a downloader backend (yt-dlp).
 

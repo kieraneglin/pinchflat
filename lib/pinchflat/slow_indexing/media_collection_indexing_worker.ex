@@ -10,7 +10,6 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorker do
   alias Pinchflat.Tasks
   alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
-  alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.FastIndexing.FastIndexingWorker
   alias Pinchflat.SlowIndexing.SlowIndexingHelpers
 

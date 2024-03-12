@@ -1,4 +1,4 @@
-defmodule Pinchflat.YtDlp.Backend.MediaCollection do
+defmodule Pinchflat.YtDlp.MediaCollection do
   @moduledoc """
   Contains utilities for working with collections of
   media (aka: a source [ie: channels, playlists]).
@@ -7,8 +7,8 @@ defmodule Pinchflat.YtDlp.Backend.MediaCollection do
   require Logger
 
   alias Pinchflat.Utils.FunctionUtils
-  alias Pinchflat.Utils.FilesystemUtils
-  alias Pinchflat.YtDlp.Backend.Media, as: YtDlpMedia
+  alias Pinchflat.Filesystem.FilesystemHelpers
+  alias Pinchflat.YtDlp.Media, as: YtDlpMedia
 
   @doc """
   Returns a list of maps representing the media in the collection.
@@ -24,7 +24,7 @@ defmodule Pinchflat.YtDlp.Backend.MediaCollection do
     runner = Application.get_env(:pinchflat, :yt_dlp_runner)
     command_opts = [:simulate, :skip_download]
     output_template = YtDlpMedia.indexing_output_template()
-    output_filepath = FilesystemUtils.generate_metadata_tmpfile(:json)
+    output_filepath = FilesystemHelpers.generate_metadata_tmpfile(:json)
     file_listener_handler = Keyword.get(addl_opts, :file_listener_handler, false)
 
     if file_listener_handler do

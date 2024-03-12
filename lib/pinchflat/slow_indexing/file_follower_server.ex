@@ -1,4 +1,4 @@
-defmodule Pinchflat.Utils.FilesystemUtils.FileFollowerServer do
+defmodule Pinchflat.SlowIndexing.FileFollowerServer do
   @moduledoc """
   A GenServer that watches a file for new lines and processes them as they come in.
   This is useful for tailing log files and other similar tasks. If there's no activity

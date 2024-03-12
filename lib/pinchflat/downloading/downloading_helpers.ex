@@ -3,18 +3,8 @@ defmodule Pinchflat.Downloading.DownloadingHelpers do
 
   alias Pinchflat.Media
   alias Pinchflat.Tasks
-  alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
-  alias Pinchflat.FastIndexing.YoutubeRss
-  alias Pinchflat.Media.MediaItem
-  alias Pinchflat.FastIndexing.FastIndexingWorker
   alias Pinchflat.Downloading.MediaDownloadWorker
-  alias Pinchflat.FastIndexing.MediaIndexingWorker
-  alias Pinchflat.YtDlp.Backend.MediaCollection
-  alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
-  alias Pinchflat.Utils.FilesystemUtils.FileFollowerServer
-
-  alias Pinchflat.YtDlp.Backend.Media, as: YtDlpMedia
 
   @doc """
   Starts tasks for downloading media for any of a sources _pending_ media items.

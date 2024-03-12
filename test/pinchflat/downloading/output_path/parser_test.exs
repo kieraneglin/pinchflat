@@ -1,7 +1,7 @@
-defmodule Pinchflat.RenderedString.ParserTest do
+defmodule Pinchflat.Downloading.OutputPath.ParserTest do
   use ExUnit.Case, async: true
 
-  alias Pinchflat.RenderedString.Parser
+  alias Pinchflat.Downloading.OutputPath.Parser
 
   describe "parse/3" do
     test "it returns the rendered string when the string is valid" do

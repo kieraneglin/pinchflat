@@ -1,9 +1,9 @@
-defmodule Pinchflat.MediaClient.MediaDownloaderTest do
+defmodule Pinchflat.Downloading.MediaDownloaderTest do
   use Pinchflat.DataCase
   import Mox
   import Pinchflat.MediaFixtures
 
-  alias Pinchflat.MediaClient.MediaDownloader
+  alias Pinchflat.Downloading.MediaDownloader
 
   setup :verify_on_exit!
 

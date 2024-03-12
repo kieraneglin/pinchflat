@@ -11,7 +11,7 @@ defmodule Pinchflat.FastIndexing.MediaIndexingWorker do
   require Logger
 
   alias Pinchflat.Sources
-  alias Pinchflat.Tasks.MediaItemTasks
+  alias Pinchflat.FastIndexing.FastIndexingHelpers
 
   @impl Oban.Worker
   @doc """
@@ -42,7 +42,7 @@ defmodule Pinchflat.FastIndexing.MediaIndexingWorker do
   def perform(%Oban.Job{args: %{"id" => source_id, "media_url" => media_url}}) do
     source = Sources.get_source!(source_id)
 
-    case MediaItemTasks.index_and_enqueue_download_for_media_item(source, media_url) do
+    case FastIndexingHelpers.index_and_enqueue_download_for_media_item(source, media_url) do
       {:ok, media_item} ->
         Logger.debug("Indexed and enqueued download for url: #{media_url} (media item: #{media_item.id})")
 

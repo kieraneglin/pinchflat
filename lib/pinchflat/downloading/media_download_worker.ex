@@ -9,8 +9,8 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
   alias Pinchflat.Repo
   alias Pinchflat.Media
   alias Pinchflat.Tasks
-  alias Pinchflat.MediaClient.MediaDownloader
-  alias Pinchflat.Workers.FilesystemDataWorker
+  alias Pinchflat.Downloading.MediaDownloader
+  alias Pinchflat.Filesystem.FilesystemDataWorker
 
   @impl Oban.Worker
   @doc """

@@ -6,7 +6,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
 
   alias Pinchflat.Sources
   alias Pinchflat.Downloading.MediaDownloadWorker
-  alias Pinchflat.Workers.FilesystemDataWorker
+  alias Pinchflat.Filesystem.FilesystemDataWorker
 
   setup :verify_on_exit!
 

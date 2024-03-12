@@ -1,9 +1,9 @@
-defmodule Pinchflat.YtDlp.Backend.MediaTest do
+defmodule Pinchflat.YtDlp.MediaTest do
   use Pinchflat.DataCase
   import Mox
   import Pinchflat.MediaFixtures
 
-  alias Pinchflat.YtDlp.Backend.Media
+  alias Pinchflat.YtDlp.Media
 
   @media_url "https://www.youtube.com/watch?v=TiZPUDkDYbk"
 

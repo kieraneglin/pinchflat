@@ -1,4 +1,4 @@
-defmodule Pinchflat.YtDlp.Backend.CommandRunner do
+defmodule Pinchflat.YtDlp.CommandRunner do
   @moduledoc """
   Runs yt-dlp commands using the `System.cmd/3` function
   """
@@ -6,8 +6,8 @@ defmodule Pinchflat.YtDlp.Backend.CommandRunner do
   require Logger
 
   alias Pinchflat.Utils.StringUtils
-  alias Pinchflat.Utils.FilesystemUtils, as: FSUtils
-  alias Pinchflat.YtDlp.Backend.BackendCommandRunner
+  alias Pinchflat.Filesystem.FilesystemHelpers, as: FSUtils
+  alias Pinchflat.YtDlp.BackendCommandRunner
 
   @behaviour BackendCommandRunner
 

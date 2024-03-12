@@ -4,7 +4,7 @@ defmodule Pinchflat.Boot.DataBackfillWorkerTest do
   import Pinchflat.MediaFixtures
 
   alias Pinchflat.Boot.DataBackfillWorker
-  alias Pinchflat.Workers.FilesystemDataWorker
+  alias Pinchflat.Filesystem.FilesystemDataWorker
 
   describe "cancel_pending_backfill_jobs/0" do
     test "cancels all pending backfill jobs" do

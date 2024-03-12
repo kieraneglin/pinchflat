@@ -1,4 +1,4 @@
-defmodule Pinchflat.MediaClient.MediaDownloader do
+defmodule Pinchflat.Downloading.MediaDownloader do
   @moduledoc """
   This is the integration layer for actually downloading media.
   It takes into account the media profile's settings in order
@@ -9,7 +9,7 @@ defmodule Pinchflat.MediaClient.MediaDownloader do
   alias Pinchflat.Media
   alias Pinchflat.Media.MediaItem
 
-  alias Pinchflat.YtDlp.Backend.Media, as: YtDlpMedia
+  alias Pinchflat.YtDlp.Media, as: YtDlpMedia
   alias Pinchflat.Downloading.DownloadOptionBuilder, as: YtDlpDownloadOptionBuilder
   alias Pinchflat.Metadata.MetadataParser, as: YtDlpMetadataParser
   alias Pinchflat.Metadata.MetadataFileHelpers, as: YtDlpMetadataHelpers

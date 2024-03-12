@@ -1,4 +1,4 @@
-defmodule Pinchflat.YtDlp.Backend.Media do
+defmodule Pinchflat.YtDlp.Media do
   @moduledoc """
   Contains utilities for working with singular pieces of media
   """

@@ -1,11 +1,11 @@
-defmodule Pinchflat.RenderedString.Parser do
+defmodule Pinchflat.Downloading.OutputPath.Parser do
   @moduledoc """
   Parses liquid-ish-style strings into a rendered string
 
   Used for turning filepath templates into real filepaths
   """
 
-  use Pinchflat.RenderedString.Base
+  use Pinchflat.Downloading.OutputPath.Base
 
   @doc """
   Parses a string into a rendered string, using the provided variables. Optionally

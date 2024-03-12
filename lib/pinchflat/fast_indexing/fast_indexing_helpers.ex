@@ -1,16 +1,13 @@
 defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
   alias Pinchflat.Media
   alias Pinchflat.Tasks
-  alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
   alias Pinchflat.FastIndexing.YoutubeRss
-  alias Pinchflat.Media.MediaItem
   alias Pinchflat.FastIndexing.FastIndexingWorker
   alias Pinchflat.Downloading.MediaDownloadWorker
   alias Pinchflat.FastIndexing.MediaIndexingWorker
-  alias Pinchflat.YtDlp.Backend.MediaCollection
-  alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
-  alias Pinchflat.Utils.FilesystemUtils.FileFollowerServer
+
+  alias Pinchflat.YtDlp.Media, as: YtDlpMedia
 
   @doc """
   Starts tasks for running a fast indexing task for a source's media
@@ -55,5 +52,37 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
       |> MediaIndexingWorker.new()
       |> Tasks.create_job_with_task(source)
     end)
+  end
+
+  @doc """
+  Indexes a single media item for a source and enqueues a download job if the
+  media should be downloaded. This method creates the media item record so it's
+  the one-stop-shop for adding a media item (and possibly downloading it) just
+  by a URL and source.
+
+  Returns {:ok, media_item} | {:error, any()}
+  """
+  def index_and_enqueue_download_for_media_item(%Source{} = source, url) do
+    maybe_media_item = create_media_item_from_url(source, url)
+
+    case maybe_media_item do
+      {:ok, media_item} ->
+        if source.download_media && Media.pending_download?(media_item) do
+          %{id: media_item.id}
+          |> MediaDownloadWorker.new()
+          |> Tasks.create_job_with_task(media_item)
+        end
+
+        {:ok, media_item}
+
+      err ->
+        err
+    end
+  end
+
+  defp create_media_item_from_url(source, url) do
+    {:ok, media_attrs} = YtDlpMedia.get_media_attributes(url)
+
+    Media.create_media_item_from_backend_attrs(source, media_attrs)
   end
 end

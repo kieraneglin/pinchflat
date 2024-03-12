@@ -1,4 +1,4 @@
-defmodule Pinchflat.RenderedString.Base do
+defmodule Pinchflat.Downloading.OutputPath.Base do
   @moduledoc """
   A base module for parsing rendered strings, designed as a macro to be used
   in other modules. See https://elixirforum.com/t/help-to-parse-a-template-with-nimbleparsec/47980
@@ -6,7 +6,7 @@ defmodule Pinchflat.RenderedString.Base do
   NOTE: if the needs here get any more complicated, look into using a Liquid
   template parser. No need to reinvent the wheel any more than I already have.
 
-  NOTE: this is effectively tested by the `Pinchflat.RenderedString.Parser`'s tests
+  NOTE: this is effectively tested by the `Pinchflat.Downloading.OutputPath.Parser`'s tests
   """
 
   defmacro __using__(_opts) do

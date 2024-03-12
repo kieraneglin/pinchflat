@@ -1,12 +1,12 @@
-defmodule Pinchflat.Utils.FilesystemUtils.FileFollowerServerTest do
+defmodule Pinchflat.SlowIndexing.FileFollowerServerTest do
   use ExUnit.Case, async: true
 
-  alias alias Pinchflat.Utils.FilesystemUtils
-  alias Pinchflat.Utils.FilesystemUtils.FileFollowerServer
+  alias alias Pinchflat.Filesystem.FilesystemHelpers
+  alias Pinchflat.SlowIndexing.FileFollowerServer
 
   setup do
     {:ok, pid} = FileFollowerServer.start_link()
-    tmpfile = FilesystemUtils.generate_metadata_tmpfile(:txt)
+    tmpfile = FilesystemHelpers.generate_metadata_tmpfile(:txt)
 
     {:ok, %{pid: pid, tmpfile: tmpfile}}
   end
