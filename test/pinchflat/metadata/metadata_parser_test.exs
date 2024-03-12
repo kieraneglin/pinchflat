@@ -1,4 +1,4 @@
-defmodule Pinchflat.YtDlp.MediaParserTest do
+defmodule Pinchflat.Metadata.MetadataParserTest do
   use Pinchflat.DataCase
 
   alias Pinchflat.Metadata.MetadataParser, as: Parser
