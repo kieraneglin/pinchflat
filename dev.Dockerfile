@@ -1,9 +1,13 @@
-# Extend from the official Elixir image.
-FROM elixir:latest
+ARG ELIXIR_VERSION=1.16.2
+ARG OTP_VERSION=26.2.2
+ARG DEBIAN_VERSION=bookworm-20240130
+ARG DEV_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
+
+FROM ${DEV_IMAGE}
 
 # Install debian packages
 RUN apt-get update -qq
-RUN apt-get install -y inotify-tools ffmpeg \
+RUN apt-get install -y inotify-tools ffmpeg curl git openssh-client \
   python3 python3-pip python3-setuptools python3-wheel python3-dev
 
 # Install nodejs
@@ -28,6 +32,7 @@ COPY . ./
 RUN chmod +x ./docker-run.dev.sh
 
 # Install Elixir deps
+# RUN mix archive.install github hexpm/hex branch latest
 RUN mix deps.get
 # Gives us iex shell history
 ENV ERL_AFLAGS="-kernel shell_history enabled"

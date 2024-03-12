@@ -11,9 +11,9 @@
 #   - https://pkgs.org/ - resource for finding needed packages
 #   - Ex: hexpm/elixir:1.16.0-erlang-26.2.1-debian-bullseye-20231009-slim
 #
-ARG ELIXIR_VERSION=1.16.0
-ARG OTP_VERSION=26.2.1
-ARG DEBIAN_VERSION=bullseye-20231009-slim
+ARG ELIXIR_VERSION=1.16.2
+ARG OTP_VERSION=26.2.2
+ARG DEBIAN_VERSION=bookworm-20240130-slim
 
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
@@ -76,12 +76,13 @@ FROM ${RUNNER_IMAGE}
 
 RUN apt-get update -y
 RUN apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates \
-  python3 python3-pip ffmpeg
+  ffmpeg curl git openssh-client
 RUN apt-get clean && rm -f /var/lib/apt/lists/*_*
 
-# Download YT-DLP
-# NOTE: If you're seeing weird issues, consider using the FFMPEG released by yt-dlp
-RUN python3 -m pip install -U --pre yt-dlp
+# Download and update YT-DLP
+RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
+RUN chmod a+rx /usr/local/bin/yt-dlp
+RUN yt-dlp -U
 
 # Set the locale
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
@@ -105,6 +106,17 @@ ENV RUN_CONTEXT="selfhosted"
 
 # Only copy the final release from the build stage
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/pinchflat ./
+
+# NEVER do this if you're running in an environment where you don't trust the user
+# (ie: most environments). This is only acceptable in a self-hosted environment.
+# The user could just run the whole container as root and bypass this anyway so
+# it's not a huge deal.
+# This removes the root password to allow users to assume root if needed. This is
+# preferrable to running the whole container as root so that the files/directories
+# created by the app aren't owned by root and are therefore easier for other users
+# and processes to interact with. If you want to just run the whole container as
+# root, use --user 0:0 or something.
+RUN passwd -d root
 
 USER nobody
 
