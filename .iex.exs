@@ -4,8 +4,7 @@ alias Pinchflat.Repo
 alias Pinchflat.Tasks.Task
 alias Pinchflat.Sources.Source
 alias Pinchflat.Media.MediaItem
-alias Pinchflat.Tasks.SourceTasks
-alias Pinchflat.Media.MediaMetadata
+alias Pinchflat.Metadata.MediaMetadata
 alias Pinchflat.Profiles.MediaProfile
 
 alias Pinchflat.Tasks
@@ -14,14 +13,14 @@ alias Pinchflat.Profiles
 alias Pinchflat.Sources
 alias Pinchflat.Settings
 
-alias Pinchflat.MediaClient.MediaDownloader
-alias Pinchflat.YtDlp.Backend.Media, as: YtDlpMedia
-alias Pinchflat.YtDlp.Backend.MediaCollection, as: YtDlpCollection
+alias Pinchflat.Downloading.MediaDownloader
+alias Pinchflat.YtDlp.Media, as: YtDlpMedia
+alias Pinchflat.YtDlp.MediaCollection, as: YtDlpCollection
 
-alias Pinchflat.Api.YoutubeRss
+alias Pinchflat.FastIndexing.YoutubeRss
 alias Pinchflat.Metadata.MetadataFileHelpers
 
-alias Pinchflat.Utils.FilesystemUtils.FileFollowerServer
+alias Pinchflat.SlowIndexing.FileFollowerServer
 
 defmodule IexHelpers do
   def playlist_url do

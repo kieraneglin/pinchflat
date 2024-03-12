@@ -11,7 +11,7 @@ defmodule Pinchflat.MediaTest do
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Metadata.MetadataFileHelpers
 
-  alias Pinchflat.YtDlp.Backend.Media, as: YtDlpMedia
+  alias Pinchflat.YtDlp.Media, as: YtDlpMedia
 
   setup :verify_on_exit!
 

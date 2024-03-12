@@ -157,7 +157,16 @@
           {Credo.Check.Warning.UnusedRegexOperation, []},
           {Credo.Check.Warning.UnusedStringOperation, []},
           {Credo.Check.Warning.UnusedTupleOperation, []},
-          {Credo.Check.Warning.WrongTestFileExtension, []}
+          {Credo.Check.Warning.WrongTestFileExtension, []},
+
+          #
+          ## Naming Checks
+          #
+          {CredoNaming.Check.Consistency.ModuleFilename,
+           [
+             priority: :normal,
+             excluded_paths: [~r/test\/support/, ~r/priv/, ~r/lib\/pinchflat_web/, ~r/test\/pinchflat_web/]
+           ]}
         ],
         disabled: [
           #

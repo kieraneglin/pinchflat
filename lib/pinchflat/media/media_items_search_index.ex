@@ -1,4 +1,4 @@
-defmodule Pinchflat.Media.MediaItemSearchIndex do
+defmodule Pinchflat.Media.MediaItemsSearchIndex do
   @moduledoc """
   The MediaItem fts5 search index. Not made to be directly interacted with,
   but I figured it'd be better to have it in-app so it's not a mystery.
