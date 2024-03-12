@@ -66,7 +66,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
           acc ++ [:write_thumbnail, convert_thumbnail: "jpg"]
 
         {:embed_thumbnail, true} ->
-          acc ++ [:embed_thumbnail]
+          acc ++ [:embed_thumbnail, convert_thumbnail: "jpg"]
 
         _ ->
           acc

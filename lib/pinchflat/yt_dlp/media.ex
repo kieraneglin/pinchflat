@@ -85,8 +85,8 @@ defmodule Pinchflat.YtDlp.Media do
       description: response["description"],
       original_url: response["webpage_url"],
       livestream: response["was_live"],
-      short_form_content: short_form_content?(response),
-      upload_date: parse_upload_date(response["upload_date"])
+      short_form_content: response["webpage_url"] && short_form_content?(response),
+      upload_date: response["upload_date"] && parse_upload_date(response["upload_date"])
     }
   end
 
@@ -99,6 +99,9 @@ defmodule Pinchflat.YtDlp.Media do
       # WILL returns false positives, but it's a best-effort approach
       # that should work for most cases. The aspect_ratio check is
       # based on a gut feeling and may need to be tweaked.
+      #
+      # These don't fail if duration or aspect_ratio are missing
+      # due to Elixir's comparison semantics
       response["duration"] <= 60 && response["aspect_ratio"] < 0.8
     end
   end

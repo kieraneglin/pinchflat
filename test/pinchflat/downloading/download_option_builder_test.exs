@@ -141,6 +141,14 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
       assert :embed_thumbnail in res
     end
 
+    test "convertes thumbnail to jpg when embed_thumbnail is true", %{media_item: media_item} do
+      media_item = update_media_profile_attribute(media_item, %{embed_thumbnail: true})
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+
+      assert {:convert_thumbnail, "jpg"} in res
+    end
+
     test "doesn't include these options when not specified", %{media_item: media_item} do
       media_item = update_media_profile_attribute(media_item, %{embed_thumbnail: false, download_thumbnail: false})
 

@@ -151,6 +151,30 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
 
       assert [] = Tasks.list_tasks_for(:media_item_id, media_item.id)
     end
+
+    test "it doesn't blow up if a media item cannot be coerced into a struct", %{source: source} do
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts ->
+        response =
+          Phoenix.json_library().encode!(%{
+            id: "video3",
+            title: "Video 3",
+            was_live: false,
+            description: "desc3",
+            # Only focusing on these because these are passed to functions that
+            # could fail if they're not present
+            webpage_url: nil,
+            aspect_ratio: nil,
+            duration: nil,
+            upload_date: nil
+          })
+
+        {:ok, response}
+      end)
+
+      assert [changeset] = SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
+
+      assert %Ecto.Changeset{} = changeset
+    end
   end
 
   describe "index_and_enqueue_download_for_media_items/1 when testing file watcher" do
