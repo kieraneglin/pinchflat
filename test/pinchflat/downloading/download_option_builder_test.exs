@@ -1,11 +1,11 @@
-defmodule Pinchflat.YtDlp.DownloadOptionBuilderTest do
+defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
   use Pinchflat.DataCase
   import Pinchflat.MediaFixtures
   import Pinchflat.ProfilesFixtures
   import Pinchflat.SourcesFixtures
 
   alias Pinchflat.Profiles
-  alias Pinchflat.YtDlp.DownloadOptionBuilder
+  alias Pinchflat.Downloading.DownloadOptionBuilder
 
   setup do
     media_profile = media_profile_fixture(%{output_path_template: "{{ title }}.%(ext)s"})

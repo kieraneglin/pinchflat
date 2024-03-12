@@ -1,4 +1,4 @@
-defmodule Pinchflat.Media.MediaMetadata do
+defmodule Pinchflat.Metadata.MediaMetadata do
   @moduledoc """
   The MediaMetadata schema.
 

@@ -9,7 +9,7 @@ defmodule Pinchflat.SourcesTest do
   alias Pinchflat.Sources
   alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Sources.Source
-  alias Pinchflat.Workers.FastIndexingWorker
+  alias Pinchflat.FastIndexing.FastIndexingWorker
   alias Pinchflat.Workers.MediaDownloadWorker
   alias Pinchflat.Workers.MediaIndexingWorker
   alias Pinchflat.Workers.MediaCollectionIndexingWorker

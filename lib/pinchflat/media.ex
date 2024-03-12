@@ -9,7 +9,7 @@ defmodule Pinchflat.Media do
   alias Pinchflat.Tasks
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Sources.Source
-  alias Pinchflat.Media.MediaMetadata
+  alias Pinchflat.Metadata.MediaMetadata
 
   @doc """
   Returns the list of media_items.

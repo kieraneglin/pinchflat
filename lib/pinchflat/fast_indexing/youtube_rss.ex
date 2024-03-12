@@ -1,4 +1,4 @@
-defmodule Pinchflat.Api.YoutubeRss do
+defmodule Pinchflat.FastIndexing.YoutubeRss do
   @moduledoc """
   Methods for interacting with YouTube RSS feeds
   """

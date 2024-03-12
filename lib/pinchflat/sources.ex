@@ -12,6 +12,7 @@ defmodule Pinchflat.Sources do
   alias Pinchflat.Tasks.SourceTasks
   alias Pinchflat.Profiles.MediaProfile
   alias Pinchflat.YtDlp.Backend.MediaCollection
+  alias Pinchflat.FastIndexing.FastIndexingHelpers
 
   @doc """
   Returns the list of sources. Returns [%Source{}, ...]
@@ -251,7 +252,7 @@ defmodule Pinchflat.Sources do
   defp maybe_update_fast_indexing_task(changeset, source) do
     case changeset.changes do
       %{fast_index: true} ->
-        SourceTasks.kickoff_fast_indexing_task(source)
+        FastIndexingHelpers.kickoff_fast_indexing_task(source)
 
       %{fast_index: false} ->
         Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")

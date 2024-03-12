@@ -1,4 +1,4 @@
-defmodule Pinchflat.Workers.FastIndexingWorker do
+defmodule Pinchflat.FastIndexing.FastIndexingWorker do
   @moduledoc false
 
   use Oban.Worker,
@@ -10,7 +10,7 @@ defmodule Pinchflat.Workers.FastIndexingWorker do
   alias Pinchflat.Tasks
   alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
-  alias Pinchflat.Tasks.SourceTasks
+  alias Pinchflat.FastIndexing.FastIndexingHelpers
 
   @impl Oban.Worker
   @doc """
@@ -24,7 +24,7 @@ defmodule Pinchflat.Workers.FastIndexingWorker do
     source = Sources.get_source!(source_id)
 
     if source.fast_index do
-      SourceTasks.kickoff_indexing_tasks_from_youtube_rss_feed(source)
+      FastIndexingHelpers.kickoff_indexing_tasks_from_youtube_rss_feed(source)
 
       reschedule_indexing(source)
     else

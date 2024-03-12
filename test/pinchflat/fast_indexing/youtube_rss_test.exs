@@ -1,9 +1,9 @@
-defmodule Pinchflat.Api.YoutubeRssTest do
+defmodule Pinchflat.FastIndexing.YoutubeRssTest do
   use Pinchflat.DataCase
   import Mox
   import Pinchflat.SourcesFixtures
 
-  alias Pinchflat.Api.YoutubeRss
+  alias Pinchflat.FastIndexing.YoutubeRss
 
   setup :verify_on_exit!
 

@@ -1,4 +1,4 @@
-defmodule Pinchflat.YtDlp.DownloadOptionBuilder do
+defmodule Pinchflat.Downloading.DownloadOptionBuilder do
   @moduledoc """
   Builds the options for yt-dlp to download media based on the given media profile.
   """

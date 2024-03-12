@@ -5,7 +5,7 @@ alias Pinchflat.Tasks.Task
 alias Pinchflat.Sources.Source
 alias Pinchflat.Media.MediaItem
 alias Pinchflat.Tasks.SourceTasks
-alias Pinchflat.Media.MediaMetadata
+alias Pinchflat.Metadata.MediaMetadata
 alias Pinchflat.Profiles.MediaProfile
 
 alias Pinchflat.Tasks
@@ -18,7 +18,7 @@ alias Pinchflat.MediaClient.MediaDownloader
 alias Pinchflat.YtDlp.Backend.Media, as: YtDlpMedia
 alias Pinchflat.YtDlp.Backend.MediaCollection, as: YtDlpCollection
 
-alias Pinchflat.Api.YoutubeRss
+alias Pinchflat.FastIndexing.YoutubeRss
 alias Pinchflat.Metadata.MetadataFileHelpers
 
 alias Pinchflat.Utils.FilesystemUtils.FileFollowerServer

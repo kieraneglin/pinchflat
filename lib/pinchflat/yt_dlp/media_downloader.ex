@@ -10,7 +10,7 @@ defmodule Pinchflat.MediaClient.MediaDownloader do
   alias Pinchflat.Media.MediaItem
 
   alias Pinchflat.YtDlp.Backend.Media, as: YtDlpMedia
-  alias Pinchflat.YtDlp.DownloadOptionBuilder, as: YtDlpDownloadOptionBuilder
+  alias Pinchflat.Downloading.DownloadOptionBuilder, as: YtDlpDownloadOptionBuilder
   alias Pinchflat.Metadata.MetadataParser, as: YtDlpMetadataParser
   alias Pinchflat.Metadata.MetadataFileHelpers, as: YtDlpMetadataHelpers
 

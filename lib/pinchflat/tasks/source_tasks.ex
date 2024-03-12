@@ -12,9 +12,9 @@ defmodule Pinchflat.Tasks.SourceTasks do
   alias Pinchflat.Tasks
   alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
-  alias Pinchflat.Api.YoutubeRss
+  alias Pinchflat.FastIndexing.YoutubeRss
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.Workers.FastIndexingWorker
+  alias Pinchflat.FastIndexing.FastIndexingWorker
   alias Pinchflat.Workers.MediaDownloadWorker
   alias Pinchflat.Workers.MediaIndexingWorker
   alias Pinchflat.YtDlp.Backend.MediaCollection
@@ -38,46 +38,6 @@ defmodule Pinchflat.Tasks.SourceTasks do
     # Schedule this one immediately, but future ones will be on an interval
     |> MediaCollectionIndexingWorker.new()
     |> Tasks.create_job_with_task(source)
-  end
-
-  @doc """
-  Starts tasks for running a fast indexing task for a source's media
-  regardless of the source's fast_index state. It's assumed the
-  caller will check for fast_index.
-
-  This is used for running fast index tasks on update. On creation, the
-  fast index is enqueued after the slow index is complete.
-
-  Returns {:ok, %Task{}}.
-  """
-  def kickoff_fast_indexing_task(%Source{} = source) do
-    Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
-
-    %{id: source.id}
-    # Schedule this one immediately, but future ones will be on an interval
-    |> FastIndexingWorker.new()
-    |> Tasks.create_job_with_task(source)
-  end
-
-  @doc """
-  Fetches new media IDs from a source's YouTube RSS feed and kicks off indexing tasks
-  for any new media items. See comments in `MediaIndexingWorker` for more info on the
-  order of operations and how this fits into the indexing process.
-
-  Returns :ok
-  """
-  def kickoff_indexing_tasks_from_youtube_rss_feed(%Source{} = source) do
-    {:ok, media_ids} = YoutubeRss.get_recent_media_ids_from_rss(source)
-    existing_media_items = Media.list_media_items_by_media_id_for(source, media_ids)
-    new_media_ids = media_ids -- Enum.map(existing_media_items, & &1.media_id)
-
-    Enum.each(new_media_ids, fn media_id ->
-      url = "https://www.youtube.com/watch?v=#{media_id}"
-
-      %{id: source.id, media_url: url}
-      |> MediaIndexingWorker.new()
-      |> Tasks.create_job_with_task(source)
-    end)
   end
 
   @doc """
@@ -134,7 +94,7 @@ defmodule Pinchflat.Tasks.SourceTasks do
     end)
   end
 
-  def enqueue_pending_media_tasks(%Source{download_media: false} = _source) do
+  def enqueue_pending_media_tasks(%Source{download_media: false}) do
     :ok
   end
 

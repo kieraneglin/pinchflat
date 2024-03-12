@@ -11,7 +11,7 @@ defmodule Pinchflat.Workers.MediaCollectionIndexingWorker do
   alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
   alias Pinchflat.Tasks.SourceTasks
-  alias Pinchflat.Workers.FastIndexingWorker
+  alias Pinchflat.FastIndexing.FastIndexingWorker
 
   @impl Oban.Worker
   @doc """

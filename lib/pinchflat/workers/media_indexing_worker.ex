@@ -23,7 +23,7 @@ defmodule Pinchflat.Workers.MediaIndexingWorker do
   and the media matches the profile's format preferences)
 
   Order of operations:
-    1. SourceTasks.kickoff_indexing_tasks_from_youtube_rss_feed/1 (which is running
+    1. FastIndexingHelpers.kickoff_indexing_tasks_from_youtube_rss_feed/1 (which is running
        in its own worker) periodically checks the YouTube RSS feed for new media
     2. If new media is found, it enqueues a MediaIndexingWorker (this module) for each new media
        item

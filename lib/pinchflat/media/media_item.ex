@@ -8,7 +8,7 @@ defmodule Pinchflat.Media.MediaItem do
 
   alias Pinchflat.Tasks.Task
   alias Pinchflat.Sources.Source
-  alias Pinchflat.Media.MediaMetadata
+  alias Pinchflat.Metadata.MediaMetadata
   alias Pinchflat.Media.MediaItemSearchIndex
 
   @allowed_fields [

@@ -1,11 +1,11 @@
-defmodule Pinchflat.Workers.FastIndexingWorkerTest do
+defmodule Pinchflat.FastIndexing.FastIndexingWorkerTest do
   use Pinchflat.DataCase
 
   import Mox
   import Pinchflat.SourcesFixtures
 
   alias Pinchflat.Sources.Source
-  alias Pinchflat.Workers.FastIndexingWorker
+  alias Pinchflat.FastIndexing.FastIndexingWorker
 
   setup :verify_on_exit!
 

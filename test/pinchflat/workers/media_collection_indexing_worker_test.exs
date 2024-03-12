@@ -8,7 +8,7 @@ defmodule Pinchflat.Workers.MediaCollectionIndexingWorkerTest do
 
   alias Pinchflat.Tasks
   alias Pinchflat.Sources.Source
-  alias Pinchflat.Workers.FastIndexingWorker
+  alias Pinchflat.FastIndexing.FastIndexingWorker
   alias Pinchflat.Workers.MediaDownloadWorker
   alias Pinchflat.Workers.MediaCollectionIndexingWorker
 
