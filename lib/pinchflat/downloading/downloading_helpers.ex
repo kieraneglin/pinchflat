@@ -1,4 +1,10 @@
 defmodule Pinchflat.Downloading.DownloadingHelpers do
+  @moduledoc """
+  Methods for helping download media
+
+  Many of these methods are made to be kickoff or be consumed by workers.
+  """
+
   require Logger
 
   alias Pinchflat.Media

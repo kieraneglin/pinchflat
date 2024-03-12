@@ -1,4 +1,10 @@
 defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
+  @moduledoc """
+  Methods for performing fast indexing tasks and managing the fast indexing process.
+
+  Many of these methods are made to be kickoff or be consumed by workers.
+  """
+
   alias Pinchflat.Media
   alias Pinchflat.Tasks
   alias Pinchflat.Sources.Source

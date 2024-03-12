@@ -1,4 +1,10 @@
 defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
+  @moduledoc """
+  Methods for performing slow indexing tasks and managing the indexing process.
+
+  Many of these methods are made to be kickoff or be consumed by workers.
+  """
+
   require Logger
 
   alias Pinchflat.Media
