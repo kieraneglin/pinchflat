@@ -21,6 +21,7 @@
     options={Enum.map(@media_profiles, &{&1.name, &1.id})}
     type="select"
     label="Media Profile"
+    help="Sets your preferences for what media to look for and how to store it"
   />
 
   <h3 class="mt-8 text-2xl text-black dark:text-white">
@@ -32,7 +33,7 @@
     options={friendly_index_frequencies()}
     type="select"
     label="Index Frequency"
-    help="Time between one index of this source finishing and the next one starting. Setting to 'On Create' will still run an initial index but no subsequent ones"
+    help="Indexing is the process of checking for media to download. Sets the time between one index of this source finishing and the next one starting"
   />
 
   <%!-- TODO: use Alpine to disable the index frequency when fast indexing is enabled --%>
