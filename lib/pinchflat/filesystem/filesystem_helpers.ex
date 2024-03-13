@@ -15,10 +15,23 @@ defmodule Pinchflat.Filesystem.FilesystemHelpers do
     tmpfile_directory = Application.get_env(:pinchflat, :tmpfile_directory)
     filepath = Path.join([tmpfile_directory, "#{StringUtils.random_string(64)}.#{type}"])
 
-    :ok = File.mkdir_p!(Path.dirname(filepath))
-    :ok = File.write(filepath, "")
+    :ok = write_p!(filepath, "")
 
     filepath
+  end
+
+  @doc """
+  Writes content to a file, creating directories as needed.
+  Takes the same args as File.write!/3.
+
+  Returns :ok | raises on error
+  """
+  def write_p!(filepath, content, modes \\ []) do
+    filepath
+    |> Path.dirname()
+    |> File.mkdir_p!()
+
+    File.write!(filepath, content, modes)
   end
 
   @doc """
