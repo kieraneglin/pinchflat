@@ -317,17 +317,7 @@ defmodule PinchflatWeb.CoreComponents do
         <span :if={@label_suffix} class="text-xs text-bodydark"><%= @label_suffix %></span>
       </.label>
       <div class="relative">
-        <input type="hidden" name={@name} value="false" />
-        <input
-          type="checkbox"
-          id={@id}
-          name={@name}
-          value="true"
-          x-bind:checked="enabled"
-          class="sr-only"
-          @change="enabled = !enabled"
-          {@rest}
-        />
+        <input type="hidden" id={@id} name={@name} x-bind:value="enabled" />
         <div class="inline-block cursor-pointer" @click="enabled = !enabled">
           <div x-bind:class="enabled && '!bg-primary'" class="block h-8 w-14 rounded-full bg-black"></div>
           <div

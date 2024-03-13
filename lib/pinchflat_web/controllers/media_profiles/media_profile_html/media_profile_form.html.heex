@@ -3,7 +3,7 @@
     Oops, something went wrong! Please check the errors below.
   </.error>
 
-  <h3 class="my-4 text-2xl text-black dark:text-white">
+  <h3 class="mt-4 text-2xl text-black dark:text-white">
     General Options
   </h3>
   <.input
@@ -14,15 +14,40 @@
     help="Something descriptive. Does not impact indexing or downloading (required)"
   />
 
-  <.input
-    field={f[:output_path_template]}
-    type="text"
-    inputclass="font-mono"
-    label="Output path template"
-    help="Must end with .{{ ext }}. See below for more details. The default is good for most cases (required)"
-  />
+  <h3 class="mt-10 text-2xl text-black dark:text-white">
+    Output Path Options
+  </h3>
 
-  <h3 class="mt-8 text-2xl text-black dark:text-white">
+  <section
+    class="flex flex-col lg:flex-row lg:justify-between"
+    x-data={"{ template: '#{f[:output_path_template].value}' }"}
+  >
+    <div class="w-full lg:w-9/12">
+      <.input
+        field={f[:output_path_template]}
+        type="text"
+        inputclass="font-mono"
+        label="Output path template"
+        help="Must end with .{{ ext }}. See below for more details. The default is good for most cases (required)"
+        x-model="template"
+      />
+    </div>
+    <div class="flex justify-center">
+      <span class="text-bodydark mt-6 lg:mt-15 text-2xl lg:text-lg">- or -</span>
+    </div>
+    <div class="w-full lg:w-2/12">
+      <.input
+        name="output_path_presets"
+        value="default"
+        options={output_template_preset_options()}
+        type="select"
+        label="Select preset"
+        x-on:change="template = event.target.value"
+      />
+    </div>
+  </section>
+
+  <h3 class="mt-10 text-2xl text-black dark:text-white">
     Subtitle Options
   </h3>
   <.input
@@ -50,7 +75,7 @@
     help="Use commas for multiple languages (eg: en,de)"
   />
 
-  <h3 class="mt-8 text-2xl text-black dark:text-white">
+  <h3 class="mt-10 text-2xl text-black dark:text-white">
     Thumbnail Options
   </h3>
   <.input
@@ -66,7 +91,7 @@
     help="Downloads and embeds thumbnail in the media file itself, if supported. Uneffected by 'Download Thumbnail' (recommended)"
   />
 
-  <h3 class="mt-8 text-2xl text-black dark:text-white">
+  <h3 class="mt-10 text-2xl text-black dark:text-white">
     Metadata Options
   </h3>
   <.input
@@ -88,7 +113,7 @@
     help="Downloads NFO data alongside media file for use with Jellyfin, Kodi, etc."
   />
 
-  <h3 class="mt-8 text-2xl text-black dark:text-white">
+  <h3 class="mt-10 text-2xl text-black dark:text-white">
     Release Format Options
   </h3>
 
@@ -107,7 +132,7 @@
     help="Excludes media that comes from a past livestream"
   />
 
-  <h3 class="mt-8 text-2xl text-black dark:text-white">
+  <h3 class="mt-10 text-2xl text-black dark:text-white">
     Quality Options
   </h3>
 
