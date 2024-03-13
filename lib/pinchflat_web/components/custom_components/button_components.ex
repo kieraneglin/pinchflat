@@ -28,9 +28,10 @@ defmodule PinchflatWeb.CustomComponents.ButtonComponents do
         "#{@rounding} inline-flex items-center justify-center px-8 py-4",
         "#{@color}",
         "hover:bg-opacity-90 lg:px-8 xl:px-10",
-        "disabled:bg-opacity-50 disabled:cursor-not-allowed disabled:text-gray-2",
+        "disabled:bg-opacity-50 disabled:cursor-not-allowed disabled:text-grey-5",
         @class
       ]}
+      type={@type}
       disabled={@disabled}
       {@rest}
     >
