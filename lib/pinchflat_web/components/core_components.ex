@@ -317,7 +317,7 @@ defmodule PinchflatWeb.CoreComponents do
         <span :if={@label_suffix} class="text-xs text-bodydark"><%= @label_suffix %></span>
       </.label>
       <div class="relative">
-        <input type="hidden" id={@id} name={@name} x-bind:value="enabled" />
+        <input type="hidden" id={@id} name={@name} x-bind:value="enabled" {@rest} />
         <div class="inline-block cursor-pointer" @click="enabled = !enabled">
           <div x-bind:class="enabled && '!bg-primary'" class="block h-8 w-14 rounded-full bg-black"></div>
           <div
@@ -339,23 +339,26 @@ defmodule PinchflatWeb.CoreComponents do
   def input(%{type: "select"} = assigns) do
     ~H"""
     <div phx-feedback-for={@name}>
-      <.label for={@id}>
+      <.label :if={@label} for={@id}>
         <%= @label %><span :if={@label_suffix} class="text-xs text-bodydark"><%= @label_suffix %></span>
       </.label>
-      <select
-        id={@id}
-        name={@name}
-        class={[
-          "relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 pl-5 pr-12 outline-none transition",
-          "focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input text-black dark:text-white",
-          @inputclass
-        ]}
-        multiple={@multiple}
-        {@rest}
-      >
-        <option :if={@prompt} value=""><%= @prompt %></option>
-        <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
-      </select>
+      <div class="flex">
+        <select
+          id={@id}
+          name={@name}
+          class={[
+            "relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 pl-5 pr-12 outline-none transition",
+            "focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input text-black dark:text-white",
+            @inputclass
+          ]}
+          multiple={@multiple}
+          {@rest}
+        >
+          <option :if={@prompt} value=""><%= @prompt %></option>
+          <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
+        </select>
+        <%= render_slot(@inner_block) %>
+      </div>
       <.help :if={@help}><%= @help %></.help>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>

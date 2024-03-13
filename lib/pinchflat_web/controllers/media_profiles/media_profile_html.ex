@@ -56,11 +56,12 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
     )a
   end
 
-  def output_template_preset_options do
+  def preset_options do
     [
-      {"Default", default_output_template()},
-      {"Media Center (Plex, Jellyfin, Kodi, etc.)", media_center_output_template()},
-      {"Audio", audio_output_template()}
+      {"Default", "default"},
+      {"Media Center (Plex, Jellyfin, Kodi, etc.)", "media_center"},
+      {"Music", "audio"},
+      {"Archiving", "archiving"}
     ]
   end
 

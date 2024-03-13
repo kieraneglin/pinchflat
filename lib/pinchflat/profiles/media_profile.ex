@@ -35,14 +35,14 @@ defmodule Pinchflat.Profiles.MediaProfile do
 
     field :download_subs, :boolean, default: false
     field :download_auto_subs, :boolean, default: false
-    field :embed_subs, :boolean, default: true
+    field :embed_subs, :boolean, default: false
     field :sub_langs, :string, default: "en"
 
     field :download_thumbnail, :boolean, default: false
-    field :embed_thumbnail, :boolean, default: true
+    field :embed_thumbnail, :boolean, default: false
 
     field :download_metadata, :boolean, default: false
-    field :embed_metadata, :boolean, default: true
+    field :embed_metadata, :boolean, default: false
 
     field :download_nfo, :boolean, default: false
     # NOTE: these do NOT speed up indexing - the indexer still has to go
