@@ -41,6 +41,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   Given a media source, creates (indexes) the media by creating media_items for each
   media ID in the source. Afterward, kicks off a download task for each pending media
   item belonging to the source. You can't tell me the method name isn't descriptive!
+  Returns a list of media items or changesets (if the media item couldn't be created).
 
   Indexing is slow and usually returns a list of all media data at once for record creation.
   To help with this, we use a file follower to watch the file that yt-dlp writes to
@@ -56,7 +57,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   Since indexing returns all media data EVERY TIME, we that that opportunity to update
   indexing metadata for media items that have already been created.
 
-  Returns [%MediaItem{}, ...]
+  Returns [%MediaItem{} | %Ecto.Changeset{}]
   """
   def index_and_enqueue_download_for_media_items(%Source{} = source) do
     # See the method definition below for more info on how file watchers work
