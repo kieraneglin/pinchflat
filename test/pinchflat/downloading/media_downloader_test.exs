@@ -2,6 +2,8 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
   use Pinchflat.DataCase
   import Mox
   import Pinchflat.MediaFixtures
+  import Pinchflat.SourcesFixtures
+  import Pinchflat.ProfilesFixtures
 
   alias Pinchflat.Downloading.MediaDownloader
 
@@ -101,6 +103,39 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
       assert media_item.metadata_filepath == nil
       assert {:ok, updated_media_item} = MediaDownloader.download_for_media_item(media_item)
       assert String.ends_with?(updated_media_item.metadata_filepath, ".info.json")
+    end
+  end
+
+  describe "download_for_media_item/3 when testing NFO generation" do
+    setup do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+        {:ok, render_metadata(:media_metadata)}
+      end)
+
+      :ok
+    end
+
+    test "it generates an NFO file if the source is set to download NFOs" do
+      profile = media_profile_fixture(%{download_nfo: true})
+      source = source_fixture(%{media_profile_id: profile.id})
+      media_item = media_item_fixture(%{source_id: source.id})
+
+      assert {:ok, updated_media_item} = MediaDownloader.download_for_media_item(media_item)
+
+      assert String.ends_with?(updated_media_item.nfo_filepath, ".nfo")
+      assert File.exists?(updated_media_item.nfo_filepath)
+
+      File.rm!(updated_media_item.nfo_filepath)
+    end
+
+    test "it does not generate an NFO file if the source is set to not download NFOs" do
+      profile = media_profile_fixture(%{download_nfo: false})
+      source = source_fixture(%{media_profile_id: profile.id})
+      media_item = media_item_fixture(%{source_id: source.id})
+
+      assert {:ok, updated_media_item} = MediaDownloader.download_for_media_item(media_item)
+
+      assert updated_media_item.nfo_filepath == nil
     end
   end
 end

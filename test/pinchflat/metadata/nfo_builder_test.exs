@@ -4,19 +4,7 @@ defmodule Pinchflat.Metadata.NfoBuilderTest do
   alias Pinchflat.Metadata.NfoBuilder
 
   setup do
-    json_filepath =
-      Path.join([
-        File.cwd!(),
-        "test",
-        "support",
-        "files",
-        "media_metadata.json"
-      ])
-
-    {:ok, file_body} = File.read(json_filepath)
-    {:ok, parsed_json} = Phoenix.json_library().decode(file_body)
-
-    {:ok, %{metadata: parsed_json}}
+    {:ok, %{metadata: render_parsed_metadata(:media_metadata)}}
   end
 
   describe "build_and_store_for_media_item/1" do
