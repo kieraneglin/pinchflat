@@ -25,6 +25,7 @@ defmodule Pinchflat.YtDlp.Media do
 
   alias __MODULE__
   alias Pinchflat.Utils.FunctionUtils
+  alias Pinchflat.Metadata.MetadataFileHelpers
 
   @doc """
   Downloads a single piece of media (and possibly its metadata) directly to its
@@ -86,7 +87,7 @@ defmodule Pinchflat.YtDlp.Media do
       original_url: response["webpage_url"],
       livestream: response["was_live"],
       short_form_content: response["webpage_url"] && short_form_content?(response),
-      upload_date: response["upload_date"] && parse_upload_date(response["upload_date"])
+      upload_date: response["upload_date"] && MetadataFileHelpers.parse_upload_date(response["upload_date"])
     }
   end
 
@@ -104,12 +105,6 @@ defmodule Pinchflat.YtDlp.Media do
       # due to Elixir's comparison semantics
       response["duration"] <= 60 && response["aspect_ratio"] < 0.8
     end
-  end
-
-  defp parse_upload_date(upload_date) do
-    <<year::binary-size(4)>> <> <<month::binary-size(2)>> <> <<day::binary-size(2)>> = upload_date
-
-    Date.from_iso8601!("#{year}-#{month}-#{day}")
   end
 
   defp backend_runner do

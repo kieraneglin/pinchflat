@@ -27,7 +27,8 @@ defmodule Pinchflat.Media.MediaItem do
     :media_size_bytes,
     :subtitle_filepaths,
     :thumbnail_filepath,
-    :metadata_filepath
+    :metadata_filepath,
+    :nfo_filepath
   ]
   # Pretty much all the fields captured at index are required.
   @required_fields ~w(
@@ -54,6 +55,7 @@ defmodule Pinchflat.Media.MediaItem do
     field :media_size_bytes, :integer
     field :thumbnail_filepath, :string
     field :metadata_filepath, :string
+    field :nfo_filepath, :string
     # This is an array of [iso-2 language, filepath] pairs. Probably could
     # be an associated record, but I don't see the benefit right now.
     # Will very likely revisit because I can't leave well-enough alone.
@@ -82,6 +84,6 @@ defmodule Pinchflat.Media.MediaItem do
 
   @doc false
   def filepath_attributes do
-    ~w(media_filepath thumbnail_filepath metadata_filepath subtitle_filepaths)a
+    ~w(media_filepath thumbnail_filepath metadata_filepath subtitle_filepaths nfo_filepath)a
   end
 end

@@ -9,6 +9,8 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
   needed
   """
 
+  alias Pinchflat.Filesystem.FilesystemHelpers
+
   @doc """
   Compresses and stores metadata for a media item, returning the filepath.
 
@@ -18,8 +20,7 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
     filepath = generate_filepath_for(database_record, "metadata.json.gz")
     {:ok, json} = Phoenix.json_library().encode(metadata_map)
 
-    File.mkdir_p!(Path.dirname(filepath))
-    :ok = File.write(filepath, json, [:compressed])
+    :ok = FilesystemHelpers.write_p!(filepath, json, [:compressed])
 
     filepath
   end
@@ -45,10 +46,21 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
     filepath = generate_filepath_for(database_record, Path.basename(thumbnail_url))
     thumbnail_blob = fetch_thumbnail_from_url(thumbnail_url)
 
-    File.mkdir_p!(Path.dirname(filepath))
-    :ok = File.write(filepath, thumbnail_blob)
+    :ok = FilesystemHelpers.write_p!(filepath, thumbnail_blob)
 
     filepath
+  end
+
+  @doc """
+  Parses an upload date from the YYYYMMDD string returned in yt-dlp metadata
+  and returns a Date struct.
+
+  Returns Date.t()
+  """
+  def parse_upload_date(upload_date) do
+    <<year::binary-size(4)>> <> <<month::binary-size(2)>> <> <<day::binary-size(2)>> = upload_date
+
+    Date.from_iso8601!("#{year}-#{month}-#{day}")
   end
 
   defp fetch_thumbnail_from_url(url) do

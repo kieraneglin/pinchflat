@@ -33,4 +33,27 @@ defmodule Pinchflat.Filesystem.FilesystemHelpersTest do
       assert {:error, _} = FilesystemHelpers.compute_and_save_media_filesize(media_item)
     end
   end
+
+  describe "write_p!/3" do
+    test "writes content to a file" do
+      filepath = FilesystemHelpers.generate_metadata_tmpfile(:json)
+      content = "{}"
+
+      assert :ok = FilesystemHelpers.write_p!(filepath, content)
+      assert File.read!(filepath) == content
+
+      File.rm!(filepath)
+    end
+
+    test "creates directories as needed" do
+      tmpfile_directory = Application.get_env(:pinchflat, :tmpfile_directory)
+      filepath = Path.join([tmpfile_directory, "foo", "bar", "file.json"])
+      content = "{}"
+
+      assert :ok = FilesystemHelpers.write_p!(filepath, content)
+      assert File.read!(filepath) == content
+
+      File.rm!(filepath)
+    end
+  end
 end

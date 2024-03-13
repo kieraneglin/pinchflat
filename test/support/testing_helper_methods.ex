@@ -48,4 +48,10 @@ defmodule Pinchflat.TestingHelperMethods do
 
     File.read!(json_filepath)
   end
+
+  def render_parsed_metadata(metadata_name) do
+    metadata_name
+    |> render_metadata()
+    |> Phoenix.json_library().decode!()
+  end
 end
