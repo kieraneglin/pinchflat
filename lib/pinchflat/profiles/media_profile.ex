@@ -67,6 +67,12 @@ defmodule Pinchflat.Profiles.MediaProfile do
     media_profile
     |> cast(attrs, @allowed_fields)
     |> validate_required(@required_fields)
+    # Ensures it ends with `.{{ ext }}` or `.%(ext)s` or similar (with a little wiggle room)
+    |> validate_format(:output_path_template, ext_regex(), message: "must end with .{{ ext }}")
     |> unique_constraint(:name)
+  end
+
+  defp ext_regex do
+    ~r/\.({{ ?ext ?}}|%\( ?ext ?\)[sS])$/
   end
 end

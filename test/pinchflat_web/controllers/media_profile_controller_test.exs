@@ -8,10 +8,10 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
   alias Pinchflat.Repo
   alias Pinchflat.Settings
 
-  @create_attrs %{name: "some name", output_path_template: "some output_path_template"}
+  @create_attrs %{name: "some name", output_path_template: "output_template.{{ ext }}"}
   @update_attrs %{
     name: "some updated name",
-    output_path_template: "some updated output_path_template"
+    output_path_template: "new_output_template.{{ ext }}"
   }
   @invalid_attrs %{name: nil, output_path_template: nil}
 
