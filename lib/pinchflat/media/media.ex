@@ -7,9 +7,10 @@ defmodule Pinchflat.Media do
 
   alias Pinchflat.Repo
   alias Pinchflat.Tasks
-  alias Pinchflat.Media.MediaItem
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Media.MediaItem
   alias Pinchflat.Metadata.MediaMetadata
+  alias Pinchflat.Filesystem.FilesystemHelpers
 
   @doc """
   Returns the list of media_items.
@@ -254,16 +255,7 @@ defmodule Pinchflat.Media do
     media_item
     |> media_filepaths()
     |> Enum.concat(metadata_filepaths(media_item))
-    |> Enum.each(&File.rm/1)
-
-    # rmdir will attempt to delete the directory, but only if it is empty
-    if media_item.media_filepath do
-      File.rmdir(Path.dirname(media_item.media_filepath))
-    end
-
-    if media_item.metadata && media_item.metadata.metadata_filepath do
-      File.rmdir(Path.dirname(media_item.metadata.metadata_filepath))
-    end
+    |> Enum.each(&FilesystemHelpers.delete_file_and_remove_empty_directories/1)
 
     {:ok, media_item}
   end

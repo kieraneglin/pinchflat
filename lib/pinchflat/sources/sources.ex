@@ -12,6 +12,7 @@ defmodule Pinchflat.Sources do
   alias Pinchflat.Profiles.MediaProfile
   alias Pinchflat.YtDlp.MediaCollection
   alias Pinchflat.Metadata.SourceMetadata
+  alias Pinchflat.Filesystem.FilesystemHelpers
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.FastIndexing.FastIndexingHelpers
   alias Pinchflat.SlowIndexing.SlowIndexingHelpers
@@ -108,8 +109,8 @@ defmodule Pinchflat.Sources do
       Media.delete_media_item(media_item, delete_files: delete_files)
     end)
 
-    Tasks.delete_tasks_for(source)
     delete_source_metadata_files(source)
+    Tasks.delete_tasks_for(source)
     Repo.delete(source)
   end
 
@@ -149,7 +150,7 @@ defmodule Pinchflat.Sources do
       |> Enum.map(fn field -> mapped_struct[field] end)
       |> Enum.filter(&is_binary/1)
 
-    Enum.each(filepaths, &File.rm/1)
+    Enum.each(filepaths, &FilesystemHelpers.delete_file_and_remove_empty_directories/1)
   end
 
   defp add_source_details_to_changeset(source, changeset) do
