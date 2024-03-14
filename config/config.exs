@@ -48,7 +48,8 @@ config :pinchflat, Oban,
     media_indexing: 2,
     media_collection_indexing: 2,
     media_fetching: 2,
-    media_local_metadata: 8
+    local_metadata: 8,
+    remote_metadata: 4
   ]
 
 # Configures the mailer

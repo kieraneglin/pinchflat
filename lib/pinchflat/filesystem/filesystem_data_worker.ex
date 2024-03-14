@@ -2,7 +2,7 @@ defmodule Pinchflat.Filesystem.FilesystemDataWorker do
   @moduledoc false
 
   use Oban.Worker,
-    queue: :media_local_metadata,
+    queue: :local_metadata,
     tags: ["media_item", "media_metadata", "local_metadata"],
     max_attempts: 1
 
@@ -12,6 +12,10 @@ defmodule Pinchflat.Filesystem.FilesystemDataWorker do
   @impl Oban.Worker
   @doc """
   For a given media item, compute and save metadata about the file on-disk.
+
+  IDEA: does this have to be a standalone job? I originally split it out
+  so a failure here wouldn't cause a downloader job retry, but I can match
+  for failures so it doesn't retry.
 
   Returns :ok
   """

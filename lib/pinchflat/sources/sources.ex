@@ -11,9 +11,11 @@ defmodule Pinchflat.Sources do
   alias Pinchflat.Sources.Source
   alias Pinchflat.Profiles.MediaProfile
   alias Pinchflat.YtDlp.MediaCollection
+  alias Pinchflat.Metadata.SourceMetadata
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.FastIndexing.FastIndexingHelpers
   alias Pinchflat.SlowIndexing.SlowIndexingHelpers
+  alias Pinchflat.Metadata.SourceMetadataStorageWorker
 
   @doc """
   Returns the list of sources. Returns [%Source{}, ...]
@@ -54,7 +56,7 @@ defmodule Pinchflat.Sources do
     case change_source(%Source{}, attrs, :initial) do
       %Ecto.Changeset{valid?: true} ->
         %Source{}
-        |> change_source_from_url(attrs)
+        |> maybe_change_source_from_url(attrs)
         |> maybe_change_indexing_frequency()
         |> commit_and_handle_tasks()
 
@@ -82,7 +84,7 @@ defmodule Pinchflat.Sources do
     case change_source(source, attrs, :initial) do
       %Ecto.Changeset{valid?: true} ->
         source
-        |> change_source_from_url(attrs)
+        |> maybe_change_source_from_url(attrs)
         |> maybe_change_indexing_frequency()
         |> commit_and_handle_tasks()
 
@@ -107,6 +109,7 @@ defmodule Pinchflat.Sources do
     end)
 
     Tasks.delete_tasks_for(source)
+    delete_source_metadata_files(source)
     Repo.delete(source)
   end
 
@@ -122,14 +125,12 @@ defmodule Pinchflat.Sources do
   fetches source details from the original_url (if provided). If the source
   details cannot be fetched, an error is added to the changeset.
 
-  Note that this fetches source details as long as the `original_url` is present.
-  This means that it'll go for it even if a changeset is otherwise invalid. This
-  is pretty easy to change, but for MVP I'm not concerned.
-
   NOTE: When operating in the ideal path, this effectively adds an API call
   to the source creation/update process. Should be used only when needed.
+
+  NOTE: this can almost certainly be made private now
   """
-  def change_source_from_url(%Source{} = source, attrs) do
+  def maybe_change_source_from_url(%Source{} = source, attrs) do
     case change_source(source, attrs) do
       %Ecto.Changeset{changes: %{original_url: _}} = changeset ->
         add_source_details_to_changeset(source, changeset)
@@ -137,6 +138,18 @@ defmodule Pinchflat.Sources do
       changeset ->
         changeset
     end
+  end
+
+  defp delete_source_metadata_files(source) do
+    metadata = Repo.preload(source, :metadata).metadata || %SourceMetadata{}
+    mapped_struct = Map.from_struct(metadata)
+
+    filepaths =
+      SourceMetadata.filepath_attributes()
+      |> Enum.map(fn field -> mapped_struct[field] end)
+      |> Enum.filter(&is_binary/1)
+
+    Enum.each(filepaths, &File.rm/1)
   end
 
   defp add_source_details_to_changeset(source, changeset) do
@@ -196,6 +209,9 @@ defmodule Pinchflat.Sources do
       {:ok, %Source{} = source} ->
         maybe_handle_media_tasks(changeset, source)
         maybe_run_indexing_task(changeset, source)
+        run_metadata_storage_task(source)
+
+        {:ok, source}
 
       err ->
         err
@@ -215,8 +231,6 @@ defmodule Pinchflat.Sources do
       _ ->
         :ok
     end
-
-    {:ok, source}
   end
 
   defp maybe_run_indexing_task(changeset, source) do
@@ -231,8 +245,11 @@ defmodule Pinchflat.Sources do
         maybe_update_slow_indexing_task(changeset, source)
         maybe_update_fast_indexing_task(changeset, source)
     end
+  end
 
-    {:ok, source}
+  # This runs every time to pick up any changes to the metadata
+  defp run_metadata_storage_task(source) do
+    SourceMetadataStorageWorker.kickoff_with_task(source)
   end
 
   defp maybe_update_slow_indexing_task(changeset, source) do

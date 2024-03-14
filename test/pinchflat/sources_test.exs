@@ -8,15 +8,31 @@ defmodule Pinchflat.SourcesTest do
 
   alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Metadata.MetadataFileHelpers
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.FastIndexing.FastIndexingWorker
   alias Pinchflat.Downloading.MediaDownloadWorker
   alias Pinchflat.FastIndexing.MediaIndexingWorker
+  alias Pinchflat.Metadata.SourceMetadataStorageWorker
   alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
 
   @invalid_source_attrs %{name: nil, collection_id: nil}
 
   setup :verify_on_exit!
+
+  describe "schema" do
+    test "source_metadata is deleted when the source is deleted" do
+      source =
+        source_fixture(%{metadata: %{metadata_filepath: "/metadata.json.gz"}})
+
+      metadata = source.metadata
+      assert {:ok, %Source{}} = Sources.delete_source(source)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Repo.reload!(metadata)
+      end
+    end
+  end
 
   describe "list_sources/0" do
     test "it returns all sources" do
@@ -220,6 +236,21 @@ defmodule Pinchflat.SourcesTest do
 
       assert source.index_frequency_minutes == 0
     end
+
+    test "creating will kickoff a metadata storage worker" do
+      expect(YtDlpRunnerMock, :run, &channel_mock/3)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123",
+        fast_index: false,
+        index_frequency_minutes: 0
+      }
+
+      assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
+
+      assert_enqueued(worker: SourceMetadataStorageWorker, args: %{"id" => source.id})
+    end
   end
 
   describe "update_source/2" do
@@ -384,6 +415,15 @@ defmodule Pinchflat.SourcesTest do
 
       assert source.index_frequency_minutes == 0
     end
+
+    test "updating will kickoff a metadata storage worker" do
+      source = source_fixture()
+      update_attrs = %{name: "some updated name"}
+
+      assert {:ok, %Source{} = source} = Sources.update_source(source, update_attrs)
+
+      assert_enqueued(worker: SourceMetadataStorageWorker, args: %{"id" => source.id})
+    end
   end
 
   describe "delete_source/2" do
@@ -421,6 +461,22 @@ defmodule Pinchflat.SourcesTest do
       assert {:ok, %Source{}} = Sources.delete_source(source)
       assert File.exists?(media_item.media_filepath)
     end
+
+    test "deletes the source's metadata files" do
+      stub(HTTPClientMock, :get, fn _url, _headers, _opts -> {:ok, ""} end)
+      source = Repo.preload(source_fixture(), :metadata)
+
+      update_attrs = %{
+        metadata: %{
+          metadata_filepath: MetadataFileHelpers.compress_and_store_metadata_for(source, %{})
+        }
+      }
+
+      {:ok, updated_source} = Sources.update_source(source, update_attrs)
+
+      assert {:ok, _} = Sources.delete_source(updated_source, delete_files: true)
+      refute File.exists?(updated_source.metadata.metadata_filepath)
+    end
   end
 
   describe "delete_source/2 when deleting files" do
@@ -452,18 +508,18 @@ defmodule Pinchflat.SourcesTest do
     end
   end
 
-  describe "change_source_from_url/2" do
+  describe "maybe_change_source_from_url/2" do
     test "it returns a changeset" do
       stub(YtDlpRunnerMock, :run, &channel_mock/3)
       source = source_fixture()
 
-      assert %Ecto.Changeset{} = Sources.change_source_from_url(source, %{})
+      assert %Ecto.Changeset{} = Sources.maybe_change_source_from_url(source, %{})
     end
 
     test "it does not fetch source details if the original_url isn't in the changeset" do
       expect(YtDlpRunnerMock, :run, 0, &channel_mock/3)
 
-      changeset = Sources.change_source_from_url(%Source{}, %{name: "some updated name"})
+      changeset = Sources.maybe_change_source_from_url(%Source{}, %{name: "some updated name"})
 
       assert %Ecto.Changeset{} = changeset
     end
@@ -472,7 +528,7 @@ defmodule Pinchflat.SourcesTest do
       expect(YtDlpRunnerMock, :run, &channel_mock/3)
 
       changeset =
-        Sources.change_source_from_url(%Source{}, %{
+        Sources.maybe_change_source_from_url(%Source{}, %{
           original_url: "https://www.youtube.com/channel/abc123"
         })
 
@@ -486,7 +542,7 @@ defmodule Pinchflat.SourcesTest do
       media_profile_id = media_profile.id
 
       changeset =
-        Sources.change_source_from_url(%Source{}, %{
+        Sources.maybe_change_source_from_url(%Source{}, %{
           original_url: "https://www.youtube.com/channel/abc123",
           media_profile_id: media_profile.id
         })
@@ -507,7 +563,7 @@ defmodule Pinchflat.SourcesTest do
       end)
 
       changeset =
-        Sources.change_source_from_url(%Source{}, %{
+        Sources.maybe_change_source_from_url(%Source{}, %{
           original_url: "https://www.youtube.com/channel/abc123"
         })
 

@@ -10,6 +10,7 @@ defmodule Pinchflat.Sources.Source do
   alias Pinchflat.Tasks.Task
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Profiles.MediaProfile
+  alias Pinchflat.Metadata.SourceMetadata
 
   @allowed_fields ~w(
     collection_name
@@ -28,7 +29,8 @@ defmodule Pinchflat.Sources.Source do
   # Expensive API calls are made when a source is inserted/updated so
   # we want to ensure that the source is valid before making the call.
   # This way, we check that the other attributes are valid before ensuring
-  # that all fields are valid.
+  # that all fields are valid. This is still only one DB insert but it's
+  # a two-stage validation process to fail fast before the API call.
   @initially_required_fields ~w(
     index_frequency_minutes
     fast_index
@@ -60,6 +62,8 @@ defmodule Pinchflat.Sources.Source do
 
     belongs_to :media_profile, MediaProfile
 
+    has_one :metadata, SourceMetadata, on_replace: :update
+
     has_many :tasks, Task
     has_many :media_items, MediaItem, foreign_key: :source_id
 
@@ -80,6 +84,7 @@ defmodule Pinchflat.Sources.Source do
     |> cast(attrs, @allowed_fields)
     |> dynamic_default(:custom_name, fn cs -> get_field(cs, :collection_name) end)
     |> validate_required(required_fields)
+    |> cast_assoc(:metadata, with: &SourceMetadata.changeset/2, required: false)
     |> unique_constraint([:collection_id, :media_profile_id])
   end
 

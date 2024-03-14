@@ -20,6 +20,8 @@ defmodule Pinchflat.Tasks do
   Returns the list of tasks for a given record type and ID. Optionally allows you to specify
   which worker or job states to include.
 
+  IDEA: this should be updated to take a struct instead of a record type and ID
+
   Returns [%Task{}, ...]
   """
   def list_tasks_for(attached_record_type, attached_record_id, worker_name \\ nil, job_states \\ Oban.Job.states()) do
