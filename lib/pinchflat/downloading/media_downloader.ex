@@ -8,11 +8,12 @@ defmodule Pinchflat.Downloading.MediaDownloader do
   alias Pinchflat.Repo
   alias Pinchflat.Media
   alias Pinchflat.Media.MediaItem
+  alias Pinchflat.Metadata.NfoBuilder
+  alias Pinchflat.Metadata.MetadataParser
+  alias Pinchflat.Metadata.MetadataFileHelpers
+  alias Pinchflat.Downloading.DownloadOptionBuilder
 
   alias Pinchflat.YtDlp.Media, as: YtDlpMedia
-  alias Pinchflat.Downloading.DownloadOptionBuilder, as: YtDlpDownloadOptionBuilder
-  alias Pinchflat.Metadata.MetadataParser, as: YtDlpMetadataParser
-  alias Pinchflat.Metadata.MetadataFileHelpers, as: YtDlpMetadataHelpers
 
   @doc """
   Downloads media for a media item, updating the media item based on the metadata
@@ -30,16 +31,15 @@ defmodule Pinchflat.Downloading.MediaDownloader do
 
     case download_with_options(media_item.original_url, item_with_preloads) do
       {:ok, parsed_json} ->
-        {parser, helpers} = {YtDlpMetadataParser, YtDlpMetadataHelpers}
-
         parsed_attrs =
           parsed_json
-          |> parser.parse_for_media_item()
+          |> MetadataParser.parse_for_media_item()
           |> Map.merge(%{
             media_downloaded_at: DateTime.utc_now(),
+            nfo_filepath: determine_nfo_filepath(item_with_preloads, parsed_json),
             metadata: %{
-              metadata_filepath: helpers.compress_and_store_metadata_for(media_item, parsed_json),
-              thumbnail_filepath: helpers.download_and_store_thumbnail_for(media_item, parsed_json)
+              metadata_filepath: MetadataFileHelpers.compress_and_store_metadata_for(media_item, parsed_json),
+              thumbnail_filepath: MetadataFileHelpers.download_and_store_thumbnail_for(media_item, parsed_json)
             }
           })
 
@@ -52,13 +52,16 @@ defmodule Pinchflat.Downloading.MediaDownloader do
     end
   end
 
-  # def download_for_source(source, url) do
-  #   # Create MI from source and URL
-  #   media_item = nil
-  # end
+  defp determine_nfo_filepath(media_item, parsed_json) do
+    if media_item.source.media_profile.download_nfo do
+      NfoBuilder.build_and_store_for_media_item(parsed_json)
+    else
+      nil
+    end
+  end
 
   defp download_with_options(url, item_with_preloads) do
-    {:ok, options} = YtDlpDownloadOptionBuilder.build(item_with_preloads)
+    {:ok, options} = DownloadOptionBuilder.build(item_with_preloads)
 
     YtDlpMedia.download(url, options)
   end

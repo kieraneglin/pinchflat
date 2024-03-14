@@ -84,4 +84,12 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
       assert Path.basename(filepath) == "maxres.webp"
     end
   end
+
+  describe "parse_upload_date/1" do
+    test "returns a date from the given metadata upload date" do
+      upload_date = "20210101"
+
+      assert Helpers.parse_upload_date(upload_date) == ~D[2021-01-01]
+    end
+  end
 end
