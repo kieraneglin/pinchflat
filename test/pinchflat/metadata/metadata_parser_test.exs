@@ -94,6 +94,15 @@ defmodule Pinchflat.Metadata.MetadataParserTest do
       assert String.ends_with?(result.thumbnail_filepath, ".webp")
     end
 
+    # NOTE: this can be removed once this bug is fixed
+    # https://github.com/yt-dlp/yt-dlp/issues/9445
+    # and the associated conditional in the parser is removed
+    test "automatically appends `-thumb` to the thumbnail filename", %{metadata: metadata} do
+      result = Parser.parse_for_media_item(metadata)
+
+      assert String.contains?(result.thumbnail_filepath, "-thumb.webp")
+    end
+
     test "doesn't freak out if the media has no thumbnails", %{metadata: metadata} do
       metadata = Map.put(metadata, "thumbnails", %{})
 
