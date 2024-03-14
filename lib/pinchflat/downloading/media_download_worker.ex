@@ -8,9 +8,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
 
   alias Pinchflat.Repo
   alias Pinchflat.Media
-  alias Pinchflat.Tasks
   alias Pinchflat.Downloading.MediaDownloader
-  alias Pinchflat.Filesystem.FilesystemDataWorker
 
   @impl Oban.Worker
   @doc """
@@ -35,22 +33,23 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
 
   defp download_media_and_schedule_jobs(media_item) do
     case MediaDownloader.download_for_media_item(media_item) do
-      {:ok, _} ->
-        schedule_filesystem_data_worker(media_item)
-        {:ok, media_item}
+      {:ok, updated_media_item} ->
+        compute_and_save_media_filesize(updated_media_item)
+
+        {:ok, updated_media_item}
 
       err ->
         err
     end
   end
 
-  defp schedule_filesystem_data_worker(media_item) do
-    %{id: media_item.id}
-    |> FilesystemDataWorker.new()
-    |> Tasks.create_job_with_task(media_item)
-    |> case do
-      {:ok, task} -> {:ok, task}
-      {:error, :duplicate_job} -> {:ok, :job_exists}
+  defp compute_and_save_media_filesize(media_item) do
+    case File.stat(media_item.media_filepath) do
+      {:ok, %{size: size}} ->
+        Media.update_media_item(media_item, %{media_size_bytes: size})
+
+      _ ->
+        :ok
     end
   end
 end

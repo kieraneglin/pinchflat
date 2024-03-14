@@ -69,7 +69,6 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
     rename_map = [
       ["Pinchflat.Workers.MediaIndexingWorker", "Pinchflat.FastIndexing.MediaIndexingWorker"],
       ["Pinchflat.Workers.MediaDownloadWorker", "Pinchflat.Downloading.MediaDownloadWorker"],
-      ["Pinchflat.Workers.FilesystemDataWorker", "Pinchflat.Filesystem.FilesystemDataWorker"],
       ["Pinchflat.Workers.FastIndexingWorker", "Pinchflat.FastIndexing.FastIndexingWorker"],
       ["Pinchflat.Workers.MediaCollectionIndexingWorker", "Pinchflat.SlowIndexing.MediaCollectionIndexingWorker"],
       ["Pinchflat.Workers.DataBackfillWorker", "Pinchflat.Boot.DataBackfillWorker"]

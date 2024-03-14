@@ -5,21 +5,20 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
   import Pinchflat.MediaFixtures
 
   alias Pinchflat.Sources
+  alias Pinchflat.Filesystem.FilesystemHelpers
   alias Pinchflat.Downloading.MediaDownloadWorker
-  alias Pinchflat.Filesystem.FilesystemDataWorker
 
   setup :verify_on_exit!
 
   setup do
-    media_item =
-      Repo.preload(
-        media_item_fixture(%{media_filepath: nil}),
-        [:metadata, source: :media_profile]
-      )
-
     stub(HTTPClientMock, :get, fn _url, _headers, _opts ->
       {:ok, ""}
     end)
+
+    media_item =
+      %{media_filepath: nil}
+      |> media_item_fixture()
+      |> Repo.preload([:metadata, source: :media_profile])
 
     {:ok, %{media_item: media_item}}
   end
@@ -70,16 +69,18 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
       perform_job(MediaDownloadWorker, %{id: media_item.id})
     end
 
-    test "it schedules a filesystem data worker", %{media_item: media_item} do
+    test "it saves the file's size to the database", %{media_item: media_item} do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
-        {:ok, render_metadata(:media_metadata)}
+        metadata = render_parsed_metadata(:media_metadata)
+        FilesystemHelpers.write_p!(metadata["filepath"], "test")
+
+        {:ok, Phoenix.json_library().encode!(metadata)}
       end)
 
-      assert [] = all_enqueued(worker: FilesystemDataWorker)
-
       perform_job(MediaDownloadWorker, %{id: media_item.id})
+      media_item = Repo.reload(media_item)
 
-      assert [_] = all_enqueued(worker: FilesystemDataWorker)
+      assert media_item.media_size_bytes > 0
     end
   end
 end

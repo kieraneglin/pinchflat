@@ -4,7 +4,7 @@ defmodule Pinchflat.Boot.DataBackfillWorkerTest do
   import Pinchflat.MediaFixtures
 
   alias Pinchflat.Boot.DataBackfillWorker
-  alias Pinchflat.Filesystem.FilesystemDataWorker
+  alias Pinchflat.JobFixtures.TestJobWorker
 
   describe "cancel_pending_backfill_jobs/0" do
     test "cancels all pending backfill jobs" do
@@ -21,14 +21,14 @@ defmodule Pinchflat.Boot.DataBackfillWorkerTest do
 
     test "does not cancel jobs for other workers" do
       %{id: 0}
-      |> FilesystemDataWorker.new()
+      |> TestJobWorker.new()
       |> Repo.insert_unique_job()
 
-      assert_enqueued(worker: FilesystemDataWorker)
+      assert_enqueued(worker: TestJobWorker)
 
       DataBackfillWorker.cancel_pending_backfill_jobs()
 
-      assert_enqueued(worker: FilesystemDataWorker)
+      assert_enqueued(worker: TestJobWorker)
     end
   end
 
