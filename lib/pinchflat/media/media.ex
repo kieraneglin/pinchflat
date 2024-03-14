@@ -144,6 +144,8 @@ defmodule Pinchflat.Media do
   @doc """
   Produces a flat list of the filesystem paths for a media_item's downloaded files
 
+  NOTE: this can almost certainly be made private
+
   Returns [binary()]
   """
   def media_filepaths(media_item) do
@@ -161,6 +163,8 @@ defmodule Pinchflat.Media do
   @doc """
   Produces a flat list of the filesystem paths for a media_item's metadata files.
   Returns an empty list if the media_item has no metadata.
+
+  NOTE: this can almost certainly be made private
 
   Returns [binary()] | []
   """
@@ -227,6 +231,7 @@ defmodule Pinchflat.Media do
   def delete_media_item(%MediaItem{} = media_item, opts \\ []) do
     delete_files = Keyword.get(opts, :delete_files, false)
 
+    # NOTE: this should delete metadata no matter what
     if delete_files do
       {:ok, _} = delete_all_attachments(media_item)
     end
@@ -242,6 +247,7 @@ defmodule Pinchflat.Media do
     MediaItem.changeset(media_item, attrs)
   end
 
+  # NOTE: refactor this
   defp delete_all_attachments(media_item) do
     media_item = Repo.preload(media_item, :metadata)
 

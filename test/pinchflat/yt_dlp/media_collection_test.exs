@@ -108,4 +108,39 @@ defmodule Pinchflat.YtDlp.MediaCollectionTest do
       assert {:error, %Jason.DecodeError{}} = MediaCollection.get_source_details(@channel_url)
     end
   end
+
+  describe "get_source_metadata/1" do
+    test "it returns a map with data on success" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+        Phoenix.json_library().encode(%{channel: "TheUselessTrials"})
+      end)
+
+      assert {:ok, res} = MediaCollection.get_source_metadata(@channel_url)
+
+      assert %{"channel" => "TheUselessTrials"} = res
+    end
+
+    test "it passes the expected args to the backend runner" do
+      expect(YtDlpRunnerMock, :run, fn @channel_url, opts, ot ->
+        assert opts == [playlist_items: 0]
+        assert ot == "playlist:%()j"
+
+        {:ok, "{}"}
+      end)
+
+      assert {:ok, _} = MediaCollection.get_source_metadata(@channel_url)
+    end
+
+    test "it returns an error if the runner returns an error" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:error, "Big issue", 1} end)
+
+      assert {:error, "Big issue", 1} = MediaCollection.get_source_metadata(@channel_url)
+    end
+
+    test "it returns an error if the output is not JSON" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, "Not JSON"} end)
+
+      assert {:error, %Jason.DecodeError{}} = MediaCollection.get_source_metadata(@channel_url)
+    end
+  end
 end

@@ -34,6 +34,20 @@ defmodule Pinchflat.SourcesFixtures do
     source
   end
 
+  @doc """
+  Generate a source with metadata.
+  """
+  def source_with_metadata(attrs \\ %{}) do
+    merged_attrs =
+      Map.merge(attrs, %{
+        metadata: %{
+          metadata_filepath: Application.get_env(:pinchflat, :metadata_directory) <> "/metadata.json.gz"
+        }
+      })
+
+    source_fixture(merged_attrs)
+  end
+
   def source_attributes_return_fixture do
     source_attributes = [
       %{
