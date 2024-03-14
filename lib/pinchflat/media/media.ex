@@ -143,42 +143,6 @@ defmodule Pinchflat.Media do
   def get_media_item!(id), do: Repo.get!(MediaItem, id)
 
   @doc """
-  Produces a flat list of the filesystem paths for a media_item's downloaded files
-
-  NOTE: this can almost certainly be made private
-
-  Returns [binary()]
-  """
-  def media_filepaths(media_item) do
-    mapped_struct = Map.from_struct(media_item)
-
-    MediaItem.filepath_attributes()
-    |> Enum.map(fn
-      :subtitle_filepaths = field -> Enum.map(mapped_struct[field], fn [_, filepath] -> filepath end)
-      field -> List.wrap(mapped_struct[field])
-    end)
-    |> List.flatten()
-    |> Enum.filter(&is_binary/1)
-  end
-
-  @doc """
-  Produces a flat list of the filesystem paths for a media_item's metadata files.
-  Returns an empty list if the media_item has no metadata.
-
-  NOTE: this can almost certainly be made private
-
-  Returns [binary()] | []
-  """
-  def metadata_filepaths(media_item) do
-    metadata = Repo.preload(media_item, :metadata).metadata || %MediaMetadata{}
-    mapped_struct = Map.from_struct(metadata)
-
-    MediaMetadata.filepath_attributes()
-    |> Enum.map(fn field -> mapped_struct[field] end)
-    |> Enum.filter(&is_binary/1)
-  end
-
-  @doc """
   Creates a media_item.
 
   Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}
@@ -224,19 +188,20 @@ defmodule Pinchflat.Media do
   end
 
   @doc """
-  Deletes a media_item and its associated tasks.
-  Can optionally delete the media_item's files.
+  Deletes a media_item, its associated tasks, and our internal metadata files.
+  Can optionally delete the media_item's media files (media, thumbnail, subtitles, etc).
 
   Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}
   """
   def delete_media_item(%MediaItem{} = media_item, opts \\ []) do
     delete_files = Keyword.get(opts, :delete_files, false)
 
-    # NOTE: this should delete metadata no matter what
     if delete_files do
-      {:ok, _} = delete_all_attachments(media_item)
+      {:ok, _} = delete_media_files(media_item)
     end
 
+    # Should delete these no matter what
+    delete_internal_metadata_files(media_item)
     Tasks.delete_tasks_for(media_item)
     Repo.delete(media_item)
   end
@@ -248,16 +213,29 @@ defmodule Pinchflat.Media do
     MediaItem.changeset(media_item, attrs)
   end
 
-  # NOTE: refactor this
-  defp delete_all_attachments(media_item) do
-    media_item = Repo.preload(media_item, :metadata)
+  defp delete_media_files(media_item) do
+    mapped_struct = Map.from_struct(media_item)
 
-    media_item
-    |> media_filepaths()
-    |> Enum.concat(metadata_filepaths(media_item))
+    MediaItem.filepath_attributes()
+    |> Enum.map(fn
+      :subtitle_filepaths = field -> Enum.map(mapped_struct[field], fn [_, filepath] -> filepath end)
+      field -> List.wrap(mapped_struct[field])
+    end)
+    |> List.flatten()
+    |> Enum.filter(&is_binary/1)
     |> Enum.each(&FilesystemHelpers.delete_file_and_remove_empty_directories/1)
 
     {:ok, media_item}
+  end
+
+  defp delete_internal_metadata_files(media_item) do
+    metadata = Repo.preload(media_item, :metadata).metadata || %MediaMetadata{}
+    mapped_struct = Map.from_struct(metadata)
+
+    MediaMetadata.filepath_attributes()
+    |> Enum.map(fn field -> mapped_struct[field] end)
+    |> Enum.filter(&is_binary/1)
+    |> Enum.each(&FilesystemHelpers.delete_file_and_remove_empty_directories/1)
   end
 
   defp maybe_apply_cutoff_date(source) do
