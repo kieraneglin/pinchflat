@@ -50,8 +50,8 @@ defmodule Pinchflat.YtDlp.MediaCollection do
   @doc """
   Gets a source's ID and name from its URL.
 
-  yt-dlp does not _really_ have source-specific functions, so
-  instead we're fetching just the first video (using playlist_end: 1)
+  yt-dlp does not _really_ have source-specific functions that return what
+  we need, so instead we're fetching just the first video (using playlist_end: 1)
   and parsing the source ID and name from _its_ metadata
 
   Returns {:ok, map()} | {:error, any, ...}.
@@ -71,7 +71,35 @@ defmodule Pinchflat.YtDlp.MediaCollection do
     end
   end
 
+  @doc """
+  Gets a source's metadata from its URL.
+
+  This is mostly for things like getting the source's avatar and banner image
+  (if applicable). However, this yt-dlp call doesn't have enough overlap with
+  `get_source_details/1` to allow combining them - this one has _almost_ everything
+  we need, but it doesn't contain enough information to tell 100% if the url is a channel
+  or a playlist.
+
+  The main purpose of this (past using as a fetcher for _other_ metadata) is to live
+  as a compressed blob for possible future use. That's why it's not getting formatted like
+  `get_source_details/1`
+
+  Returns {:ok, map()} | {:error, any, ...}.
+  """
+  def get_source_metadata(source_url) do
+    opts = [playlist_items: 0]
+    output_template = "playlist:%()j"
+
+    with {:ok, output} <- backend_runner().run(source_url, opts, output_template),
+         {:ok, parsed_json} <- Phoenix.json_library().decode(output) do
+      {:ok, parsed_json}
+    else
+      err -> err
+    end
+  end
+
   defp format_source_details(response) do
+    # NOTE: I should probably make this a struct some day
     %{
       channel_id: response["channel_id"],
       channel_name: response["channel"],
