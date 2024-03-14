@@ -104,7 +104,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
     test "creates a download task record", %{source: source} do
       assert {:ok, media_item} = FastIndexingHelpers.index_and_enqueue_download_for_media_item(source, @media_url)
 
-      assert [_] = Tasks.list_tasks_for(:media_item_id, media_item.id, "MediaDownloadWorker")
+      assert [_] = Tasks.list_tasks_for(media_item, "MediaDownloadWorker")
     end
 
     test "does not enqueue a download job if the source does not allow it" do

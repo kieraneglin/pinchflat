@@ -149,7 +149,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
 
       SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
 
-      assert [] = Tasks.list_tasks_for(:media_item_id, media_item.id)
+      assert [] = Tasks.list_tasks_for(media_item)
     end
 
     test "it doesn't blow up if a media item cannot be coerced into a struct", %{source: source} do
