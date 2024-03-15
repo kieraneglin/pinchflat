@@ -149,7 +149,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
 
       SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
 
-      assert [] = Tasks.list_tasks_for(:media_item_id, media_item.id)
+      assert [] = Tasks.list_tasks_for(media_item)
     end
 
     test "it doesn't blow up if a media item cannot be coerced into a struct", %{source: source} do
@@ -289,6 +289,23 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
       assert Repo.aggregate(MediaItem, :count, :id) == 3
       assert [_, _, _] = all_enqueued(worker: MediaDownloadWorker)
+    end
+
+    test "does not blow up if the file returns invalid json", %{source: source} do
+      watcher_poll_interval = Application.get_env(:pinchflat, :file_watcher_poll_interval)
+
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl_opts ->
+        filepath = Keyword.get(addl_opts, :output_filepath)
+        File.write(filepath, "INVALID")
+
+        # Need to add a delay to ensure the file watcher has time to read the file
+        :timer.sleep(watcher_poll_interval * 2)
+        # We know we're testing the file watcher since the syncronous call will only
+        # return an empty string (creating no records)
+        {:ok, ""}
+      end)
+
+      assert [] = SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
     end
   end
 end

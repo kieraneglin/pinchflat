@@ -48,4 +48,36 @@ defmodule Pinchflat.Filesystem.FilesystemHelpers do
         err
     end
   end
+
+  @doc """
+  Deletes a file and removes any empty directories in the path.
+  Does NOT remove any directories that are not empty.
+
+  Returns :ok | {:error, any()}
+  """
+  def delete_file_and_remove_empty_directories(filepath) do
+    case File.rm(filepath) do
+      :ok ->
+        filepath
+        |> Path.dirname()
+        |> recursively_delete_empty_directories()
+
+      err ->
+        err
+    end
+  end
+
+  defp recursively_delete_empty_directories(directory) do
+    case File.rmdir(directory) do
+      :ok ->
+        directory
+        |> Path.dirname()
+        |> recursively_delete_empty_directories()
+
+      err ->
+        err
+    end
+
+    :ok
+  end
 end

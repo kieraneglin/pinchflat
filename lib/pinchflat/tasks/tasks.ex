@@ -20,12 +20,16 @@ defmodule Pinchflat.Tasks do
   Returns the list of tasks for a given record type and ID. Optionally allows you to specify
   which worker or job states to include.
 
-  IDEA: this should be updated to take a struct instead of a record type and ID
-
   Returns [%Task{}, ...]
   """
-  def list_tasks_for(attached_record_type, attached_record_id, worker_name \\ nil, job_states \\ Oban.Job.states()) do
+  def list_tasks_for(record, worker_name \\ nil, job_states \\ Oban.Job.states()) do
     stringified_states = Enum.map(job_states, &to_string/1)
+
+    record_type =
+      case record do
+        %Source{} -> :source_id
+        %MediaItem{} -> :media_item_id
+      end
 
     worker_name_finder =
       if worker_name do
@@ -43,7 +47,7 @@ defmodule Pinchflat.Tasks do
     Repo.all(
       from t in Task,
         join: j in assoc(t, :job),
-        where: field(t, ^attached_record_type) == ^attached_record_id,
+        where: field(t, ^record_type) == ^record.id,
         where: ^worker_name_finder,
         where: j.state in ^stringified_states
     )
@@ -55,10 +59,9 @@ defmodule Pinchflat.Tasks do
 
   Returns [%Task{}, ...]
   """
-  def list_pending_tasks_for(attached_record_type, attached_record_id, worker_name \\ nil) do
+  def list_pending_tasks_for(record, worker_name \\ nil) do
     list_tasks_for(
-      attached_record_type,
-      attached_record_id,
+      record,
       worker_name,
       [:available, :scheduled, :retryable]
     )
@@ -128,14 +131,10 @@ defmodule Pinchflat.Tasks do
 
   Returns :ok
   """
-  def delete_tasks_for(attached_record, worker_name \\ nil) do
-    tasks =
-      case attached_record do
-        %Source{} = source -> list_tasks_for(:source_id, source.id, worker_name)
-        %MediaItem{} = media_item -> list_tasks_for(:media_item_id, media_item.id, worker_name)
-      end
-
-    Enum.each(tasks, &delete_task/1)
+  def delete_tasks_for(record, worker_name \\ nil) do
+    record
+    |> list_tasks_for(worker_name)
+    |> Enum.each(&delete_task/1)
   end
 
   @doc """
@@ -144,14 +143,10 @@ defmodule Pinchflat.Tasks do
 
   Returns :ok
   """
-  def delete_pending_tasks_for(attached_record, worker_name \\ nil) do
-    tasks =
-      case attached_record do
-        %Source{} = source -> list_pending_tasks_for(:source_id, source.id, worker_name)
-        %MediaItem{} = media_item -> list_pending_tasks_for(:media_item_id, media_item.id, worker_name)
-      end
-
-    Enum.each(tasks, &delete_task/1)
+  def delete_pending_tasks_for(record, worker_name \\ nil) do
+    record
+    |> list_pending_tasks_for(worker_name)
+    |> Enum.each(&delete_task/1)
   end
 
   @doc """

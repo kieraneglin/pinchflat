@@ -2,50 +2,19 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
   use Pinchflat.DataCase
 
   import Mox
-  import Pinchflat.TasksFixtures
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
   import Pinchflat.ProfilesFixtures
 
   alias Pinchflat.Tasks
-  alias Pinchflat.Tasks.Task
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Downloading.MediaDownloadWorker
   alias Pinchflat.FastIndexing.MediaIndexingWorker
   alias Pinchflat.FastIndexing.FastIndexingHelpers
-  alias Pinchflat.FastIndexing.FastIndexingWorker
 
   setup :verify_on_exit!
 
   @media_url "https://www.youtube.com/watch?v=test_1"
-
-  describe "kickoff_fast_indexing_task/1" do
-    test "it schedules a job" do
-      source = source_fixture()
-
-      assert {:ok, _} = FastIndexingHelpers.kickoff_fast_indexing_task(source)
-
-      assert_enqueued(worker: FastIndexingWorker, args: %{"id" => source.id})
-    end
-
-    test "it creates and attaches a task" do
-      source = source_fixture()
-
-      assert {:ok, %Task{} = task} = FastIndexingHelpers.kickoff_fast_indexing_task(source)
-
-      assert task.source_id == source.id
-    end
-
-    test "it deletes any fast indexing tasks for the source" do
-      source = source_fixture()
-      {:ok, job} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
-      task = task_fixture(source_id: source.id, job_id: job.id)
-
-      assert {:ok, _} = FastIndexingHelpers.kickoff_fast_indexing_task(source)
-
-      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
-    end
-  end
 
   describe "kickoff_indexing_tasks_from_youtube_rss_feed/1" do
     setup do
@@ -104,7 +73,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
     test "creates a download task record", %{source: source} do
       assert {:ok, media_item} = FastIndexingHelpers.index_and_enqueue_download_for_media_item(source, @media_url)
 
-      assert [_] = Tasks.list_tasks_for(:media_item_id, media_item.id, "MediaDownloadWorker")
+      assert [_] = Tasks.list_tasks_for(media_item, "MediaDownloadWorker")
     end
 
     test "does not enqueue a download job if the source does not allow it" do

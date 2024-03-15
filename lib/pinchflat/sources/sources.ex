@@ -12,8 +12,9 @@ defmodule Pinchflat.Sources do
   alias Pinchflat.Profiles.MediaProfile
   alias Pinchflat.YtDlp.MediaCollection
   alias Pinchflat.Metadata.SourceMetadata
+  alias Pinchflat.Filesystem.FilesystemHelpers
   alias Pinchflat.Downloading.DownloadingHelpers
-  alias Pinchflat.FastIndexing.FastIndexingHelpers
+  alias Pinchflat.FastIndexing.FastIndexingWorker
   alias Pinchflat.SlowIndexing.SlowIndexingHelpers
   alias Pinchflat.Metadata.SourceMetadataStorageWorker
 
@@ -108,8 +109,8 @@ defmodule Pinchflat.Sources do
       Media.delete_media_item(media_item, delete_files: delete_files)
     end)
 
-    Tasks.delete_tasks_for(source)
     delete_source_metadata_files(source)
+    Tasks.delete_tasks_for(source)
     Repo.delete(source)
   end
 
@@ -120,17 +121,9 @@ defmodule Pinchflat.Sources do
     Source.changeset(source, attrs, validation_stage)
   end
 
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking source changes and additionally
-  fetches source details from the original_url (if provided). If the source
-  details cannot be fetched, an error is added to the changeset.
-
-  NOTE: When operating in the ideal path, this effectively adds an API call
-  to the source creation/update process. Should be used only when needed.
-
-  NOTE: this can almost certainly be made private now
-  """
-  def maybe_change_source_from_url(%Source{} = source, attrs) do
+  # NOTE: When operating in the ideal path, this effectively adds an API call
+  # to the source creation/update process. Should be used only when needed.
+  defp maybe_change_source_from_url(%Source{} = source, attrs) do
     case change_source(source, attrs) do
       %Ecto.Changeset{changes: %{original_url: _}} = changeset ->
         add_source_details_to_changeset(source, changeset)
@@ -149,7 +142,7 @@ defmodule Pinchflat.Sources do
       |> Enum.map(fn field -> mapped_struct[field] end)
       |> Enum.filter(&is_binary/1)
 
-    Enum.each(filepaths, &File.rm/1)
+    Enum.each(filepaths, &FilesystemHelpers.delete_file_and_remove_empty_directories/1)
   end
 
   defp add_source_details_to_changeset(source, changeset) do
@@ -270,7 +263,8 @@ defmodule Pinchflat.Sources do
   defp maybe_update_fast_indexing_task(changeset, source) do
     case changeset.changes do
       %{fast_index: true} ->
-        FastIndexingHelpers.kickoff_fast_indexing_task(source)
+        Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
+        FastIndexingWorker.kickoff_with_task(source)
 
       %{fast_index: false} ->
         Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")

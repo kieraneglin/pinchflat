@@ -13,7 +13,17 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorker do
   alias Pinchflat.FastIndexing.FastIndexingWorker
   alias Pinchflat.SlowIndexing.SlowIndexingHelpers
 
-  @impl Oban.Worker
+  @doc """
+  Starts the source slow indexing worker and creates a task for the source.
+
+  Returns {:ok, %Task{}} | {:error, :duplicate_job} | {:error, %Ecto.Changeset{}}
+  """
+  def kickoff_with_task(source, opts \\ []) do
+    %{id: source.id}
+    |> MediaCollectionIndexingWorker.new(opts)
+    |> Tasks.create_job_with_task(source)
+  end
+
   @doc """
   The ID is that of a source _record_, not a YouTube channel/playlist ID. Indexes
   the provided source, kicks off downloads for each new MediaItem, and
@@ -58,6 +68,7 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorker do
 
   Returns :ok | {:ok, %Task{}}
   """
+  @impl Oban.Worker
   def perform(%Oban.Job{args: %{"id" => source_id}}) do
     source = Sources.get_source!(source_id)
 

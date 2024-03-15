@@ -26,11 +26,7 @@ defmodule Pinchflat.Downloading.DownloadingHelpers do
   def enqueue_pending_download_tasks(%Source{download_media: true} = source) do
     source
     |> Media.list_pending_media_items_for()
-    |> Enum.each(fn media_item ->
-      %{id: media_item.id}
-      |> MediaDownloadWorker.new()
-      |> Tasks.create_job_with_task(media_item)
-    end)
+    |> Enum.each(&MediaDownloadWorker.kickoff_with_task/1)
   end
 
   def enqueue_pending_download_tasks(%Source{download_media: false}) do
