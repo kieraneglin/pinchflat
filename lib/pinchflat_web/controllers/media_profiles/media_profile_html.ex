@@ -70,7 +70,7 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
   end
 
   defp media_center_output_template do
-    "/shows/{{ source_custom_name }}/{{ season_from_date }}/{{ season_episode_from_date }} - {{ title }}.{{ ext }}"
+    "/shows/{{ source_custom_name }}/Season {{ season_from_date }}/{{ season_episode_from_date }} - {{ title }}.{{ ext }}"
   end
 
   defp audio_output_template do
