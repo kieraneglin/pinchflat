@@ -1,6 +1,8 @@
 defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
   use PinchflatWeb, :html
 
+  alias Pinchflat.Profiles.MediaProfile
+
   embed_templates "media_profile_html/*"
 
   @doc """
@@ -52,5 +54,26 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
       upload_date
       duration_string
     )a
+  end
+
+  def preset_options do
+    [
+      {"Default", "default"},
+      {"Media Center (Plex, Jellyfin, Kodi, etc.)", "media_center"},
+      {"Music", "audio"},
+      {"Archiving", "archiving"}
+    ]
+  end
+
+  defp default_output_template do
+    %MediaProfile{}.output_path_template
+  end
+
+  defp media_center_output_template do
+    "/shows/{{ source_custom_name }}/{{ season_from_date }}/{{ season_episode_from_date }} - {{ title }}.{{ ext }}"
+  end
+
+  defp audio_output_template do
+    "/music/{{ source_custom_name }}/{{ title }}.{{ ext }}"
   end
 end

@@ -35,14 +35,14 @@ defmodule Pinchflat.Profiles.MediaProfile do
 
     field :download_subs, :boolean, default: false
     field :download_auto_subs, :boolean, default: false
-    field :embed_subs, :boolean, default: true
+    field :embed_subs, :boolean, default: false
     field :sub_langs, :string, default: "en"
 
     field :download_thumbnail, :boolean, default: false
-    field :embed_thumbnail, :boolean, default: true
+    field :embed_thumbnail, :boolean, default: false
 
     field :download_metadata, :boolean, default: false
-    field :embed_metadata, :boolean, default: true
+    field :embed_metadata, :boolean, default: false
 
     field :download_nfo, :boolean, default: false
     # NOTE: these do NOT speed up indexing - the indexer still has to go
@@ -67,6 +67,12 @@ defmodule Pinchflat.Profiles.MediaProfile do
     media_profile
     |> cast(attrs, @allowed_fields)
     |> validate_required(@required_fields)
+    # Ensures it ends with `.{{ ext }}` or `.%(ext)s` or similar (with a little wiggle room)
+    |> validate_format(:output_path_template, ext_regex(), message: "must end with .{{ ext }}")
     |> unique_constraint(:name)
+  end
+
+  defp ext_regex do
+    ~r/\.({{ ?ext ?}}|%\( ?ext ?\)[sS])$/
   end
 end

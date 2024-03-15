@@ -18,7 +18,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
     built_options =
       default_options() ++
         subtitle_options(media_profile) ++
-        thumbnail_options(media_profile) ++
+        thumbnail_options(media_item_with_preloads) ++
         metadata_options(media_profile) ++
         quality_options(media_profile) ++
         output_options(media_item_with_preloads)
@@ -57,13 +57,16 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
     end)
   end
 
-  defp thumbnail_options(media_profile) do
+  defp thumbnail_options(media_item_with_preloads) do
+    media_profile = media_item_with_preloads.source.media_profile
     mapped_struct = Map.from_struct(media_profile)
 
     Enum.reduce(mapped_struct, [], fn attr, acc ->
       case attr do
         {:download_thumbnail, true} ->
-          acc ++ [:write_thumbnail, convert_thumbnail: "jpg"]
+          thumbnail_save_location = determine_thumbnail_location(media_item_with_preloads)
+
+          acc ++ [:write_thumbnail, convert_thumbnail: "jpg", output: "thumbnail:#{thumbnail_save_location}"]
 
         {:embed_thumbnail, true} ->
           acc ++ [:embed_thumbnail, convert_thumbnail: "jpg"]
@@ -102,13 +105,18 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
   end
 
   defp output_options(media_item_with_preloads) do
-    media_profile = media_item_with_preloads.source.media_profile
-    additional_options_map = output_options_map(media_item_with_preloads)
-    {:ok, output_path} = OutputPathBuilder.build(media_profile.output_path_template, additional_options_map)
+    output_path_template = media_item_with_preloads.source.media_profile.output_path_template
 
     [
-      output: Path.join(base_directory(), output_path)
+      output: build_output_path(output_path_template, media_item_with_preloads)
     ]
+  end
+
+  defp build_output_path(string, media_item_with_preloads) do
+    additional_options_map = output_options_map(media_item_with_preloads)
+    {:ok, output_path} = OutputPathBuilder.build(string, additional_options_map)
+
+    Path.join(base_directory(), output_path)
   end
 
   defp output_options_map(media_item_with_preloads) do
@@ -118,6 +126,19 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
       "source_custom_name" => source.custom_name,
       "source_collection_type" => source.collection_type
     }
+  end
+
+  # I don't love the string manipulation here, but what can ya' do.
+  # It's dependent on the output_path_template being a string ending `.{{ ext }}`
+  # (or equivalent), but that's validated by the MediaProfile schema.
+  defp determine_thumbnail_location(media_item_with_preloads) do
+    output_path_template = media_item_with_preloads.source.media_profile.output_path_template
+
+    output_path_template
+    |> String.split(~r{\.}, include_captures: true)
+    |> List.insert_at(-3, "-thumb")
+    |> Enum.join()
+    |> build_output_path(media_item_with_preloads)
   end
 
   defp base_directory do

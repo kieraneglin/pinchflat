@@ -101,7 +101,10 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorkerTest do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:ok, ""} end)
 
       source = source_fixture(index_frequency_minutes: 10)
-      task_count_fetcher = fn -> Enum.count(Tasks.list_tasks()) end
+
+      task_count_fetcher = fn ->
+        Enum.count(Tasks.list_tasks_for(:source_id, source.id, "MediaCollectionIndexingWorker"))
+      end
 
       assert_changed([from: 0, to: 1], task_count_fetcher, fn ->
         perform_job(MediaCollectionIndexingWorker, %{id: source.id})

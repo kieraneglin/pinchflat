@@ -2,7 +2,7 @@ defmodule Pinchflat.Boot.DataBackfillWorker do
   @moduledoc false
 
   use Oban.Worker,
-    queue: :media_local_metadata,
+    queue: :local_metadata,
     unique: [period: :infinity, states: [:available, :scheduled, :retryable]],
     tags: ["media_item", "media_metadata", "local_metadata", "data_backfill"]
 

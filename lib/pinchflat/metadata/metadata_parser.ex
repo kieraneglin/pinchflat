@@ -54,9 +54,22 @@ defmodule Pinchflat.Metadata.MetadataParser do
       |> Enum.reverse()
       |> Enum.find_value(fn attrs -> attrs["filepath"] end)
 
-    %{
-      thumbnail_filepath: thumbnail_filepath
-    }
+    if thumbnail_filepath do
+      # NOTE: whole ordeal needed due to a bug I found in yt-dlp
+      # https://github.com/yt-dlp/yt-dlp/issues/9445
+      # Can be reverted to remove this entire conditional once fixed
+      %{
+        thumbnail_filepath:
+          thumbnail_filepath
+          |> String.split(~r{\.}, include_captures: true)
+          |> List.insert_at(-3, "-thumb")
+          |> Enum.join()
+      }
+    else
+      %{
+        thumbnail_filepath: thumbnail_filepath
+      }
+    end
   end
 
   defp parse_infojson_metadata(metadata) do

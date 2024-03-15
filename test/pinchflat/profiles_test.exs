@@ -26,11 +26,11 @@ defmodule Pinchflat.ProfilesTest do
 
   describe "create_media_profile/1" do
     test "creation with valid data creates a media_profile" do
-      valid_attrs = %{name: "some name", output_path_template: "some output_path_template"}
+      valid_attrs = %{name: "some name", output_path_template: "output_template.{{ ext }}"}
 
       assert {:ok, %MediaProfile{} = media_profile} = Profiles.create_media_profile(valid_attrs)
       assert media_profile.name == "some name"
-      assert media_profile.output_path_template == "some output_path_template"
+      assert media_profile.output_path_template == "output_template.{{ ext }}"
     end
 
     test "creation with invalid data returns error changeset" do
@@ -44,14 +44,14 @@ defmodule Pinchflat.ProfilesTest do
 
       update_attrs = %{
         name: "some updated name",
-        output_path_template: "some updated output_path_template"
+        output_path_template: "new_output_template.{{ ext }}"
       }
 
       assert {:ok, %MediaProfile{} = media_profile} =
                Profiles.update_media_profile(media_profile, update_attrs)
 
       assert media_profile.name == "some updated name"
-      assert media_profile.output_path_template == "some updated output_path_template"
+      assert media_profile.output_path_template == "new_output_template.{{ ext }}"
     end
 
     test "updating with invalid data returns error changeset" do
@@ -131,6 +131,42 @@ defmodule Pinchflat.ProfilesTest do
     test "it returns a media_profile changeset" do
       media_profile = media_profile_fixture()
       assert %Ecto.Changeset{} = Profiles.change_media_profile(media_profile)
+    end
+
+    test "it ensures the media profile's output template ends with an extension" do
+      valid_templates = [
+        "output_template.{{ ext }}",
+        "output_template.{{ext}}",
+        "output_template.%(ext)s",
+        "output_template.%(ext)S",
+        "output_template.%( ext )s",
+        "output_template.%( ext )S"
+      ]
+
+      for template <- valid_templates do
+        cs = Profiles.change_media_profile(%MediaProfile{}, %{name: "a", output_path_template: template})
+
+        assert cs.valid?
+      end
+    end
+
+    test "it does not allow invalid output templates" do
+      invalid_templates = [
+        "output_template.{{ ext }}.something",
+        "output_template.{{   ext   }}",
+        "output_template{{ ext }}",
+        "output_template.%(ext)s.something",
+        "output_template.txt",
+        "output_template%(ext)s",
+        "output_template.%(nope)s",
+        "output_template"
+      ]
+
+      for template <- invalid_templates do
+        cs = Profiles.change_media_profile(%MediaProfile{}, %{name: "a", output_path_template: template})
+
+        refute cs.valid?
+      end
     end
   end
 end
