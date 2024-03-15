@@ -9,6 +9,23 @@ defmodule Pinchflat.FastIndexing.FastIndexingWorkerTest do
 
   setup :verify_on_exit!
 
+  describe "kickoff_with_task/2" do
+    test "starts the worker" do
+      source = source_fixture(fast_index: true)
+
+      assert [] = all_enqueued(worker: FastIndexingWorker)
+      assert {:ok, _} = FastIndexingWorker.kickoff_with_task(source)
+      assert [_] = all_enqueued(worker: FastIndexingWorker)
+    end
+
+    test "attaches a task" do
+      source = source_fixture(fast_index: true)
+
+      assert {:ok, task} = FastIndexingWorker.kickoff_with_task(source)
+      assert task.source_id == source.id
+    end
+  end
+
   describe "perform/1" do
     test "calls out to Youtube RSS if enabled" do
       expect(HTTPClientMock, :get, fn _url -> {:ok, ""} end)

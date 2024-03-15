@@ -6,17 +6,30 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
     unique: [period: :infinity, states: [:available, :scheduled, :retryable, :executing]],
     tags: ["media_item", "media_fetching"]
 
+  alias __MODULE__
+  alias Pinchflat.Tasks
   alias Pinchflat.Repo
   alias Pinchflat.Media
   alias Pinchflat.Downloading.MediaDownloader
 
-  @impl Oban.Worker
+  @doc """
+  Starts the media_item media download worker and creates a task for the media_item.
+
+  Returns {:ok, %Task{}} | {:error, :duplicate_job} | {:error, %Ecto.Changeset{}}
+  """
+  def kickoff_with_task(media_item, opts \\ []) do
+    %{id: media_item.id}
+    |> MediaDownloadWorker.new(opts)
+    |> Tasks.create_job_with_task(media_item)
+  end
+
   @doc """
   For a given media item, download the media alongside any options.
   Does not download media if its source is set to not download media.
 
   Returns :ok | {:ok, %MediaItem{}} | {:error, any, ...any}
   """
+  @impl Oban.Worker
   def perform(%Oban.Job{args: %{"id" => media_item_id}}) do
     media_item =
       media_item_id

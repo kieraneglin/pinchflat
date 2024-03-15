@@ -23,6 +23,19 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
     {:ok, %{media_item: media_item}}
   end
 
+  describe "kickoff_with_task/2" do
+    test "starts the worker", %{media_item: media_item} do
+      assert [] = all_enqueued(worker: MediaDownloadWorker)
+      assert {:ok, _} = MediaDownloadWorker.kickoff_with_task(media_item)
+      assert [_] = all_enqueued(worker: MediaDownloadWorker)
+    end
+
+    test "attaches a task", %{media_item: media_item} do
+      assert {:ok, task} = MediaDownloadWorker.kickoff_with_task(media_item)
+      assert task.media_item_id == media_item.id
+    end
+  end
+
   describe "perform/1" do
     test "it saves attributes to the media_item", %{media_item: media_item} do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->

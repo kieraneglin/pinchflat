@@ -31,10 +31,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
     Tasks.delete_pending_tasks_for(source, "MediaIndexingWorker")
     Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker")
 
-    %{id: source.id}
-    # Schedule this one immediately, but future ones will be on an interval
-    |> MediaCollectionIndexingWorker.new()
-    |> Tasks.create_job_with_task(source)
+    MediaCollectionIndexingWorker.kickoff_with_task(source)
   end
 
   @doc """
@@ -125,9 +122,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
         if source.download_media && Media.pending_download?(media_item) do
           Logger.debug("FileFollowerServer Handler: Enqueuing download task for #{inspect(media_attrs)}")
 
-          %{id: media_item.id}
-          |> MediaDownloadWorker.new()
-          |> Tasks.create_job_with_task(media_item)
+          MediaDownloadWorker.kickoff_with_task(media_item)
         end
 
       {:error, changeset} ->

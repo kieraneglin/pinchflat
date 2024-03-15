@@ -6,8 +6,8 @@ defmodule Pinchflat.FastIndexing.MediaIndexingWorkerTest do
   import Pinchflat.SourcesFixtures
 
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.FastIndexing.MediaIndexingWorker
   alias Pinchflat.Downloading.MediaDownloadWorker
+  alias Pinchflat.FastIndexing.MediaIndexingWorker
 
   @media_url "https://www.youtube.com/watch?v=1234567890"
 
@@ -17,6 +17,19 @@ defmodule Pinchflat.FastIndexing.MediaIndexingWorkerTest do
     source = source_fixture()
 
     {:ok, source: source}
+  end
+
+  describe "kickoff_with_task/2" do
+    test "starts the worker", %{source: source} do
+      assert [] = all_enqueued(worker: MediaIndexingWorker)
+      assert {:ok, _} = MediaIndexingWorker.kickoff_with_task(source, @media_url)
+      assert [_] = all_enqueued(worker: MediaIndexingWorker)
+    end
+
+    test "attaches a task", %{source: source} do
+      assert {:ok, task} = MediaIndexingWorker.kickoff_with_task(source, @media_url)
+      assert task.source_id == source.id
+    end
   end
 
   describe "perform/1" do

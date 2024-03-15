@@ -19,14 +19,11 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
   @doc """
   Starts the source metadata storage worker and creates a task for the source.
 
-  IDEA: testing out this method of handling job kickoff. I think I like it, so
-  I may use it in other places. Just testing it for now
-
   Returns {:ok, %Task{}} | {:error, :duplicate_job} | {:error, %Ecto.Changeset{}}
   """
-  def kickoff_with_task(source) do
+  def kickoff_with_task(source, opts \\ []) do
     %{id: source.id}
-    |> SourceMetadataStorageWorker.new()
+    |> SourceMetadataStorageWorker.new(opts)
     |> Tasks.create_job_with_task(source)
   end
 
