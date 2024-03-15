@@ -9,6 +9,8 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
     # in an infinite loop.
     unique: [period: 600]
 
+  require Logger
+
   alias __MODULE__
   alias Pinchflat.Repo
   alias Pinchflat.Tasks
@@ -47,5 +49,8 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
     })
 
     :ok
+  rescue
+    Ecto.NoResultsError -> Logger.info("#{__MODULE__} discarded: source #{source_id} not found")
+    Ecto.StaleEntryError -> Logger.info("#{__MODULE__} discarded: source #{source_id} stale")
   end
 end

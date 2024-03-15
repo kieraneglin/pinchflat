@@ -161,5 +161,9 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorkerTest do
         perform_job(MediaCollectionIndexingWorker, %{id: source.id})
       end)
     end
+
+    test "does not blow up if the record doesn't exist" do
+      assert :ok = perform_job(MediaCollectionIndexingWorker, %{id: 0})
+    end
   end
 end

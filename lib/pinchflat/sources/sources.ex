@@ -103,6 +103,8 @@ defmodule Pinchflat.Sources do
   def delete_source(%Source{} = source, opts \\ []) do
     delete_files = Keyword.get(opts, :delete_files, false)
 
+    Tasks.delete_tasks_for(source)
+
     source
     |> Media.list_media_items_for()
     |> Enum.each(fn media_item ->
@@ -110,7 +112,6 @@ defmodule Pinchflat.Sources do
     end)
 
     delete_source_metadata_files(source)
-    Tasks.delete_tasks_for(source)
     Repo.delete(source)
   end
 

@@ -6,6 +6,8 @@ defmodule Pinchflat.FastIndexing.FastIndexingWorker do
     unique: [period: :infinity, states: [:available, :scheduled, :retryable]],
     tags: ["media_source", "fast_indexing"]
 
+  require Logger
+
   alias __MODULE__
   alias Pinchflat.Tasks
   alias Pinchflat.Sources
@@ -41,6 +43,9 @@ defmodule Pinchflat.FastIndexing.FastIndexingWorker do
     else
       :ok
     end
+  rescue
+    Ecto.NoResultsError -> Logger.info("#{__MODULE__} discarded: source #{source_id} not found")
+    Ecto.StaleEntryError -> Logger.info("#{__MODULE__} discarded: source #{source_id} stale")
   end
 
   defp reschedule_indexing(source) do
