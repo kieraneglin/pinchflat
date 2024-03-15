@@ -6,6 +6,8 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
     unique: [period: :infinity, states: [:available, :scheduled, :retryable, :executing]],
     tags: ["media_item", "media_fetching"]
 
+  require Logger
+
   alias __MODULE__
   alias Pinchflat.Tasks
   alias Pinchflat.Repo
@@ -42,6 +44,9 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
     else
       :ok
     end
+  rescue
+    Ecto.NoResultsError -> Logger.info("#{__MODULE__} discarded: media item #{media_item_id} not found")
+    Ecto.StaleEntryError -> Logger.info("#{__MODULE__} discarded: media item #{media_item_id} stale")
   end
 
   defp download_media_and_schedule_jobs(media_item) do

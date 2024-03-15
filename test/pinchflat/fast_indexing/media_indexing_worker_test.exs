@@ -53,5 +53,9 @@ defmodule Pinchflat.FastIndexing.MediaIndexingWorkerTest do
 
       assert [_] = all_enqueued(worker: MediaDownloadWorker)
     end
+
+    test "does not blow up if the record doesn't exist" do
+      assert :ok = perform_job(MediaDownloadWorker, %{id: 0, media_url: @media_url})
+    end
   end
 end

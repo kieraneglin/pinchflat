@@ -74,5 +74,9 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
 
       assert [_, _] = all_enqueued(worker: SourceMetadataStorageWorker)
     end
+
+    test "does not blow up if the record doesn't exist" do
+      assert :ok = perform_job(SourceMetadataStorageWorker, %{id: 0})
+    end
   end
 end

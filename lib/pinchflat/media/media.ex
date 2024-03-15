@@ -196,13 +196,14 @@ defmodule Pinchflat.Media do
   def delete_media_item(%MediaItem{} = media_item, opts \\ []) do
     delete_files = Keyword.get(opts, :delete_files, false)
 
+    Tasks.delete_tasks_for(media_item)
+
     if delete_files do
       {:ok, _} = delete_media_files(media_item)
     end
 
     # Should delete these no matter what
     delete_internal_metadata_files(media_item)
-    Tasks.delete_tasks_for(media_item)
     Repo.delete(media_item)
   end
 
