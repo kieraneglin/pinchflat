@@ -197,12 +197,19 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
   end
 
   describe "build/1 when testing quality options" do
-    test "it includes quality options", %{media_item: media_item} do
-      media_item = update_media_profile_attribute(media_item, %{preferred_resolution: :"1080p"})
+    test "it includes quality options" do
+      resolutions = ["360", "480", "720", "1080", "2160"]
 
-      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+      Enum.each(resolutions, fn resolution ->
+        resolution_atom = String.to_existing_atom(resolution <> "p")
 
-      assert {:format_sort, "res:1080,+codec:avc:m4a"} in res
+        media_profile = media_profile_fixture(%{preferred_resolution: resolution_atom})
+        source = source_fixture(%{media_profile_id: media_profile.id})
+        media_item = Repo.preload(media_item_fixture(source_id: source.id), source: :media_profile)
+
+        assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+        assert {:format_sort, "res:#{resolution},+codec:avc:m4a"} in res
+      end)
     end
 
     test "it includes quality options for audio only", %{media_item: media_item} do
@@ -218,10 +225,10 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
   defp update_media_profile_attribute(media_item_with_preloads, attrs) do
     media_item_with_preloads.source.media_profile
     |> Profiles.change_media_profile(attrs)
-    |> Repo.update!()
+    |> Repo.update()
 
     media_item_with_preloads
     |> Repo.reload()
-    |> Repo.preload(source: :media_profile)
+    |> Repo.preload([source: :media_profile], force: true)
   end
 end

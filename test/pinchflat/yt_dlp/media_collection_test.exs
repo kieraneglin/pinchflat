@@ -62,6 +62,15 @@ defmodule Pinchflat.YtDlp.MediaCollectionTest do
       assert_receive {:handler, filename}
       assert String.ends_with?(filename, ".json")
     end
+
+    test "gracefully handles partially failed responses" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts ->
+        {:ok, "INVALID\n\n" <> source_attributes_return_fixture() <> "\nINVALID\n"}
+      end)
+
+      assert {:ok, [%Media{media_id: "video1"}, %Media{media_id: "video2"}, %Media{media_id: "video3"}]} =
+               MediaCollection.get_media_attributes_for_collection(@channel_url)
+    end
   end
 
   describe "get_source_details/1" do

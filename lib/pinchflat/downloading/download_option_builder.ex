@@ -99,7 +99,6 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
       :"480p" -> [format_sort: "res:480,#{video_codec_options}"]
       :"720p" -> [format_sort: "res:720,#{video_codec_options}"]
       :"1080p" -> [format_sort: "res:1080,#{video_codec_options}"]
-      :"1440p" -> [format_sort: "res:1440,#{video_codec_options}"]
       :"2160p" -> [format_sort: "res:2160,#{video_codec_options}"]
     end
   end

@@ -13,6 +13,16 @@ defmodule Pinchflat.MixProject do
       preferred_cli_env: [
         check: :test,
         credo: :test
+      ],
+      test_coverage: [
+        ignore_modules: [
+          Pinchflat.HTTP.HTTPClient,
+          PinchflatWeb.Layouts,
+          Pinchflat.DataCase,
+          Pinchflat.Release,
+          ~r/Fixtures/,
+          ~r/HTML$/
+        ]
       ]
     ]
   end

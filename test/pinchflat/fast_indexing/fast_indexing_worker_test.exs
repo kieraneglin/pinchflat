@@ -46,6 +46,16 @@ defmodule Pinchflat.FastIndexing.FastIndexingWorkerTest do
       )
     end
 
+    test "does not reschedule if that would create a duplicate job" do
+      stub(HTTPClientMock, :get, fn _url -> {:ok, ""} end)
+      source = source_fixture(fast_index: true)
+
+      perform_job(FastIndexingWorker, %{"id" => source.id})
+      perform_job(FastIndexingWorker, %{"id" => source.id})
+
+      assert [_] = all_enqueued(worker: FastIndexingWorker)
+    end
+
     test "does not call out to Youtube RSS if disabled" do
       expect(HTTPClientMock, :get, 0, fn _url -> {:ok, ""} end)
       source = source_fixture(fast_index: false)
