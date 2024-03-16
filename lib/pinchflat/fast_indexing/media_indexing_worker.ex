@@ -62,5 +62,8 @@ defmodule Pinchflat.FastIndexing.MediaIndexingWorker do
     end
 
     :ok
+  rescue
+    Ecto.NoResultsError -> Logger.info("#{__MODULE__} discarded: source #{source_id} not found")
+    Ecto.StaleEntryError -> Logger.info("#{__MODULE__} discarded: source #{source_id} stale")
   end
 end

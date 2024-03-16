@@ -6,6 +6,8 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorker do
     unique: [period: :infinity, states: [:available, :scheduled, :retryable]],
     tags: ["media_source", "media_collection_indexing"]
 
+  require Logger
+
   alias __MODULE__
   alias Pinchflat.Tasks
   alias Pinchflat.Sources
@@ -90,6 +92,9 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorker do
         # perform a no-op
         :ok
     end
+  rescue
+    Ecto.NoResultsError -> Logger.info("#{__MODULE__} discarded: source #{source_id} not found")
+    Ecto.StaleEntryError -> Logger.info("#{__MODULE__} discarded: source #{source_id} stale")
   end
 
   defp reschedule_indexing(source) do
