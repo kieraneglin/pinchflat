@@ -103,7 +103,7 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorkerTest do
       source = source_fixture(index_frequency_minutes: 10)
 
       task_count_fetcher = fn ->
-        Enum.count(Tasks.list_tasks_for(:source_id, source.id, "MediaCollectionIndexingWorker"))
+        Enum.count(Tasks.list_tasks_for(source, "MediaCollectionIndexingWorker"))
       end
 
       assert_changed([from: 0, to: 1], task_count_fetcher, fn ->

@@ -360,57 +360,6 @@ defmodule Pinchflat.MediaTest do
     end
   end
 
-  describe "media_filepaths/1" do
-    test "returns filepaths in a flat list" do
-      filepaths = %{
-        media_filepath: "/video/test.mp4",
-        thumbnail_filepath: "/video/test.jpg",
-        subtitle_filepaths: [["en", "video/test.srt"]]
-      }
-
-      media_item = media_item_fixture(filepaths)
-
-      assert Media.media_filepaths(media_item) == [
-               "/video/test.mp4",
-               "/video/test.jpg",
-               "video/test.srt"
-             ]
-    end
-
-    test "strips out nil values" do
-      filepaths = %{
-        media_filepath: "/video/test.mp4",
-        thumbnail_filepath: nil,
-        subtitle_filepaths: [["en", nil]]
-      }
-
-      media_item = media_item_fixture(filepaths)
-
-      assert Media.media_filepaths(media_item) == ["/video/test.mp4"]
-    end
-  end
-
-  describe "metadata_filepaths" do
-    test "returns filepaths in a flat list" do
-      filepaths = %{
-        metadata_filepath: "/metadata.json.gz",
-        thumbnail_filepath: "/thumbnail.jpg"
-      }
-
-      media_item = media_item_fixture(%{metadata: filepaths})
-
-      assert Media.metadata_filepaths(media_item) == [
-               "/metadata.json.gz",
-               "/thumbnail.jpg"
-             ]
-    end
-
-    test "returns an empty list when there is no metadata" do
-      media_item = media_item_fixture()
-      assert Media.metadata_filepaths(media_item) == []
-    end
-  end
-
   describe "create_media_item/1" do
     test "creating with valid data creates a media_item" do
       valid_attrs = %{
@@ -514,6 +463,26 @@ defmodule Pinchflat.MediaTest do
 
       assert {:ok, _} = Media.delete_media_item(media_item)
       assert File.exists?(media_item.media_filepath)
+    end
+
+    test "does delete the media item's metadata files" do
+      stub(HTTPClientMock, :get, fn _url, _headers, _opts -> {:ok, ""} end)
+      media_item = Repo.preload(media_item_with_attachments(), :metadata)
+
+      update_attrs = %{
+        metadata: %{
+          metadata_filepath: MetadataFileHelpers.compress_and_store_metadata_for(media_item, %{}),
+          thumbnail_filepath:
+            MetadataFileHelpers.download_and_store_thumbnail_for(media_item, %{
+              "thumbnail" => "https://example.com/thumbnail.jpg"
+            })
+        }
+      }
+
+      {:ok, updated_media_item} = Media.update_media_item(media_item, update_attrs)
+
+      assert {:ok, _} = Media.delete_media_item(updated_media_item)
+      refute File.exists?(updated_media_item.metadata.metadata_filepath)
     end
   end
 

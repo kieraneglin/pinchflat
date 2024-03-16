@@ -6,33 +6,12 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
   """
 
   alias Pinchflat.Media
-  alias Pinchflat.Tasks
   alias Pinchflat.Sources.Source
   alias Pinchflat.FastIndexing.YoutubeRss
-  alias Pinchflat.FastIndexing.FastIndexingWorker
   alias Pinchflat.Downloading.MediaDownloadWorker
   alias Pinchflat.FastIndexing.MediaIndexingWorker
 
   alias Pinchflat.YtDlp.Media, as: YtDlpMedia
-
-  @doc """
-  Starts tasks for running a fast indexing task for a source's media
-  regardless of the source's fast_index state. It's assumed the
-  caller will check for fast_index.
-
-  This is used for running fast index tasks on update. On creation, the
-  fast index is enqueued after the slow index is complete.
-
-  Returns {:ok, %Task{}}.
-  """
-  def kickoff_fast_indexing_task(%Source{} = source) do
-    Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
-
-    %{id: source.id}
-    # Schedule this one immediately, but future ones will be on an interval
-    |> FastIndexingWorker.new()
-    |> Tasks.create_job_with_task(source)
-  end
 
   @doc """
   Fetches new media IDs from a source's YouTube RSS feed and kicks off indexing tasks
@@ -54,9 +33,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
     Enum.each(new_media_ids, fn media_id ->
       url = "https://www.youtube.com/watch?v=#{media_id}"
 
-      %{id: source.id, media_url: url}
-      |> MediaIndexingWorker.new()
-      |> Tasks.create_job_with_task(source)
+      MediaIndexingWorker.kickoff_with_task(source, url)
     end)
   end
 
@@ -74,9 +51,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
     case maybe_media_item do
       {:ok, media_item} ->
         if source.download_media && Media.pending_download?(media_item) do
-          %{id: media_item.id}
-          |> MediaDownloadWorker.new()
-          |> Tasks.create_job_with_task(media_item)
+          MediaDownloadWorker.kickoff_with_task(media_item)
         end
 
         {:ok, media_item}

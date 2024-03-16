@@ -6,7 +6,6 @@ defmodule Pinchflat.YtDlp.MediaCollection do
 
   require Logger
 
-  alias Pinchflat.Utils.FunctionUtils
   alias Pinchflat.Filesystem.FilesystemHelpers
   alias Pinchflat.YtDlp.Media, as: YtDlpMedia
 
@@ -36,11 +35,20 @@ defmodule Pinchflat.YtDlp.MediaCollection do
 
     case runner.run(url, command_opts, output_template, output_filepath: output_filepath) do
       {:ok, output} ->
-        output
-        |> String.split("\n", trim: true)
-        |> Enum.map(&Phoenix.json_library().decode!/1)
-        |> Enum.map(&YtDlpMedia.response_to_struct/1)
-        |> FunctionUtils.wrap_ok()
+        parsed_lines =
+          output
+          |> String.split("\n", trim: true)
+          |> Enum.map(fn line ->
+            case Phoenix.json_library().decode(line) do
+              {:ok, parsed_json} ->
+                YtDlpMedia.response_to_struct(parsed_json)
+
+              _ ->
+                nil
+            end
+          end)
+
+        {:ok, Enum.filter(parsed_lines, &(&1 != nil))}
 
       res ->
         res

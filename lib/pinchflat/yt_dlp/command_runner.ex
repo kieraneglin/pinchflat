@@ -37,7 +37,8 @@ defmodule Pinchflat.YtDlp.CommandRunner do
 
     case System.cmd(command, formatted_command_opts, stderr_to_stdout: true) do
       {_, 0} ->
-        # IDEA: consider deleting the file after reading it
+        # IDEA: consider deleting the file after reading it. It's in the tmp dir, so it's not
+        # a huge deal, but it's still a good idea to clean up after ourselves.
         # (even on error? especially on error?)
         File.read(output_filepath)
 

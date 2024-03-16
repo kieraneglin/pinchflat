@@ -36,53 +36,59 @@ defmodule Pinchflat.TasksTest do
     end
   end
 
-  describe "list_tasks_for/4" do
+  describe "list_tasks_for/3" do
     test "it lets you specify which record type/ID to join on" do
-      task = task_fixture()
+      source = source_fixture()
+      task = task_fixture(source_id: source.id)
 
-      assert Tasks.list_tasks_for(:source_id, task.source_id) == [task]
+      assert Tasks.list_tasks_for(source, nil, [:available]) == [task]
     end
 
     test "it lets you specify which job states to include" do
-      task = task_fixture()
+      source = source_fixture()
+      task = task_fixture(source_id: source.id)
 
-      assert Tasks.list_tasks_for(:source_id, task.source_id, nil, [:available]) == [task]
-      assert Tasks.list_tasks_for(:source_id, task.source_id, nil, [:cancelled]) == []
+      assert Tasks.list_tasks_for(source, nil, [:available]) == [task]
+      assert Tasks.list_tasks_for(source, nil, [:cancelled]) == []
     end
 
     test "it lets you specify which worker to include" do
-      task = task_fixture()
+      source = source_fixture()
+      task = task_fixture(source_id: source.id)
 
-      assert Tasks.list_tasks_for(:source_id, task.source_id, "TestJobWorker") == [task]
-      assert Tasks.list_tasks_for(:source_id, task.source_id, "FooBarWorker") == []
+      assert Tasks.list_tasks_for(source, "TestJobWorker") == [task]
+      assert Tasks.list_tasks_for(source, "FooBarWorker") == []
     end
 
     test "it includes all workers if no worker is specified" do
-      task = task_fixture()
+      source = source_fixture()
+      task = task_fixture(source_id: source.id)
 
-      assert Tasks.list_tasks_for(:source_id, task.source_id, nil) == [task]
+      assert Tasks.list_tasks_for(source, nil) == [task]
     end
   end
 
   describe "list_pending_tasks_for/3" do
     test "it lists pending tasks" do
-      task = task_fixture()
+      source = source_fixture()
+      task = task_fixture(source_id: source.id)
 
-      assert Tasks.list_pending_tasks_for(:source_id, task.source_id) == [task]
+      assert Tasks.list_pending_tasks_for(source) == [task]
     end
 
     test "it does not list non-pending tasks" do
-      task = Repo.preload(task_fixture(), :job)
+      task = Repo.preload(task_fixture(), [:job, :source])
       :ok = Oban.cancel_job(task.job)
 
-      assert Tasks.list_pending_tasks_for(:source_id, task.source_id) == []
+      assert Tasks.list_pending_tasks_for(task.source) == []
     end
 
     test "it lets you specify which worker to include" do
-      task = task_fixture()
+      source = source_fixture()
+      task = task_fixture(source_id: source.id)
 
-      assert Tasks.list_pending_tasks_for(:source_id, task.source_id, "TestJobWorker") == [task]
-      assert Tasks.list_pending_tasks_for(:source_id, task.source_id, "FooBarWorker") == []
+      assert Tasks.list_pending_tasks_for(source, "TestJobWorker") == [task]
+      assert Tasks.list_pending_tasks_for(source, "FooBarWorker") == []
     end
   end
 

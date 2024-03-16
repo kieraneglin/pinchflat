@@ -51,5 +51,28 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
 
       assert metadata == %{"title" => "test"}
     end
+
+    test "won't call itself in an infinite loop" do
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, "{}"} end)
+      source = source_fixture()
+
+      perform_job(SourceMetadataStorageWorker, %{id: source.id})
+      perform_job(SourceMetadataStorageWorker, %{id: source.id})
+
+      assert [_] = all_enqueued(worker: SourceMetadataStorageWorker)
+    end
+
+    test "doesn't prevent over source jobs from running" do
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, "{}"} end)
+      source_1 = source_fixture()
+      source_2 = source_fixture()
+
+      perform_job(SourceMetadataStorageWorker, %{id: source_1.id})
+      perform_job(SourceMetadataStorageWorker, %{id: source_1.id})
+      perform_job(SourceMetadataStorageWorker, %{id: source_2.id})
+      perform_job(SourceMetadataStorageWorker, %{id: source_2.id})
+
+      assert [_, _] = all_enqueued(worker: SourceMetadataStorageWorker)
+    end
   end
 end

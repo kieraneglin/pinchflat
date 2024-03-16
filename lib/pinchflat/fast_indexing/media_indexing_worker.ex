@@ -8,10 +8,22 @@ defmodule Pinchflat.FastIndexing.MediaIndexingWorker do
 
   require Logger
 
+  alias __MODULE__
+  alias Pinchflat.Tasks
   alias Pinchflat.Sources
   alias Pinchflat.FastIndexing.FastIndexingHelpers
 
-  @impl Oban.Worker
+  @doc """
+  Starts the fast media indexing worker and creates a task for the source.
+
+  Returns {:ok, %Task{}} | {:error, :duplicate_job} | {:error, %Ecto.Changeset{}}
+  """
+  def kickoff_with_task(source, media_url, opts \\ []) do
+    %{id: source.id, media_url: media_url}
+    |> MediaIndexingWorker.new(opts)
+    |> Tasks.create_job_with_task(source)
+  end
+
   @doc """
   Similar to `MediaCollectionIndexingWorker`, but for individual media items.
   Does not reschedule or check anything to do with a source's indexing
@@ -37,6 +49,7 @@ defmodule Pinchflat.FastIndexing.MediaIndexingWorker do
 
   Returns :ok
   """
+  @impl Oban.Worker
   def perform(%Oban.Job{args: %{"id" => source_id, "media_url" => media_url}}) do
     source = Sources.get_source!(source_id)
 
