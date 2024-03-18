@@ -85,4 +85,18 @@ defmodule Pinchflat.SourcesFixtures do
     source_attributes
     |> Enum.map_join("\n", &Phoenix.json_library().encode!(&1))
   end
+
+  def source_details_return_fixture(attrs \\ %{}) do
+    channel_id = Faker.String.base64(12)
+
+    %{
+      channel_id: channel_id,
+      channel: "Channel Name",
+      playlist_id: channel_id,
+      playlist_title: "Channel Name",
+      filename: Path.join([Application.get_env(:pinchflat, :media_directory), "foo", "bar.mp4"])
+    }
+    |> Map.merge(attrs)
+    |> Phoenix.json_library().encode!()
+  end
 end

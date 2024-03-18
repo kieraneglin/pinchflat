@@ -2,37 +2,49 @@ defmodule Pinchflat.Metadata.NfoBuilderTest do
   use Pinchflat.DataCase
 
   alias Pinchflat.Metadata.NfoBuilder
+  alias Pinchflat.Filesystem.FilesystemHelpers
 
   setup do
-    {:ok, %{metadata: render_parsed_metadata(:media_metadata)}}
+    filepath = FilesystemHelpers.generate_metadata_tmpfile(:json)
+
+    on_exit(fn -> File.rm!(filepath) end)
+
+    {:ok,
+     %{
+       metadata: render_parsed_metadata(:media_metadata),
+       filepath: filepath
+     }}
   end
 
-  describe "build_and_store_for_media_item/1" do
-    test "returns the filepath", %{metadata: metadata} do
-      result = NfoBuilder.build_and_store_for_media_item(metadata)
+  describe "build_and_store_for_media_item/2" do
+    test "returns the filepath", %{metadata: metadata, filepath: filepath} do
+      result = NfoBuilder.build_and_store_for_media_item(filepath, metadata)
 
       assert File.exists?(result)
-
-      File.rm!(result)
     end
 
-    test "builds filepath based on media location", %{metadata: metadata} do
-      result = NfoBuilder.build_and_store_for_media_item(metadata)
-
-      assert String.contains?(result, Path.rootname(metadata["filepath"]))
-      assert String.ends_with?(result, ".nfo")
-
-      File.rm!(result)
-    end
-
-    test "builds an NFO file", %{metadata: metadata} do
-      result = NfoBuilder.build_and_store_for_media_item(metadata)
+    test "builds an NFO file", %{metadata: metadata, filepath: filepath} do
+      result = NfoBuilder.build_and_store_for_media_item(filepath, metadata)
       nfo = File.read!(result)
 
       assert String.contains?(nfo, ~S(<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>))
       assert String.contains?(nfo, "<title>#{metadata["title"]}</title>")
+    end
+  end
 
-      File.rm!(result)
+  describe "build_and_store_for_source/2" do
+    test "returns the filepath", %{metadata: metadata, filepath: filepath} do
+      result = NfoBuilder.build_and_store_for_source(filepath, metadata)
+
+      assert File.exists?(result)
+    end
+
+    test "builds an NFO file", %{metadata: metadata, filepath: filepath} do
+      result = NfoBuilder.build_and_store_for_source(filepath, metadata)
+      nfo = File.read!(result)
+
+      assert String.contains?(nfo, ~S(<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>))
+      assert String.contains?(nfo, "<title>#{metadata["title"]}</title>")
     end
   end
 end

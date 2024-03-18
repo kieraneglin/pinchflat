@@ -56,7 +56,9 @@ defmodule Pinchflat.Downloading.MediaDownloader do
 
   defp determine_nfo_filepath(media_item, parsed_json) do
     if media_item.source.media_profile.download_nfo do
-      NfoBuilder.build_and_store_for_media_item(parsed_json)
+      filepath = Path.rootname(parsed_json["filepath"]) <> ".nfo"
+
+      NfoBuilder.build_and_store_for_media_item(filepath, parsed_json)
     else
       nil
     end

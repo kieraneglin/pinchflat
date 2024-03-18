@@ -92,4 +92,52 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
       assert Helpers.parse_upload_date(upload_date) == ~D[2021-01-01]
     end
   end
+
+  describe "series_directory_from_media_filepath/1" do
+    test "returns base series directory if filepaths are setup as expected" do
+      good_filepaths = [
+        "/media/season1/episode.mp4",
+        "/media/season 1/episode.mp4",
+        "/media/season.1/episode.mp4",
+        "/media/season_1/episode.mp4",
+        "/media/season-1/episode.mp4",
+        "/media/SEASON 1/episode.mp4",
+        "/media/SEASON.1/episode.mp4",
+        "/media/s1/episode.mp4",
+        "/media/s.1/episode.mp4",
+        "/media/s_1/episode.mp4",
+        "/media/s-1/episode.mp4",
+        "/media/s 1/episode.mp4",
+        "/media/S1/episode.mp4",
+        "/media/S.1/episode.mp4"
+      ]
+
+      for filepath <- good_filepaths do
+        assert {:ok, "/media"} = Helpers.series_directory_from_media_filepath(filepath)
+      end
+    end
+
+    test "returns an error if the season filepath can't be determined" do
+      bad_filepaths = [
+        "/media/1/episode.mp4",
+        "/media/(s1)/episode.mp4",
+        "/media/episode.mp4",
+        "/media/s1e1/episode.mp4",
+        "/media/s1 e1/episode.mp4",
+        "/media/s1 (something else)/episode.mp4",
+        "/media/season1e1/episode.mp4",
+        "/media/season1 e1/episode.mp4",
+        "/media/seasoning1/episode.mp4",
+        "/media/season/episode.mp4",
+        "/media/series1/episode.mp4",
+        "/media/s/episode.mp4",
+        "/media/foo",
+        "/media/bar/"
+      ]
+
+      for filepath <- bad_filepaths do
+        assert {:error, :indeterminable} = Helpers.series_directory_from_media_filepath(filepath)
+      end
+    end
+  end
 end

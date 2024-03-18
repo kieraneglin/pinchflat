@@ -51,15 +51,19 @@ defmodule Pinchflat.Sources do
   though we know it's going to fail so it picks up any addl. database errors
   and fulfills our return contract.
 
+  You can pass options to control the behavior of the function:
+    - `run_post_commit_tasks` (default: true) - If false, the function will not
+      enqueue any tasks in `commit_and_handle_tasks`.
+
   Returns {:ok, %Source{}} | {:error, %Ecto.Changeset{}}
   """
-  def create_source(attrs) do
+  def create_source(attrs, opts \\ []) do
     case change_source(%Source{}, attrs, :initial) do
       %Ecto.Changeset{valid?: true} ->
         %Source{}
         |> maybe_change_source_from_url(attrs)
         |> maybe_change_indexing_frequency()
-        |> commit_and_handle_tasks()
+        |> commit_and_handle_tasks(opts)
 
       changeset ->
         Repo.insert(changeset)
@@ -79,15 +83,19 @@ defmodule Pinchflat.Sources do
   though we know it's going to fail so it picks up any addl. database errors
   and fulfills our return contract.
 
+  You can pass options to control the behavior of the function:
+    - `run_post_commit_tasks` (default: true) - If false, the function will not
+      enqueue any tasks in `commit_and_handle_tasks`.
+
   Returns {:ok, %Source{}} | {:error, %Ecto.Changeset{}}
   """
-  def update_source(%Source{} = source, attrs) do
+  def update_source(%Source{} = source, attrs, opts \\ []) do
     case change_source(source, attrs, :initial) do
       %Ecto.Changeset{valid?: true} ->
         source
         |> maybe_change_source_from_url(attrs)
         |> maybe_change_indexing_frequency()
-        |> commit_and_handle_tasks()
+        |> commit_and_handle_tasks(opts)
 
       changeset ->
         Repo.update(changeset)
@@ -102,7 +110,6 @@ defmodule Pinchflat.Sources do
   """
   def delete_source(%Source{} = source, opts \\ []) do
     delete_files = Keyword.get(opts, :delete_files, false)
-
     Tasks.delete_tasks_for(source)
 
     source
@@ -111,7 +118,11 @@ defmodule Pinchflat.Sources do
       Media.delete_media_item(media_item, delete_files: delete_files)
     end)
 
-    delete_source_metadata_files(source)
+    if delete_files do
+      delete_source_files(source)
+    end
+
+    delete_internal_metadata_files(source)
     Repo.delete(source)
   end
 
@@ -134,22 +145,27 @@ defmodule Pinchflat.Sources do
     end
   end
 
-  defp delete_source_metadata_files(source) do
+  defp delete_source_files(source) do
+    mapped_struct = Map.from_struct(source)
+
+    Source.filepath_attributes()
+    |> Enum.map(fn field -> mapped_struct[field] end)
+    |> Enum.filter(&is_binary/1)
+    |> Enum.each(&FilesystemHelpers.delete_file_and_remove_empty_directories/1)
+  end
+
+  defp delete_internal_metadata_files(source) do
     metadata = Repo.preload(source, :metadata).metadata || %SourceMetadata{}
     mapped_struct = Map.from_struct(metadata)
 
-    filepaths =
-      SourceMetadata.filepath_attributes()
-      |> Enum.map(fn field -> mapped_struct[field] end)
-      |> Enum.filter(&is_binary/1)
-
-    Enum.each(filepaths, &FilesystemHelpers.delete_file_and_remove_empty_directories/1)
+    SourceMetadata.filepath_attributes()
+    |> Enum.map(fn field -> mapped_struct[field] end)
+    |> Enum.filter(&is_binary/1)
+    |> Enum.each(&FilesystemHelpers.delete_file_and_remove_empty_directories/1)
   end
 
   defp add_source_details_to_changeset(source, changeset) do
-    %Ecto.Changeset{changes: changes} = changeset
-
-    case MediaCollection.get_source_details(changes.original_url) do
+    case MediaCollection.get_source_details(changeset.changes.original_url) do
       {:ok, source_details} ->
         add_source_details_by_collection_type(source, changeset, source_details)
 
@@ -198,12 +214,16 @@ defmodule Pinchflat.Sources do
     end
   end
 
-  defp commit_and_handle_tasks(changeset) do
+  defp commit_and_handle_tasks(changeset, opts) do
+    run_post_commit_tasks = Keyword.get(opts, :run_post_commit_tasks, true)
+
     case Repo.insert_or_update(changeset) do
       {:ok, %Source{} = source} ->
-        maybe_handle_media_tasks(changeset, source)
-        maybe_run_indexing_task(changeset, source)
-        run_metadata_storage_task(source)
+        if run_post_commit_tasks do
+          maybe_handle_media_tasks(changeset, source)
+          maybe_run_indexing_task(changeset, source)
+          run_metadata_storage_task(source)
+        end
 
         {:ok, source}
 
