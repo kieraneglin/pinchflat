@@ -51,15 +51,19 @@ defmodule Pinchflat.Sources do
   though we know it's going to fail so it picks up any addl. database errors
   and fulfills our return contract.
 
+  You can pass options to control the behavior of the function:
+    - `run_post_commit_tasks` (default: true) - If false, the function will not
+      enqueue any tasks in `commit_and_handle_tasks`.
+
   Returns {:ok, %Source{}} | {:error, %Ecto.Changeset{}}
   """
-  def create_source(attrs) do
+  def create_source(attrs, opts \\ []) do
     case change_source(%Source{}, attrs, :initial) do
       %Ecto.Changeset{valid?: true} ->
         %Source{}
         |> maybe_change_source_from_url(attrs)
         |> maybe_change_indexing_frequency()
-        |> commit_and_handle_tasks()
+        |> commit_and_handle_tasks(opts)
 
       changeset ->
         Repo.insert(changeset)
@@ -79,15 +83,19 @@ defmodule Pinchflat.Sources do
   though we know it's going to fail so it picks up any addl. database errors
   and fulfills our return contract.
 
+  You can pass options to control the behavior of the function:
+    - `run_post_commit_tasks` (default: true) - If false, the function will not
+      enqueue any tasks in `commit_and_handle_tasks`.
+
   Returns {:ok, %Source{}} | {:error, %Ecto.Changeset{}}
   """
-  def update_source(%Source{} = source, attrs) do
+  def update_source(%Source{} = source, attrs, opts \\ []) do
     case change_source(source, attrs, :initial) do
       %Ecto.Changeset{valid?: true} ->
         source
         |> maybe_change_source_from_url(attrs)
         |> maybe_change_indexing_frequency()
-        |> commit_and_handle_tasks()
+        |> commit_and_handle_tasks(opts)
 
       changeset ->
         Repo.update(changeset)
@@ -206,12 +214,16 @@ defmodule Pinchflat.Sources do
     end
   end
 
-  defp commit_and_handle_tasks(changeset) do
+  defp commit_and_handle_tasks(changeset, opts) do
+    run_post_commit_tasks = Keyword.get(opts, :run_post_commit_tasks, true)
+
     case Repo.insert_or_update(changeset) do
       {:ok, %Source{} = source} ->
-        maybe_handle_media_tasks(changeset, source)
-        maybe_run_indexing_task(changeset, source)
-        run_metadata_storage_task(source)
+        if run_post_commit_tasks do
+          maybe_handle_media_tasks(changeset, source)
+          maybe_run_indexing_task(changeset, source)
+          run_metadata_storage_task(source)
+        end
 
         {:ok, source}
 

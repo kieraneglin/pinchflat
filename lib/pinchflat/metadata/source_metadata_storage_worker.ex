@@ -4,10 +4,7 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
   use Oban.Worker,
     queue: :remote_metadata,
     tags: ["media_source", "source_metadata", "remote_metadata"],
-    max_attempts: 3,
-    # This is the only thing stopping this job from calling itself
-    # in an infinite loop. Time is in seconds
-    unique: [period: 120]
+    max_attempts: 3
 
   require Logger
 
@@ -37,6 +34,10 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
     - The series directory for the source
     - The NFO file for the source (if specified)
 
+  The worker is kicked off after a source is inserted/updated - this can
+  take an unknown amount of time so don't rely on this data being here
+  before, say, the first indexing or downloading task is complete.
+
   Returns :ok
   """
   @impl Oban.Worker
@@ -45,16 +46,18 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
     source_metadata = fetch_source_metadata(source)
     series_directory = determine_series_directory(source)
 
-    # Since updating a source kicks this job off again, we enforce job uniqueness (above)
-    # to once, per source, per x minutes. This is to prevent a job from calling itself
-    # in an infinite loop.
-    Sources.update_source(source, %{
-      series_directory: series_directory,
-      nfo_filepath: store_source_nfo(source, series_directory, source_metadata),
-      metadata: %{
-        metadata_filepath: store_source_metadata(source, source_metadata)
-      }
-    })
+    # `run_post_commit_tasks: false` prevents this from running in an infinite loop
+    Sources.update_source(
+      source,
+      %{
+        series_directory: series_directory,
+        nfo_filepath: store_source_nfo(source, series_directory, source_metadata),
+        metadata: %{
+          metadata_filepath: store_source_metadata(source, source_metadata)
+        }
+      },
+      run_post_commit_tasks: false
+    )
 
     :ok
   rescue

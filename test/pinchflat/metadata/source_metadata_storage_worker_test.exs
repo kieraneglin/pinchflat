@@ -39,26 +39,8 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
       source = source_fixture()
 
       perform_job(SourceMetadataStorageWorker, %{id: source.id})
-      perform_job(SourceMetadataStorageWorker, %{id: source.id})
 
-      assert [_] = all_enqueued(worker: SourceMetadataStorageWorker)
-    end
-
-    test "doesn't prevent over source jobs from running" do
-      stub(YtDlpRunnerMock, :run, fn
-        _url, _opts, ot when ot == @source_details_ot -> {:ok, source_details_return_fixture()}
-        _url, _opts, ot when ot == @metadata_ot -> {:ok, "{}"}
-      end)
-
-      source_1 = source_fixture()
-      source_2 = source_fixture()
-
-      perform_job(SourceMetadataStorageWorker, %{id: source_1.id})
-      perform_job(SourceMetadataStorageWorker, %{id: source_1.id})
-      perform_job(SourceMetadataStorageWorker, %{id: source_2.id})
-      perform_job(SourceMetadataStorageWorker, %{id: source_2.id})
-
-      assert [_, _] = all_enqueued(worker: SourceMetadataStorageWorker)
+      assert [] = all_enqueued(worker: SourceMetadataStorageWorker)
     end
 
     test "does not blow up if the record doesn't exist" do
