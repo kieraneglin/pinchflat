@@ -34,7 +34,7 @@ defmodule Pinchflat.Metadata.NfoBuilder do
       <showtitle>#{metadata["uploader"]}</showtitle>
       <uniqueid type="youtube" default="true">#{metadata["id"]}</uniqueid>
       <plot>#{metadata["description"]}</plot>
-      <premiered>#{upload_date}</premiered>
+      <aired>#{upload_date}</aired>
       <season>#{upload_date.year}</season>
       <episode>#{Calendar.strftime(upload_date, "%m%d")}</episode>
       <genre>YouTube</genre>
