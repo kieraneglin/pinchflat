@@ -102,7 +102,6 @@ defmodule Pinchflat.Sources do
   """
   def delete_source(%Source{} = source, opts \\ []) do
     delete_files = Keyword.get(opts, :delete_files, false)
-
     Tasks.delete_tasks_for(source)
 
     source
@@ -111,7 +110,11 @@ defmodule Pinchflat.Sources do
       Media.delete_media_item(media_item, delete_files: delete_files)
     end)
 
-    delete_source_metadata_files(source)
+    if delete_files do
+      delete_source_files(source)
+    end
+
+    delete_internal_metadata_files(source)
     Repo.delete(source)
   end
 
@@ -134,16 +137,23 @@ defmodule Pinchflat.Sources do
     end
   end
 
-  defp delete_source_metadata_files(source) do
+  defp delete_source_files(source) do
+    mapped_struct = Map.from_struct(source)
+
+    Source.filepath_attributes()
+    |> Enum.map(fn field -> mapped_struct[field] end)
+    |> Enum.filter(&is_binary/1)
+    |> Enum.each(&FilesystemHelpers.delete_file_and_remove_empty_directories/1)
+  end
+
+  defp delete_internal_metadata_files(source) do
     metadata = Repo.preload(source, :metadata).metadata || %SourceMetadata{}
     mapped_struct = Map.from_struct(metadata)
 
-    filepaths =
-      SourceMetadata.filepath_attributes()
-      |> Enum.map(fn field -> mapped_struct[field] end)
-      |> Enum.filter(&is_binary/1)
-
-    Enum.each(filepaths, &FilesystemHelpers.delete_file_and_remove_empty_directories/1)
+    SourceMetadata.filepath_attributes()
+    |> Enum.map(fn field -> mapped_struct[field] end)
+    |> Enum.filter(&is_binary/1)
+    |> Enum.each(&FilesystemHelpers.delete_file_and_remove_empty_directories/1)
   end
 
   defp add_source_details_to_changeset(source, changeset) do

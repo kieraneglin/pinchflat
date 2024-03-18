@@ -138,4 +138,64 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
       refute source.series_directory
     end
   end
+
+  describe "perform/1 when storing the series NFO" do
+    test "stores the NFO if specified" do
+      stub(YtDlpRunnerMock, :run, fn
+        _url, _opts, ot when ot == @source_details_ot ->
+          filename = Path.join([Application.get_env(:pinchflat, :media_directory), "Season 1", "bar.mp4"])
+
+          {:ok, source_details_return_fixture(%{filename: filename})}
+
+        _url, _opts, ot when ot == @metadata_ot ->
+          {:ok, "{}"}
+      end)
+
+      source = source_fixture(%{download_nfo: true, nfo_filepath: nil})
+      perform_job(SourceMetadataStorageWorker, %{id: source.id})
+      source = Repo.reload(source)
+
+      assert source.nfo_filepath
+      assert source.nfo_filepath == Path.join([source.series_directory, "tvshow.nfo"])
+      assert File.exists?(source.nfo_filepath)
+
+      File.rm!(source.nfo_filepath)
+    end
+
+    test "does not store the NFO if not specified" do
+      stub(YtDlpRunnerMock, :run, fn
+        _url, _opts, ot when ot == @source_details_ot ->
+          filename = Path.join([Application.get_env(:pinchflat, :media_directory), "Season 1", "bar.mp4"])
+
+          {:ok, source_details_return_fixture(%{filename: filename})}
+
+        _url, _opts, ot when ot == @metadata_ot ->
+          {:ok, "{}"}
+      end)
+
+      source = source_fixture(%{download_nfo: false, nfo_filepath: nil})
+      perform_job(SourceMetadataStorageWorker, %{id: source.id})
+      source = Repo.reload(source)
+
+      refute source.nfo_filepath
+    end
+
+    test "does not store the NFO if the series directory cannot be determined" do
+      stub(YtDlpRunnerMock, :run, fn
+        _url, _opts, ot when ot == @source_details_ot ->
+          filename = Path.join([Application.get_env(:pinchflat, :media_directory), "foo", "bar.mp4"])
+
+          {:ok, source_details_return_fixture(%{filename: filename})}
+
+        _url, _opts, ot when ot == @metadata_ot ->
+          {:ok, "{}"}
+      end)
+
+      source = source_fixture(%{download_nfo: true, nfo_filepath: nil})
+      perform_job(SourceMetadataStorageWorker, %{id: source.id})
+      source = Repo.reload(source)
+
+      refute source.nfo_filepath
+    end
+  end
 end

@@ -31,4 +31,20 @@ defmodule Pinchflat.Metadata.NfoBuilderTest do
       assert String.contains?(nfo, "<title>#{metadata["title"]}</title>")
     end
   end
+
+  describe "build_and_store_for_source/2" do
+    test "returns the filepath", %{metadata: metadata, filepath: filepath} do
+      result = NfoBuilder.build_and_store_for_source(filepath, metadata)
+
+      assert File.exists?(result)
+    end
+
+    test "builds an NFO file", %{metadata: metadata, filepath: filepath} do
+      result = NfoBuilder.build_and_store_for_source(filepath, metadata)
+      nfo = File.read!(result)
+
+      assert String.contains?(nfo, ~S(<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>))
+      assert String.contains?(nfo, "<title>#{metadata["title"]}</title>")
+    end
+  end
 end

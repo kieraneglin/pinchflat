@@ -106,4 +106,9 @@ defmodule Pinchflat.Sources.Source do
     # minutes
     15
   end
+
+  @doc false
+  def filepath_attributes do
+    ~w(nfo_filepath)a
+  end
 end

@@ -8,6 +8,7 @@ defmodule Pinchflat.SourcesTest do
 
   alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Filesystem.FilesystemHelpers
   alias Pinchflat.Metadata.MetadataFileHelpers
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.FastIndexing.FastIndexingWorker
@@ -474,8 +475,18 @@ defmodule Pinchflat.SourcesTest do
 
       {:ok, updated_source} = Sources.update_source(source, update_attrs)
 
-      assert {:ok, _} = Sources.delete_source(updated_source, delete_files: true)
+      assert {:ok, _} = Sources.delete_source(updated_source)
       refute File.exists?(updated_source.metadata.metadata_filepath)
+    end
+
+    test "does not delete the source's non-metadata files" do
+      filepath = FilesystemHelpers.generate_metadata_tmpfile(:nfo)
+      source = source_fixture(%{nfo_filepath: filepath})
+
+      assert {:ok, _} = Sources.delete_source(source)
+      assert File.exists?(filepath)
+
+      File.rm!(filepath)
     end
   end
 
@@ -497,6 +508,15 @@ defmodule Pinchflat.SourcesTest do
       assert {:ok, %Source{}} = Sources.delete_source(source, delete_files: true)
 
       refute File.exists?(media_item.media_filepath)
+    end
+
+    test "deletes the source's non-metadata files" do
+      filepath = FilesystemHelpers.generate_metadata_tmpfile(:nfo)
+      source = source_fixture(%{nfo_filepath: filepath})
+
+      assert {:ok, _} = Sources.delete_source(source, delete_files: true)
+
+      refute File.exists?(filepath)
     end
   end
 
