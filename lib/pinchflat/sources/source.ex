@@ -17,7 +17,6 @@ defmodule Pinchflat.Sources.Source do
     collection_id
     collection_type
     custom_name
-    download_nfo
     nfo_filepath
     series_directory
     index_frequency_minutes
@@ -40,7 +39,6 @@ defmodule Pinchflat.Sources.Source do
     download_media
     original_url
     media_profile_id
-    download_nfo
   )a
 
   @pre_insert_required_fields @initially_required_fields ++
@@ -56,7 +54,6 @@ defmodule Pinchflat.Sources.Source do
     field :collection_name, :string
     field :collection_id, :string
     field :collection_type, Ecto.Enum, values: [:channel, :playlist]
-    field :download_nfo, :boolean, default: false
     field :nfo_filepath, :string
     field :series_directory, :string
     field :index_frequency_minutes, :integer, default: 60 * 24

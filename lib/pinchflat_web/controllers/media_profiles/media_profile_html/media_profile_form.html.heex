@@ -162,16 +162,6 @@
       />
     </section>
 
-    <section x-data="{ presets: { default: false, media_center: true, audio: false, archiving: true } }">
-      <.input
-        field={f[:download_nfo]}
-        type="toggle"
-        label="Download episode NFO data"
-        help="Downloads episode NFO data alongside media file for use with Jellyfin, Kodi, etc."
-        x-init="$watch('selectedPreset', p => p && (enabled = presets[p]))"
-      />
-    </section>
-
     <h3 class="mt-10 text-2xl text-black dark:text-white">
       Release Format Options
     </h3>
@@ -210,6 +200,29 @@
         label="Preferred Resolution"
         help="Will grab the closest available resolution if your preferred is not available. 'Audio Only' grabs the highest quality m4a"
         x-init="$watch('selectedPreset', p => p && ($el.value = presets[p]))"
+      />
+    </section>
+
+    <h3 class="mt-8 text-2xl text-black dark:text-white">
+      Media Center Options
+    </h3>
+    <p class="text-sm mt-2 max-w-prose">
+      Everything in this section is experimental - please open a GitHub issue if you see something odd.
+      These options only work if this Media Profile's output template is set to split media into seasons.
+      Try the "Media Center" preset if you're not sure.
+    </p>
+
+    <section
+      phx-click={show_modal("upgrade-modal")}
+      x-data="{ presets: { default: false, media_center: true, audio: false, archiving: false } }"
+    >
+      <.input
+        field={f[:download_nfo]}
+        type="toggle"
+        label="Download NFO data"
+        label_suffix="(pro)"
+        help="Downloads NFO data alongside media file for use with Jellyfin, Kodi, etc."
+        x-init="$watch('selectedPreset', p => p && (enabled = presets[p]))"
       />
     </section>
 

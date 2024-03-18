@@ -2,6 +2,7 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
   use Pinchflat.DataCase
   import Mox
   import Pinchflat.SourcesFixtures
+  import Pinchflat.ProfilesFixtures
 
   alias Pinchflat.Metadata.MetadataFileHelpers
   alias Pinchflat.Metadata.SourceMetadataStorageWorker
@@ -133,7 +134,8 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
           {:ok, "{}"}
       end)
 
-      source = source_fixture(%{download_nfo: true, nfo_filepath: nil})
+      profile = media_profile_fixture(%{download_nfo: true})
+      source = source_fixture(%{nfo_filepath: nil, media_profile_id: profile.id})
       perform_job(SourceMetadataStorageWorker, %{id: source.id})
       source = Repo.reload(source)
 
@@ -155,7 +157,8 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
           {:ok, "{}"}
       end)
 
-      source = source_fixture(%{download_nfo: false, nfo_filepath: nil})
+      profile = media_profile_fixture(%{download_nfo: false})
+      source = source_fixture(%{nfo_filepath: nil, media_profile_id: profile.id})
       perform_job(SourceMetadataStorageWorker, %{id: source.id})
       source = Repo.reload(source)
 
@@ -173,7 +176,8 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
           {:ok, "{}"}
       end)
 
-      source = source_fixture(%{download_nfo: true, nfo_filepath: nil})
+      profile = media_profile_fixture(%{download_nfo: true})
+      source = source_fixture(%{nfo_filepath: nil, media_profile_id: profile.id})
       perform_job(SourceMetadataStorageWorker, %{id: source.id})
       source = Repo.reload(source)
 
