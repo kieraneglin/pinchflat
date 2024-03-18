@@ -147,9 +147,7 @@ defmodule Pinchflat.Sources do
   end
 
   defp add_source_details_to_changeset(source, changeset) do
-    %Ecto.Changeset{changes: changes} = changeset
-
-    case MediaCollection.get_source_details(changes.original_url) do
+    case MediaCollection.get_source_details(changeset.changes.original_url) do
       {:ok, source_details} ->
         add_source_details_by_collection_type(source, changeset, source_details)
 

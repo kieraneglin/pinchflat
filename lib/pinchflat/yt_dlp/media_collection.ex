@@ -64,14 +64,14 @@ defmodule Pinchflat.YtDlp.MediaCollection do
 
   Returns {:ok, map()} | {:error, any, ...}.
   """
-  def get_source_details(source_url) do
+  def get_source_details(source_url, addl_opts \\ []) do
     # `ignore_no_formats_error` is necessary because yt-dlp will error out if
     # the first video has not released yet (ie: is a premier). We don't care about
     # available formats since we're just getting the source details
-    opts = [:simulate, :skip_download, :ignore_no_formats_error, playlist_end: 1]
-    output_template = "%(.{channel,channel_id,playlist_id,playlist_title})j"
+    command_opts = [:simulate, :skip_download, :ignore_no_formats_error, playlist_end: 1] ++ addl_opts
+    output_template = "%(.{channel,channel_id,playlist_id,playlist_title,filename})j"
 
-    with {:ok, output} <- backend_runner().run(source_url, opts, output_template),
+    with {:ok, output} <- backend_runner().run(source_url, command_opts, output_template),
          {:ok, parsed_json} <- Phoenix.json_library().decode(output) do
       {:ok, format_source_details(parsed_json)}
     else
@@ -112,7 +112,11 @@ defmodule Pinchflat.YtDlp.MediaCollection do
       channel_id: response["channel_id"],
       channel_name: response["channel"],
       playlist_id: response["playlist_id"],
-      playlist_name: response["playlist_title"]
+      playlist_name: response["playlist_title"],
+      # It's not a name, it's a path dammit!
+      # This actually isn't used for the inital response - it's
+      # used later to update a source's metadata
+      filepath: response["filename"]
     }
   end
 
