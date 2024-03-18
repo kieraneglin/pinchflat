@@ -41,7 +41,7 @@
     <.input
       field={f[:fast_index]}
       type="toggle"
-      label="Use Fast Indexing?"
+      label="Use Fast Indexing"
       label_suffix="(pro)"
       help="Experimental. Ignores 'Index Frequency'. Recommended for large channels that upload frequently. See below for more info"
     />
@@ -54,7 +54,7 @@
   <.input
     field={f[:download_media]}
     type="toggle"
-    label="Download Media?"
+    label="Download Media"
     help="Unchecking still indexes media but it won't be downloaded until you enable this option"
   />
 
@@ -67,6 +67,22 @@
     pattern="((?:19|20)[0-9][0-9])-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])"
     title="YYYY-MM-DD"
     help="Only download media uploaded after this date. Leave blank to download all media. Must be in YYYY-MM-DD format"
+  />
+
+  <h3 class="mt-8 text-2xl text-black dark:text-white">
+    Metadata Options
+  </h3>
+  <p class="text-sm mt-2 max-w-prose">
+    Everything in this section is experimental - please open a GitHub issue if you see something odd.
+    These options only work if your Media Profile's output template is set to split media into seasons.
+    Try the "Media Center" preset for Media Profiles if you're not sure.
+  </p>
+
+  <.input
+    field={f[:download_nfo]}
+    type="toggle"
+    label="Download series NFO data"
+    help="Downloads series NFO data for use with Jellyfin, Kodi, etc. Uneffected by 'Download Media'"
   />
 
   <.button class="my-10 sm:mb-7.5 w-full sm:w-auto">Save Source</.button>

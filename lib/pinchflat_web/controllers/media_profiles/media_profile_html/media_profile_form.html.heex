@@ -166,8 +166,8 @@
       <.input
         field={f[:download_nfo]}
         type="toggle"
-        label="Download NFO data"
-        help="Downloads NFO data alongside media file for use with Jellyfin, Kodi, etc."
+        label="Download episode NFO data"
+        help="Downloads episode NFO data alongside media file for use with Jellyfin, Kodi, etc."
         x-init="$watch('selectedPreset', p => p && (enabled = presets[p]))"
       />
     </section>
@@ -181,7 +181,7 @@
         field={f[:shorts_behaviour]}
         options={friendly_format_type_options()}
         type="select"
-        label="Include Shorts?"
+        label="Include Shorts"
         help="Experimental. Please report any issues on GitHub"
         x-init="$watch('selectedPreset', p => p && ($el.value = presets[p]))"
       />
@@ -192,7 +192,7 @@
         field={f[:livestream_behaviour]}
         options={friendly_format_type_options()}
         type="select"
-        label="Include Livestreams?"
+        label="Include Livestreams"
         help="Excludes media that comes from a past livestream"
         x-init="$watch('selectedPreset', p => p && ($el.value = presets[p]))"
       />
