@@ -9,13 +9,11 @@ defmodule Pinchflat.Metadata.NfoBuilder do
 
   @doc """
   Builds an NFO file for a media item (read: single "episode") and
-  stores it in the same directory as the media file. Has the same name
-  as the media file, but with a .nfo extension.
+  stores it at the specified location.
 
   Returns the filepath of the NFO file.
   """
-  def build_and_store_for_media_item(metadata) do
-    filepath = Path.rootname(metadata["filepath"]) <> ".nfo"
+  def build_and_store_for_media_item(filepath, metadata) do
     nfo = build_for_media_item(metadata)
 
     FilesystemHelpers.write_p!(filepath, nfo)
