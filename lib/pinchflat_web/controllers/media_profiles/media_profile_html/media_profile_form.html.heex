@@ -208,7 +208,9 @@
     </h3>
     <p class="text-sm mt-2 max-w-prose">
       Everything in this section is experimental - please open a GitHub issue if you see something odd.
-      These options only work if this Media Profile's output template is set to split media into seasons.
+      <strong>
+        These options only work if this Media Profile's output template is set to split media into seasons.
+      </strong>
       Try the "Media Center" preset if you're not sure.
     </p>
 
@@ -222,6 +224,16 @@
         label="Download NFO data"
         label_suffix="(pro)"
         help="Downloads NFO data alongside media file for use with Jellyfin, Kodi, etc."
+        x-init="$watch('selectedPreset', p => p && (enabled = presets[p]))"
+      />
+    </section>
+
+    <section x-data="{ presets: { default: false, media_center: true, audio: false, archiving: true } }">
+      <.input
+        field={f[:download_source_images]}
+        type="toggle"
+        label="Download Series Images"
+        help="Downloads poster and banner images for use with Jellyfin, Kodi, etc. Only works for full channels (not playlists)"
         x-init="$watch('selectedPreset', p => p && (enabled = presets[p]))"
       />
     </section>
