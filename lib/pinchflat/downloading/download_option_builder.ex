@@ -3,6 +3,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
   Builds the options for yt-dlp to download media based on the given media profile.
   """
 
+  alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Downloading.OutputPathBuilder
 
@@ -24,6 +25,18 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
         output_options(media_item_with_preloads)
 
     {:ok, built_options}
+  end
+
+  @doc """
+  Builds the output path for yt-dlp to download media based on the given source's
+  media profile.
+
+  Returns binary()
+  """
+  def build_output_path_for(%Source{} = source_with_preloads) do
+    output_path_template = source_with_preloads.media_profile.output_path_template
+
+    build_output_path(output_path_template, source_with_preloads)
   end
 
   defp default_options do
@@ -104,23 +117,19 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
   end
 
   defp output_options(media_item_with_preloads) do
-    output_path_template = media_item_with_preloads.source.media_profile.output_path_template
-
     [
-      output: build_output_path(output_path_template, media_item_with_preloads)
+      output: build_output_path_for(media_item_with_preloads.source)
     ]
   end
 
-  defp build_output_path(string, media_item_with_preloads) do
-    additional_options_map = output_options_map(media_item_with_preloads)
+  defp build_output_path(string, source) do
+    additional_options_map = output_options_map(source)
     {:ok, output_path} = OutputPathBuilder.build(string, additional_options_map)
 
     Path.join(base_directory(), output_path)
   end
 
-  defp output_options_map(media_item_with_preloads) do
-    source = media_item_with_preloads.source
-
+  defp output_options_map(source) do
     %{
       "source_custom_name" => source.custom_name,
       "source_collection_type" => source.collection_type
@@ -137,7 +146,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
     |> String.split(~r{\.}, include_captures: true)
     |> List.insert_at(-3, "-thumb")
     |> Enum.join()
-    |> build_output_path(media_item_with_preloads)
+    |> build_output_path(media_item_with_preloads.source)
   end
 
   defp base_directory do

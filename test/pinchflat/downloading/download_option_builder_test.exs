@@ -222,6 +222,14 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
     end
   end
 
+  describe "build_output_path_for/1" do
+    test "builds an output path for a source", %{media_item: media_item} do
+      path = DownloadOptionBuilder.build_output_path_for(media_item.source)
+
+      assert path == "/tmp/test/media/%(title)S.%(ext)s"
+    end
+  end
+
   defp update_media_profile_attribute(media_item_with_preloads, attrs) do
     media_item_with_preloads.source.media_profile
     |> Profiles.change_media_profile(attrs)

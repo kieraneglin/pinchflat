@@ -63,6 +63,43 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
     Date.from_iso8601!("#{year}-#{month}-#{day}")
   end
 
+  @doc """
+  Attempts to determine the series directory from a media filepath.
+  The series directory is the "root" directory for a given source
+  which should contain all the season-level folders of that source.
+
+  Used for determining where to store things like NFO data and banners
+  for media center apps. Not useful without a media center app.
+
+  Returns {:ok, binary()} | {:error, :indeterminable}
+  """
+  def series_directory_from_media_filepath(media_filepath) do
+    # Matches "s" or "season" (case-insensitive)
+    # followed by an optional non-word character (. or _ or <space>, etc)
+    # followed by at least one digit
+    # followed immediately by the end of the string
+    # Example matches: s1, s.1, s01 season 1, Season.01, Season_1, Season 1, Season1
+    # Example non-matches: s01e01, season, series 1,
+    season_regex = ~r/^s(eason)?(\W|_)?\d{1,}$/i
+
+    {series_directory, found_series_directory} =
+      media_filepath
+      |> Path.split()
+      |> Enum.reduce_while({[], false}, fn part, {directory_acc, _} ->
+        if String.match?(part, season_regex) do
+          {:halt, {directory_acc, true}}
+        else
+          {:cont, {directory_acc ++ [part], false}}
+        end
+      end)
+
+    if found_series_directory do
+      {:ok, Path.join(series_directory)}
+    else
+      {:error, :indeterminable}
+    end
+  end
+
   defp fetch_thumbnail_from_url(url) do
     http_client = Application.get_env(:pinchflat, :http_client, Pinchflat.HTTP.HTTPClient)
     {:ok, body} = http_client.get(url, [], body_format: :binary)

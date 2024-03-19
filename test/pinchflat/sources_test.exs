@@ -8,6 +8,7 @@ defmodule Pinchflat.SourcesTest do
 
   alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Filesystem.FilesystemHelpers
   alias Pinchflat.Metadata.MetadataFileHelpers
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.FastIndexing.FastIndexingWorker
@@ -57,7 +58,7 @@ defmodule Pinchflat.SourcesTest do
     end
   end
 
-  describe "create_source/1" do
+  describe "create_source/2" do
     test "creates a source and adds name + ID from runner response for channels" do
       expect(YtDlpRunnerMock, :run, &channel_mock/3)
 
@@ -253,7 +254,23 @@ defmodule Pinchflat.SourcesTest do
     end
   end
 
-  describe "update_source/2" do
+  describe "create_source/2 when testing options" do
+    test "run_post_commit_tasks: false won't enqueue post-commit tasks" do
+      expect(YtDlpRunnerMock, :run, &channel_mock/3)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123"
+      }
+
+      assert {:ok, %Source{}} = Sources.create_source(valid_attrs, run_post_commit_tasks: false)
+
+      refute_enqueued(worker: MediaCollectionIndexingWorker)
+      refute_enqueued(worker: SourceMetadataStorageWorker)
+    end
+  end
+
+  describe "update_source/3" do
     test "updates with valid data updates the source" do
       source = source_fixture()
       update_attrs = %{collection_name: "some updated name"}
@@ -426,6 +443,20 @@ defmodule Pinchflat.SourcesTest do
     end
   end
 
+  describe "update_source/3 when testing options" do
+    test "run_post_commit_tasks: false won't enqueue post-commit tasks" do
+      source = source_fixture(%{fast_index: false, download_media: false, index_frequency_minutes: -1})
+      update_attrs = %{fast_index: true, download_media: true, index_frequency_minutes: 100}
+
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs, run_post_commit_tasks: false)
+
+      refute_enqueued(worker: MediaCollectionIndexingWorker)
+      refute_enqueued(worker: SourceMetadataStorageWorker)
+      refute_enqueued(worker: MediaDownloadWorker)
+      refute_enqueued(worker: FastIndexingWorker)
+    end
+  end
+
   describe "delete_source/2" do
     test "it deletes the source" do
       source = source_fixture()
@@ -474,8 +505,18 @@ defmodule Pinchflat.SourcesTest do
 
       {:ok, updated_source} = Sources.update_source(source, update_attrs)
 
-      assert {:ok, _} = Sources.delete_source(updated_source, delete_files: true)
+      assert {:ok, _} = Sources.delete_source(updated_source)
       refute File.exists?(updated_source.metadata.metadata_filepath)
+    end
+
+    test "does not delete the source's non-metadata files" do
+      filepath = FilesystemHelpers.generate_metadata_tmpfile(:nfo)
+      source = source_fixture(%{nfo_filepath: filepath})
+
+      assert {:ok, _} = Sources.delete_source(source)
+      assert File.exists?(filepath)
+
+      File.rm!(filepath)
     end
   end
 
@@ -497,6 +538,15 @@ defmodule Pinchflat.SourcesTest do
       assert {:ok, %Source{}} = Sources.delete_source(source, delete_files: true)
 
       refute File.exists?(media_item.media_filepath)
+    end
+
+    test "deletes the source's non-metadata files" do
+      filepath = FilesystemHelpers.generate_metadata_tmpfile(:nfo)
+      source = source_fixture(%{nfo_filepath: filepath})
+
+      assert {:ok, _} = Sources.delete_source(source, delete_files: true)
+
+      refute File.exists?(filepath)
     end
   end
 

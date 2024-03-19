@@ -9,14 +9,26 @@ defmodule Pinchflat.Metadata.NfoBuilder do
 
   @doc """
   Builds an NFO file for a media item (read: single "episode") and
-  stores it in the same directory as the media file. Has the same name
-  as the media file, but with a .nfo extension.
+  stores it at the specified location.
 
   Returns the filepath of the NFO file.
   """
-  def build_and_store_for_media_item(metadata) do
-    filepath = Path.rootname(metadata["filepath"]) <> ".nfo"
+  def build_and_store_for_media_item(filepath, metadata) do
     nfo = build_for_media_item(metadata)
+
+    FilesystemHelpers.write_p!(filepath, nfo)
+
+    filepath
+  end
+
+  @doc """
+  Builds an NFO file for a souce and stores it at the specified location.
+  Technically works for playlists, but it's really made for channels.
+
+  Returns the filepath of the NFO file.
+  """
+  def build_and_store_for_source(filepath, metadata) do
+    nfo = build_for_source(metadata)
 
     FilesystemHelpers.write_p!(filepath, nfo)
 
@@ -34,11 +46,23 @@ defmodule Pinchflat.Metadata.NfoBuilder do
       <showtitle>#{metadata["uploader"]}</showtitle>
       <uniqueid type="youtube" default="true">#{metadata["id"]}</uniqueid>
       <plot>#{metadata["description"]}</plot>
-      <premiered>#{upload_date}</premiered>
+      <aired>#{upload_date}</aired>
       <season>#{upload_date.year}</season>
       <episode>#{Calendar.strftime(upload_date, "%m%d")}</episode>
       <genre>YouTube</genre>
     </episodedetails>
+    """
+  end
+
+  defp build_for_source(metadata) do
+    """
+    <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+    <tvshow>
+      <title>#{metadata["title"]}</title>
+      <plot>#{metadata["description"]}</plot>
+      <uniqueid type="youtube" default="true">#{metadata["id"]}</uniqueid>
+      <genre>YouTube</genre>
+    </tvshow>
     """
   end
 end
