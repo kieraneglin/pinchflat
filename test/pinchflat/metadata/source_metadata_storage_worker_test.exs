@@ -4,6 +4,7 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
   import Pinchflat.SourcesFixtures
   import Pinchflat.ProfilesFixtures
 
+  alias Pinchflat.Sources
   alias Pinchflat.Metadata.MetadataFileHelpers
   alias Pinchflat.Metadata.SourceMetadataStorageWorker
 
@@ -81,6 +82,80 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
       {:ok, metadata} = MetadataFileHelpers.read_compressed_metadata(source.metadata.metadata_filepath)
 
       assert metadata == %{"title" => "test"}
+    end
+  end
+
+  describe "perform/1 when testing source image downloading" do
+    test "downloads and stores source images" do
+      stub(YtDlpRunnerMock, :run, fn
+        _url, _opts, ot when ot == @source_details_ot ->
+          filename = Path.join([Application.get_env(:pinchflat, :media_directory), "Season 1", "bar.mp4"])
+
+          {:ok, source_details_return_fixture(%{filename: filename})}
+
+        _url, _opts, ot when ot == @metadata_ot ->
+          {:ok, render_metadata(:channel_source_metadata)}
+      end)
+
+      profile = media_profile_fixture(%{download_source_images: true})
+      source = source_fixture(media_profile_id: profile.id)
+
+      perform_job(SourceMetadataStorageWorker, %{id: source.id})
+      source = Repo.reload(source)
+
+      assert source.fanart_filepath
+      assert source.poster_filepath
+      assert source.banner_filepath
+
+      assert File.exists?(source.fanart_filepath)
+      assert File.exists?(source.poster_filepath)
+      assert File.exists?(source.banner_filepath)
+
+      Sources.delete_source(source, delete_files: true)
+    end
+
+    test "does not store source images if the profile is not set to" do
+      stub(YtDlpRunnerMock, :run, fn
+        _url, _opts, ot when ot == @source_details_ot ->
+          filename = Path.join([Application.get_env(:pinchflat, :media_directory), "Season 1", "bar.mp4"])
+
+          {:ok, source_details_return_fixture(%{filename: filename})}
+
+        _url, _opts, ot when ot == @metadata_ot ->
+          {:ok, render_metadata(:channel_source_metadata)}
+      end)
+
+      profile = media_profile_fixture(%{download_source_images: false})
+      source = source_fixture(media_profile_id: profile.id)
+
+      perform_job(SourceMetadataStorageWorker, %{id: source.id})
+      source = Repo.reload(source)
+
+      refute source.fanart_filepath
+      refute source.poster_filepath
+      refute source.banner_filepath
+    end
+
+    test "does not store source images if the series directory cannot be determined" do
+      stub(YtDlpRunnerMock, :run, fn
+        _url, _opts, ot when ot == @source_details_ot ->
+          filename = Path.join([Application.get_env(:pinchflat, :media_directory), "foo", "bar.mp4"])
+
+          {:ok, source_details_return_fixture(%{filename: filename})}
+
+        _url, _opts, ot when ot == @metadata_ot ->
+          {:ok, render_metadata(:channel_source_metadata)}
+      end)
+
+      profile = media_profile_fixture(%{download_source_images: true})
+      source = source_fixture(media_profile_id: profile.id)
+
+      perform_job(SourceMetadataStorageWorker, %{id: source.id})
+      source = Repo.reload(source)
+
+      refute source.fanart_filepath
+      refute source.poster_filepath
+      refute source.banner_filepath
     end
   end
 

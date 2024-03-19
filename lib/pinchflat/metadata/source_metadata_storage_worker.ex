@@ -35,6 +35,7 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
     - JSON metadata for internal use
     - The series directory for the source
     - The NFO file for the source (if specified)
+    - Downloads and stores source images (if specified)
 
   The worker is kicked off after a source is inserted/updated - this can
   take an unknown amount of time so don't rely on this data being here
@@ -71,10 +72,10 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
   end
 
   defp fetch_source_metadata_and_images(series_directory, source) do
-    # This is a proxy for checking whether we should download images
-    if :rand.uniform() > 0 do
+    if source.media_profile.download_source_images && series_directory do
       output_path = "#{tmp_directory()}/#{StringUtils.random_string(16)}/source_image.%(ext)S"
       opts = [:write_all_thumbnails, convert_thumbnails: "jpg", output: output_path]
+
       {:ok, metadata} = MediaCollection.get_source_metadata(source.original_url, opts)
       image_attrs = SourceImageParser.store_source_images(series_directory, metadata)
 

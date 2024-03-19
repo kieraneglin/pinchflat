@@ -17,6 +17,7 @@ defmodule Pinchflat.Profiles.MediaProfile do
     sub_langs
     download_thumbnail
     embed_thumbnail
+    download_source_images
     download_metadata
     embed_metadata
     download_nfo
@@ -40,6 +41,7 @@ defmodule Pinchflat.Profiles.MediaProfile do
 
     field :download_thumbnail, :boolean, default: false
     field :embed_thumbnail, :boolean, default: false
+    field :download_source_images, :boolean, default: false
 
     field :download_metadata, :boolean, default: false
     field :embed_metadata, :boolean, default: false
