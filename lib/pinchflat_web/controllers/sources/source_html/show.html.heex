@@ -10,7 +10,7 @@
 
   <nav>
     <.link href={~p"/sources/#{@source}/edit"}>
-      <.button color="bg-primary" rounding="rounded-full">
+      <.button color="bg-primary" rounding="rounded-lg">
         <.icon name="hero-pencil-square" class="mr-2" /> Edit <span class="hidden sm:inline pl-1">Source</span>
       </.button>
     </.link>
@@ -38,7 +38,7 @@
             method="delete"
             data-confirm="Are you sure you want to delete this source (leaving files in place)? This cannot be undone."
           >
-            <.button color="bg-meta-1" rounding="rounded-full">
+            <.button color="bg-meta-1" rounding="rounded-lg">
               Delete Source
             </.button>
           </.link>
@@ -48,7 +48,7 @@
             data-confirm="Are you sure you want to delete this source and it's files on disk? This cannot be undone."
             class="mt-5 md:mt-0"
           >
-            <.button color="bg-meta-1" rounding="rounded-full">
+            <.button color="bg-meta-1" rounding="rounded-lg">
               Delete Source and Files
             </.button>
           </.link>
