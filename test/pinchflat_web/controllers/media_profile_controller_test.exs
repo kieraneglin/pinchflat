@@ -81,7 +81,7 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
       media_profile: media_profile
     } do
       conn = get(conn, ~p"/media_profiles/#{media_profile}/edit")
-      assert html_response(conn, 200) =~ "Edit Media Profile"
+      assert html_response(conn, 200) =~ "Editing \"#{media_profile.name}\""
     end
   end
 
@@ -98,7 +98,7 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
 
     test "renders errors when data is invalid", %{conn: conn, media_profile: media_profile} do
       conn = put(conn, ~p"/media_profiles/#{media_profile}", media_profile: @invalid_attrs)
-      assert html_response(conn, 200) =~ "Edit Media Profile"
+      assert html_response(conn, 200) =~ "Editing \"#{media_profile.name}\""
     end
   end
 

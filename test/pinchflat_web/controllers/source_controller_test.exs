@@ -91,7 +91,7 @@ defmodule PinchflatWeb.SourceControllerTest do
 
     test "renders form for editing chosen source", %{conn: conn, source: source} do
       conn = get(conn, ~p"/sources/#{source}/edit")
-      assert html_response(conn, 200) =~ "Edit Source"
+      assert html_response(conn, 200) =~ "Editing \"#{source.custom_name}\""
     end
   end
 
@@ -114,7 +114,7 @@ defmodule PinchflatWeb.SourceControllerTest do
       invalid_attrs: invalid_attrs
     } do
       conn = put(conn, ~p"/sources/#{source}", source: invalid_attrs)
-      assert html_response(conn, 200) =~ "Edit Source"
+      assert html_response(conn, 200) =~ "Editing \"#{source.custom_name}\""
     end
   end
 

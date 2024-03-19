@@ -4,13 +4,13 @@
       <.icon name="hero-arrow-left" class="w-10 h-10 hover:dark:text-white" />
     </.link>
     <h2 class="text-title-md2 font-bold text-black dark:text-white ml-2">
-      Media Profile <span class="hidden sm:inline">#<%= @media_profile.id %></span>
+      <%= @media_profile.name %>
     </h2>
   </div>
 
   <nav>
     <.link href={~p"/media_profiles/#{@media_profile}/edit"}>
-      <.button color="bg-primary" rounding="rounded-full">
+      <.button color="bg-primary" rounding="rounded-lg">
         <.icon name="hero-pencil-square" class="mr-2" />Edit <span class="hidden sm:inline pl-1">Media Profile</span>
       </.button>
     </.link>
@@ -31,7 +31,7 @@
             method="delete"
             data-confirm="Are you sure you want to delete this profile and all its sources (leaving files in place)? This cannot be undone."
           >
-            <.button color="bg-meta-1" rounding="rounded-full">
+            <.button color="bg-meta-1" rounding="rounded-lg">
               Delete Profile and its Sources
             </.button>
           </.link>
@@ -41,7 +41,7 @@
             data-confirm="Are you sure you want to delete this profile, all its sources, and its files on disk? This cannot be undone."
             class="mt-5 md:mt-0"
           >
-            <.button color="bg-meta-1" rounding="rounded-full">
+            <.button color="bg-meta-1" rounding="rounded-lg">
               Delete Profile, Sources, and Files
             </.button>
           </.link>
