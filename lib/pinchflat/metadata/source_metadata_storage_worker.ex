@@ -12,8 +12,10 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
   alias Pinchflat.Repo
   alias Pinchflat.Tasks
   alias Pinchflat.Sources
+  alias Pinchflat.Utils.StringUtils
   alias Pinchflat.Metadata.NfoBuilder
   alias Pinchflat.YtDlp.MediaCollection
+  alias Pinchflat.Metadata.SourceImageParser
   alias Pinchflat.Metadata.MetadataFileHelpers
   alias Pinchflat.Downloading.DownloadOptionBuilder
 
@@ -43,19 +45,22 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"id" => source_id}}) do
     source = Repo.preload(Sources.get_source!(source_id), [:metadata, :media_profile])
-    source_metadata = fetch_source_metadata(source)
     series_directory = determine_series_directory(source)
+    {source_metadata, image_filepath_attrs} = fetch_source_metadata_and_images(series_directory, source)
 
     # `run_post_commit_tasks: false` prevents this from running in an infinite loop
     Sources.update_source(
       source,
-      %{
-        series_directory: series_directory,
-        nfo_filepath: store_source_nfo(source, series_directory, source_metadata),
-        metadata: %{
-          metadata_filepath: store_source_metadata(source, source_metadata)
-        }
-      },
+      Map.merge(
+        %{
+          series_directory: series_directory,
+          nfo_filepath: store_source_nfo(source, series_directory, source_metadata),
+          metadata: %{
+            metadata_filepath: MetadataFileHelpers.compress_and_store_metadata_for(source, source_metadata)
+          }
+        },
+        image_filepath_attrs
+      ),
       run_post_commit_tasks: false
     )
 
@@ -65,14 +70,20 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
     Ecto.StaleEntryError -> Logger.info("#{__MODULE__} discarded: source #{source_id} stale")
   end
 
-  defp fetch_source_metadata(source) do
-    {:ok, metadata} = MediaCollection.get_source_metadata(source.original_url)
+  defp fetch_source_metadata_and_images(series_directory, source) do
+    # This is a proxy for checking whether we should download images
+    if :rand.uniform() > 0 do
+      output_path = "#{tmp_directory()}/#{StringUtils.random_string(16)}/source_image.%(ext)S"
+      opts = [:write_all_thumbnails, convert_thumbnails: "jpg", output: output_path]
+      {:ok, metadata} = MediaCollection.get_source_metadata(source.original_url, opts)
+      image_attrs = SourceImageParser.store_source_images(series_directory, metadata)
 
-    metadata
-  end
+      {metadata, image_attrs}
+    else
+      {:ok, metadata} = MediaCollection.get_source_metadata(source.original_url, [])
 
-  defp store_source_metadata(source, metadata) do
-    MetadataFileHelpers.compress_and_store_metadata_for(source, metadata)
+      {metadata, %{}}
+    end
   end
 
   defp determine_series_directory(source) do
@@ -91,5 +102,9 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
 
       NfoBuilder.build_and_store_for_source(nfo_filepath, metadata)
     end
+  end
+
+  defp tmp_directory do
+    Application.get_env(:pinchflat, :tmpfile_directory)
   end
 end

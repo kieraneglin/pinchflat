@@ -94,8 +94,8 @@ defmodule Pinchflat.YtDlp.MediaCollection do
 
   Returns {:ok, map()} | {:error, any, ...}.
   """
-  def get_source_metadata(source_url) do
-    opts = [playlist_items: 0]
+  def get_source_metadata(source_url, addl_opts \\ []) do
+    opts = [playlist_items: 0] ++ addl_opts
     output_template = "playlist:%()j"
 
     with {:ok, output} <- backend_runner().run(source_url, opts, output_template),

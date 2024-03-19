@@ -107,4 +107,37 @@ defmodule Pinchflat.Filesystem.FilesystemHelpersTest do
       assert {:error, _} = FilesystemHelpers.delete_file_and_remove_empty_directories(filepath)
     end
   end
+
+  describe "cp_p!/2" do
+    test "copies a file from source to destination" do
+      source = "#{tmpfile_directory()}/source.json"
+      FilesystemHelpers.write_p!(source, "TEST")
+      destination = "#{tmpfile_directory()}/destination.json"
+
+      refute File.exists?(destination)
+      FilesystemHelpers.cp_p!(source, destination)
+      assert File.exists?(destination)
+      assert File.read!(destination) == "TEST"
+
+      File.rm!(source)
+      File.rm!(destination)
+    end
+
+    test "creates directories as needed" do
+      source = "#{tmpfile_directory()}/source.json"
+      FilesystemHelpers.write_p!(source, "TEST")
+      destination = "#{tmpfile_directory()}/foo/bar/destination.json"
+
+      refute File.exists?(destination)
+      FilesystemHelpers.cp_p!(source, destination)
+      assert File.exists?(destination)
+
+      File.rm!(source)
+      File.rm!(destination)
+    end
+  end
+
+  defp tmpfile_directory do
+    Application.get_env(:pinchflat, :tmpfile_directory)
+  end
 end

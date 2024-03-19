@@ -35,6 +35,19 @@ defmodule Pinchflat.Filesystem.FilesystemHelpers do
   end
 
   @doc """
+  Copies a file from source to destination, creating directories as needed.
+
+  Returns :ok | raises on error
+  """
+  def cp_p!(source, destination) do
+    destination
+    |> Path.dirname()
+    |> File.mkdir_p!()
+
+    File.cp!(source, destination)
+  end
+
+  @doc """
   Fetches the file size of a media item and saves it to the database.
 
   Returns {:ok, media_item} | {:error, any()}
