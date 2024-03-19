@@ -18,6 +18,9 @@ defmodule Pinchflat.Sources.Source do
     collection_type
     custom_name
     nfo_filepath
+    poster_filepath
+    fanart_filepath
+    banner_filepath
     series_directory
     index_frequency_minutes
     fast_index
@@ -55,6 +58,9 @@ defmodule Pinchflat.Sources.Source do
     field :collection_id, :string
     field :collection_type, Ecto.Enum, values: [:channel, :playlist]
     field :nfo_filepath, :string
+    field :poster_filepath, :string
+    field :fanart_filepath, :string
+    field :banner_filepath, :string
     field :series_directory, :string
     field :index_frequency_minutes, :integer, default: 60 * 24
     field :fast_index, :boolean, default: false
@@ -106,6 +112,6 @@ defmodule Pinchflat.Sources.Source do
 
   @doc false
   def filepath_attributes do
-    ~w(nfo_filepath)a
+    ~w(nfo_filepath fanart_filepath poster_filepath banner_filepath)a
   end
 end

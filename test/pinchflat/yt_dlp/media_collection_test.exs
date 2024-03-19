@@ -151,5 +151,15 @@ defmodule Pinchflat.YtDlp.MediaCollectionTest do
 
       assert {:error, %Jason.DecodeError{}} = MediaCollection.get_source_metadata(@channel_url)
     end
+
+    test "allows you to pass additional opts" do
+      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot ->
+        assert opts == [playlist_items: 0, real_opt: :yup]
+
+        {:ok, "{}"}
+      end)
+
+      assert {:ok, _} = MediaCollection.get_source_metadata(@channel_url, real_opt: :yup)
+    end
   end
 end
