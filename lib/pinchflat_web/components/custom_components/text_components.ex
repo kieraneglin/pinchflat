@@ -32,6 +32,20 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
   end
 
   @doc """
+  Renders a subtle link with the given href and content.
+  """
+  attr :href, :string, required: true
+  slot :inner_block
+
+  def subtle_link(assigns) do
+    ~H"""
+    <.link href={@href} class="underline decoration-bodydark decoration-1 hover:decoration-white">
+      <%= render_slot(@inner_block) %>
+    </.link>
+    """
+  end
+
+  @doc """
   Renders an icon as a link with the given href.
   """
   attr :href, :string, required: true
