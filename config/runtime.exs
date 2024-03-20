@@ -25,6 +25,21 @@ config :pinchflat,
   basic_auth_username: System.get_env("BASIC_AUTH_USERNAME"),
   basic_auth_password: System.get_env("BASIC_AUTH_PASSWORD")
 
+arch_string = to_string(:erlang.system_info(:system_architecture))
+
+system_arch =
+  cond do
+    String.contains?(arch_string, "arm") -> "arm"
+    String.contains?(arch_string, "aarch") -> "arm"
+    String.contains?(arch_string, "x86") -> "x86"
+    true -> "unknown"
+  end
+
+config :pinchflat, Pinchflat.Repo,
+  load_extensions: [
+    Path.join([:code.priv_dir(:pinchflat), "repo", "extensions", "sqlean-linux-#{system_arch}", "sqlean"])
+  ]
+
 if config_env() == :prod do
   config_path =
     System.get_env("CONFIG_PATH") ||
