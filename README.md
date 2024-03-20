@@ -1,6 +1,10 @@
-# Pinchflat (Alpha)
+<img src="priv/static/images/originals/logo-white-wordmark-with-background.png" alt="Pinchflat Logo by @hernandito" width="512" />
 
-# TODO: add new logo
+_logo by [@hernandito](https://github.com/hernandito)_
+
+### Your next YouTube media manager
+
+## Disclaimer
 
 This is alpha software and anything can break at any time. I make not guarantees about the stability of this software, forward-compatibility of updates, or integrity (both related to and independent of Pinchflat). Essentially, use at your own risk and expect there will be rough edges.
 
