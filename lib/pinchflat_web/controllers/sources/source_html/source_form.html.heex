@@ -87,17 +87,17 @@
     <p class="text-sm mt-2">
       Tread carefully
     </p>
+
+    <.input
+      field={f[:title_filter_regex]}
+      type="text"
+      label="Title Filter Regex"
+      placeholder="(?i)^How to Bike$"
+      help="A PCRE-compatible regex. Only media with titles that match this regex will be downloaded. Look up 'SQLean Regex docs' for more"
+    />
   </section>
 
-  <.input
-    field={f[:title_filter_regex]}
-    type="text"
-    label="Title Filter Regex"
-    placeholder="/^How to Bike/i"
-    help="A PCRE-compatible regex. Only media with titles that match this regex will be downloaded"
-  />
-
-  <.button class="my-10 sm:mb-7.5 w-full sm:w-auto">Save Source</.button>
+  <.button class="my-10 sm:mb-7.5 w-full sm:w-auto" rounding="rounded-lg">Save Source</.button>
 
   <div class="rounded-sm dark:bg-meta-4 p-4 md:p-6 mb-5">
     <.fast_indexing_help />

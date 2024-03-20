@@ -239,6 +239,26 @@ defmodule Pinchflat.MediaTest do
     end
   end
 
+  describe "list_pending_media_items_for/1 when testing title regex" do
+    test "returns only media items that match the title regex" do
+      source = source_fixture(%{title_filter_regex: "(?i)^FOO$"})
+
+      matching_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, title: "foo"})
+      _non_matching_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, title: "bar"})
+
+      assert Media.list_pending_media_items_for(source) == [matching_media_item]
+    end
+
+    test "does not apply a regex if none is specified" do
+      source = source_fixture(%{title_filter_regex: nil})
+
+      media_item_one = media_item_fixture(%{source_id: source.id, media_filepath: nil, title: "foo"})
+      media_item_two = media_item_fixture(%{source_id: source.id, media_filepath: nil, title: "bar"})
+
+      assert Media.list_pending_media_items_for(source) == [media_item_one, media_item_two]
+    end
+  end
+
   describe "list_downloaded_media_items_for/1" do
     test "returns only media items with a media_filepath" do
       source = source_fixture()
