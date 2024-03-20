@@ -7,6 +7,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
 
   require Logger
 
+  alias Pinchflat.Repo
   alias Pinchflat.Media
   alias Pinchflat.Tasks
   alias Pinchflat.Sources
@@ -60,6 +61,9 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
     # See the method definition below for more info on how file watchers work
     # (important reading if you're not familiar with it)
     {:ok, media_attributes} = get_media_attributes_for_collection_and_setup_file_watcher(source)
+    # Reload because the source may have been updated during the (long-running) indexing process
+    # and important settings like `download_media` may have changed.
+    source = Repo.reload!(source)
 
     result =
       Enum.map(media_attributes, fn media_attrs ->
@@ -117,6 +121,10 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   end
 
   defp create_media_item_and_enqueue_download(source, media_attrs) do
+    # Reload because the source may have been updated during the (long-running) indexing process
+    # and important settings like `download_media` may have changed.
+    source = Repo.reload!(source)
+
     case Media.create_media_item_from_backend_attrs(source, media_attrs) do
       {:ok, %MediaItem{} = media_item} ->
         if source.download_media && Media.pending_download?(media_item) do
