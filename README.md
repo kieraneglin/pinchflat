@@ -1,5 +1,7 @@
 # Pinchflat (Alpha)
 
+# TODO: add new logo
+
 This is alpha software and anything can break at any time. I make not guarantees about the stability of this software, forward-compatibility of updates, or integrity (both related to and independent of Pinchflat). Essentially, use at your own risk and expect there will be rough edges.
 
 ## EFF Donation Receipts
