@@ -16,7 +16,16 @@
 
 ## Table of contents:
 
-TODO
+- [What it does](#what-it-does)
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Installation](#installation)
+  - [Unraid](#unraid)
+  - [Docker](#docker)
+- [Authentication](#authentication)
+- [EFF donations](#eff-donations)
+- [Pre-release disclaimer](#pre-release-disclaimer)
+- [Development](#development)
 
 ## What it does
 
@@ -67,6 +76,8 @@ docker run \
   -v /host/path/to/downloads:/downloads \
   keglin/pinchflat:latest
 ```
+
+NOTE: it's recommended to not run the container as root. Doing so can create permission issues if other apps need to work with the downloaded media. If you need to run any command as root, you can run `su` from the container's shell as there is no password set for the root user.
 
 ## Authentication
 
