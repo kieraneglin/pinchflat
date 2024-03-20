@@ -43,7 +43,7 @@ If it doesn't work for your use case, please make a feature request! You can als
 - First-class support for media center apps like Plex, Jellyfin, and Kodi
 - Automatically downloads new content from channels and playlists
   - Uses a novel approach to download new content more quickly than other apps
-- Supports downloading music
+- Supports downloading audio content
 - Custom rules for handling YouTube Shorts and livestreams
 - Advanced options like setting cutoff dates and filtering by title
 - Reliable hands-off operation
