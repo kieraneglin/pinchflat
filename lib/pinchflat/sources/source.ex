@@ -98,7 +98,6 @@ defmodule Pinchflat.Sources.Source do
     |> dynamic_default(:custom_name, fn cs -> get_field(cs, :collection_name) end)
     |> validate_required(required_fields)
     |> cast_assoc(:metadata, with: &SourceMetadata.changeset/2, required: false)
-    |> unique_constraint([:collection_id, :media_profile_id])
   end
 
   @doc false
