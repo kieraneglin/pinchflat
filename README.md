@@ -1,8 +1,18 @@
-<img src="priv/static/images/originals/logo-white-wordmark-with-background.png" alt="Pinchflat Logo by @hernandito" width="512" />
+<p align="center">  
+  <img 
+    src="priv/static/images/originals/logo-white-wordmark-with-background.png" 
+    alt="Pinchflat Logo by @hernandito"
+    width="700" 
+  />
+</p>
 
-_logo by [@hernandito](https://github.com/hernandito)_
+<p align="center">  
+  <sup>
+    <em>logo by <a href="https://github.com/hernandito" target="_blank">@hernandito</a></em>
+  </sup>
+</p>
 
-### Your next YouTube media manager
+# Your next YouTube media manager
 
 ## Disclaimer
 
