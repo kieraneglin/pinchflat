@@ -1,24 +1,23 @@
 <aside
   x-bind:class="sidebarVisible ? 'translate-x-0' : '-translate-x-full'"
   class={[
-    "-translate-x-full absolute left-0 top-0 z-9999 flex h-screen w-60 flex-col overflow-y-hidden justify-between",
+    "-translate-x-full absolute left-0 top-0 z-9999 flex h-screen w-65 flex-col overflow-y-hidden justify-between",
     "bg-black duration-300 ease-linear shadow-lg sm:shadow-none dark:bg-boxdark lg:static lg:translate-x-0"
   ]}
   @click.outside="sidebarVisible = false"
 >
   <section>
-    <div class="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
+    <div class="flex items-center justify-between gap-2 px-6 py-4">
       <a href="/" class="flex items-center">
-        <img src={~p"/images/logo.png?cachebust=2024-02-29"} alt="Pinchflat" class="w-9 h-9" />
-        <h2 class="text-xl font-bold text-white pl-2">Pinchflat</h2>
+        <img src={~p"/images/logo.png?cachebust=2024-03-20"} alt="Pinchflat" class="w-auto" />
       </a>
 
-      <button class="block lg:hidden" @click.stop="sidebarVisible = !sidebarVisible">
+      <button class="block mt-3 lg:hidden" @click.stop="sidebarVisible = !sidebarVisible">
         <.icon name="hero-arrow-left" class="fill-current" />
       </button>
     </div>
     <div class="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
-      <nav class="mt-5 px-4 py-4 lg:mt-9 lg:px-6">
+      <nav class="mt-3 px-4 py-4 lg:px-6">
         <h3 class="mb-4 ml-4 text-sm font-medium text-bodydark2">MENU</h3>
         <div class="flex flex-col justify-between">
           <ul class="mb-6 flex flex-col gap-1.5">
@@ -31,7 +30,7 @@
     </div>
   </section>
   <section>
-    <nav class="mt-5 px-4 py-4 lg:mt-9 lg:px-6">
+    <nav class="px-4 py-4 lg:px-6">
       <ul class="mb-6 flex flex-col gap-1.5">
         <.sidebar_item
           icon="hero-code-bracket"
