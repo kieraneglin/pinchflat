@@ -2,6 +2,10 @@
 
 This is alpha software and anything can break at any time. I make not guarantees about the stability of this software, forward-compatibility of updates, or integrity (both related to and independent of Pinchflat). Essentially, use at your own risk and expect there will be rough edges.
 
+## EFF Donation Receipts
+
+A portion of all donations to Pinchflat will be donated to the Electronic Frontier Foundation. [See here](https://github.com/kieraneglin/pinchflat/wiki/EFF-Donation-Receipts) for a list of donation receipts.
+
 ## What is Pinchflat?
 
 TODO: expand on this.
