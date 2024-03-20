@@ -1,17 +1,18 @@
 <header class="sticky top-0 z-999 flex h-20 w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
   <div class="flex flex-grow items-center justify-between lg:justify-end px-4 py-4 shadow-2 md:px-6 2xl:px-11">
-    <div class="flex items-center gap-2 sm:gap-4 lg:hidden">
+    <div class="flex items-center gap-2 sm:gap-4 lg:hidden w-2/6">
+      <section class="pr-1">
+        <img src={~p"/images/icon.png?cachebust=2024-03-20"} alt="Pinchflat" class="w-10" />
+      </section>
+
       <button
-        class="z-99999 block rounded-sm border border-stroke bg-white p-1.5 shadow-sm dark:border-strokedark dark:bg-boxdark lg:hidden"
+        class="z-99999 block mx-2 rounded-sm border border-stroke bg-white p-1.5 shadow-sm dark:border-strokedark dark:bg-boxdark lg:hidden"
         @click.stop="sidebarVisible = !sidebarVisible"
       >
         <.icon name="hero-bars-3" />
       </button>
-      <section class="hidden sm:flex items-center lg:hidden py-4">
-        <img src={~p"/images/logo.png?cachebust=2024-03-20"} alt="Pinchflat" class="h-10" />
-      </section>
     </div>
-    <div class="bg-meta-4 rounded-md">
+    <div class="bg-meta-4 rounded-md w-4/6 lg:w-3/6 xl:w-2/6">
       <div class="relative">
         <span class="absolute left-2 top-1/2 -translate-y-1/2 flex">
           <.icon name="hero-magnifying-glass" />
@@ -22,7 +23,7 @@
             name="q"
             value={@params["q"]}
             placeholder="Type to search..."
-            class="w-full bg-transparent pl-9 pr-4 border-0 focus:ring-0 focus:outline-none lg:w-125"
+            class="w-full bg-transparent pl-9 pr-4 border-0 focus:ring-0 focus:outline-none"
           />
         </form>
       </div>
