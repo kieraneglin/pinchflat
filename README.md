@@ -113,7 +113,7 @@ Elixir is a personal favourite of mine and is ideal for building fault-tolerant 
 
 ### Top tips
 
-- Look for any module that ends in `*_worker.ex` - these are where the interesting stuff happens and you can trace back from there to see how the app works. `lib/pinchflat/slow_indexing/slow_indexing_helpers.ex` is a good place to start
+- Look for any module that ends in `*_worker.ex` - these are where the interesting stuff happens and you can trace back from there to see how the app works. `lib/pinchflat/slow_indexing/media_collection_indexing_worker.ex` is a good place to start
 
 ## License
 
