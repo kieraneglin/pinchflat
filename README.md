@@ -23,6 +23,8 @@
   - [Unraid](#unraid)
   - [Docker](#docker)
 - [Authentication](#authentication)
+- [Frequently asked questions](https://github.com/kieraneglin/pinchflat/wiki/Frequently-Asked-Questions)
+- [Documentation](https://github.com/kieraneglin/pinchflat/wiki)
 - [EFF donations](#eff-donations)
 - [Pre-release disclaimer](#pre-release-disclaimer)
 - [Development](#development)

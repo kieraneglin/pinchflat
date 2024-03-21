@@ -11,7 +11,7 @@ defmodule Pinchflat.Metadata.MetadataParserTest do
     test "it extracts the media filepath", %{metadata: metadata} do
       result = Parser.parse_for_media_item(metadata)
 
-      assert String.contains?(result.media_filepath, "bwRHIkYqYJo")
+      assert String.contains?(result.media_filepath, "Pinchflat Example Video-ABC123")
       assert String.ends_with?(result.media_filepath, ".mkv")
     end
 

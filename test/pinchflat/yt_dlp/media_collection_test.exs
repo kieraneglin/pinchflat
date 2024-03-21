@@ -6,7 +6,7 @@ defmodule Pinchflat.YtDlp.MediaCollectionTest do
   alias Pinchflat.YtDlp.Media
   alias Pinchflat.YtDlp.MediaCollection
 
-  @channel_url "https://www.youtube.com/c/TheUselessTrials"
+  @channel_url "https://www.youtube.com/c/PinchflatTestChannel"
 
   setup :verify_on_exit!
 
@@ -77,10 +77,10 @@ defmodule Pinchflat.YtDlp.MediaCollectionTest do
     test "it returns a map with data on success" do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
         Phoenix.json_library().encode(%{
-          channel: "TheUselessTrials",
+          channel: "PinchflatTestChannel",
           channel_id: "UCQH2",
           playlist_id: "PLQH2",
-          playlist_title: "TheUselessTrials - Videos"
+          playlist_title: "PinchflatTestChannel - Videos"
         })
       end)
 
@@ -88,9 +88,9 @@ defmodule Pinchflat.YtDlp.MediaCollectionTest do
 
       assert %{
                channel_id: "UCQH2",
-               channel_name: "TheUselessTrials",
+               channel_name: "PinchflatTestChannel",
                playlist_id: "PLQH2",
-               playlist_name: "TheUselessTrials - Videos"
+               playlist_name: "PinchflatTestChannel - Videos"
              } = res
     end
 
@@ -121,12 +121,12 @@ defmodule Pinchflat.YtDlp.MediaCollectionTest do
   describe "get_source_metadata/1" do
     test "it returns a map with data on success" do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
-        Phoenix.json_library().encode(%{channel: "TheUselessTrials"})
+        Phoenix.json_library().encode(%{channel: "PinchflatTestChannel"})
       end)
 
       assert {:ok, res} = MediaCollection.get_source_metadata(@channel_url)
 
-      assert %{"channel" => "TheUselessTrials"} = res
+      assert %{"channel" => "PinchflatTestChannel"} = res
     end
 
     test "it passes the expected args to the backend runner" do

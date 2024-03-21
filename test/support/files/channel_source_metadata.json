@@ -1,49 +1,15 @@
 {
-  "id": "TheUselessTrials",
-  "channel": "TheUselessTrials",
-  "channel_id": "UCEi9yL4vhQlLafWRsAgAr3w",
-  "title": "TheUselessTrials",
+  "id": "PinchflatTestChannel",
+  "channel": "PinchflatTestChannel",
+  "channel_id": "UCEABC123",
+  "title": "PinchflatTestChannel",
   "availability": null,
   "channel_follower_count": 35000,
-  "description": "My name is Max and I'm a Street Trials bike rider with a passion for making videos.  My channel features everything from learning and experiments all the way to just plain bike action.  The first video series I started is called Quick New Trick and it featured me trying to learn new bike skills as quickly as possible, to show you how you can learn them as well.\n\nHope you enjoy the videos! See you in the comments section.",
-  "tags": [
-    "Useless Trials",
-    "TUT",
-    "UT",
-    "Max Fiergolla",
-    "maxfiergolla",
-    "Street Trial Bikes",
-    "Bike Tricks",
-    "How To",
-    "bike trial",
-    "TRIAL BIKE",
-    "quick new trick",
-    "bike hacks",
-    "trials bike",
-    "bike trials",
-    "TRIALS",
-    "street trial",
-    "trial street",
-    "trials biking",
-    "bike tricks",
-    "bmx tricks",
-    "mtb",
-    "mtb tricks",
-    "danny macaskill",
-    "martyn ashton",
-    "macaskill",
-    "bike stunts",
-    "mountainbike stunts",
-    "mountainbiking",
-    "inspired bicycles",
-    "imaginate",
-    "fahrrad tricks",
-    "fahrradtricks",
-    "fahrrad stunts"
-  ],
+  "description": "This is a test file for Pinchflat",
+  "tags": ["test", "development"],
   "thumbnails": [
     {
-      "url": "https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w320-fcrop64=1,32b75a57cd48a5a8-k-c0xffffffff-no-nd-rj",
+      "url": "https://google.ca",
       "height": 88,
       "width": 320,
       "preference": -10,
@@ -52,7 +18,7 @@
       "filepath": "/app/test/support/files/channel_photos/a.0.jpg"
     },
     {
-      "url": "https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w320-fcrop64=1,00000000ffffffff-k-c0xffffffff-no-nd-rj",
+      "url": "https://google.ca",
       "height": 180,
       "width": 320,
       "preference": -10,
@@ -61,7 +27,7 @@
       "filepath": "/app/test/support/files/channel_photos/a.1.jpg"
     },
     {
-      "url": "https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w640-fcrop64=1,32b75a57cd48a5a8-k-c0xffffffff-no-nd-rj",
+      "url": "https://google.ca",
       "height": 175,
       "width": 640,
       "preference": -10,
@@ -70,7 +36,7 @@
       "filepath": "/app/test/support/files/channel_photos/a.2.jpg"
     },
     {
-      "url": "https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w854-fcrop64=1,00000000ffffffff-k-c0xffffffff-no-nd-rj",
+      "url": "https://google.ca",
       "height": 480,
       "width": 854,
       "preference": -10,
@@ -79,7 +45,7 @@
       "filepath": "/app/test/support/files/channel_photos/a.3.jpg"
     },
     {
-      "url": "https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w960-fcrop64=1,32b75a57cd48a5a8-k-c0xffffffff-no-nd-rj",
+      "url": "https://google.ca",
       "height": 263,
       "width": 960,
       "preference": -10,
@@ -88,7 +54,7 @@
       "filepath": "/app/test/support/files/channel_photos/a.4.jpg"
     },
     {
-      "url": "https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w1060-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj",
+      "url": "https://google.ca",
       "height": 175,
       "width": 1060,
       "preference": -10,
@@ -97,7 +63,7 @@
       "filepath": "/app/test/support/files/channel_photos/a.5.jpg"
     },
     {
-      "url": "https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w1138-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj",
+      "url": "https://google.ca",
       "height": 188,
       "width": 1138,
       "preference": -10,
@@ -106,7 +72,7 @@
       "filepath": "/app/test/support/files/channel_photos/a.6.jpg"
     },
     {
-      "url": "https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w1280-fcrop64=1,32b75a57cd48a5a8-k-c0xffffffff-no-nd-rj",
+      "url": "https://google.ca",
       "height": 351,
       "width": 1280,
       "preference": -10,
@@ -115,7 +81,7 @@
       "filepath": "/app/test/support/files/channel_photos/a.7.jpg"
     },
     {
-      "url": "https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w1280-fcrop64=1,00000000ffffffff-k-c0xffffffff-no-nd-rj",
+      "url": "https://google.ca",
       "height": 720,
       "width": 1280,
       "preference": -10,
@@ -124,7 +90,7 @@
       "filepath": "/app/test/support/files/channel_photos/a.8.jpg"
     },
     {
-      "url": "https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w1440-fcrop64=1,32b75a57cd48a5a8-k-c0xffffffff-no-nd-rj",
+      "url": "https://google.ca",
       "height": 395,
       "width": 1440,
       "preference": -10,
@@ -133,7 +99,7 @@
       "filepath": "/app/test/support/files/channel_photos/a.9.jpg"
     },
     {
-      "url": "https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w1707-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj",
+      "url": "https://google.ca",
       "height": 283,
       "width": 1707,
       "preference": -10,
@@ -142,7 +108,7 @@
       "filepath": "/app/test/support/files/channel_photos/a.10.jpg"
     },
     {
-      "url": "https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w1920-fcrop64=1,00000000ffffffff-k-c0xffffffff-no-nd-rj",
+      "url": "https://google.ca",
       "height": 1080,
       "width": 1920,
       "preference": -10,
@@ -151,7 +117,7 @@
       "filepath": "/app/test/support/files/channel_photos/a.11.jpg"
     },
     {
-      "url": "https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w2120-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj",
+      "url": "https://google.ca",
       "height": 351,
       "width": 2120,
       "preference": -10,
@@ -160,7 +126,7 @@
       "filepath": "/app/test/support/files/channel_photos/a.12.jpg"
     },
     {
-      "url": "https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w2120-fcrop64=1,00000000ffffffff-k-c0xffffffff-no-nd-rj",
+      "url": "https://google.ca",
       "height": 1192,
       "width": 2120,
       "preference": -10,
@@ -169,7 +135,7 @@
       "filepath": "/app/test/support/files/channel_photos/a.13.jpg"
     },
     {
-      "url": "https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w2276-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj",
+      "url": "https://google.ca",
       "height": 377,
       "width": 2276,
       "preference": -10,
@@ -178,7 +144,7 @@
       "filepath": "/app/test/support/files/channel_photos/a.14.jpg"
     },
     {
-      "url": "https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w2560-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj",
+      "url": "https://google.ca",
       "height": 424,
       "width": 2560,
       "preference": -10,
@@ -187,13 +153,13 @@
       "filepath": "/app/test/support/files/channel_photos/a.15.jpg"
     },
     {
-      "url": "https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=s0",
+      "url": "https://google.ca",
       "id": "banner_uncropped",
       "preference": -5,
       "filepath": "/app/test/support/files/channel_photos/a.banner_uncropped.jpg"
     },
     {
-      "url": "https://yt3.googleusercontent.com/ytc/AIdro_kw1KKWzbFmvq6u8WljTbo6QQ318WoAwnjX3AYrjA=s900-c-k-c0x00ffffff-no-rj",
+      "url": "https://google.ca",
       "height": 900,
       "width": 900,
       "id": "17",
@@ -201,24 +167,24 @@
       "filepath": "/app/test/support/files/channel_photos/a.17.jpg"
     },
     {
-      "url": "https://yt3.googleusercontent.com/ytc/AIdro_kw1KKWzbFmvq6u8WljTbo6QQ318WoAwnjX3AYrjA=s0",
+      "url": "https://google.ca",
       "id": "avatar_uncropped",
       "preference": 1,
       "filepath": "/app/test/support/files/channel_photos/a.avatar_uncropped.jpg"
     }
   ],
-  "uploader_id": "@TheUselessTrials",
-  "uploader_url": "https://www.youtube.com/@TheUselessTrials",
+  "uploader_id": "@PinchflatTestChannel",
+  "uploader_url": "https://www.youtube.com/@PinchflatTestChannel",
   "modified_date": null,
   "view_count": null,
   "playlist_count": 2,
-  "uploader": "TheUselessTrials",
-  "channel_url": "https://www.youtube.com/channel/UCEi9yL4vhQlLafWRsAgAr3w",
+  "uploader": "PinchflatTestChannel",
+  "channel_url": "https://www.youtube.com/channel/UCEABC123",
   "_type": "playlist",
   "entries": [],
-  "webpage_url": "https://www.youtube.com/c/TheUselessTrials",
-  "original_url": "https://www.youtube.com/c/TheUselessTrials",
-  "webpage_url_basename": "TheUselessTrials",
+  "webpage_url": "https://www.youtube.com/c/PinchflatTestChannel",
+  "original_url": "https://www.youtube.com/c/PinchflatTestChannel",
+  "webpage_url_basename": "PinchflatTestChannel",
   "webpage_url_domain": "youtube.com",
   "extractor": "youtube:tab",
   "extractor_key": "YoutubeTab",
@@ -227,7 +193,6 @@
   "epoch": 1710800380,
   "filename": "/app/test/support/files/channel_photos/a.NA",
   "formats_table": null,
-  "thumbnails_table": "ID               Width   Height  URL\n0                320     88      https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w320-fcrop64=1,32b75a57cd48a5a8-k-c0xffffffff-no-nd-rj\n1                320     180     https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w320-fcrop64=1,00000000ffffffff-k-c0xffffffff-no-nd-rj\n2                640     175     https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w640-fcrop64=1,32b75a57cd48a5a8-k-c0xffffffff-no-nd-rj\n3                854     480     https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w854-fcrop64=1,00000000ffffffff-k-c0xffffffff-no-nd-rj\n4                960     263     https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w960-fcrop64=1,32b75a57cd48a5a8-k-c0xffffffff-no-nd-rj\n5                1060    175     https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w1060-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj\n6                1138    188     https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w1138-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj\n7                1280    351     https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w1280-fcrop64=1,32b75a57cd48a5a8-k-c0xffffffff-no-nd-rj\n8                1280    720     https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w1280-fcrop64=1,00000000ffffffff-k-c0xffffffff-no-nd-rj\n9                1440    395     https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w1440-fcrop64=1,32b75a57cd48a5a8-k-c0xffffffff-no-nd-rj\n10               1707    283     https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w1707-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj\n11               1920    1080    https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w1920-fcrop64=1,00000000ffffffff-k-c0xffffffff-no-nd-rj\n12               2120    351     https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w2120-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj\n13               2120    1192    https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w2120-fcrop64=1,00000000ffffffff-k-c0xffffffff-no-nd-rj\n14               2276    377     https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w2276-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj\n15               2560    424     https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=w2560-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj\nbanner_uncropped unknown unknown https://yt3.googleusercontent.com/_yUVmZqHvZZhNOFq2iMUPA82LylawAvYknCrwTE_9_IUQ0htiLPet2FKxE1ArvLAKf0lVsLccQ=s0\n17               900     900     https://yt3.googleusercontent.com/ytc/AIdro_kw1KKWzbFmvq6u8WljTbo6QQ318WoAwnjX3AYrjA=s900-c-k-c0x00ffffff-no-rj\navatar_uncropped unknown unknown https://yt3.googleusercontent.com/ytc/AIdro_kw1KKWzbFmvq6u8WljTbo6QQ318WoAwnjX3AYrjA=s0",
   "subtitles_table": null,
   "automatic_captions_table": null,
   "duration_string": null,
