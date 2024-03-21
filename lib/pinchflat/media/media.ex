@@ -66,6 +66,7 @@ defmodule Pinchflat.Media do
     |> where([mi], mi.source_id == ^source.id and is_nil(mi.media_filepath))
     |> where(^build_format_clauses(media_profile))
     |> where(^maybe_apply_cutoff_date(source))
+    |> where(^maybe_apply_title_regex(source))
     |> Repo.maybe_limit(limit)
     |> Repo.all()
   end
@@ -242,6 +243,14 @@ defmodule Pinchflat.Media do
   defp maybe_apply_cutoff_date(source) do
     if source.download_cutoff_date do
       dynamic([mi], mi.upload_date >= ^source.download_cutoff_date)
+    else
+      dynamic(true)
+    end
+  end
+
+  defp maybe_apply_title_regex(source) do
+    if source.title_filter_regex do
+      dynamic([mi], fragment("regexp_like(?, ?)", mi.title, ^source.title_filter_regex))
     else
       dynamic(true)
     end

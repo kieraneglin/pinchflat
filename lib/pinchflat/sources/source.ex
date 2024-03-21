@@ -28,6 +28,7 @@ defmodule Pinchflat.Sources.Source do
     last_indexed_at
     original_url
     download_cutoff_date
+    title_filter_regex
     media_profile_id
   )a
 
@@ -57,11 +58,6 @@ defmodule Pinchflat.Sources.Source do
     field :collection_name, :string
     field :collection_id, :string
     field :collection_type, Ecto.Enum, values: [:channel, :playlist]
-    field :nfo_filepath, :string
-    field :poster_filepath, :string
-    field :fanart_filepath, :string
-    field :banner_filepath, :string
-    field :series_directory, :string
     field :index_frequency_minutes, :integer, default: 60 * 24
     field :fast_index, :boolean, default: false
     field :download_media, :boolean, default: true
@@ -69,6 +65,13 @@ defmodule Pinchflat.Sources.Source do
     # Only download media items that were published after this date
     field :download_cutoff_date, :date
     field :original_url, :string
+    field :title_filter_regex, :string
+
+    field :series_directory, :string
+    field :nfo_filepath, :string
+    field :poster_filepath, :string
+    field :fanart_filepath, :string
+    field :banner_filepath, :string
 
     belongs_to :media_profile, MediaProfile
 

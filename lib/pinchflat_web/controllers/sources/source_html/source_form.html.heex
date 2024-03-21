@@ -1,11 +1,22 @@
-<.simple_form :let={f} for={@changeset} action={@action}>
+<.simple_form
+  :let={f}
+  for={@changeset}
+  action={@action}
+  x-data="{ advancedMode: !!JSON.parse(localStorage.getItem('advancedMode')) }"
+  x-init="$watch('advancedMode', value => localStorage.setItem('advancedMode', JSON.stringify(value)))"
+>
   <.error :if={@changeset.action}>
     Oops, something went wrong! Please check the errors below.
   </.error>
 
-  <h3 class="mt-8 text-2xl text-black dark:text-white">
-    General Options
-  </h3>
+  <section class="flex justify-between items-center mt-8">
+    <h3 class=" text-2xl text-black dark:text-white">
+      General Options
+    </h3>
+    <span class="cursor-pointer hover:underline" x-on:click="advancedMode = !advancedMode">
+      Editing Mode: <span x-text="advancedMode ? 'Advanced' : 'Basic'"></span>
+    </span>
+  </section>
 
   <.input
     field={f[:custom_name]}
@@ -69,7 +80,24 @@
     help="Only download media uploaded after this date. Leave blank to download all media. Must be in YYYY-MM-DD format"
   />
 
-  <.button class="my-10 sm:mb-7.5 w-full sm:w-auto">Save Source</.button>
+  <section x-show="advancedMode">
+    <h3 class="mt-8 text-2xl text-black dark:text-white">
+      Advanced Options
+    </h3>
+    <p class="text-sm mt-2">
+      Tread carefully
+    </p>
+
+    <.input
+      field={f[:title_filter_regex]}
+      type="text"
+      label="Title Filter Regex"
+      placeholder="(?i)^How to Bike$"
+      help="A PCRE-compatible regex. Only media with titles that match this regex will be downloaded. Look up 'SQLean Regex docs' for more"
+    />
+  </section>
+
+  <.button class="my-10 sm:mb-7.5 w-full sm:w-auto" rounding="rounded-lg">Save Source</.button>
 
   <div class="rounded-sm dark:bg-meta-4 p-4 md:p-6 mb-5">
     <.fast_indexing_help />
