@@ -23,18 +23,6 @@ alias Pinchflat.Metadata.MetadataFileHelpers
 alias Pinchflat.SlowIndexing.FileFollowerServer
 
 defmodule IexHelpers do
-  def playlist_url do
-    "https://www.youtube.com/playlist?list=PLmqC3wPkeL8kSlTCcSMDD63gmSi7evcXS"
-  end
-
-  def channel_url do
-    "https://www.youtube.com/c/TheUselessTrials"
-  end
-
-  def video_url do
-    "https://www.youtube.com/watch?v=bR52O78ZIUw"
-  end
-
   def last_media_item do
     Repo.one(from m in MediaItem, limit: 1)
   end

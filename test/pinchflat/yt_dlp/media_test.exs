@@ -36,7 +36,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
         {:ok, render_metadata(:media_metadata)}
       end)
 
-      assert {:ok, %{"title" => "Trying to Wheelie Without the Rear Brake"}} =
+      assert {:ok, %{"title" => "Pinchflat Example Video"}} =
                Media.download(@media_url)
     end
 

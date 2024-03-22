@@ -73,7 +73,7 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
 
     test "it extracts the title", %{media_item: media_item} do
       assert {:ok, updated_media_item} = MediaDownloader.download_for_media_item(media_item)
-      assert updated_media_item.title == "Trying to Wheelie Without the Rear Brake"
+      assert updated_media_item.title == "Pinchflat Example Video"
     end
 
     test "it extracts the description", %{media_item: media_item} do
