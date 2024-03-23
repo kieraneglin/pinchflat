@@ -21,31 +21,3 @@ alias Pinchflat.FastIndexing.YoutubeRss
 alias Pinchflat.Metadata.MetadataFileHelpers
 
 alias Pinchflat.SlowIndexing.FileFollowerServer
-
-defmodule IexHelpers do
-  def last_media_item do
-    Repo.one(from m in MediaItem, limit: 1)
-  end
-
-  def details(type) do
-    source =
-      case type do
-        :playlist -> playlist_url()
-        :channel -> channel_url()
-      end
-
-    YtDlpCollection.get_source_details(source)
-  end
-
-  def ids(type) do
-    source =
-      case type do
-        :playlist -> playlist_url()
-        :channel -> channel_url()
-      end
-
-    YtDlpCollection.get_media_attributes_for_collection(source)
-  end
-end
-
-import IexHelpers

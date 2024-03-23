@@ -28,10 +28,14 @@ defmodule PinchflatWeb.Router do
     end
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", PinchflatWeb do
-  #   pipe_through :api
-  # end
+  # Routes in here are NOT protected by basic auth. This is necessary for
+  # media streaming to work for RSS podcast feeds.
+  #
+  # TODO: consider putting the basic auth here behind a config flag
+  # so people that want RSS feeds to work can enable it.
+  scope "/", PinchflatWeb do
+    get "/media/:id/stream", MediaItems.MediaItemController, :stream
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:pinchflat, :dev_routes) do

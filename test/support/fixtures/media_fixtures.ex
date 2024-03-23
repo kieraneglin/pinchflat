@@ -49,7 +49,7 @@ defmodule Pinchflat.MediaFixtures do
       Path.join([
         Application.get_env(:pinchflat, :media_directory),
         "#{:rand.uniform(1_000_000)}",
-        "#{:rand.uniform(1_000_000)}_media.mkv"
+        "#{:rand.uniform(1_000_000)}_media.mp4"
       ])
 
     fixture_media_filepath =

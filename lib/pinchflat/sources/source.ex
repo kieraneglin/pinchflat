@@ -47,6 +47,7 @@ defmodule Pinchflat.Sources.Source do
 
   @pre_insert_required_fields @initially_required_fields ++
                                 ~w(
+                                  uuid
                                   custom_name
                                   collection_name
                                   collection_id
@@ -54,6 +55,11 @@ defmodule Pinchflat.Sources.Source do
                                 )a
 
   schema "sources" do
+    # This is _not_ used as the primary key or internally in the database
+    # relations. This is only used to prevent an enumeration attack on the streaming
+    # and RSS feed endpoints since those _must_ be public (ie: no basic auth)
+    field :uuid, Ecto.UUID
+
     field :custom_name, :string
     field :collection_name, :string
     field :collection_id, :string
@@ -96,6 +102,7 @@ defmodule Pinchflat.Sources.Source do
     source
     |> cast(attrs, @allowed_fields)
     |> dynamic_default(:custom_name, fn cs -> get_field(cs, :collection_name) end)
+    |> dynamic_default(:uuid, fn _ -> Ecto.UUID.generate() end)
     |> validate_required(required_fields)
     |> cast_assoc(:metadata, with: &SourceMetadata.changeset/2, required: false)
   end
