@@ -13,6 +13,14 @@
     <.tabbed_layout>
       <:tab title="Attributes">
         <div class="flex flex-col gap-10 dark:text-white">
+          <%!-- <audio controls class="w-full">
+            <source src={~p"/media/#{@media_item}/stream"} type="audio/mpeg" />
+            Your browser does not support the audio element.
+          </audio> --%>
+          <video controls class="w-full">
+            <source src={~p"/media/#{@media_item}/stream"} type="video/mp4" />
+            Your browser does not support the video element.
+          </video>
           <h3 class="font-bold text-xl">Attributes</h3>
           <section>
             <strong>Source:</strong>
