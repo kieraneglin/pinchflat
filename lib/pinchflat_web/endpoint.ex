@@ -47,5 +47,33 @@ defmodule PinchflatWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
+
+  plug :strip_trailing_extension
+
   plug PinchflatWeb.Router
+
+  defp strip_trailing_extension(%{path_info: []} = conn, _opts), do: conn
+
+  defp strip_trailing_extension(conn, _opts) do
+    path =
+      conn.path_info
+      |> List.last()
+      |> String.split(".")
+      |> Enum.reverse()
+
+    case path do
+      [_] ->
+        conn
+
+      [_format | fragments] ->
+        new_path =
+          fragments
+          |> Enum.reverse()
+          |> Enum.join(".")
+
+        path_fragments = List.replace_at(conn.path_info, -1, new_path)
+
+        %{conn | path_info: path_fragments}
+    end
+  end
 end

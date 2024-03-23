@@ -1,6 +1,8 @@
 defmodule PinchflatWeb.Router do
   use PinchflatWeb, :router
 
+  # IMPORTANT: `strip_trailing_extension` in endpoint.ex removes
+  # the extension from the path
   pipeline :browser do
     plug :basic_auth
     plug :accepts, ["html"]
