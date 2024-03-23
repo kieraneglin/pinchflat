@@ -3,6 +3,7 @@ defmodule PinchflatWeb.MediaItems.MediaItemController do
 
   alias Pinchflat.Repo
   alias Pinchflat.Media
+  alias Pinchflat.Media.MediaItem
 
   def show(conn, %{"id" => id}) do
     media_item =
@@ -32,13 +33,11 @@ defmodule PinchflatWeb.MediaItems.MediaItemController do
 
   # See here for details on streaming files and range requests:
   # https://www.zeng.dev/post/2023-http-range-and-play-mp4-in-browser/
-  def stream(conn, %{"id" => id}) do
-    media_item = Media.get_media_item!(id)
-
-    # TODO: show audio vs. video element in UI depending on media type
-    # TODO: consider how a podcast RSS feed would interact with HTTP basic auth
-    # TODO: reconsider the sobelow changes I made
-    # TODO: UUID stuff
+  #
+  # Uses the UUID instead of the ID to avoid enumeration attacks
+  # since streaming is a public endpoint (ie: no auth required)
+  def stream(conn, %{"id" => uuid}) do
+    media_item = Repo.get_by!(MediaItem, uuid: uuid)
 
     if File.exists?(media_item.media_filepath) do
       file_size = File.stat!(media_item.media_filepath).size

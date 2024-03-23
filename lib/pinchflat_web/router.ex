@@ -30,6 +30,9 @@ defmodule PinchflatWeb.Router do
 
   # Routes in here are NOT protected by basic auth. This is necessary for
   # media streaming to work for RSS podcast feeds.
+  #
+  # TODO: consider putting the basic auth here behind a config flag
+  # so people that want RSS feeds to work can enable it.
   scope "/", PinchflatWeb do
     get "/media/:id/stream", MediaItems.MediaItemController, :stream
   end

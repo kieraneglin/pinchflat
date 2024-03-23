@@ -85,6 +85,10 @@ NOTE: it's recommended to not run the container as root. Doing so can create per
 
 HTTP basic authentication is optionally supported. To use it, set the `BASIC_AUTH_USERNAME` and `BASIC_AUTH_PASSWORD` environment variables when starting the container. No authentication will be required unless you set _both_ of these.
 
+### Important note:
+
+The media streaming endpoint is not protected by basic auth. To help protect your media, these endpoints work with UUIDs instead of sequential IDs but this is still essentially security through obscurity. If you're concerned about the security of your media, consider using a reverse proxy with authentication or a VPN.
+
 ## EFF donations
 
 A portion of all donations to Pinchflat will be donated to the [Electronic Frontier Foundation](https://www.eff.org/). The EFF defends your online liberties and [backed](https://github.com/github/dmca/blob/9a85e0f021f7967af80e186b890776a50443f06c/2020/11/2020-11-16-RIAA-reversal-effletter.pdf) `youtube-dl` when Google took them down. [See here](https://github.com/kieraneglin/pinchflat/wiki/EFF-Donation-Receipts) for a list of donation receipts.

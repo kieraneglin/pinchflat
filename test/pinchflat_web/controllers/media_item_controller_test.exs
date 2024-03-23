@@ -69,14 +69,14 @@ defmodule PinchflatWeb.MediaItemControllerTest do
   describe "streaming media" do
     test "returns 404 if the media isn't found", %{conn: conn} do
       media_item = media_item_fixture()
-      conn = get(conn, ~p"/media/#{media_item.id}/stream")
+      conn = get(conn, ~p"/media/#{media_item.uuid}/stream")
 
       assert conn.status == 404
     end
 
     test "automatically sets the content type", %{conn: conn} do
       media_item = media_item_with_attachments()
-      conn = get(conn, ~p"/media/#{media_item.id}/stream")
+      conn = get(conn, ~p"/media/#{media_item.uuid}/stream")
 
       assert {"content-type", "video/mp4; charset=utf-8"} in conn.resp_headers
     end
@@ -85,7 +85,7 @@ defmodule PinchflatWeb.MediaItemControllerTest do
       media_item = media_item_with_attachments()
       filesize = File.stat!(media_item.media_filepath).size
 
-      conn = get(conn, ~p"/media/#{media_item.id}/stream")
+      conn = get(conn, ~p"/media/#{media_item.uuid}/stream")
 
       assert {"content-length", to_string(filesize)} in conn.resp_headers
     end
@@ -104,7 +104,7 @@ defmodule PinchflatWeb.MediaItemControllerTest do
       conn =
         conn
         |> put_req_header("range", "bytes=0-100")
-        |> get(~p"/media/#{media_item.id}/stream")
+        |> get(~p"/media/#{media_item.uuid}/stream")
 
       assert conn.status == 206
       assert {"content-range", "bytes 0-100/#{filesize}"} in conn.resp_headers
@@ -115,7 +115,7 @@ defmodule PinchflatWeb.MediaItemControllerTest do
       conn =
         conn
         |> put_req_header("range", "bytes=0-100")
-        |> get(~p"/media/#{media_item.id}/stream")
+        |> get(~p"/media/#{media_item.uuid}/stream")
 
       assert byte_size(conn.resp_body) == 101
     end
@@ -127,7 +127,7 @@ defmodule PinchflatWeb.MediaItemControllerTest do
       conn =
         conn
         |> put_req_header("range", "bytes=100-200")
-        |> get(~p"/media/#{media_item.id}/stream")
+        |> get(~p"/media/#{media_item.uuid}/stream")
 
       assert conn.resp_body == expected
     end
@@ -139,7 +139,7 @@ defmodule PinchflatWeb.MediaItemControllerTest do
       conn =
         conn
         |> put_req_header("range", "bytes=0-#{filesize * 10}")
-        |> get(~p"/media/#{media_item.id}/stream")
+        |> get(~p"/media/#{media_item.uuid}/stream")
 
       assert conn.resp_body == contents
       assert {"content-range", "bytes 0-#{filesize - 1}/#{filesize}"} in conn.resp_headers
@@ -152,7 +152,7 @@ defmodule PinchflatWeb.MediaItemControllerTest do
       conn =
         conn
         |> put_req_header("range", "bytes=0-")
-        |> get(~p"/media/#{media_item.id}/stream")
+        |> get(~p"/media/#{media_item.uuid}/stream")
 
       assert conn.resp_body == contents
     end
@@ -164,7 +164,7 @@ defmodule PinchflatWeb.MediaItemControllerTest do
       conn =
         conn
         |> put_req_header("range", "bytes=100-")
-        |> get(~p"/media/#{media_item.id}/stream")
+        |> get(~p"/media/#{media_item.uuid}/stream")
 
       assert conn.resp_body == expected
     end
@@ -180,7 +180,7 @@ defmodule PinchflatWeb.MediaItemControllerTest do
     test "sets the correct status and headers", %{conn: conn, media_item: media_item} do
       filesize = File.stat!(media_item.media_filepath).size
 
-      conn = get(conn, ~p"/media/#{media_item.id}/stream")
+      conn = get(conn, ~p"/media/#{media_item.uuid}/stream")
 
       assert conn.status == 200
       assert {"content-length", to_string(filesize)} in conn.resp_headers
@@ -189,7 +189,7 @@ defmodule PinchflatWeb.MediaItemControllerTest do
     test "streams the entire file", %{conn: conn, media_item: media_item} do
       contents = File.read!(media_item.media_filepath)
 
-      conn = get(conn, ~p"/media/#{media_item.id}/stream")
+      conn = get(conn, ~p"/media/#{media_item.uuid}/stream")
 
       assert conn.resp_body == contents
     end
@@ -200,7 +200,7 @@ defmodule PinchflatWeb.MediaItemControllerTest do
       conn =
         conn
         |> put_req_header("range", "bytes=-")
-        |> get(~p"/media/#{media_item.id}/stream")
+        |> get(~p"/media/#{media_item.uuid}/stream")
 
       assert conn.status == 200
       assert conn.resp_body == contents
