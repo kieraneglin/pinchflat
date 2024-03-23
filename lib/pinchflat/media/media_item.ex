@@ -5,6 +5,7 @@ defmodule Pinchflat.Media.MediaItem do
 
   use Ecto.Schema
   import Ecto.Changeset
+  import Pinchflat.Utils.ChangesetUtils
 
   alias Pinchflat.Tasks.Task
   alias Pinchflat.Sources.Source
@@ -32,6 +33,7 @@ defmodule Pinchflat.Media.MediaItem do
   ]
   # Pretty much all the fields captured at index are required.
   @required_fields ~w(
+    uuid
     title
     original_url
     livestream
@@ -42,6 +44,11 @@ defmodule Pinchflat.Media.MediaItem do
     )a
 
   schema "media_items" do
+    # This is _not_ used as the primary key or internally in the database
+    # relations. This is only used to prevent an enumeration attack on the streaming
+    # and RSS feed endpoints since those _must_ be public (ie: no basic auth)
+    field :uuid, Ecto.UUID
+
     field :title, :string
     field :media_id, :string
     field :description, :string
@@ -78,6 +85,7 @@ defmodule Pinchflat.Media.MediaItem do
     media_item
     |> cast(attrs, @allowed_fields)
     |> cast_assoc(:metadata, with: &MediaMetadata.changeset/2, required: false)
+    |> dynamic_default(:uuid, fn _ -> Ecto.UUID.generate() end)
     |> validate_required(@required_fields)
     |> unique_constraint([:media_id, :source_id])
   end
