@@ -22,16 +22,27 @@ defmodule Pinchflat.Filesystem.FilesystemHelpers do
 
   @doc """
   Writes content to a file, creating directories as needed.
+  Takes the same args as File.write/3.
+
+  Returns :ok | {:error, any()}
+  """
+  def write_p(file, content, modes \\ []) do
+    dirname = Path.dirname(file)
+
+    case File.mkdir_p(dirname) do
+      :ok -> File.write(file, content, modes)
+      err -> err
+    end
+  end
+
+  @doc """
+  Writes content to a file, creating directories as needed.
   Takes the same args as File.write!/3.
 
   Returns :ok | raises on error
   """
   def write_p!(filepath, content, modes \\ []) do
-    filepath
-    |> Path.dirname()
-    |> File.mkdir_p!()
-
-    File.write!(filepath, content, modes)
+    :ok = write_p(filepath, content, modes)
   end
 
   @doc """
