@@ -61,6 +61,22 @@ If it doesn't work for your use case, please make a feature request! You can als
 
 Simply search for Pinchflat in the Community Apps store!
 
+### Portainer
+
+Docker Compose file:
+
+```yaml
+version: '3'
+services:
+  pinchflat:
+    image: keglin/pinchflat:latest
+    ports:
+      - '8945:8945'
+    volumes:
+      - /host/path/to/config:/config
+      - /host/path/to/downloads:/downloads
+```
+
 ### Docker
 
 1. Create two directories on your host machine: one for storing config and one for storing downloaded media. Make sure they're both writable by the user running the Docker container.
@@ -79,7 +95,11 @@ docker run \
   keglin/pinchflat:latest
 ```
 
-NOTE: it's recommended to not run the container as root. Doing so can create permission issues if other apps need to work with the downloaded media. If you need to run any command as root, you can run `su` from the container's shell as there is no password set for the root user.
+### IMPORTANT: File permissions
+
+You _must_ ensure the host directories you've mounted are writable by the user running the Docker container. If you get a permission error follow the steps it suggests. See [#106](https://github.com/kieraneglin/pinchflat/issues/106) for more.
+
+It's recommended to not run the container as root. Doing so can create permission issues if other apps need to work with the downloaded media. If you need to run any command as root, you can run `su` from the container's shell as there is no password set for the root user.
 
 ## Authentication
 

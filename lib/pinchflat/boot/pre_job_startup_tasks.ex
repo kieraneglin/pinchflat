@@ -14,7 +14,6 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
 
   alias Pinchflat.Repo
   alias Pinchflat.Settings
-  alias Pinchflat.Filesystem.FilesystemHelpers
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, %{}, opts)
@@ -33,7 +32,6 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
   def init(state) do
     reset_executing_jobs()
     apply_default_settings()
-    ensure_directories_are_writeable()
     rename_old_job_workers()
 
     {:ok, state}
@@ -54,21 +52,6 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
   defp apply_default_settings do
     Settings.fetch!(:onboarding, true)
     Settings.fetch!(:pro_enabled, false)
-  end
-
-  defp ensure_directories_are_writeable do
-    directories = [
-      Application.get_env(:pinchflat, :media_directory),
-      Application.get_env(:pinchflat, :tmpfile_directory),
-      Application.get_env(:pinchflat, :metadata_directory)
-    ]
-
-    Enum.each(directories, fn dir ->
-      file = Path.join([dir, ".keep"])
-
-      # This will fail if the directory is not writeable, stopping boot
-      FilesystemHelpers.write_p!(file, "")
-    end)
   end
 
   # As part of a large refactor, I ended up moving a bunch of workers around. This
