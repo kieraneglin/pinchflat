@@ -41,4 +41,6 @@ jobs:
           platforms: ${{ github.event.inputs.platforms }}
           push: true
           file: ./selfhosted.Dockerfile
-          tags: 'keglin/pinchflat:${{ github.event.inputs.image_tag }}'
+          tags: |
+            'keglin/pinchflat:${{ github.event.inputs.image_tag }}'
+            'ghcr.io/${{ github.repository_owner }}/pinchflat:${{ github.event.inputs.image_tag }}'
