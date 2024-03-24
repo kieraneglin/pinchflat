@@ -7,6 +7,10 @@ on:
         description: 'Docker Image Tag'
         required: true
         default: 'dev'
+      platforms:
+        description: 'Build Platforms'
+        required: true
+        default: 'linux/amd64,linux/arm64'
 
 jobs:
   docker:
@@ -27,7 +31,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ github.event.inputs.platforms }}
           push: true
           file: ./selfhosted.Dockerfile
           tags: 'keglin/pinchflat:${{ github.event.inputs.image_tag }}'
