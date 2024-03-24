@@ -33,17 +33,17 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
         <lastBuildDate>#{Calendar.strftime(DateTime.utc_now(), @datetime_format)}</lastBuildDate>
         <pubDate>#{Calendar.strftime(source.inserted_at, @datetime_format)}</pubDate>
         <atom:link href="#{generate_self_link(source)}" rel="self" type="application/rss+xml" />
-        <podcast:locked>false</podcast:locked>
+        <podcast:locked>yes</podcast:locked>
         <podcast:guid>#{source.uuid}</podcast:guid>
         <image>
-          <url>https://raw.githubusercontent.com/kieraneglin/pinchflat/master/priv/static/images/originals/logo.png</url>
+          <url>#{generate_source_image_path(source)}</url>
           <title>#{source.custom_name}</title>
           <link>#{source.original_url}</link>
         </image>
         <itunes:author>#{source.custom_name}</itunes:author>
         <itunes:subtitle>#{source.custom_name}</itunes:subtitle>
         <itunes:block>yes</itunes:block>
-        <itunes:image href="https://raw.githubusercontent.com/kieraneglin/pinchflat/master/priv/static/images/originals/logo.png"></itunes:image>
+        <itunes:image href="#{generate_source_image_path(source)}"></itunes:image>
         <itunes:explicit>false</itunes:explicit>
         <itunes:category text="TV &amp; Film"></itunes:category>
 
@@ -83,6 +83,11 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
     extension = Path.extname(media_item.media_filepath)
 
     "#{url_base()}/media/#{media_item.uuid}/stream#{extension}"
+  end
+
+  # TODO: add extension maybe. maybe refactor controller to handle this
+  defp generate_source_image_path(source) do
+    "#{url_base()}/sources/#{source.uuid}/feed_image"
   end
 
   defp generate_upload_date(media_item) do

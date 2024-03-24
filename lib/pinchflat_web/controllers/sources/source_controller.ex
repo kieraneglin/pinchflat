@@ -59,6 +59,8 @@ defmodule PinchflatWeb.Sources.SourceController do
     )
   end
 
+  # TODO: test
+  # TODO: maybe move both of these to a separate controller
   def feed(conn, %{"id" => uuid}) do
     # TODO: change this to UUID
     source = Repo.get_by!(Source, id: uuid)
@@ -70,6 +72,32 @@ defmodule PinchflatWeb.Sources.SourceController do
     |> put_resp_content_type("application/rss+xml")
     |> put_resp_header("content-disposition", "inline")
     |> send_resp(200, xml)
+  end
+
+  # TODO: test
+  # TODO: look into media_items having a thumbnail path when the image is embedded but not on disk
+  # TODO: pull these images from the internal metadata instead. this implies I'll have to hook up
+  # metadata images for sources
+  def feed_image(conn, %{"id" => uuid}) do
+    source = Repo.get_by!(Source, uuid: uuid)
+    media_item = Media.list_downloaded_media_items_for(source, limit: 1)
+
+    filepath =
+      case {source.poster_filepath, media_item} do
+        {poster, _} when poster != nil -> poster
+        {nil, [media_item]} -> media_item.thumbnail_filepath
+        _ -> nil
+      end
+
+    IO.inspect(filepath)
+
+    if filepath && File.exists?(filepath) do
+      conn
+      |> put_resp_content_type(MIME.from_path(filepath))
+      |> send_file(200, filepath)
+    else
+      send_resp(conn, 404, "File not found")
+    end
   end
 
   def edit(conn, %{"id" => id}) do

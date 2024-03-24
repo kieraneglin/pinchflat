@@ -37,6 +37,8 @@ defmodule PinchflatWeb.Router do
   # so people that want RSS feeds to work can enable it.
   scope "/", PinchflatWeb do
     get "/sources/:id/feed", Sources.SourceController, :feed
+    get "/sources/:id/feed_image", Sources.SourceController, :feed_image
+
     get "/media/:id/stream", MediaItems.MediaItemController, :stream
   end
 
