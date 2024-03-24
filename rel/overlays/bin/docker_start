@@ -1,4 +1,11 @@
 #!/bin/sh
+/app/bin/check_file_permissions
+
+if [ $? -ne 0 ]; then
+  echo "Filesystem error. Exiting."
+  exit 1
+fi
+
 /app/bin/migrate
 
 cd -P -- "$(dirname -- "$0")"
