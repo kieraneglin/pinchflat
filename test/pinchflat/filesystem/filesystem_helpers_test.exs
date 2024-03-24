@@ -62,7 +62,7 @@ defmodule Pinchflat.Filesystem.FilesystemHelpersTest do
       filepath = FilesystemHelpers.generate_metadata_tmpfile(:json)
       content = "{}"
 
-      assert :ok = FilesystemHelpers.write_p(filepath, content)
+      assert :ok = FilesystemHelpers.write_p!(filepath, content)
       assert File.read!(filepath) == content
 
       File.rm!(filepath)
@@ -73,7 +73,7 @@ defmodule Pinchflat.Filesystem.FilesystemHelpersTest do
       filepath = Path.join([tmpfile_directory, "foo", "bar", "file.json"])
       content = "{}"
 
-      assert :ok = FilesystemHelpers.write_p(filepath, content)
+      assert :ok = FilesystemHelpers.write_p!(filepath, content)
       assert File.read!(filepath) == content
 
       File.rm!(filepath)
