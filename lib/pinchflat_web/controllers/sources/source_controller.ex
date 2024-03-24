@@ -7,6 +7,7 @@ defmodule PinchflatWeb.Sources.SourceController do
   alias Pinchflat.Sources
   alias Pinchflat.Profiles
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Podcasts.RssFeedBuilder
 
   def index(conn, _params) do
     sources = Repo.preload(Sources.list_sources(), :media_profile)
@@ -56,6 +57,19 @@ defmodule PinchflatWeb.Sources.SourceController do
       pending_media: pending_media,
       downloaded_media: downloaded_media
     )
+  end
+
+  def feed(conn, %{"id" => uuid}) do
+    # TODO: change this to UUID
+    source = Repo.get_by!(Source, id: uuid)
+    media_items = Media.list_downloaded_media_items_for(source, limit: 100)
+
+    xml = RssFeedBuilder.build(source, media_items)
+
+    conn
+    |> put_resp_content_type("application/rss+xml")
+    |> put_resp_header("content-disposition", "inline")
+    |> send_resp(200, xml)
   end
 
   def edit(conn, %{"id" => id}) do

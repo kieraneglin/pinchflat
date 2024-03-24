@@ -1,6 +1,7 @@
 defmodule Pinchflat.Podcasts.RssFeedBuilder do
   @datetime_format "%a, %d %b %Y %H:%M:%S %z"
 
+  # TODO: test
   # TODO: only MIs that are confirmed to exist on-disk should be provided
   def build(source, media_items) do
     media_item_xml = Enum.map(media_items, &build_media_item_xml(source, &1))
@@ -8,41 +9,20 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
     build_source_xml(source, media_item_xml)
   end
 
-  defp build_media_item_xml(source, media_item) do
-    # NOTE: improvements for future:
-    # - Add <itunes:duration>
-    # - Serve proper images instead of the placeholders
-    """
-    <item>
-      <guid isPermaLink="false">#{media_item.uuid}</guid>
-      <title>#{media_item.title}</title>
-      <link>#{media_item.original_url}</link>
-      <description>#{media_item.description}</description>
-      <pubDate>#{generate_upload_date(media_item)}</pubDate>
-      <enclosure
-        url="#{generate_media_stream_path(media_item)}"
-        length="#{media_item.media_size_bytes}"
-        type="#{determine_content_type(media_item)}">
-      </enclosure>
-      <itunes:author>#{source.custom_name}</itunes:author>
-      <itunes:subtitle>#{media_item.title}</itunes:subtitle>
-      <itunes:summary><![CDATA[#{media_item.description}]]></itunes:summary>
-      <itunes:image href="https://raw.githubusercontent.com/kieraneglin/pinchflat/master/priv/static/images/originals/logo.png"></itunes:image>
-      <itunes:explicit>false</itunes:explicit>
-    </item>
-    """
-  end
-
   defp build_source_xml(source, media_item_xml) do
-    # Useful: https://validator.w3.org/feed/#validate_by_input
-    # NOTE: improvements for future:
+    # Useful: resources:
+    #   - https://validator.w3.org/feed/#validate_by_input
+    #   - https://github.com/Podcastindex-org/podcast-namespace/blob/main/docs/1.0.md
+    #   - https://podba.se/validate
+    #
     # - Add real <description>
-    # - Add <itunes:summary>
     # - Serve proper images instead of the placeholders
-    # - Ass <atom:link href="<LINK TO FEED>" rel="self" type="application/rss+xml" />
     """
     <?xml version="1.0" encoding="UTF-8"?>
-    <rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+    <rss version="2.0"
+      xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+      xmlns:podcast="https://podcastindex.org/namespace/1.0"
+      xmlns:atom="http://www.w3.org/2005/Atom">
       <channel>
         <title>#{source.custom_name}</title>
         <link>#{source.original_url}</link>
@@ -52,6 +32,9 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
         <language>en-us</language>
         <lastBuildDate>#{Calendar.strftime(DateTime.utc_now(), @datetime_format)}</lastBuildDate>
         <pubDate>#{Calendar.strftime(source.inserted_at, @datetime_format)}</pubDate>
+        <atom:link href="#{generate_self_link(source)}" rel="self" type="application/rss+xml" />
+        <podcast:locked>false</podcast:locked>
+        <podcast:guid>#{source.uuid}</podcast:guid>
         <image>
           <url>https://raw.githubusercontent.com/kieraneglin/pinchflat/master/priv/static/images/originals/logo.png</url>
           <title>#{source.custom_name}</title>
@@ -69,6 +52,31 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
       </channel>
     </rss>
     """
+  end
+
+  defp build_media_item_xml(source, media_item) do
+    """
+    <item>
+      <guid isPermaLink="false">#{media_item.uuid}</guid>
+      <title>#{media_item.title}</title>
+      <link>#{media_item.original_url}</link>
+      <description>#{media_item.description}</description>
+      <pubDate>#{generate_upload_date(media_item)}</pubDate>
+      <enclosure
+        url="#{generate_media_stream_path(media_item)}"
+        length="#{media_item.media_size_bytes}"
+        type="#{determine_content_type(media_item)}">
+      </enclosure>
+      <itunes:author>#{source.custom_name}</itunes:author>
+      <itunes:subtitle>#{media_item.title}</itunes:subtitle>
+      <itunes:summary><![CDATA[#{media_item.description}]]></itunes:summary>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    """
+  end
+
+  defp generate_self_link(source) do
+    "#{url_base()}/sources/#{source.uuid}/feed.xml"
   end
 
   defp generate_media_stream_path(media_item) do
