@@ -31,11 +31,19 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
   """
   @impl true
   def init(state) do
+    reset_executing_jobs()
     apply_default_settings()
     ensure_directories_are_writeable()
     rename_old_job_workers()
 
     {:ok, state}
+  end
+
+  # If a node cannot gracefully shut down, the currently executing jobs get stuck
+  # in the "executing" state. This is a problem because the job runner will not
+  # pick them up again
+  defp reset_executing_jobs do
+    Repo.update_all(from(j in Oban.Job, where: j.state == "executing"), set: [state: "retryable"])
   end
 
   defp apply_default_settings do
