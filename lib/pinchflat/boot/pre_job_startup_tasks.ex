@@ -43,7 +43,12 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
   # in the "executing" state. This is a problem because the job runner will not
   # pick them up again
   defp reset_executing_jobs do
-    Repo.update_all(from(j in Oban.Job, where: j.state == "executing"), set: [state: "retryable"])
+    {count, _} =
+      Oban.Job
+      |> where(state: "executing")
+      |> Repo.update_all(set: [state: "retryable"])
+
+    Logger.info("Reset #{count} executing jobs")
   end
 
   defp apply_default_settings do
