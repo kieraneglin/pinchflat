@@ -65,8 +65,9 @@ Simply search for Pinchflat in the Community Apps store!
 
 1. Create two directories on your host machine: one for storing config and one for storing downloaded media. Make sure they're both writable by the user running the Docker container.
 2. Prepare the docker image in one of the two ways below:
-   - **From Docker Hub:** `docker pull keglin/pinchflat:latest`, or;
-   - **Building locally:** `docker build . --file selfhosted.Dockerfile -t keglin/pinchflat:latest`
+   - **From GHCR:** `docker pull ghcr.io/kieraneglin/pinchflat:latest`
+     - NOTE: also available on Docker Hub at `keglin/pinchflat:latest`
+   - **Building locally:** `docker build . --file selfhosted.Dockerfile -t ghcr.io/kieraneglin/pinchflat:latest`
 3. Run the container:
 
 ```bash
@@ -76,7 +77,7 @@ docker run \
   -p 8945:8945 \
   -v /host/path/to/config:/config \
   -v /host/path/to/downloads:/downloads \
-  keglin/pinchflat:latest
+  ghcr.io/kieraneglin/pinchflat:latest
 ```
 
 NOTE: it's recommended to not run the container as root. Doing so can create permission issues if other apps need to work with the downloaded media. If you need to run any command as root, you can run `su` from the container's shell as there is no password set for the root user.
