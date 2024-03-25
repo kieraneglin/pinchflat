@@ -1,5 +1,6 @@
 defmodule Pinchflat.Metadata.MetadataParserTest do
   use Pinchflat.DataCase
+  import Pinchflat.MediaFixtures
 
   alias Pinchflat.Metadata.MetadataParser, as: Parser
 
@@ -88,6 +89,22 @@ defmodule Pinchflat.Metadata.MetadataParserTest do
   end
 
   describe "parse_for_media_item/1 when testing thumbnail metadata" do
+    setup %{metadata: metadata} do
+      thumbnail_filepath =
+        metadata["thumbnails"]
+        |> Enum.reverse()
+        |> Enum.find_value(fn attrs -> attrs["filepath"] end)
+        |> String.split(~r{\.}, include_captures: true)
+        |> List.insert_at(-3, "-thumb")
+        |> Enum.join()
+
+      :ok = File.cp(thumbnail_filepath_fixture(), thumbnail_filepath)
+
+      on_exit(fn -> File.rm(thumbnail_filepath) end)
+
+      {:ok, filepath: thumbnail_filepath}
+    end
+
     test "extracts the thumbnail filepath", %{metadata: metadata} do
       result = Parser.parse_for_media_item(metadata)
 
@@ -101,6 +118,14 @@ defmodule Pinchflat.Metadata.MetadataParserTest do
       result = Parser.parse_for_media_item(metadata)
 
       assert String.contains?(result.thumbnail_filepath, "-thumb.webp")
+    end
+
+    test "doesn't include thumbnail if the file doesn't exist on-disk", %{metadata: metadata, filepath: filepath} do
+      File.rm(filepath)
+
+      result = Parser.parse_for_media_item(metadata)
+
+      assert result.thumbnail_filepath == nil
     end
 
     test "doesn't freak out if the media has no thumbnails", %{metadata: metadata} do
@@ -121,10 +146,27 @@ defmodule Pinchflat.Metadata.MetadataParserTest do
   end
 
   describe "parse_for_media_item/1 when testing infojson metadata" do
+    setup %{metadata: metadata} do
+      infojson_filepath = metadata["infojson_filename"]
+      :ok = File.cp(infojson_filepath_fixture(), infojson_filepath)
+
+      on_exit(fn -> File.rm(infojson_filepath) end)
+
+      {:ok, filepath: infojson_filepath}
+    end
+
     test "extracts the metadata filepath", %{metadata: metadata} do
       result = Parser.parse_for_media_item(metadata)
 
       assert String.ends_with?(result.metadata_filepath, ".info.json")
+    end
+
+    test "doesn't include metadata if the file doesn't exist on-disk", %{metadata: metadata, filepath: filepath} do
+      File.rm(filepath)
+
+      result = Parser.parse_for_media_item(metadata)
+
+      assert result.metadata_filepath == nil
     end
 
     test "doesn't freak out if the media has no infojson", %{metadata: metadata} do

@@ -58,23 +58,35 @@ defmodule Pinchflat.Metadata.MetadataParser do
       # NOTE: whole ordeal needed due to a bug I found in yt-dlp
       # https://github.com/yt-dlp/yt-dlp/issues/9445
       # Can be reverted to remove this entire conditional once fixed
+      filepath =
+        thumbnail_filepath
+        |> String.split(~r{\.}, include_captures: true)
+        |> List.insert_at(-3, "-thumb")
+        |> Enum.join()
+
       %{
-        thumbnail_filepath:
-          thumbnail_filepath
-          |> String.split(~r{\.}, include_captures: true)
-          |> List.insert_at(-3, "-thumb")
-          |> Enum.join()
+        thumbnail_filepath: filepath_if_exists(filepath)
       }
     else
       %{
-        thumbnail_filepath: thumbnail_filepath
+        thumbnail_filepath: nil
       }
     end
   end
 
   defp parse_infojson_metadata(metadata) do
     %{
-      metadata_filepath: metadata["infojson_filename"]
+      metadata_filepath: filepath_if_exists(metadata["infojson_filename"])
     }
+  end
+
+  defp filepath_if_exists(nil), do: nil
+
+  defp filepath_if_exists(filepath) do
+    if File.exists?(filepath) do
+      filepath
+    else
+      nil
+    end
   end
 end

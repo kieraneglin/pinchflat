@@ -52,14 +52,7 @@ defmodule Pinchflat.MediaFixtures do
         "#{:rand.uniform(1_000_000)}_media.mkv"
       ])
 
-    fixture_media_filepath =
-      Path.join([
-        File.cwd!(),
-        "test",
-        "support",
-        "files",
-        "media.mkv"
-      ])
+    fixture_media_filepath = media_filepath_fixture()
 
     :ok = File.mkdir_p(Path.dirname(stored_media_filepath))
     :ok = File.cp(fixture_media_filepath, stored_media_filepath)
@@ -81,5 +74,35 @@ defmodule Pinchflat.MediaFixtures do
     }
 
     Phoenix.json_library().encode!(media_attributes)
+  end
+
+  def media_filepath_fixture do
+    Path.join([
+      File.cwd!(),
+      "test",
+      "support",
+      "files",
+      "media.mkv"
+    ])
+  end
+
+  def thumbnail_filepath_fixture do
+    Path.join([
+      File.cwd!(),
+      "test",
+      "support",
+      "files",
+      "thumbnail.jpg"
+    ])
+  end
+
+  def infojson_filepath_fixture do
+    Path.join([
+      File.cwd!(),
+      "test",
+      "support",
+      "files",
+      "example.info.json"
+    ])
   end
 end
