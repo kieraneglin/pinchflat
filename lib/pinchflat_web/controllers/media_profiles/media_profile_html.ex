@@ -74,6 +74,6 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
   end
 
   defp audio_output_template do
-    "/music/{{ source_custom_name }}/{{ title }}.{{ ext }}"
+    "/music/{{ artist_name }}/{{ title }}.{{ ext }}"
   end
 end

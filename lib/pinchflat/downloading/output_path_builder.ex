@@ -42,7 +42,8 @@ defmodule Pinchflat.Downloading.OutputPathBuilder do
       "upload_day" => "%(upload_date>%d)S",
       "upload_yyyy_mm_dd" => "%(upload_date>%Y-%m-%d)S",
       "season_from_date" => "%(upload_date>%Y)S",
-      "season_episode_from_date" => "s%(upload_date>%Y)Se%(upload_date>%m%d)S"
+      "season_episode_from_date" => "s%(upload_date>%Y)Se%(upload_date>%m%d)S",
+      "artist_name" => "%(artist,creator,uploader,uploader_id)S"
     }
   end
 end
