@@ -55,7 +55,13 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
     base_dir = Application.get_env(:pinchflat, :extras_directory)
     filepath = Path.join(base_dir, "cookies.txt")
 
-    FilesystemHelpers.write_p!(filepath, "")
+    if File.exists?(filepath) do
+      Logger.info("Cookies file exists")
+    else
+      Logger.info("Cookies does not exist - creating it")
+
+      FilesystemHelpers.write_p!(filepath, "")
+    end
   end
 
   defp apply_default_settings do
