@@ -58,7 +58,7 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
 
   describe "download_for_media_item/3 when testing media_item attributes" do
     setup do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
         {:ok, render_metadata(:media_metadata)}
       end)
 
@@ -94,15 +94,44 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
     end
 
     test "it extracts the thumbnail_filepath", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+        metadata = render_parsed_metadata(:media_metadata)
+
+        thumbnail_filepath =
+          metadata["thumbnails"]
+          |> Enum.reverse()
+          |> Enum.find_value(fn attrs -> attrs["filepath"] end)
+          |> String.split(~r{\.}, include_captures: true)
+          |> List.insert_at(-3, "-thumb")
+          |> Enum.join()
+
+        :ok = File.cp(thumbnail_filepath_fixture(), thumbnail_filepath)
+
+        {:ok, Phoenix.json_library().encode!(metadata)}
+      end)
+
       assert media_item.thumbnail_filepath == nil
       assert {:ok, updated_media_item} = MediaDownloader.download_for_media_item(media_item)
       assert String.ends_with?(updated_media_item.thumbnail_filepath, ".webp")
+
+      File.rm(updated_media_item.thumbnail_filepath)
     end
 
     test "it extracts the metadata_filepath", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+        metadata = render_parsed_metadata(:media_metadata)
+
+        infojson_filepath = metadata["infojson_filename"]
+        :ok = File.cp(infojson_filepath_fixture(), infojson_filepath)
+
+        {:ok, Phoenix.json_library().encode!(metadata)}
+      end)
+
       assert media_item.metadata_filepath == nil
       assert {:ok, updated_media_item} = MediaDownloader.download_for_media_item(media_item)
       assert String.ends_with?(updated_media_item.metadata_filepath, ".info.json")
+
+      File.rm(updated_media_item.metadata_filepath)
     end
   end
 

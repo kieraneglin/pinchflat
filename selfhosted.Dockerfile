@@ -77,7 +77,7 @@ FROM ${RUNNER_IMAGE}
 
 RUN apt-get update -y
 RUN apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates \
-  ffmpeg curl git openssh-client
+  ffmpeg curl git openssh-client nano
 RUN apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # Download and update YT-DLP
@@ -101,7 +101,6 @@ RUN chown nobody /config /downloads
 
 # set runner ENV
 ENV MIX_ENV="prod"
-ENV CONFIG_PATH="/config"
 ENV PORT=8945
 ENV RUN_CONTEXT="selfhosted"
 

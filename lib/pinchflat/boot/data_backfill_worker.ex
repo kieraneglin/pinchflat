@@ -18,7 +18,6 @@ defmodule Pinchflat.Boot.DataBackfillWorker do
 
   alias __MODULE__
   alias Pinchflat.Repo
-  alias Pinchflat.Media.MediaItem
 
   @doc """
   Cancels all pending backfill jobs. Useful for ensuring worker runs immediately
@@ -44,24 +43,12 @@ defmodule Pinchflat.Boot.DataBackfillWorker do
   """
   def perform(%Oban.Job{}) do
     Logger.info("Running data backfill worker")
-    backfill_shorts_data()
+    # Nothing to do for now - just reschedule
+    # Keeping in-place because we _will_ need it in the future
 
     reschedule_backfill()
 
     :ok
-  end
-
-  defp backfill_shorts_data do
-    query =
-      from(
-        m in MediaItem,
-        where: fragment("? like ?", m.original_url, "%/shorts/%"),
-        where: m.short_form_content == false
-      )
-
-    {count, _} = Repo.update_all(query, set: [short_form_content: true])
-
-    Logger.info("Backfill worker set short_form_content to true for #{count} media items.")
   end
 
   defp reschedule_backfill do

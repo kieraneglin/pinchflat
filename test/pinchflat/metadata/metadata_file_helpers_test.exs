@@ -140,4 +140,14 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
       end
     end
   end
+
+  describe "metadata_directory_for/1" do
+    test "returns the metadata directory for the given record", %{media_item: media_item} do
+      base_metadata_directory = Application.get_env(:pinchflat, :metadata_directory)
+
+      metadata_directory = Helpers.metadata_directory_for(media_item)
+
+      assert metadata_directory == Path.join([base_metadata_directory, "media_items", "#{media_item.id}"])
+    end
+  end
 end

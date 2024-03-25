@@ -16,6 +16,7 @@ config :pinchflat,
   media_directory: "/downloads",
   # The user may or may not store metadata for their needs, but the app will always store its copy
   metadata_directory: "/config/metadata",
+  extras_directory: "/config/extras",
   tmpfile_directory: Path.join([System.tmp_dir!(), "pinchflat", "data"]),
   # Setting BASIC_AUTH_USERNAME and BASIC_AUTH_PASSWORD implies you want to use basic auth.
   # If either is unset, basic auth will not be used.
