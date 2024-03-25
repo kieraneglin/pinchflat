@@ -49,6 +49,7 @@ If it doesn't work for your use case, please make a feature request! You can als
 - Custom rules for handling YouTube Shorts and livestreams
 - Advanced options like setting cutoff dates and filtering by title
 - Reliable hands-off operation
+- Can pass cookies to YouTube to download your private playlists ([docs](https://github.com/kieraneglin/pinchflat/wiki/YouTube-Cookies))
 
 ## Screenshots
 
@@ -102,7 +103,7 @@ You _must_ ensure the host directories you've mounted are writable by the user r
 
 It's recommended to not run the container as root. Doing so can create permission issues if other apps need to work with the downloaded media. If you need to run any command as root, you can run `su` from the container's shell as there is no password set for the root user.
 
-## Authentication
+## Username and Password
 
 HTTP basic authentication is optionally supported. To use it, set the `BASIC_AUTH_USERNAME` and `BASIC_AUTH_PASSWORD` environment variables when starting the container. No authentication will be required unless you set _both_ of these.
 
