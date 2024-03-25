@@ -39,7 +39,8 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
       upload_year: nil,
       upload_yyyy_mm_dd: "the upload date in the format YYYY-MM-DD",
       source_custom_name: "the name of the sources that use this profile",
-      source_collection_type: "the collection type of the sources that use this profile. Either 'channel' or 'playlist'"
+      source_collection_type: "the collection type of the sources using this profile. Either 'channel' or 'playlist'",
+      artist_name: "the name of the artist with fallbacks to other uploader fields"
     }
   end
 
