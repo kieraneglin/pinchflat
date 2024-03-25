@@ -12,6 +12,22 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
   alias Pinchflat.Filesystem.FilesystemHelpers
 
   @doc """
+  Returns the directory where metadata for a database record should be stored.
+
+  Returns binary()
+  """
+  def metadata_directory_for(database_record) do
+    metadata_directory = Application.get_env(:pinchflat, :metadata_directory)
+    record_table_name = database_record.__meta__.source
+
+    Path.join([
+      metadata_directory,
+      record_table_name,
+      to_string(database_record.id)
+    ])
+  end
+
+  @doc """
   Compresses and stores metadata for a media item, returning the filepath.
 
   Returns binary()
@@ -108,13 +124,8 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
   end
 
   defp generate_filepath_for(database_record, filename) do
-    metadata_directory = Application.get_env(:pinchflat, :metadata_directory)
-    record_table_name = database_record.__meta__.source
-
     Path.join([
-      metadata_directory,
-      record_table_name,
-      to_string(database_record.id),
+      metadata_directory_for(database_record),
       filename
     ])
   end
