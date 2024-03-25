@@ -33,12 +33,38 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
   """
   @impl true
   def init(state) do
+    reset_executing_jobs()
+    create_blank_cookie_file()
     apply_default_settings()
     backfill_uuids()
-    ensure_directories_are_writeable()
     rename_old_job_workers()
 
     {:ok, state}
+  end
+
+  # If a node cannot gracefully shut down, the currently executing jobs get stuck
+  # in the "executing" state. This is a problem because the job runner will not
+  # pick them up again
+  defp reset_executing_jobs do
+    {count, _} =
+      Oban.Job
+      |> where(state: "executing")
+      |> Repo.update_all(set: [state: "retryable"])
+
+    Logger.info("Reset #{count} executing jobs")
+  end
+
+  defp create_blank_cookie_file do
+    base_dir = Application.get_env(:pinchflat, :extras_directory)
+    filepath = Path.join(base_dir, "cookies.txt")
+
+    if File.exists?(filepath) do
+      Logger.info("Cookies file exists")
+    else
+      Logger.info("Cookies does not exist - creating it")
+
+      FilesystemHelpers.write_p!(filepath, "")
+    end
   end
 
   defp apply_default_settings do
@@ -57,21 +83,6 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
 
     Logger.info("Backfilled UUIDs for #{source_count} sources.")
     Logger.info("Backfilled UUIDs for #{media_item_count} media items.")
-  end
-
-  defp ensure_directories_are_writeable do
-    directories = [
-      Application.get_env(:pinchflat, :media_directory),
-      Application.get_env(:pinchflat, :tmpfile_directory),
-      Application.get_env(:pinchflat, :metadata_directory)
-    ]
-
-    Enum.each(directories, fn dir ->
-      file = Path.join([dir, ".keep"])
-
-      # This will fail if the directory is not writeable, stopping boot
-      FilesystemHelpers.write_p!(file, "")
-    end)
   end
 
   # As part of a large refactor, I ended up moving a bunch of workers around. This

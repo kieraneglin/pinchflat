@@ -3,6 +3,7 @@ import Config
 config :pinchflat,
   media_directory: Path.join([File.cwd!(), "tmp", "media"]),
   metadata_directory: Path.join([File.cwd!(), "tmp", "metadata"]),
+  extras_directory: Path.join([File.cwd!(), "tmp", "extras"]),
   tmpfile_directory: Path.join([File.cwd!(), "tmp", "tmpfiles"])
 
 # Configure your database

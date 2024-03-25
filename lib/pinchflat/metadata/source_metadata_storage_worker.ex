@@ -47,21 +47,23 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
   def perform(%Oban.Job{args: %{"id" => source_id}}) do
     source = Repo.preload(Sources.get_source!(source_id), [:metadata, :media_profile])
     series_directory = determine_series_directory(source)
-    {source_metadata, image_filepath_attrs} = fetch_source_metadata_and_images(series_directory, source)
 
-    # `run_post_commit_tasks: false` prevents this from running in an infinite loop
+    {source_metadata, source_image_attrs, metadata_image_attrs} =
+      fetch_source_metadata_and_images(series_directory, source)
+
+    source_metadata_filepath = MetadataFileHelpers.compress_and_store_metadata_for(source, source_metadata)
+
     Sources.update_source(
       source,
       Map.merge(
         %{
           series_directory: series_directory,
           nfo_filepath: store_source_nfo(source, series_directory, source_metadata),
-          metadata: %{
-            metadata_filepath: MetadataFileHelpers.compress_and_store_metadata_for(source, source_metadata)
-          }
+          metadata: Map.merge(%{metadata_filepath: source_metadata_filepath}, metadata_image_attrs)
         },
-        image_filepath_attrs
+        source_image_attrs
       ),
+      # `run_post_commit_tasks: false` prevents this from running in an infinite loop
       run_post_commit_tasks: false
     )
 
@@ -72,18 +74,19 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
   end
 
   defp fetch_source_metadata_and_images(series_directory, source) do
+    metadata_directory = MetadataFileHelpers.metadata_directory_for(source)
+    tmp_output_path = "#{tmp_directory()}/#{StringUtils.random_string(16)}/source_image.%(ext)S"
+    opts = [:write_all_thumbnails, convert_thumbnails: "jpg", output: tmp_output_path]
+
+    {:ok, metadata} = MediaCollection.get_source_metadata(source.original_url, opts)
+    metadata_image_attrs = SourceImageParser.store_source_images(metadata_directory, metadata)
+
     if source.media_profile.download_source_images && series_directory do
-      output_path = "#{tmp_directory()}/#{StringUtils.random_string(16)}/source_image.%(ext)S"
-      opts = [:write_all_thumbnails, convert_thumbnails: "jpg", output: output_path]
+      source_image_attrs = SourceImageParser.store_source_images(series_directory, metadata)
 
-      {:ok, metadata} = MediaCollection.get_source_metadata(source.original_url, opts)
-      image_attrs = SourceImageParser.store_source_images(series_directory, metadata)
-
-      {metadata, image_attrs}
+      {metadata, source_image_attrs, metadata_image_attrs}
     else
-      {:ok, metadata} = MediaCollection.get_source_metadata(source.original_url, [])
-
-      {metadata, %{}}
+      {metadata, %{}, metadata_image_attrs}
     end
   end
 

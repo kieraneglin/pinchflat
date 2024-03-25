@@ -59,7 +59,6 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
 
       source = Repo.preload(source_fixture(), :metadata)
 
-      refute source.metadata
       perform_job(SourceMetadataStorageWorker, %{id: source.id})
       source = Repo.preload(Repo.reload(source), :metadata)
 
@@ -82,6 +81,42 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
       {:ok, metadata} = MetadataFileHelpers.read_compressed_metadata(source.metadata.metadata_filepath)
 
       assert metadata == %{"title" => "test"}
+    end
+
+    test "sets metadata image location for source" do
+      stub(YtDlpRunnerMock, :run, fn
+        _url, _opts, ot when ot == @source_details_ot -> {:ok, source_details_return_fixture()}
+        _url, _opts, ot when ot == @metadata_ot -> {:ok, render_metadata(:channel_source_metadata)}
+      end)
+
+      source = source_fixture()
+
+      perform_job(SourceMetadataStorageWorker, %{id: source.id})
+      source = Repo.preload(Repo.reload(source), :metadata)
+
+      assert source.metadata.fanart_filepath
+      assert source.metadata.poster_filepath
+      assert source.metadata.banner_filepath
+
+      Sources.delete_source(source, delete_files: true)
+    end
+
+    test "stores metadata images for source" do
+      stub(YtDlpRunnerMock, :run, fn
+        _url, _opts, ot when ot == @source_details_ot -> {:ok, source_details_return_fixture()}
+        _url, _opts, ot when ot == @metadata_ot -> {:ok, render_metadata(:channel_source_metadata)}
+      end)
+
+      source = source_fixture()
+
+      perform_job(SourceMetadataStorageWorker, %{id: source.id})
+      source = Repo.preload(Repo.reload(source), :metadata)
+
+      assert File.exists?(source.metadata.fanart_filepath)
+      assert File.exists?(source.metadata.poster_filepath)
+      assert File.exists?(source.metadata.banner_filepath)
+
+      Sources.delete_source(source, delete_files: true)
     end
   end
 
