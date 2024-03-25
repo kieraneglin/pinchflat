@@ -10,11 +10,20 @@ defmodule Pinchflat.Metadata.SourceMetadata do
 
   alias Pinchflat.Sources.Source
 
-  @allowed_fields ~w(metadata_filepath)a
+  @allowed_fields ~w(
+    metadata_filepath
+    fanart_filepath
+    poster_filepath
+    banner_filepath
+  )a
+
   @required_fields ~w(metadata_filepath)a
 
   schema "source_metadata" do
     field :metadata_filepath, :string
+    field :fanart_filepath, :string
+    field :poster_filepath, :string
+    field :banner_filepath, :string
 
     belongs_to :source, Source
 
@@ -31,6 +40,11 @@ defmodule Pinchflat.Metadata.SourceMetadata do
 
   @doc false
   def filepath_attributes do
-    ~w(metadata_filepath)a
+    ~w(
+      metadata_filepath
+      fanart_filepath
+      poster_filepath
+      banner_filepath
+    )a
   end
 end
