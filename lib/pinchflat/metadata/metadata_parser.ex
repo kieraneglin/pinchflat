@@ -80,6 +80,9 @@ defmodule Pinchflat.Metadata.MetadataParser do
     }
   end
 
+  # NOTE: this should not be needed, but it is due to a bug in yt-dlp.
+  # Can remove once this is resolved:
+  # https://github.com/yt-dlp/yt-dlp/issues/9445#issuecomment-2018724344
   defp filepath_if_exists(nil), do: nil
 
   defp filepath_if_exists(filepath) do

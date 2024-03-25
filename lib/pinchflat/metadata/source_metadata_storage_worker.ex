@@ -32,6 +32,7 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
 
   @doc """
   Fetches and stores various forms of metadata for a source:
+    - Attributes like `description`
     - JSON metadata for internal use
     - The series directory for the source
     - The NFO file for the source (if specified)
@@ -59,6 +60,7 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
         %{
           series_directory: series_directory,
           nfo_filepath: store_source_nfo(source, series_directory, source_metadata),
+          description: source_metadata["description"],
           metadata: Map.merge(%{metadata_filepath: source_metadata_filepath}, metadata_image_attrs)
         },
         source_image_attrs

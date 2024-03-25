@@ -50,6 +50,23 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
     end
   end
 
+  describe "perform/1 when testing attribute updates" do
+    test "the source description is saved" do
+      stub(YtDlpRunnerMock, :run, fn
+        _url, _opts, ot when ot == @source_details_ot -> {:ok, source_details_return_fixture()}
+        _url, _opts, ot when ot == @metadata_ot -> {:ok, render_metadata(:channel_source_metadata)}
+      end)
+
+      source = source_fixture()
+
+      refute source.description
+      perform_job(SourceMetadataStorageWorker, %{id: source.id})
+      source = Repo.preload(Repo.reload(source), :metadata)
+
+      assert source.description == "This is a test file for Pinchflat"
+    end
+  end
+
   describe "perform/1 when testing metadata storage" do
     test "sets metadata location for source" do
       stub(YtDlpRunnerMock, :run, fn
