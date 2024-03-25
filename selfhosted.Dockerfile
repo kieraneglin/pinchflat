@@ -101,7 +101,6 @@ RUN chown nobody /config /downloads
 
 # set runner ENV
 ENV MIX_ENV="prod"
-ENV CONFIG_PATH="/config"
 ENV PORT=8945
 ENV RUN_CONTEXT="selfhosted"
 

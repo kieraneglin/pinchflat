@@ -41,13 +41,7 @@ config :pinchflat, Pinchflat.Repo,
   ]
 
 if config_env() == :prod do
-  config_path =
-    System.get_env("CONFIG_PATH") ||
-      raise """
-      environment variable CONFIG_PATH is missing.
-      For example: /etc/pinchflat/config
-      """
-
+  config_path = "/config"
   db_path = System.get_env("DATABASE_PATH", Path.join([config_path, "db", "pinchflat.db"]))
   log_path = System.get_env("LOG_PATH", Path.join([config_path, "logs", "pinchflat.log"]))
   metadata_path = System.get_env("METADATA_PATH", Path.join([config_path, "metadata"]))
