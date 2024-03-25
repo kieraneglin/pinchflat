@@ -37,7 +37,6 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
     create_blank_cookie_file()
     apply_default_settings()
     backfill_uuids()
-    rename_old_job_workers()
 
     {:ok, state}
   end
@@ -58,9 +57,7 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
     base_dir = Application.get_env(:pinchflat, :extras_directory)
     filepath = Path.join(base_dir, "cookies.txt")
 
-    if File.exists?(filepath) do
-      Logger.info("Cookies file exists")
-    else
+    if !File.exists?(filepath) do
       Logger.info("Cookies does not exist - creating it")
 
       FilesystemHelpers.write_p!(filepath, "")
@@ -83,34 +80,5 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
 
     Logger.info("Backfilled UUIDs for #{source_count} sources.")
     Logger.info("Backfilled UUIDs for #{media_item_count} media items.")
-  end
-
-  # As part of a large refactor, I ended up moving a bunch of workers around. This
-  # is a problem because the workers are stored in the database and the runner
-  # will try to run the OLD jobs. This is also why these tasks run before the job
-  # runner starts up.
-  #
-  # Can be removed after a few months (created: 2024-03-12)
-  defp rename_old_job_workers do
-    # [ [old_name, new_name], ...]
-    rename_map = [
-      ["Pinchflat.Workers.MediaIndexingWorker", "Pinchflat.FastIndexing.MediaIndexingWorker"],
-      ["Pinchflat.Workers.MediaDownloadWorker", "Pinchflat.Downloading.MediaDownloadWorker"],
-      ["Pinchflat.Workers.FastIndexingWorker", "Pinchflat.FastIndexing.FastIndexingWorker"],
-      ["Pinchflat.Workers.MediaCollectionIndexingWorker", "Pinchflat.SlowIndexing.MediaCollectionIndexingWorker"],
-      ["Pinchflat.Workers.DataBackfillWorker", "Pinchflat.Boot.DataBackfillWorker"]
-    ]
-
-    jobs_renamed =
-      Enum.reduce(rename_map, 0, fn [old_name, new_name], acc ->
-        {count, _} =
-          Oban.Job
-          |> where(worker: ^old_name)
-          |> Repo.update_all(set: [worker: new_name])
-
-        acc + count
-      end)
-
-    Logger.info("Renamed #{jobs_renamed} old job workers")
   end
 end
