@@ -53,7 +53,7 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
 
   defp create_blank_cookie_file do
     base_dir = Application.get_env(:pinchflat, :extras_directory)
-    filepath = Path.join([base_dir, "cookies.txt"])
+    filepath = Path.join(base_dir, "cookies.txt")
 
     FilesystemHelpers.write_p!(filepath, "")
   end

@@ -18,6 +18,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
 
     built_options =
       default_options() ++
+        cookie_options() ++
         subtitle_options(media_profile) ++
         thumbnail_options(media_item_with_preloads) ++
         metadata_options(media_profile) ++
@@ -41,6 +42,19 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
 
   defp default_options do
     [:no_progress, :windows_filenames]
+  end
+
+  defp cookie_options do
+    base_dir = Application.get_env(:pinchflat, :extras_directory)
+    cookie_file = Path.join(base_dir, "cookies.txt")
+
+    case File.read(cookie_file) do
+      {:ok, cookie_data} ->
+        if String.trim(cookie_data) != "", do: [cookies: cookie_file], else: []
+
+      {:error, _} ->
+        []
+    end
   end
 
   defp subtitle_options(media_profile) do

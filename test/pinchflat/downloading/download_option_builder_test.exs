@@ -1,10 +1,11 @@
 defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
   use Pinchflat.DataCase
   import Pinchflat.MediaFixtures
-  import Pinchflat.ProfilesFixtures
   import Pinchflat.SourcesFixtures
+  import Pinchflat.ProfilesFixtures
 
   alias Pinchflat.Profiles
+  alias Pinchflat.Filesystem.FilesystemHelpers
   alias Pinchflat.Downloading.DownloadOptionBuilder
 
   setup do
@@ -38,6 +39,39 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
 
       assert :no_progress in res
       assert :windows_filenames in res
+    end
+  end
+
+  describe "build/1 when testing cookie options" do
+    setup do
+      base_dir = Application.get_env(:pinchflat, :extras_directory)
+      fpath = Path.join(base_dir, "cookies.txt")
+
+      {:ok, fpath: fpath}
+    end
+
+    test "includes cookie options when cookies.txt exists", %{media_item: media_item, fpath: fpath} do
+      FilesystemHelpers.write_p!(fpath, "cookie data")
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+
+      assert {:cookies, fpath} in res
+    end
+
+    test "doesn't include cookie options when cookies.txt blank", %{media_item: media_item, fpath: fpath} do
+      FilesystemHelpers.write_p!(fpath, " \n \n ")
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+
+      refute {:cookies, fpath} in res
+    end
+
+    test "doesn't include cookie options when cookies.txt doesn't exist", %{media_item: media_item, fpath: fpath} do
+      File.rm(fpath)
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+
+      refute {:cookies, fpath} in res
     end
   end
 
