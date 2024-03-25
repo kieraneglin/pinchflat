@@ -36,7 +36,7 @@ defmodule PinchflatWeb.MediaItems.MediaItemController do
   #
   # Uses the UUID instead of the ID to avoid enumeration attacks
   # since streaming is a public endpoint (ie: no auth required)
-  def stream(conn, %{"id" => uuid}) do
+  def stream(conn, %{"uuid" => uuid}) do
     media_item = Repo.get_by!(MediaItem, uuid: uuid)
 
     if File.exists?(media_item.media_filepath) do

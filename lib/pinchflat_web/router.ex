@@ -36,10 +36,10 @@ defmodule PinchflatWeb.Router do
   # TODO: consider putting the basic auth here behind a config flag
   # so people that want RSS feeds to work can enable it.
   scope "/", PinchflatWeb do
-    get "/sources/:id/feed", Sources.SourceController, :feed
-    get "/sources/:id/feed_image", Sources.SourceController, :feed_image
+    get "/sources/:uuid/rss_feed", Podcasts.PodcastController, :rss_feed
+    get "/sources/:uuid/feed_image", Podcasts.PodcastController, :feed_image
 
-    get "/media/:id/stream", MediaItems.MediaItemController, :stream
+    get "/media/:uuid/stream", MediaItems.MediaItemController, :stream
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

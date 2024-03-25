@@ -1,6 +1,9 @@
 defmodule Pinchflat.Podcasts.RssFeedBuilder do
   @datetime_format "%a, %d %b %Y %H:%M:%S %z"
 
+  alias Pinchflat.Podcasts.PostcastHelpers
+  alias PinchflatWeb.Router.Helpers, as: Routes
+
   # TODO: test
   # TODO: only MIs that are confirmed to exist on-disk should be provided
   def build(source, media_items) do
@@ -36,14 +39,14 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
         <podcast:locked>yes</podcast:locked>
         <podcast:guid>#{source.uuid}</podcast:guid>
         <image>
-          <url>#{generate_source_image_path(source)}</url>
+          <url>#{feed_image_path(source)}</url>
           <title>#{source.custom_name}</title>
           <link>#{source.original_url}</link>
         </image>
         <itunes:author>#{source.custom_name}</itunes:author>
         <itunes:subtitle>#{source.custom_name}</itunes:subtitle>
         <itunes:block>yes</itunes:block>
-        <itunes:image href="#{generate_source_image_path(source)}"></itunes:image>
+        <itunes:image href="#{feed_image_path(source)}"></itunes:image>
         <itunes:explicit>false</itunes:explicit>
         <itunes:category text="TV &amp; Film"></itunes:category>
 
@@ -63,7 +66,7 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
       <description>#{media_item.description}</description>
       <pubDate>#{generate_upload_date(media_item)}</pubDate>
       <enclosure
-        url="#{generate_media_stream_path(media_item)}"
+        url="#{media_stream_path(media_item)}"
         length="#{media_item.media_size_bytes}"
         type="#{determine_content_type(media_item)}">
       </enclosure>
@@ -76,18 +79,26 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
   end
 
   defp generate_self_link(source) do
-    "#{url_base()}/sources/#{source.uuid}/feed.xml"
+    Path.join(url_base(), "#{podcast_route(:rss_feed, source.uuid)}.xml")
   end
 
-  defp generate_media_stream_path(media_item) do
+  defp media_stream_path(media_item) do
     extension = Path.extname(media_item.media_filepath)
 
-    "#{url_base()}/media/#{media_item.uuid}/stream#{extension}"
+    Path.join(url_base(), "#{media_route(:stream, media_item.uuid)}#{extension}")
   end
 
-  # TODO: add extension maybe. maybe refactor controller to handle this
-  defp generate_source_image_path(source) do
-    "#{url_base()}/sources/#{source.uuid}/feed_image"
+  defp feed_image_path(source) do
+    image_path_on_disk = PostcastHelpers.select_cover_image(source)
+
+    case image_path_on_disk do
+      nil ->
+        ""
+
+      _ ->
+        extension = Path.extname(image_path_on_disk)
+        Path.join(url_base(), "#{podcast_route(:feed_image, source.uuid)}#{extension}")
+    end
   end
 
   defp generate_upload_date(media_item) do
@@ -100,6 +111,14 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
 
   defp determine_content_type(media_item) do
     MIME.from_path(media_item.media_filepath)
+  end
+
+  defp podcast_route(action, params) do
+    Routes.podcast_path(PinchflatWeb.Endpoint, action, params)
+  end
+
+  defp media_route(action, params) do
+    Routes.media_item_path(PinchflatWeb.Endpoint, action, params)
   end
 
   defp url_base do
