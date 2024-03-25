@@ -69,6 +69,7 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
     Settings.fetch!(:pro_enabled, false)
   end
 
+  # TODO: turn into a migration
   defp backfill_uuids do
     # This is a one-time backfill to ensure that all media items have a UUID
     # This is important for the RSS feed and the streaming endpoint
