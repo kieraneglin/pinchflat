@@ -30,6 +30,7 @@ defmodule Pinchflat.Release do
       "/downloads",
       Application.get_env(:pinchflat, :media_directory),
       Application.get_env(:pinchflat, :tmpfile_directory),
+      Application.get_env(:pinchflat, :extras_directory),
       Application.get_env(:pinchflat, :metadata_directory)
     ]
 
