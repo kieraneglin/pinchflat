@@ -17,6 +17,7 @@ defmodule Pinchflat.Sources.Source do
     collection_id
     collection_type
     custom_name
+    description
     nfo_filepath
     poster_filepath
     fanart_filepath
@@ -55,6 +56,7 @@ defmodule Pinchflat.Sources.Source do
 
   schema "sources" do
     field :custom_name, :string
+    field :description, :string
     field :collection_name, :string
     field :collection_id, :string
     field :collection_type, Ecto.Enum, values: [:channel, :playlist]
