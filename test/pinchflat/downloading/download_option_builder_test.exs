@@ -1,8 +1,8 @@
 defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
   use Pinchflat.DataCase
   import Pinchflat.MediaFixtures
-  import Pinchflat.ProfilesFixtures
   import Pinchflat.SourcesFixtures
+  import Pinchflat.ProfilesFixtures
 
   alias Pinchflat.Profiles
   alias Pinchflat.Downloading.DownloadOptionBuilder

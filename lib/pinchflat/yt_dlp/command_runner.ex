@@ -31,7 +31,8 @@ defmodule Pinchflat.YtDlp.CommandRunner do
     # Also, can't use RAM file since yt-dlp needs a concrete filepath.
     output_filepath = Keyword.get(addl_opts, :output_filepath, FSUtils.generate_metadata_tmpfile(:json))
     print_to_file_opts = [{:print_to_file, output_template}, output_filepath]
-    formatted_command_opts = [url] ++ parse_options(command_opts ++ print_to_file_opts)
+    cookie_opts = build_cookie_options()
+    formatted_command_opts = [url] ++ parse_options(command_opts ++ print_to_file_opts ++ cookie_opts)
 
     Logger.info("[yt-dlp] called with: #{Enum.join(formatted_command_opts, " ")}")
 
@@ -44,6 +45,19 @@ defmodule Pinchflat.YtDlp.CommandRunner do
 
       {output, status} ->
         {:error, output, status}
+    end
+  end
+
+  defp build_cookie_options do
+    base_dir = Application.get_env(:pinchflat, :extras_directory)
+    cookie_file = Path.join(base_dir, "cookies.txt")
+
+    case File.read(cookie_file) do
+      {:ok, cookie_data} ->
+        if String.trim(cookie_data) != "", do: [cookies: cookie_file], else: []
+
+      {:error, _} ->
+        []
     end
   end
 

@@ -1,6 +1,8 @@
 defmodule Pinchflat.YtDlp.CommandRunnerTest do
   use ExUnit.Case, async: true
 
+  alias Pinchflat.Filesystem.FilesystemHelpers
+
   alias Pinchflat.YtDlp.CommandRunner, as: Runner
 
   @original_executable Application.compile_env(:pinchflat, :yt_dlp_executable)
@@ -62,6 +64,41 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
       assert {:ok, output} = Runner.run(@media_url, [], "%(id)s", output_filepath: "/tmp/yt-dlp-output.json")
 
       assert String.contains?(output, "--print-to-file %(id)s /tmp/yt-dlp-output.json")
+    end
+  end
+
+  describe "run/4 when testing cookie options" do
+    setup do
+      base_dir = Application.get_env(:pinchflat, :extras_directory)
+      cookie_file = Path.join(base_dir, "cookies.txt")
+
+      {:ok, cookie_file: cookie_file}
+    end
+
+    test "includes cookie options when cookies.txt exists", %{cookie_file: cookie_file} do
+      FilesystemHelpers.write_p!(cookie_file, "cookie data")
+
+      assert {:ok, output} = Runner.run(@media_url, [], "")
+
+      assert String.contains?(output, "--cookies #{cookie_file}")
+    end
+
+    test "doesn't include cookie options when cookies.txt blank", %{cookie_file: cookie_file} do
+      FilesystemHelpers.write_p!(cookie_file, " \n \n ")
+
+      assert {:ok, output} = Runner.run(@media_url, [], "")
+
+      refute String.contains?(output, "--cookies")
+      refute String.contains?(output, cookie_file)
+    end
+
+    test "doesn't include cookie options when cookies.txt doesn't exist", %{cookie_file: cookie_file} do
+      File.rm(cookie_file)
+
+      assert {:ok, output} = Runner.run(@media_url, [], "")
+
+      refute String.contains?(output, "--cookies")
+      refute String.contains?(output, cookie_file)
     end
   end
 

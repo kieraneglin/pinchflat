@@ -14,6 +14,7 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
 
   alias Pinchflat.Repo
   alias Pinchflat.Settings
+  alias Pinchflat.Filesystem.FilesystemHelpers
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, %{}, opts)
@@ -31,6 +32,7 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
   @impl true
   def init(state) do
     reset_executing_jobs()
+    create_blank_cookie_file()
     apply_default_settings()
     rename_old_job_workers()
 
@@ -47,6 +49,19 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
       |> Repo.update_all(set: [state: "retryable"])
 
     Logger.info("Reset #{count} executing jobs")
+  end
+
+  defp create_blank_cookie_file do
+    base_dir = Application.get_env(:pinchflat, :extras_directory)
+    filepath = Path.join(base_dir, "cookies.txt")
+
+    if File.exists?(filepath) do
+      Logger.info("Cookies file exists")
+    else
+      Logger.info("Cookies does not exist - creating it")
+
+      FilesystemHelpers.write_p!(filepath, "")
+    end
   end
 
   defp apply_default_settings do
