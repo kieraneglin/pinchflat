@@ -25,7 +25,7 @@
             <span
               x-data="{ copied: false }"
               x-on:click={"
-                navigator.clipboard.writeText('#{rss_feed_url(@source)}');
+                navigator.clipboard.writeText('#{rss_feed_url(@conn, @source)}');
                 copied = true;
                 setTimeout(() => copied = false, 4000);
               "}

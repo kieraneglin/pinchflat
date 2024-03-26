@@ -20,15 +20,16 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
   """
   def build(source, opts \\ []) do
     limit = Keyword.get(opts, :limit, 300)
+    url_base = Keyword.get(opts, :url_base, PinchflatWeb.Endpoint.url())
 
     media_items = PodcastHelpers.persisted_media_items_for(source, limit: limit)
-    build_source_xml(source, media_items)
+    build_source_xml(source, media_items, url_base)
   end
 
-  defp build_source_xml(source, media_items) do
-    media_item_xml = Enum.map(media_items, &build_media_item_xml(source, &1))
+  defp build_source_xml(source, media_items, url_base) do
+    media_item_xml = Enum.map(media_items, &build_media_item_xml(source, &1, url_base))
     # "caching" the image path since it requires some DB calls and is used twice
-    feed_image_path = feed_image_path(source, media_items)
+    feed_image_path = feed_image_path(url_base, source, media_items)
 
     # Useful: resources:
     #   - https://validator.w3.org/feed/#validate_by_input
@@ -49,7 +50,7 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
         <language>en-us</language>
         <lastBuildDate>#{Calendar.strftime(source.updated_at, @datetime_format)}</lastBuildDate>
         <pubDate>#{Calendar.strftime(source.inserted_at, @datetime_format)}</pubDate>
-        <atom:link href="#{generate_self_link(source)}" rel="self" type="application/rss+xml" />
+        <atom:link href="#{generate_self_link(url_base, source)}" rel="self" type="application/rss+xml" />
         <podcast:locked>yes</podcast:locked>
         <podcast:guid>#{source.uuid}</podcast:guid>
         <image>
@@ -71,7 +72,7 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
     """
   end
 
-  defp build_media_item_xml(source, media_item) do
+  defp build_media_item_xml(source, media_item, url_base) do
     """
     <item>
       <guid isPermaLink="false">#{media_item.uuid}</guid>
@@ -80,7 +81,7 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
       <description>#{media_item.description}</description>
       <pubDate>#{generate_upload_date(media_item)}</pubDate>
       <enclosure
-        url="#{media_stream_path(media_item)}"
+        url="#{media_stream_path(url_base, media_item)}"
         length="#{media_item.media_size_bytes}"
         type="#{MIME.from_path(media_item.media_filepath)}"
       />
@@ -92,24 +93,24 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
     """
   end
 
-  defp generate_self_link(source) do
-    Path.join(url_base(), "#{podcast_route(:rss_feed, source.uuid)}.xml")
+  defp generate_self_link(url_base, source) do
+    Path.join(url_base, "#{podcast_route(:rss_feed, source.uuid)}.xml")
   end
 
-  defp media_stream_path(media_item) do
+  defp media_stream_path(url_base, media_item) do
     extension = Path.extname(media_item.media_filepath)
 
-    Path.join(url_base(), "#{media_route(:stream, media_item.uuid)}#{extension}")
+    Path.join(url_base, "#{media_route(:stream, media_item.uuid)}#{extension}")
   end
 
-  defp feed_image_path(source, media_items) do
+  defp feed_image_path(url_base, source, media_items) do
     case PodcastHelpers.select_cover_image(source, media_items) do
       {:error, _} ->
         ""
 
       {:ok, filepath} ->
         extension = Path.extname(filepath)
-        Path.join(url_base(), "#{podcast_route(:feed_image, source.uuid)}#{extension}")
+        Path.join(url_base, "#{podcast_route(:feed_image, source.uuid)}#{extension}")
     end
   end
 
@@ -127,7 +128,7 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
     Routes.media_item_path(PinchflatWeb.Endpoint, action, params)
   end
 
-  defp url_base do
-    Application.get_env(:pinchflat, :url_base)
-  end
+  # defp url_base do
+  #   Application.get_env(:pinchflat, :url_base)
+  # end
 end

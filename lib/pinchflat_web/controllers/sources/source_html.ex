@@ -25,10 +25,7 @@ defmodule PinchflatWeb.Sources.SourceHTML do
     ]
   end
 
-  def rss_feed_url(source) do
-    url_base = Application.get_env(:pinchflat, :url_base)
-    path = ~p"/sources/#{source.uuid}/feed"
-
-    Path.join(url_base, "#{path}.rss")
+  def rss_feed_url(conn, source) do
+    url(conn, ~p"/sources/#{source.uuid}/feed") <> ".xml"
   end
 end

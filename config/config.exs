@@ -23,7 +23,6 @@ config :pinchflat,
   basic_auth_username: "",
   basic_auth_password: "",
   expose_xml_feed: false,
-  url_base: System.get_env("BASIC_AUTH_PASSWORD") || "http://localhost:4008",
   file_watcher_poll_interval: 1000
 
 # Configures the endpoint

@@ -9,7 +9,8 @@ defmodule PinchflatWeb.Podcasts.PodcastController do
 
   def rss_feed(conn, %{"uuid" => uuid}) do
     source = Repo.get_by!(Source, uuid: uuid)
-    xml = RssFeedBuilder.build(source, limit: 300)
+    url_base = url(conn, ~p"/")
+    xml = RssFeedBuilder.build(source, limit: 300, url_base: url_base)
 
     conn
     |> put_resp_content_type("application/rss+xml")

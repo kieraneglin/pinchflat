@@ -48,9 +48,24 @@ defmodule PinchflatWeb.Endpoint do
   plug Plug.Head
   plug Plug.Session, @session_options
 
+  plug :override_base_url
   plug :strip_trailing_extension
 
   plug PinchflatWeb.Router
+
+  # URLs need to be generated using the host of the current page being accessed
+  # for things like Podcast RSS feeds to contain links to the right location.
+  #
+  # Normally you'd set the `url` option in the Endpoint configuration, but
+  # since this is self-hosted and often accessed at multiple different URLs,
+  # that would probably be more difficult for end-users to set up than just
+  # having the application figure it out.
+  defp override_base_url(conn, _opts) do
+    new_port = if conn.port in [80, 443], do: "", else: ":#{conn.port}"
+    new_base_url = "#{conn.scheme}://#{conn.host}#{new_port}"
+
+    Phoenix.Controller.put_router_url(conn, new_base_url)
+  end
 
   defp strip_trailing_extension(%{path_info: []} = conn, _opts), do: conn
 

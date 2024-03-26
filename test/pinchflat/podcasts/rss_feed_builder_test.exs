@@ -28,6 +28,12 @@ defmodule Pinchflat.Podcasts.RssFeedBuilderTest do
 
       refute String.contains?(res, ~s(<title>#{good_media.title}</title>))
     end
+
+    test "can optionally specify a URL base", %{source: source} do
+      res = RssFeedBuilder.build(source, url_base: "http://example.com")
+
+      assert String.contains?(res, ~s(http://example.com/sources/#{source.uuid}/feed.xml))
+    end
   end
 
   describe "build/2 when testing source XML" do
@@ -55,7 +61,7 @@ defmodule Pinchflat.Podcasts.RssFeedBuilderTest do
 
       assert String.contains?(
                res,
-               ~s(<atom:link href="http://localhost:4008/sources/#{source.uuid}/feed.xml" rel="self" type="application/rss+xml" />)
+               ~s(<atom:link href="http://localhost:8945/sources/#{source.uuid}/feed.xml" rel="self" type="application/rss+xml" />)
              )
     end
 
@@ -65,13 +71,13 @@ defmodule Pinchflat.Podcasts.RssFeedBuilderTest do
       res = RssFeedBuilder.build(source)
       [_before, image_block, _after] = String.split(res, ~r(</?image>))
 
-      assert String.contains?(image_block, ~s(<url>http://localhost:4008/sources/#{source.uuid}/feed_image.jpg</url>))
+      assert String.contains?(image_block, ~s(<url>http://localhost:8945/sources/#{source.uuid}/feed_image.jpg</url>))
       assert String.contains?(image_block, ~s(<title>#{source.custom_name}</title>))
       assert String.contains?(image_block, ~s(<link>#{source.original_url}</link>))
 
       assert String.contains?(
                res,
-               ~s(<itunes:image href="http://localhost:4008/sources/#{source.uuid}/feed_image.jpg"></itunes:image>)
+               ~s(<itunes:image href="http://localhost:8945/sources/#{source.uuid}/feed_image.jpg"></itunes:image>)
              )
     end
   end
@@ -120,7 +126,7 @@ defmodule Pinchflat.Podcasts.RssFeedBuilderTest do
       [_before, item_xml, _after] = String.split(res, ~r(</?item>))
 
       assert String.contains?(item_xml, ~s(<enclosure))
-      assert String.contains?(item_xml, ~s(url="http://localhost:4008/media/#{media_item.uuid}/stream.mp4"))
+      assert String.contains?(item_xml, ~s(url="http://localhost:8945/media/#{media_item.uuid}/stream.mp4"))
       assert String.contains?(item_xml, ~s(length="1234"))
       assert String.contains?(item_xml, ~s(type="video/mp4"))
     end
