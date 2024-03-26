@@ -47,9 +47,8 @@ defmodule PinchflatWeb.MediaItems.MediaItemController do
 
       case parse_range(conn, file_size) do
         {:ok, {start_pos, end_pos}} ->
+          Logger.debug("Streaming media item: #{media_item.uuid} from #{start_pos} to #{end_pos}")
           length = end_pos - start_pos + 1
-
-          Logger.debug("Streaming media item: #{media_item.uuid} from #{start_pos} to #{end_pos} (#{length} bytes)")
 
           conn
           |> put_resp_content_type(mime_type)

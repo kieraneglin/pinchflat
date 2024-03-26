@@ -61,8 +61,14 @@ defmodule PinchflatWeb.Endpoint do
   # that would probably be more difficult for end-users to set up than just
   # having the application figure it out.
   defp override_base_url(conn, _opts) do
+    new_scheme =
+      case get_req_header(conn, "x-forwarded-proto") do
+        [scheme] -> scheme
+        _ -> to_string(conn.scheme)
+      end
+
     new_port = if conn.port in [80, 443], do: "", else: ":#{conn.port}"
-    new_base_url = "#{conn.scheme}://#{conn.host}#{new_port}"
+    new_base_url = "#{new_scheme}://#{conn.host}#{new_port}"
 
     Phoenix.Controller.put_router_url(conn, new_base_url)
   end
