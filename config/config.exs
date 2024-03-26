@@ -20,8 +20,9 @@ config :pinchflat,
   tmpfile_directory: Path.join([System.tmp_dir!(), "pinchflat", "data"]),
   # Setting BASIC_AUTH_USERNAME and BASIC_AUTH_PASSWORD implies you want to use basic auth.
   # If either is unset, basic auth will not be used.
-  basic_auth_username: System.get_env("BASIC_AUTH_USERNAME"),
-  basic_auth_password: System.get_env("BASIC_AUTH_PASSWORD"),
+  basic_auth_username: "",
+  basic_auth_password: "",
+  expose_xml_feed: false,
   url_base: System.get_env("BASIC_AUTH_PASSWORD") || "http://localhost:4008",
   file_watcher_poll_interval: 1000
 
