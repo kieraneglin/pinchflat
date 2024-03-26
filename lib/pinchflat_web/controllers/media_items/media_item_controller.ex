@@ -1,6 +1,8 @@
 defmodule PinchflatWeb.MediaItems.MediaItemController do
   use PinchflatWeb, :controller
 
+  require Logger
+
   alias Pinchflat.Repo
   alias Pinchflat.Media
   alias Pinchflat.Media.MediaItem
@@ -47,6 +49,8 @@ defmodule PinchflatWeb.MediaItems.MediaItemController do
         {:ok, {start_pos, end_pos}} ->
           length = end_pos - start_pos + 1
 
+          Logger.debug("Streaming media item: #{media_item.uuid} from #{start_pos} to #{end_pos} (#{length} bytes)")
+
           conn
           |> put_resp_content_type(mime_type)
           |> put_resp_header("accept-ranges", "bytes")
@@ -55,6 +59,8 @@ defmodule PinchflatWeb.MediaItems.MediaItemController do
           |> send_file(206, media_item.media_filepath, start_pos, length)
 
         {:error, :invalid_range} ->
+          Logger.debug("Invalid range request for media item: #{media_item.uuid} - serving full file")
+
           conn
           |> put_resp_content_type(mime_type)
           |> put_resp_header("content-length", to_string(file_size))

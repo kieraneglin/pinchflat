@@ -21,6 +21,13 @@ defmodule Pinchflat.Podcasts.RssFeedBuilderTest do
       assert String.contains?(res, ~s(<?xml version="1.0" encoding="UTF-8"?>))
     end
 
+    test "escapes illegal characters" do
+      source = source_fixture(%{custom_name: "A & B"})
+      res = RssFeedBuilder.build(source)
+
+      assert String.contains?(res, ~s(<title>A &amp; B</title>))
+    end
+
     test "can optionally apply a limit to media items", %{source: source} do
       good_media = media_item_with_attachments(%{source_id: source.id})
 
