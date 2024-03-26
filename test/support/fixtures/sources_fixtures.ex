@@ -5,8 +5,10 @@ defmodule Pinchflat.SourcesFixtures do
   """
 
   alias Pinchflat.Repo
-  alias Pinchflat.ProfilesFixtures
+  alias Pinchflat.MediaFixtures
   alias Pinchflat.Sources.Source
+  alias Pinchflat.ProfilesFixtures
+  alias Pinchflat.Filesystem.FilesystemHelpers
 
   @doc """
   Generate a source.
@@ -22,6 +24,7 @@ defmodule Pinchflat.SourcesFixtures do
             collection_id: Base.encode16(:crypto.hash(:md5, "#{:rand.uniform(1_000_000)}")),
             collection_type: "channel",
             custom_name: "Cool and good internal name!",
+            description: "This is a description",
             original_url: "https://www.youtube.com/channel/#{Faker.String.base64(12)}",
             media_profile_id: ProfilesFixtures.media_profile_fixture().id,
             index_frequency_minutes: 60
@@ -42,6 +45,30 @@ defmodule Pinchflat.SourcesFixtures do
       Map.merge(attrs, %{
         metadata: %{
           metadata_filepath: Application.get_env(:pinchflat, :metadata_directory) <> "/metadata.json.gz"
+        }
+      })
+
+    source_fixture(merged_attrs)
+  end
+
+  def source_with_metadata_attachments(attrs \\ %{}) do
+    metadata_dir =
+      Path.join(Application.get_env(:pinchflat, :metadata_directory), "#{:rand.uniform(1_000_000)}")
+
+    json_gz_filepath = Path.join(metadata_dir, "metadata.json.gz")
+    poster_filepath = Path.join(metadata_dir, "poster.jpg")
+    fanart_filepath = Path.join(metadata_dir, "fanart.jpg")
+
+    FilesystemHelpers.cp_p!(MediaFixtures.media_metadata_filepath_fixture(), json_gz_filepath)
+    FilesystemHelpers.cp_p!(MediaFixtures.thumbnail_filepath_fixture(), poster_filepath)
+    FilesystemHelpers.cp_p!(MediaFixtures.thumbnail_filepath_fixture(), fanart_filepath)
+
+    merged_attrs =
+      Map.merge(attrs, %{
+        metadata: %{
+          metadata_filepath: json_gz_filepath,
+          poster_filepath: poster_filepath,
+          fanart_filepath: fanart_filepath
         }
       })
 

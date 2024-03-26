@@ -14,8 +14,6 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
 
   alias Pinchflat.Repo
   alias Pinchflat.Settings
-  alias Pinchflat.Sources.Source
-  alias Pinchflat.Media.MediaItem
   alias Pinchflat.Filesystem.FilesystemHelpers
 
   def start_link(opts \\ []) do
