@@ -1,4 +1,4 @@
-defmodule Pinchflat.Podcasts.PostcastHelpers do
+defmodule Pinchflat.Podcasts.PodcastHelpers do
   alias Pinchflat.Repo
   alias Pinchflat.Media
 
@@ -13,11 +13,8 @@ defmodule Pinchflat.Podcasts.PostcastHelpers do
 
   # TODO: test
   # Returns string or nil
-  def select_cover_image(source) do
+  def select_cover_image(source, media_items) do
     source_with_preloads = Repo.preload(source, :metadata)
-    # Since we're looking for the metadata image, _any_ downloaded media
-    # items should be fine
-    media_items = Media.list_downloaded_media_items_for(source, limit: 1)
 
     source_with_preloads
     |> get_images_by_preference(media_items)

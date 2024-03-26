@@ -2,14 +2,15 @@ defmodule PinchflatWeb.Podcasts.PodcastController do
   use PinchflatWeb, :controller
 
   alias Pinchflat.Repo
+  alias Pinchflat.Media
   alias Pinchflat.Podcasts.RssFeedBuilder
-  alias Pinchflat.Podcasts.PostcastHelpers
+  alias Pinchflat.Podcasts.PodcastHelpers
 
   # TODO: test
   def rss_feed(conn, %{"uuid" => uuid}) do
     # TODO: change this to UUID
     source = Repo.get_by!(Source, id: uuid)
-    media_items = PostcastHelpers.persisted_media_items_for(source)
+    media_items = PodcastHelpers.persisted_media_items_for(source)
     xml = RssFeedBuilder.build(source, media_items)
 
     conn
@@ -21,7 +22,11 @@ defmodule PinchflatWeb.Podcasts.PodcastController do
   # TODO: test
   def feed_image(conn, %{"uuid" => uuid}) do
     source = Repo.get_by!(Source, uuid: uuid)
-    filepath = PostcastHelpers.select_cover_image(source)
+    # This provides a fallback image if the source has none.
+    # We only need one since we're using the internal metadata image which
+    # we know exists.
+    media_items = Media.list_downloaded_media_items_for(source, limit: 1)
+    filepath = PodcastHelpers.select_cover_image(source, media_items)
 
     if filepath && File.exists?(filepath) do
       conn
