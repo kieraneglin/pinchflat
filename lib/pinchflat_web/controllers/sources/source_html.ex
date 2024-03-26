@@ -24,4 +24,11 @@ defmodule PinchflatWeb.Sources.SourceHTML do
       {"Monthly", 30 * 24 * 60}
     ]
   end
+
+  def rss_feed_url(source) do
+    url_base = Application.get_env(:pinchflat, :url_base)
+    path = ~p"/sources/#{source.uuid}/feed"
+
+    Path.join(url_base, "#{path}.rss")
+  end
 end

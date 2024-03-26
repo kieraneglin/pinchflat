@@ -36,7 +36,7 @@ defmodule PinchflatWeb.Router do
   # TODO: consider putting the basic auth here behind a config flag
   # so people that want RSS feeds to work can enable it.
   scope "/", PinchflatWeb do
-    get "/sources/:uuid/rss_feed", Podcasts.PodcastController, :rss_feed
+    get "/sources/:uuid/feed", Podcasts.PodcastController, :rss_feed
     get "/sources/:uuid/feed_image", Podcasts.PodcastController, :feed_image
 
     get "/media/:uuid/stream", MediaItems.MediaItemController, :stream
