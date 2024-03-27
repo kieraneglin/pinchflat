@@ -22,12 +22,12 @@
 - [Installation](#installation)
   - [Unraid](#unraid)
   - [Docker](#docker)
-- [Authentication](#authentication)
+- [Username and Password (authentication)](https://github.com/kieraneglin/pinchflat/wiki/Username-and-Password)
 - [Frequently asked questions](https://github.com/kieraneglin/pinchflat/wiki/Frequently-Asked-Questions)
 - [Documentation](https://github.com/kieraneglin/pinchflat/wiki)
 - [EFF donations](#eff-donations)
 - [Pre-release disclaimer](#pre-release-disclaimer)
-- [Development](#development)
+- [Development and Contributing](https://github.com/kieraneglin/pinchflat/wiki/Development-and-Contributing)
 
 ## What it does
 
@@ -43,6 +43,7 @@ If it doesn't work for your use case, please make a feature request! You can als
 - Powerful naming system so content is stored where and how you want it
 - Easy-to-use web interface with presets to get you started right away
 - First-class support for media center apps like Plex, Jellyfin, and Kodi
+- Supports serving RSS feeds to your favourite podcast app (beta - [docs](<https://github.com/kieraneglin/pinchflat/wiki/Podcast-RSS-Feeds-(beta)>))
 - Automatically downloads new content from channels and playlists
   - Uses a novel approach to download new content more quickly than other apps
 - Supports downloading audio content
@@ -103,14 +104,6 @@ You _must_ ensure the host directories you've mounted are writable by the user r
 
 It's recommended to not run the container as root. Doing so can create permission issues if other apps need to work with the downloaded media. If you need to run any command as root, you can run `su` from the container's shell as there is no password set for the root user.
 
-## Username and Password
-
-HTTP basic authentication is optionally supported. To use it, set the `BASIC_AUTH_USERNAME` and `BASIC_AUTH_PASSWORD` environment variables when starting the container. No authentication will be required unless you set _both_ of these.
-
-### Important note:
-
-The media streaming endpoint is not protected by basic auth. To help protect your media, these endpoints work with UUIDs instead of sequential IDs but this is still essentially security through obscurity. If you're concerned about the security of your media, consider using a reverse proxy with authentication or a VPN.
-
 ## EFF donations
 
 A portion of all donations to Pinchflat will be donated to the [Electronic Frontier Foundation](https://www.eff.org/). The EFF defends your online liberties and [backed](https://github.com/github/dmca/blob/9a85e0f021f7967af80e186b890776a50443f06c/2020/11/2020-11-16-RIAA-reversal-effletter.pdf) `youtube-dl` when Google took them down. [See here](https://github.com/kieraneglin/pinchflat/wiki/EFF-Donation-Receipts) for a list of donation receipts.
@@ -118,30 +111,6 @@ A portion of all donations to Pinchflat will be donated to the [Electronic Front
 ## Pre-release disclaimer
 
 This is pre-release software and anything can break at any time. I make not guarantees about the stability of this software, forward-compatibility of updates, or integrity (both related to and independent of Pinchflat). Essentially, use at your own risk and expect there will be rough edges for now.
-
-## Development
-
-Pinchflat is written in Elixir - a functional programming language that runs on the Erlang VM. It uses the Phoenix web framework and SQLite for the database. The frontend is mostly normal server-rendered HTML with a little Alpine.js as-needed.
-
-Elixir is a personal favourite of mine and is ideal for building fault-tolerant systems. It's also a joy to work with and has a great community. If you're interested in contributing, I'd be happy to help you get started with Elixir - just open an issue with some questions and we can chat!
-
-### Local setup
-
-- `docker compose build --no-cache`
-- `docker compose up -d && docker attach pinchflat-phx-1`
-- After a few minutes the app should be accessible at `localhost:4008`
-  - Please let me know if you run into any hiccups here - I haven't had to bootstrap the app from scratch in a long time and I might have forgotten something
-- Media downloads and config will be stored in the `tmp` directory. Not the OS's `/tmp` directory, but the one in the root of the project
-
-### Running tests and linting
-
-- Open a shell with `docker compose exec phx bash`
-- Run `mix test` to run the tests
-- Run `mix check` to do a full testing, linting, and static analysis pass
-
-### Top tips
-
-- Look for any module that ends in `*_worker.ex` - these are where the interesting stuff happens and you can trace back from there to see how the app works. `lib/pinchflat/slow_indexing/media_collection_indexing_worker.ex` is a good place to start
 
 ## License
 
