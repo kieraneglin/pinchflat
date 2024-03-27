@@ -39,24 +39,32 @@
     Indexing Options
   </h3>
 
-  <.input
-    field={f[:index_frequency_minutes]}
-    options={friendly_index_frequencies()}
-    type="select"
-    label="Index Frequency"
-    help="Indexing is the process of checking for media to download. Sets the time between one index of this source finishing and the next one starting"
-  />
-
-  <%!-- TODO: use Alpine to disable the index frequency when fast indexing is enabled --%>
-  <div phx-click={show_modal("upgrade-modal")}>
+  <section x-data="{ fastIndexingEnabled: null }">
     <.input
-      field={f[:fast_index]}
-      type="toggle"
-      label="Use Fast Indexing"
-      label_suffix="(pro)"
-      help="Experimental. Ignores 'Index Frequency'. Recommended for large channels that upload frequently. See below for more info"
+      field={f[:index_frequency_minutes]}
+      options={friendly_index_frequencies()}
+      type="select"
+      label="Index Frequency"
+      x-bind:disabled="fastIndexingEnabled == true"
+      x-init="$watch('fastIndexingEnabled', v => v && ($el.value = 30 * 24 * 60))"
+      help="Indexing is the process of checking for media to download. Sets the time between one index of this source finishing and the next one starting"
     />
-  </div>
+
+    <div phx-click={show_modal("upgrade-modal")}>
+      <.input
+        field={f[:fast_index]}
+        type="toggle"
+        label="Use Fast Indexing"
+        label_suffix="(pro)"
+        help="Experimental. Overrides 'Index Frequency'. Recommended for large channels that upload frequently. See below for more info"
+        x-init="
+          // `enabled` is the data attribute that the toggle uses internally
+          fastIndexingEnabled = enabled
+          $watch('enabled', value => fastIndexingEnabled = !!value)
+        "
+      />
+    </div>
+  </section>
 
   <h3 class="mt-8 text-2xl text-black dark:text-white">
     Downloading Options
