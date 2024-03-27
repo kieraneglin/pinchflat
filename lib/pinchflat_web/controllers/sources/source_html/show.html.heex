@@ -88,7 +88,7 @@
       </:tab>
       <:tab title="Downloaded Media">
         <%= if match?([_|_], @downloaded_media) do %>
-          <h4 class="text-white text-lg mb-6">Shows a maximum of 100 media items</h4>
+          <h4 class="text-white text-lg mb-6">Shows a maximum of 100 media items (<%= @total_downloaded %> total)</h4>
           <.table rows={@downloaded_media} table_class="text-black dark:text-white">
             <:col :let={media_item} label="Title">
               <%= StringUtils.truncate(media_item.title, 50) %>

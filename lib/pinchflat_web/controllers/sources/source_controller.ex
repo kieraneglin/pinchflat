@@ -1,12 +1,15 @@
 defmodule PinchflatWeb.Sources.SourceController do
   use PinchflatWeb, :controller
 
+  import Ecto.Query, warn: false
+
   alias Pinchflat.Repo
   alias Pinchflat.Media
   alias Pinchflat.Tasks
   alias Pinchflat.Sources
   alias Pinchflat.Profiles
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Media.MediaItem
 
   def index(conn, _params) do
     sources = Repo.preload(Sources.list_sources(), :media_profile)
@@ -54,7 +57,8 @@ defmodule PinchflatWeb.Sources.SourceController do
       source: source,
       pending_tasks: pending_tasks,
       pending_media: pending_media,
-      downloaded_media: downloaded_media
+      downloaded_media: downloaded_media,
+      total_downloaded: total_downloaded_for(source)
     )
   end
 
@@ -102,6 +106,17 @@ defmodule PinchflatWeb.Sources.SourceController do
 
   defp media_profiles do
     Profiles.list_media_profiles()
+  end
+
+  # NOTE: should move this out of the controller
+  # once I finally add some query fragment layer
+  defp total_downloaded_for(source) do
+    from(
+      m in MediaItem,
+      where: m.source_id == ^source.id,
+      where: not is_nil(m.media_filepath)
+    )
+    |> Repo.aggregate(:count, :id)
   end
 
   defp get_onboarding_layout do
