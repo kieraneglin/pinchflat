@@ -75,6 +75,8 @@ RUN mix release
 # the compiled release and other runtime necessities
 FROM ${RUNNER_IMAGE}
 
+ARG PORT=8945
+
 RUN apt-get update -y
 RUN apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates \
   ffmpeg curl git openssh-client nano
@@ -101,8 +103,9 @@ RUN chown nobody /config /downloads
 
 # set runner ENV
 ENV MIX_ENV="prod"
-ENV PORT=8945
+ENV PORT=${PORT}
 ENV RUN_CONTEXT="selfhosted"
+EXPOSE ${PORT}
 
 # Only copy the final release from the build stage
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/pinchflat ./
