@@ -47,5 +47,54 @@ defmodule PinchflatWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
+
+  plug :override_base_url
+  plug :strip_trailing_extension
+
   plug PinchflatWeb.Router
+
+  # URLs need to be generated using the host of the current page being accessed
+  # for things like Podcast RSS feeds to contain links to the right location.
+  #
+  # Normally you'd set the `url` option in the Endpoint configuration, but
+  # since this is self-hosted and often accessed at multiple different URLs,
+  # that would probably be more difficult for end-users to set up than just
+  # having the application figure it out.
+  defp override_base_url(conn, _opts) do
+    new_scheme =
+      case get_req_header(conn, "x-forwarded-proto") do
+        [scheme] -> scheme
+        _ -> to_string(conn.scheme)
+      end
+
+    new_port = if conn.port in [80, 443], do: "", else: ":#{conn.port}"
+    new_base_url = "#{new_scheme}://#{conn.host}#{new_port}"
+
+    Phoenix.Controller.put_router_url(conn, new_base_url)
+  end
+
+  defp strip_trailing_extension(%{path_info: []} = conn, _opts), do: conn
+
+  defp strip_trailing_extension(conn, _opts) do
+    path =
+      conn.path_info
+      |> List.last()
+      |> String.split(".")
+      |> Enum.reverse()
+
+    case path do
+      [_] ->
+        conn
+
+      [_format | fragments] ->
+        new_path =
+          fragments
+          |> Enum.reverse()
+          |> Enum.join(".")
+
+        path_fragments = List.replace_at(conn.path_info, -1, new_path)
+
+        %{conn | path_info: path_fragments}
+    end
+  end
 end

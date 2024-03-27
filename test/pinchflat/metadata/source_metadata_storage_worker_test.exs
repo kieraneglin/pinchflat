@@ -57,7 +57,7 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
         _url, _opts, ot when ot == @metadata_ot -> {:ok, render_metadata(:channel_source_metadata)}
       end)
 
-      source = source_fixture()
+      source = source_fixture(%{description: nil})
 
       refute source.description
       perform_job(SourceMetadataStorageWorker, %{id: source.id})

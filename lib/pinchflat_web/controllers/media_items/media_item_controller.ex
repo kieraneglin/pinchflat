@@ -1,6 +1,8 @@
 defmodule PinchflatWeb.MediaItems.MediaItemController do
   use PinchflatWeb, :controller
 
+  require Logger
+
   alias Pinchflat.Repo
   alias Pinchflat.Media
   alias Pinchflat.Media.MediaItem
@@ -36,7 +38,7 @@ defmodule PinchflatWeb.MediaItems.MediaItemController do
   #
   # Uses the UUID instead of the ID to avoid enumeration attacks
   # since streaming is a public endpoint (ie: no auth required)
-  def stream(conn, %{"id" => uuid}) do
+  def stream(conn, %{"uuid" => uuid}) do
     media_item = Repo.get_by!(MediaItem, uuid: uuid)
 
     if File.exists?(media_item.media_filepath) do
@@ -45,6 +47,7 @@ defmodule PinchflatWeb.MediaItems.MediaItemController do
 
       case parse_range(conn, file_size) do
         {:ok, {start_pos, end_pos}} ->
+          Logger.debug("Streaming media item: #{media_item.uuid} from #{start_pos} to #{end_pos}")
           length = end_pos - start_pos + 1
 
           conn
@@ -55,6 +58,8 @@ defmodule PinchflatWeb.MediaItems.MediaItemController do
           |> send_file(206, media_item.media_filepath, start_pos, length)
 
         {:error, :invalid_range} ->
+          Logger.debug("Invalid range request for media item: #{media_item.uuid} - serving full file")
+
           conn
           |> put_resp_content_type(mime_type)
           |> put_resp_header("content-length", to_string(file_size))

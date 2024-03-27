@@ -14,8 +14,6 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
 
   alias Pinchflat.Repo
   alias Pinchflat.Settings
-  alias Pinchflat.Sources.Source
-  alias Pinchflat.Media.MediaItem
   alias Pinchflat.Filesystem.FilesystemHelpers
 
   def start_link(opts \\ []) do
@@ -36,7 +34,6 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
     reset_executing_jobs()
     create_blank_cookie_file()
     apply_default_settings()
-    backfill_uuids()
 
     {:ok, state}
   end
@@ -67,19 +64,5 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
   defp apply_default_settings do
     Settings.fetch!(:onboarding, true)
     Settings.fetch!(:pro_enabled, false)
-  end
-
-  # TODO: turn into a migration
-  defp backfill_uuids do
-    # This is a one-time backfill to ensure that all media items have a UUID
-    # This is important for the RSS feed and the streaming endpoint
-    source_query = from(m in Source, where: is_nil(m.uuid), update: [set: [uuid: fragment("gen_random_uuid()")]])
-    media_item_query = from(m in MediaItem, where: is_nil(m.uuid), update: [set: [uuid: fragment("gen_random_uuid()")]])
-
-    {source_count, _} = Repo.update_all(source_query, [])
-    {media_item_count, _} = Repo.update_all(media_item_query, [])
-
-    Logger.info("Backfilled UUIDs for #{source_count} sources.")
-    Logger.info("Backfilled UUIDs for #{media_item_count} media items.")
   end
 end
