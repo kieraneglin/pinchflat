@@ -69,7 +69,7 @@ defmodule PinchflatWeb.CustomComponents.ButtonComponents do
         <%= @text %>
         <CoreComponents.icon
           name="hero-chevron-down"
-          class="fill-current duration-200 ease-linear"
+          class="fill-current duration-200 ease-linear mt-1"
           x-bind:class="dropdownOpen && 'rotate-180'"
         />
       </span>
