@@ -135,8 +135,4 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
   defp media_route(action, params) do
     Routes.media_item_path(PinchflatWeb.Endpoint, action, params)
   end
-
-  # defp url_base do
-  #   Application.get_env(:pinchflat, :url_base)
-  # end
 end
