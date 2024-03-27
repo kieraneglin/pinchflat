@@ -398,6 +398,37 @@ defmodule Pinchflat.MediaTest do
       assert media_item.media_filepath == valid_attrs.media_filepath
     end
 
+    test "automatically sets the UUID" do
+      valid_attrs = %{
+        media_id: Faker.String.base64(12),
+        title: Faker.Commerce.product_name(),
+        media_filepath: "/video/#{Faker.File.file_name(:video)}",
+        source_id: source_fixture().id,
+        original_url: "https://www.youtube.com/channel/#{Faker.String.base64(12)}",
+        upload_date: Date.utc_today()
+      }
+
+      assert {:ok, %MediaItem{} = media_item} = Media.create_media_item(valid_attrs)
+
+      assert String.length(media_item.uuid) == 36
+    end
+
+    test "UUID is not writable by the user" do
+      valid_attrs = %{
+        media_id: Faker.String.base64(12),
+        title: Faker.Commerce.product_name(),
+        media_filepath: "/video/#{Faker.File.file_name(:video)}",
+        source_id: source_fixture().id,
+        original_url: "https://www.youtube.com/channel/#{Faker.String.base64(12)}",
+        upload_date: Date.utc_today(),
+        uuid: "some-uuid"
+      }
+
+      assert {:ok, %MediaItem{} = media_item} = Media.create_media_item(valid_attrs)
+
+      assert String.length(media_item.uuid) == 36
+    end
+
     test "creating with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Media.create_media_item(@invalid_attrs)
     end

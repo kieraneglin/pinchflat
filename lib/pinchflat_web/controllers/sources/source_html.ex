@@ -24,4 +24,8 @@ defmodule PinchflatWeb.Sources.SourceHTML do
       {"Monthly", 30 * 24 * 60}
     ]
   end
+
+  def rss_feed_url(conn, source) do
+    url(conn, ~p"/sources/#{source.uuid}/feed") <> ".xml"
+  end
 end

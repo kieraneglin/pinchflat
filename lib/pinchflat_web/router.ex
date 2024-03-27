@@ -1,6 +1,8 @@
 defmodule PinchflatWeb.Router do
   use PinchflatWeb, :router
 
+  # IMPORTANT: `strip_trailing_extension` in endpoint.ex removes
+  # the extension from the path
   pipeline :browser do
     plug :basic_auth
     plug :accepts, ["html"]
@@ -13,6 +15,10 @@ defmodule PinchflatWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+  end
+
+  pipeline :feeds do
+    plug :maybe_basic_auth
   end
 
   scope "/", PinchflatWeb do
@@ -28,10 +34,16 @@ defmodule PinchflatWeb.Router do
     end
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", PinchflatWeb do
-  #   pipe_through :api
-  # end
+  # Routes in here _may not be_ protected by basic auth. This is necessary for
+  # media streaming to work for RSS podcast feeds.
+  scope "/", PinchflatWeb do
+    pipe_through :feeds
+
+    get "/sources/:uuid/feed", Podcasts.PodcastController, :rss_feed
+    get "/sources/:uuid/feed_image", Podcasts.PodcastController, :feed_image
+
+    get "/media/:uuid/stream", MediaItems.MediaItemController, :stream
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:pinchflat, :dev_routes) do
@@ -47,6 +59,14 @@ defmodule PinchflatWeb.Router do
 
       live_dashboard "/dashboard", metrics: PinchflatWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
+    end
+  end
+
+  defp maybe_basic_auth(conn, opts) do
+    if Application.get_env(:pinchflat, :expose_feed_endpoints) do
+      conn
+    else
+      basic_auth(conn, opts)
     end
   end
 

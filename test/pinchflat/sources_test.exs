@@ -59,6 +59,31 @@ defmodule Pinchflat.SourcesTest do
   end
 
   describe "create_source/2" do
+    test "automatically sets the UUID" do
+      expect(YtDlpRunnerMock, :run, &channel_mock/3)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123"
+      }
+
+      assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
+      assert String.length(source.uuid) == 36
+    end
+
+    test "UUID is not writable by the user" do
+      expect(YtDlpRunnerMock, :run, &channel_mock/3)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123",
+        uuid: "some_uuid"
+      }
+
+      assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
+      assert String.length(source.uuid) == 36
+    end
+
     test "creates a source and adds name + ID from runner response for channels" do
       expect(YtDlpRunnerMock, :run, &channel_mock/3)
 
