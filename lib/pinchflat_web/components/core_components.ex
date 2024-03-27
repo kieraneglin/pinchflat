@@ -347,8 +347,8 @@ defmodule PinchflatWeb.CoreComponents do
           id={@id}
           name={@name}
           class={[
-            "relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 pl-5 pr-12 outline-none transition",
-            "focus:border-primary active:border-primary border-form-strokedark bg-form-input text-black text-white",
+            "relative z-20 w-full appearance-none rounded border border-form-strokedark py-3 pl-5 pr-12 outline-none transition",
+            "focus:border-primary active:border-primary bg-form-input text-black text-white",
             "disabled:text-opacity-50 disabled:cursor-not-allowed disabled:border-black",
             @inputclass
           ]}
