@@ -63,7 +63,7 @@ defmodule PinchflatWeb.Router do
   end
 
   defp maybe_basic_auth(conn, opts) do
-    if Application.get_env(:pinchflat, :expose_xml_feed) do
+    if Application.get_env(:pinchflat, :expose_feed_endpoints) do
       conn
     else
       basic_auth(conn, opts)

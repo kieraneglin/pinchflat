@@ -48,7 +48,7 @@ if config_env() == :prod do
   extras_path = System.get_env("EXTRAS_PATH", Path.join([config_path, "extras"]))
 
   # For running PF as a podcast host on self-hosted environments
-  expose_xml_feed = String.length(System.get_env("EXPOSE_XML_FEED", "")) > 0
+  expose_feed_endpoints = String.length(System.get_env("EXPOSE_FEED_ENDPOINTS", "")) > 0
 
   # We want to force _some_ level of useful logging in production
   acceptable_log_levels = ~w(debug info)a
@@ -68,7 +68,7 @@ if config_env() == :prod do
     extras_directory: extras_path,
     tmpfile_directory: Path.join([System.tmp_dir!(), "pinchflat", "data"]),
     dns_cluster_query: System.get_env("DNS_CLUSTER_QUERY"),
-    expose_xml_feed: expose_xml_feed
+    expose_feed_endpoints: expose_feed_endpoints
 
   config :pinchflat, Pinchflat.Repo,
     database: db_path,
