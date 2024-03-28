@@ -19,8 +19,11 @@ on:
       - published
 
 jobs:
-  build:
+  build_and_push_docker:
     runs-on: ubuntu-latest
+    env:
+      dev_arch: 'linux/amd64'
+      release_arch: 'linux/amd64,linux/arm64'
     permissions:
       contents: read
       packages: write
@@ -39,7 +42,7 @@ jobs:
             type=semver,pattern={{version}},prefix=v
             type=semver,pattern={{major}}.{{minor}},prefix=v
             type=semver,pattern={{major}},prefix=v
-            type=ref,event=branch
+            type=raw,value=dev,enable=${{ github.event_name != 'release' }}
           flavor: |
             latest=auto
 
@@ -64,18 +67,19 @@ jobs:
 
       - name: Echo outputs
         run: |
+          echo "${{ github.event_name }}"
           echo "${{ steps.meta.outputs.tags }}"
           echo "${{ steps.meta.outputs.labels }}"
           echo "${{ github.event.inputs.platforms }}"
-          echo "${{ steps.meta.outputs.tags || 'master' }}"
-          echo "${{ github.event.inputs.platforms || 'linux/amd64,linux/arm64' }}"
+          echo "${{ github.event.inputs.platforms || env.release_arch }}"
+          echo "${{ github.event_name == 'release' && env.release_arch || (github.event.inputs.platforms || env.dev_arch) }}"
 
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./selfhosted.Dockerfile
-          platforms: ${{ github.event.inputs.platforms || 'linux/amd64,linux/arm64' }}
+          platforms: ${{ github.event_name == 'release' && env.release_arch || (github.event.inputs.platforms || env.dev_arch) }}
           push: false # TODO: Set to true once everything is proven to work
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
