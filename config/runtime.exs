@@ -50,16 +50,10 @@ if config_env() == :prod do
   # For running PF as a podcast host on self-hosted environments
   expose_feed_endpoints = String.length(System.get_env("EXPOSE_FEED_ENDPOINTS", "")) > 0
 
-  # We want to force _some_ level of useful logging in production
-  acceptable_log_levels = ~w(debug info)a
-  log_level = String.to_existing_atom(System.get_env("LOG_LEVEL", "info"))
+  # For testing alternate journal modes (see issue #137)
+  journal_mode = String.to_existing_atom(System.get_env("JOURNAL_MODE", "wal"))
 
-  if log_level in acceptable_log_levels do
-    config :logger, level: log_level
-  else
-    Logger.error("Invalid log level: #{log_level}. Defaulting to info.")
-    config :logger, level: :info
-  end
+  config :logger, level: String.to_existing_atom(System.get_env("LOG_LEVEL", "info"))
 
   config :pinchflat,
     yt_dlp_executable: System.find_executable("yt-dlp"),
@@ -72,7 +66,7 @@ if config_env() == :prod do
 
   config :pinchflat, Pinchflat.Repo,
     database: db_path,
-    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "5")
+    journal_mode: journal_mode
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you

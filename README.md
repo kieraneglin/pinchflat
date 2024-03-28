@@ -65,6 +65,8 @@ Simply search for Pinchflat in the Community Apps store!
 
 ### Portainer
 
+Important: See the note belonw about storing config on a network file share. It's preferred to store the config on a local disk if at all possible.
+
 Docker Compose file:
 
 ```yaml
@@ -103,6 +105,14 @@ docker run \
 You _must_ ensure the host directories you've mounted are writable by the user running the Docker container. If you get a permission error follow the steps it suggests. See [#106](https://github.com/kieraneglin/pinchflat/issues/106) for more.
 
 It's recommended to not run the container as root. Doing so can create permission issues if other apps need to work with the downloaded media. If you need to run any command as root, you can run `su` from the container's shell as there is no password set for the root user.
+
+### Advanced: storing Pinchflat config directory on a network share
+
+README: This is currently in the testing phase and not a recommended option (yet). The implications of changing this setting isn't clear and this could, conceivably, result in data loss. Only change this setting if you know what you're doing, why this is important, and are okay with possible data loss or DB corruption. This may become the default in the future once it's been tested more thoroughly.
+
+As pointed out in [#137](https://github.com/kieraneglin/pinchflat/issues/137), SQLite doesn't like being run in WAL mode on network shares. If you're running Pinchflat on a network share, you can disable WAL mode by setting the `JOURNAL_MODE` environment variable to `delete`. This will make Pinchflat run in rollback journal mode which is less performant but should work on network shares.
+
+If you change this setting and it works well for you, please leave a comment on [#137](https://github.com/kieraneglin/pinchflat/issues/137)! Doubly so if it does _not_ work well.
 
 ## EFF donations
 
