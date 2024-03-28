@@ -38,6 +38,7 @@ jobs:
           images: |
             docker.io/keglin/pinchflat
             ghcr.io/${{ github.repository }}
+          # All non-release actions will be tagged as `dev` (ie: push, workflow_dispatch)
           tags: |
             type=semver,pattern={{version}},prefix=v
             type=semver,pattern={{major}}.{{minor}},prefix=v
@@ -65,21 +66,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Echo outputs
-        run: |
-          echo "${{ github.event_name }}"
-          echo "${{ steps.meta.outputs.tags }}"
-          echo "${{ steps.meta.outputs.labels }}"
-          echo "${{ github.event.inputs.platforms }}"
-          echo "${{ github.event.inputs.platforms || env.release_arch }}"
-          echo "${{ github.event_name == 'release' && env.release_arch || (github.event.inputs.platforms || env.dev_arch) }}"
-
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./selfhosted.Dockerfile
+          # If the event is a release, use the release_arch, otherwise use the
+          # platforms input if present, falling back to dev_arch
           platforms: ${{ github.event_name == 'release' && env.release_arch || (github.event.inputs.platforms || env.dev_arch) }}
-          push: false # TODO: Set to true once everything is proven to work
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
