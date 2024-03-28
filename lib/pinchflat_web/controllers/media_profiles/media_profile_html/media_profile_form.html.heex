@@ -238,6 +238,36 @@
       />
     </section>
 
+    <h3 class="mt-10 text-2xl text-black dark:text-white">
+      SponsorBlock Options
+    </h3>
+
+    <section x-data="{ sponsorblockBehaviour: null }">
+      <section x-data="{ presets: { default: 'disabled', media_center: 'disabled', audio: 'disabled', archiving: 'disabled' } }">
+        <.input
+          field={f[:sponsorblock_behaviour]}
+          options={friendly_sponsorblock_options()}
+          type="select"
+          label="SponsorBlock Behaviour"
+          help="Action to take when SponsorBlock segments are found. 'Disabled' won't take any action"
+          x-model="sponsorblockBehaviour"
+          x-init="
+            sponsorblockBehaviour = $el.value
+            $watch('selectedPreset', p => p && ($el.value = presets[p]))
+          "
+        />
+      </section>
+
+      <section x-show="sponsorblockBehaviour !== 'disabled'" x-transition>
+        <.input
+          field={f[:sponsorblock_categories]}
+          options={frieldly_sponsorblock_categories()}
+          type="checkbox_group"
+          label="SponsorBlock Categories"
+        />
+      </section>
+    </section>
+
     <.button class="my-10 sm:mb-7.5 w-full sm:w-auto" rounding="rounded-lg">Save Media profile</.button>
   </section>
 
