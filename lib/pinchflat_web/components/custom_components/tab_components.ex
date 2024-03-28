@@ -9,24 +9,31 @@ defmodule PinchflatWeb.CustomComponents.TabComponents do
     attr :title, :string, required: true
   end
 
+  slot :tab_append, required: false
+
   def tabbed_layout(assigns) do
     ~H"""
     <div
       x-data="{ openTab: 0, activeClasses: 'text-meta-5 border-meta-5', inactiveClasses: 'border-transparent' }"
       class="w-full"
     >
-      <div class="mb-6 flex flex-wrap gap-5 border-b border-strokedark sm:gap-10">
-        <a
-          :for={{tab, idx} <- Enum.with_index(@tab)}
-          href="#"
-          @click.prevent={"openTab = #{idx}"}
-          x-bind:class={"openTab === #{idx} ? activeClasses : inactiveClasses"}
-          class="border-b-2 py-4 text-sm font-medium hover:text-meta-5 md:text-base"
-        >
-          <span class="text-xl"><%= tab.title %></span>
-        </a>
-      </div>
-      <div>
+      <header class="flex flex-col md:flex-row md:justify-between border-b border-strokedark">
+        <div class="flex flex-wrap gap-5 sm:gap-10">
+          <a
+            :for={{tab, idx} <- Enum.with_index(@tab)}
+            href="#"
+            @click.prevent={"openTab = #{idx}"}
+            x-bind:class={"openTab === #{idx} ? activeClasses : inactiveClasses"}
+            class="border-b-2 py-4 w-full sm:w-fit text-sm font-medium hover:text-meta-5 md:text-base"
+          >
+            <span class="text-xl"><%= tab.title %></span>
+          </a>
+        </div>
+        <div class="mx-4 my-4 lg:my-0 flex gap-5 sm:gap-10 items-center">
+          <%= render_slot(@tab_append) %>
+        </div>
+      </header>
+      <div class="mt-4">
         <div :for={{tab, idx} <- Enum.with_index(@tab)} x-show={"openTab === #{idx}"} class="font-medium leading-relaxed">
           <%= render_slot(tab) %>
         </div>

@@ -5,6 +5,7 @@ defmodule Pinchflat.MediaFixtures do
   """
 
   alias Pinchflat.SourcesFixtures
+  alias Pinchflat.Filesystem.FilesystemHelpers
 
   @doc """
   Generate a media_item.
@@ -44,18 +45,36 @@ defmodule Pinchflat.MediaFixtures do
     media_item_fixture(merged_attrs)
   end
 
+  def media_item_with_metadata_attachments(attrs \\ %{}) do
+    metadata_dir =
+      Path.join(Application.get_env(:pinchflat, :metadata_directory), "#{:rand.uniform(1_000_000)}")
+
+    json_gz_filepath = Path.join(metadata_dir, "metadata.json.gz")
+    thumbnail_filepath = Path.join(metadata_dir, "thumbnail.jpg")
+
+    FilesystemHelpers.cp_p!(media_metadata_filepath_fixture(), json_gz_filepath)
+    FilesystemHelpers.cp_p!(thumbnail_filepath_fixture(), thumbnail_filepath)
+
+    merged_attrs =
+      Map.merge(attrs, %{
+        metadata: %{
+          metadata_filepath: json_gz_filepath,
+          thumbnail_filepath: thumbnail_filepath
+        }
+      })
+
+    media_item_with_attachments(merged_attrs)
+  end
+
   def media_item_with_attachments(attrs \\ %{}) do
     stored_media_filepath =
       Path.join([
         Application.get_env(:pinchflat, :media_directory),
         "#{:rand.uniform(1_000_000)}",
-        "#{:rand.uniform(1_000_000)}_media.mkv"
+        "#{:rand.uniform(1_000_000)}_media.mp4"
       ])
 
-    fixture_media_filepath = media_filepath_fixture()
-
-    :ok = File.mkdir_p(Path.dirname(stored_media_filepath))
-    :ok = File.cp(fixture_media_filepath, stored_media_filepath)
+    FilesystemHelpers.cp_p!(media_filepath_fixture(), stored_media_filepath)
 
     merged_attrs = Map.merge(attrs, %{media_filepath: stored_media_filepath})
     media_item_fixture(merged_attrs)
@@ -103,6 +122,16 @@ defmodule Pinchflat.MediaFixtures do
       "support",
       "files",
       "example.info.json"
+    ])
+  end
+
+  def media_metadata_filepath_fixture do
+    Path.join([
+      File.cwd!(),
+      "test",
+      "support",
+      "files",
+      "media_metadata.json"
     ])
   end
 end
