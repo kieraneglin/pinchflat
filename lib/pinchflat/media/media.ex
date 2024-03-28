@@ -101,6 +101,7 @@ defmodule Pinchflat.Media do
     |> where([mi], mi.id == ^media_item.id and is_nil(mi.media_filepath))
     |> where(^build_format_clauses(media_item.source.media_profile))
     |> where(^maybe_apply_cutoff_date(media_item.source))
+    |> where(^maybe_apply_title_regex(media_item.source))
     |> Repo.exists?()
   end
 

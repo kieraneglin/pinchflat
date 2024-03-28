@@ -325,6 +325,27 @@ defmodule Pinchflat.MediaTest do
 
       assert Media.pending_download?(media_item)
     end
+
+    test "returns true if the content matches the title regex" do
+      source = source_fixture(%{title_filter_regex: "(?i)^FOO$"})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, title: "foo"})
+
+      assert Media.pending_download?(media_item)
+    end
+
+    test "returns false if the content doesn't match the title regex" do
+      source = source_fixture(%{title_filter_regex: "(?i)^FOO$"})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, title: "bar"})
+
+      refute Media.pending_download?(media_item)
+    end
+
+    test "return true if there is no title regex" do
+      source = source_fixture(%{title_filter_regex: nil})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, title: "foo"})
+
+      assert Media.pending_download?(media_item)
+    end
   end
 
   describe "search/1" do
