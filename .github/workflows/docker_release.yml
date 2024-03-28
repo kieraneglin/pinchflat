@@ -1,6 +1,16 @@
-name: Release
+name: Docker Release
 
 on:
+  workflow_dispatch:
+    inputs:
+      platforms:
+        type: choice
+        description: 'Build Platforms'
+        required: true
+        default: 'linux/amd64'
+        options:
+          - 'linux/amd64'
+          - 'linux/amd64,linux/arm64'
   push:
     branches:
       - master
@@ -52,12 +62,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Echo outputs
+        run: |
+          echo "${{ steps.meta.outputs.tags }}"
+          echo "${{ steps.meta.outputs.labels }}"
+          echo "${{ github.event.inputs.platforms }}"
+          echo "${{ steps.meta.outputs.tags || 'master' }}"
+          echo "${{ github.event.inputs.platforms || 'linux/amd64,linux/arm64' }}"
+
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./selfhosted.Dockerfile
-          platforms: linux/amd64,linux/arm64
-          push: true
+          platforms: ${{ github.event.inputs.platforms || 'linux/amd64,linux/arm64' }}
+          push: false # TODO: Set to true once everything is proven to work
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
