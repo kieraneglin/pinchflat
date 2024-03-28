@@ -25,14 +25,15 @@ defmodule Pinchflat.Release do
   def check_file_permissions do
     load_app()
 
-    directories = [
-      "/config",
-      "/downloads",
-      Application.get_env(:pinchflat, :media_directory),
-      Application.get_env(:pinchflat, :tmpfile_directory),
-      Application.get_env(:pinchflat, :extras_directory),
-      Application.get_env(:pinchflat, :metadata_directory)
-    ]
+    directories =
+      Enum.uniq([
+        "/config",
+        "/downloads",
+        Application.get_env(:pinchflat, :media_directory),
+        Application.get_env(:pinchflat, :tmpfile_directory),
+        Application.get_env(:pinchflat, :extras_directory),
+        Application.get_env(:pinchflat, :metadata_directory)
+      ])
 
     Enum.each(directories, fn dir ->
       Logger.info("Checking permissions for #{dir}")
