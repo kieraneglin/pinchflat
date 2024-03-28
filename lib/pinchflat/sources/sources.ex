@@ -9,6 +9,7 @@ defmodule Pinchflat.Sources do
   alias Pinchflat.Media
   alias Pinchflat.Tasks
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Media.MediaQuery
   alias Pinchflat.Profiles.MediaProfile
   alias Pinchflat.YtDlp.MediaCollection
   alias Pinchflat.Metadata.SourceMetadata
@@ -112,8 +113,9 @@ defmodule Pinchflat.Sources do
     delete_files = Keyword.get(opts, :delete_files, false)
     Tasks.delete_tasks_for(source)
 
-    source
-    |> Media.list_media_items_for()
+    MediaQuery.new()
+    |> MediaQuery.for_source(source)
+    |> Repo.all()
     |> Enum.each(fn media_item ->
       Media.delete_media_item(media_item, delete_files: delete_files)
     end)

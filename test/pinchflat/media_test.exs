@@ -38,32 +38,6 @@ defmodule Pinchflat.MediaTest do
     end
   end
 
-  describe "list_media_items_for/1" do
-    test "it returns media_items for a given source" do
-      source = source_fixture()
-      media_item = media_item_fixture(%{source_id: source.id})
-
-      assert Media.list_media_items_for(source) == [media_item]
-    end
-  end
-
-  describe "list_media_items_by_media_id_for/2" do
-    test "returns media_items for a given source and media_ids" do
-      source = source_fixture()
-      media_item = media_item_fixture(%{source_id: source.id, media_id: "123"})
-
-      assert Media.list_media_items_by_media_id_for(source, ["123"]) == [media_item]
-    end
-
-    test "does not return matching media_ids for a different source" do
-      source = source_fixture()
-      other_source = source_fixture()
-      _media_item = media_item_fixture(%{source_id: other_source.id, media_id: "123"})
-
-      assert Media.list_media_items_by_media_id_for(source, ["123"]) == []
-    end
-  end
-
   describe "list_pending_media_items_for/1" do
     test "it returns pending without a filepath for a given source" do
       source = source_fixture()
