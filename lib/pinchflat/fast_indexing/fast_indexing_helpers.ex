@@ -5,8 +5,10 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
   Many of these methods are made to be kickoff or be consumed by workers.
   """
 
+  alias Pinchflat.Repo
   alias Pinchflat.Media
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Media.MediaQuery
   alias Pinchflat.FastIndexing.YoutubeRss
   alias Pinchflat.Downloading.MediaDownloadWorker
   alias Pinchflat.FastIndexing.MediaIndexingWorker
@@ -27,7 +29,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
   """
   def kickoff_indexing_tasks_from_youtube_rss_feed(%Source{} = source) do
     {:ok, media_ids} = YoutubeRss.get_recent_media_ids_from_rss(source)
-    existing_media_items = Media.list_media_items_by_media_id_for(source, media_ids)
+    existing_media_items = list_media_items_by_media_id_for(source, media_ids)
     new_media_ids = media_ids -- Enum.map(existing_media_items, & &1.media_id)
 
     Enum.each(new_media_ids, fn media_id ->
@@ -59,6 +61,13 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
       err ->
         err
     end
+  end
+
+  defp list_media_items_by_media_id_for(source, media_ids) do
+    MediaQuery.new()
+    |> MediaQuery.for_source(source)
+    |> MediaQuery.with_media_ids(media_ids)
+    |> Repo.all()
   end
 
   defp create_media_item_from_url(source, url) do

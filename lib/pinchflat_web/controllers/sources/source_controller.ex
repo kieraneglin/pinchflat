@@ -9,7 +9,7 @@ defmodule PinchflatWeb.Sources.SourceController do
   alias Pinchflat.Sources
   alias Pinchflat.Profiles
   alias Pinchflat.Sources.Source
-  alias Pinchflat.Media.MediaItem
+  alias Pinchflat.Media.MediaQuery
 
   def index(conn, _params) do
     sources = Repo.preload(Sources.list_sources(), :media_profile)
@@ -111,11 +111,9 @@ defmodule PinchflatWeb.Sources.SourceController do
   # NOTE: should move this out of the controller
   # once I finally add some query fragment layer
   defp total_downloaded_for(source) do
-    from(
-      m in MediaItem,
-      where: m.source_id == ^source.id,
-      where: not is_nil(m.media_filepath)
-    )
+    MediaQuery.new()
+    |> MediaQuery.for_source(source)
+    |> MediaQuery.with_media_filepath()
     |> Repo.aggregate(:count, :id)
   end
 
