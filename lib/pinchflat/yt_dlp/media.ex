@@ -10,7 +10,8 @@ defmodule Pinchflat.YtDlp.Media do
     :original_url,
     :livestream,
     :short_form_content,
-    :upload_date
+    :upload_date,
+    :duration_seconds
   ]
 
   defstruct [
@@ -20,7 +21,8 @@ defmodule Pinchflat.YtDlp.Media do
     :original_url,
     :livestream,
     :short_form_content,
-    :upload_date
+    :upload_date,
+    :duration_seconds
   ]
 
   alias __MODULE__
@@ -86,6 +88,7 @@ defmodule Pinchflat.YtDlp.Media do
       description: response["description"],
       original_url: response["webpage_url"],
       livestream: response["was_live"],
+      duration_seconds: response["duration"] && round(response["duration"]),
       short_form_content: response["webpage_url"] && short_form_content?(response),
       upload_date: response["upload_date"] && MetadataFileHelpers.parse_upload_date(response["upload_date"])
     }
