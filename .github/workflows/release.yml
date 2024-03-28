@@ -2,9 +2,11 @@ name: Release
 
 on:
   push:
-    branches: ["master"]
+    branches:
+      - master
   release:
-    types: ["published"]
+    types:
+      - published
 
 jobs:
   build:
