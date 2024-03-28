@@ -35,7 +35,7 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
       assert {:ok, _} = MediaDownloader.download_for_media_item(media_item)
     end
 
-    test "it saves the metadata filepatha to the database", %{media_item: media_item} do
+    test "it saves the metadata filepath to the database", %{media_item: media_item} do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
         {:ok, render_metadata(:media_metadata)}
       end)
@@ -91,6 +91,12 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
       assert media_item.subtitle_filepaths == []
       assert {:ok, updated_media_item} = MediaDownloader.download_for_media_item(media_item)
       assert [["de", _], ["en", _] | _rest] = updated_media_item.subtitle_filepaths
+    end
+
+    test "it extracts the duration_seconds", %{media_item: media_item} do
+      assert media_item.duration_seconds == nil
+      assert {:ok, updated_media_item} = MediaDownloader.download_for_media_item(media_item)
+      assert is_integer(updated_media_item.duration_seconds)
     end
 
     test "it extracts the thumbnail_filepath", %{media_item: media_item} do

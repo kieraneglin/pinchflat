@@ -45,6 +45,12 @@ defmodule Pinchflat.Metadata.MetadataParserTest do
 
       assert result.livestream == metadata["was_live"]
     end
+
+    test "it extracts the duration in seconds", %{metadata: metadata} do
+      result = Parser.parse_for_media_item(metadata)
+
+      assert result.duration_seconds == round(metadata["duration"])
+    end
   end
 
   describe "parse_for_media_item/1 when testing subtitle metadata" do

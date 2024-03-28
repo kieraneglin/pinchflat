@@ -30,7 +30,8 @@ defmodule Pinchflat.Metadata.MetadataParser do
       original_url: metadata["original_url"],
       description: metadata["description"],
       media_filepath: metadata["filepath"],
-      livestream: metadata["was_live"]
+      livestream: metadata["was_live"],
+      duration_seconds: metadata["duration"] && round(metadata["duration"])
     }
   end
 

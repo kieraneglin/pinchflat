@@ -104,7 +104,8 @@ defmodule Pinchflat.YtDlp.MediaTest do
                original_url: "https://www.youtube.com/watch?v=TiZPUDkDYbk",
                livestream: false,
                short_form_content: false,
-               upload_date: Date.from_iso8601!("2021-01-01")
+               upload_date: Date.from_iso8601!("2021-01-01"),
+               duration_seconds: 60
              } == Media.response_to_struct(response)
     end
 
@@ -173,6 +174,28 @@ defmodule Pinchflat.YtDlp.MediaTest do
       }
 
       assert %Media{upload_date: nil} = Media.response_to_struct(response)
+    end
+
+    test "parses the duration" do
+      response = %{
+        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "aspect_ratio" => 1.0,
+        "duration" => 60.4,
+        "upload_date" => "20210101"
+      }
+
+      assert %Media{duration_seconds: 60} = Media.response_to_struct(response)
+    end
+
+    test "doesn't blow up if duration is missing" do
+      response = %{
+        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "aspect_ratio" => 1.0,
+        "duration" => nil,
+        "upload_date" => "20210101"
+      }
+
+      assert %Media{duration_seconds: nil} = Media.response_to_struct(response)
     end
   end
 end
