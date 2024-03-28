@@ -222,6 +222,45 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
     end
   end
 
+  describe "build/1 when testing sponsorblock options" do
+    test "includes :sponsorblock_remove option when specified", %{media_item: media_item} do
+      media_item =
+        update_media_profile_attribute(media_item, %{
+          sponsorblock_behaviour: :remove,
+          sponsorblock_categories: ["sponsor", "intro"]
+        })
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+
+      assert {:sponsorblock_remove, "sponsor,intro"} in res
+    end
+
+    test "does not include :sponsorblock_remove option without categories", %{media_item: media_item} do
+      media_item =
+        update_media_profile_attribute(media_item, %{
+          sponsorblock_behaviour: :remove,
+          sponsorblock_categories: []
+        })
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+
+      refute {:sponsorblock_remove, ""} in res
+      refute {:sponsorblock_remove, []} in res
+      refute :sponsorblock_remove in res
+    end
+
+    test "does not include any sponsorblock options when disabled", %{media_item: media_item} do
+      media_item =
+        update_media_profile_attribute(media_item, %{sponsorblock_behaviour: :disabled})
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+
+      refute {:sponsorblock_remove, ""} in res
+      refute {:sponsorblock_remove, []} in res
+      refute :sponsorblock_remove in res
+    end
+  end
+
   describe "build_output_path_for/1" do
     test "builds an output path for a source", %{media_item: media_item} do
       path = DownloadOptionBuilder.build_output_path_for(media_item.source)
