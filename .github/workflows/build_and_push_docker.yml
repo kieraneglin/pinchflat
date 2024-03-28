@@ -4,13 +4,21 @@ on:
   workflow_dispatch:
     inputs:
       image_tag:
+        type: choice
         description: 'Docker Image Tag'
         required: true
         default: 'dev'
+        options:
+          - 'dev'
+          - 'latest'
       platforms:
+        type: choice
         description: 'Build Platforms'
         required: true
         default: 'linux/amd64,linux/arm64'
+        options:
+          - 'linux/amd64,linux/arm64'
+          - 'linux/amd64'
 
 jobs:
   docker:
