@@ -1,27 +1,27 @@
 <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
   <div class="rounded-sm border px-7.5 py-6 shadow-default border-strokedark bg-boxdark">
-    <div class="mt-4 flex flex-col items-center justify-center">
+    <a href={~p"/media_profiles"} class="mt-4 flex flex-col items-center justify-center">
       <span class="text-md font-medium">Media Profile(s)</span>
       <h4 class="text-title-md font-bold text-white">
         <%= @media_profile_count %>
       </h4>
-    </div>
+    </a>
   </div>
   <div class="rounded-sm border px-7.5 py-6 shadow-default border-strokedark bg-boxdark">
-    <div class="mt-4 flex flex-col items-center justify-center">
+    <a href={~p"/sources"} class="mt-4 flex flex-col items-center justify-center">
       <span class="text-md font-medium">Source(s)</span>
       <h4 class="text-title-md font-bold text-white">
         <%= @source_count %>
       </h4>
-    </div>
+    </a>
   </div>
   <div class="rounded-sm border px-7.5 py-6 shadow-default border-strokedark bg-boxdark">
-    <div class="mt-4 flex flex-col items-center justify-center">
+    <a href="#" class="mt-4 flex flex-col items-center justify-center">
       <span class="text-md font-medium">Media Item(s)</span>
       <h4 class="text-title-md font-bold text-white">
         <%= @media_item_count %>
       </h4>
-    </div>
+    </a>
   </div>
   <span class="text-strokedark">I know this page isn't super useful yet, but give it time :&rpar;</span>
 </div>
