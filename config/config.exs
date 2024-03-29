@@ -25,6 +25,10 @@ config :pinchflat,
   expose_feed_endpoints: false,
   file_watcher_poll_interval: 1000
 
+config :pinchflat, Pinchflat.Repo,
+  journal_mode: :wal,
+  pool_size: 5
+
 # Configures the endpoint
 config :pinchflat, PinchflatWeb.Endpoint,
   url: [host: "localhost", port: 8945],
