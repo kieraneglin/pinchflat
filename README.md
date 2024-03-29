@@ -51,6 +51,7 @@ If it doesn't work for your use case, please make a feature request! You can als
 - Advanced options like setting cutoff dates and filtering by title
 - Reliable hands-off operation
 - Can pass cookies to YouTube to download your private playlists ([docs](https://github.com/kieraneglin/pinchflat/wiki/YouTube-Cookies))
+- Sponsorblock integration
 
 ## Screenshots
 
