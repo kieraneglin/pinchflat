@@ -11,6 +11,7 @@ defmodule PinchflatWeb.Router do
     plug :put_root_layout, html: {PinchflatWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :allow_iframe_embed
   end
 
   pipeline :api do
@@ -83,5 +84,9 @@ defmodule PinchflatWeb.Router do
 
   defp credential_set?(credential) do
     credential && credential != ""
+  end
+
+  defp allow_iframe_embed(conn, _opts) do
+    delete_resp_header(conn, "x-frame-options")
   end
 end
