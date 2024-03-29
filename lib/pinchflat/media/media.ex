@@ -9,6 +9,7 @@ defmodule Pinchflat.Media do
   alias Pinchflat.Tasks
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
+  alias Pinchflat.Media.MediaQuery
   alias Pinchflat.Metadata.MediaMetadata
   alias Pinchflat.Filesystem.FilesystemHelpers
 
@@ -19,33 +20,6 @@ defmodule Pinchflat.Media do
   """
   def list_media_items do
     Repo.all(MediaItem)
-  end
-
-  @doc """
-  Returns a list of media_items for a given source.
-
-  Returns [%MediaItem{}, ...].
-  """
-  def list_media_items_for(%Source{} = source) do
-    MediaItem
-    |> where([mi], mi.source_id == ^source.id)
-    |> Repo.all()
-  end
-
-  @doc """
-  Fetches all media items belonging to a given source that have a media_id in the given list.
-  Useful for determining the what media items we DON'T already have for fast indexing.
-
-  NOTE: These queries are getting a little tedious. When I have the time, I should see about
-  implementing a query pattern and having these compose queries from a common base. This would
-  also let me compose simple queries in the module using them for one-off methods
-
-  Returns [%MediaItem{}, ...].
-  """
-  def list_media_items_by_media_id_for(%Source{} = source, media_ids) do
-    MediaItem
-    |> where([mi], mi.source_id == ^source.id and mi.media_id in ^media_ids)
-    |> Repo.all()
   end
 
   @doc """
@@ -60,13 +34,11 @@ defmodule Pinchflat.Media do
   """
   def list_pending_media_items_for(%Source{} = source, opts \\ []) do
     limit = Keyword.get(opts, :limit, nil)
-    media_profile = Repo.preload(source, :media_profile).media_profile
+    source = Repo.preload(source, :media_profile)
 
-    MediaItem
-    |> where([mi], mi.source_id == ^source.id and is_nil(mi.media_filepath))
-    |> where(^build_format_clauses(media_profile))
-    |> where(^maybe_apply_cutoff_date(source))
-    |> where(^maybe_apply_title_regex(source))
+    MediaQuery.new()
+    |> MediaQuery.for_source(source)
+    |> matching_download_criteria_for(source)
     |> Repo.maybe_limit(limit)
     |> Repo.all()
   end
@@ -79,8 +51,9 @@ defmodule Pinchflat.Media do
   def list_downloaded_media_items_for(%Source{} = source, opts \\ []) do
     limit = Keyword.get(opts, :limit, nil)
 
-    MediaItem
-    |> where([mi], mi.source_id == ^source.id and not is_nil(mi.media_filepath))
+    MediaQuery.new()
+    |> MediaQuery.for_source(source)
+    |> MediaQuery.with_media_filepath()
     |> Repo.maybe_limit(limit)
     |> Repo.all()
   end
@@ -97,11 +70,9 @@ defmodule Pinchflat.Media do
   def pending_download?(%MediaItem{} = media_item) do
     media_item = Repo.preload(media_item, source: :media_profile)
 
-    MediaItem
-    |> where([mi], mi.id == ^media_item.id and is_nil(mi.media_filepath))
-    |> where(^build_format_clauses(media_item.source.media_profile))
-    |> where(^maybe_apply_cutoff_date(media_item.source))
-    |> where(^maybe_apply_title_regex(media_item.source))
+    MediaQuery.new()
+    |> MediaQuery.with_id(media_item.id)
+    |> matching_download_criteria_for(media_item.source)
     |> Repo.exists?()
   end
 
@@ -120,20 +91,9 @@ defmodule Pinchflat.Media do
   def search(search_term, opts) do
     limit = Keyword.get(opts, :limit, 50)
 
-    from(mi in MediaItem,
-      join: mi_search_index in assoc(mi, :media_items_search_index),
-      where: fragment("media_items_search_index MATCH ?", ^search_term),
-      select_merge: %{
-        matching_search_term:
-          fragment("""
-            coalesce(snippet(media_items_search_index, 0, '[PF_HIGHLIGHT]', '[/PF_HIGHLIGHT]', '...', 20), '') ||
-            ' ' ||
-            coalesce(snippet(media_items_search_index, 1, '[PF_HIGHLIGHT]', '[/PF_HIGHLIGHT]', '...', 20), '')
-          """)
-      },
-      order_by: [desc: fragment("rank")],
-      limit: ^limit
-    )
+    MediaQuery.new()
+    |> MediaQuery.matching_search_term(search_term)
+    |> Repo.maybe_limit(limit)
     |> Repo.all()
   end
 
@@ -241,54 +201,11 @@ defmodule Pinchflat.Media do
     |> Enum.each(&FilesystemHelpers.delete_file_and_remove_empty_directories/1)
   end
 
-  defp maybe_apply_cutoff_date(source) do
-    if source.download_cutoff_date do
-      dynamic([mi], mi.upload_date >= ^source.download_cutoff_date)
-    else
-      dynamic(true)
-    end
-  end
-
-  defp maybe_apply_title_regex(source) do
-    if source.title_filter_regex do
-      dynamic([mi], fragment("regexp_like(?, ?)", mi.title, ^source.title_filter_regex))
-    else
-      dynamic(true)
-    end
-  end
-
-  defp build_format_clauses(media_profile) do
-    mapped_struct = Map.from_struct(media_profile)
-
-    Enum.reduce(mapped_struct, dynamic(true), fn attr, dynamic ->
-      case {attr, media_profile} do
-        {{:shorts_behaviour, :only}, %{livestream_behaviour: :only}} ->
-          dynamic(
-            [mi],
-            ^dynamic and (mi.livestream == true or mi.short_form_content == true)
-          )
-
-        # Technically redundant, but makes the other clauses easier to parse
-        # (redundant because this condition is the same as the condition above, just flipped)
-        {{:livestream_behaviour, :only}, %{shorts_behaviour: :only}} ->
-          dynamic
-
-        {{:shorts_behaviour, :only}, _} ->
-          dynamic([mi], ^dynamic and mi.short_form_content == true)
-
-        {{:livestream_behaviour, :only}, _} ->
-          dynamic([mi], ^dynamic and mi.livestream == true)
-
-        {{:shorts_behaviour, :exclude}, %{livestream_behaviour: lb}} when lb != :only ->
-          dynamic([mi], ^dynamic and mi.short_form_content == false)
-
-        {{:livestream_behaviour, :exclude}, %{shorts_behaviour: sb}} when sb != :only ->
-          # return records with livestream: false
-          dynamic([mi], ^dynamic and mi.livestream == false)
-
-        _ ->
-          dynamic
-      end
-    end)
+  defp matching_download_criteria_for(query, source_with_preloads) do
+    query
+    |> MediaQuery.with_no_media_filepath()
+    |> MediaQuery.with_upload_date_after(source_with_preloads.download_cutoff_date)
+    |> MediaQuery.with_format_preference(source_with_preloads.media_profile)
+    |> MediaQuery.matching_title_regex(source_with_preloads.title_filter_regex)
   end
 end
