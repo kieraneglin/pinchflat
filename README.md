@@ -65,7 +65,7 @@ Simply search for Pinchflat in the Community Apps store!
 
 ### Portainer
 
-Important: See the note belonw about storing config on a network file share. It's preferred to store the config on a local disk if at all possible.
+Important: See the note below about storing config on a network file share. It's preferred to store the config on a local disk if at all possible.
 
 Docker Compose file:
 
