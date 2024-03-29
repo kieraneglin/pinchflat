@@ -80,6 +80,7 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
       <link>#{media_item.original_url}</link>
       <description>#{safe(media_item.description)}</description>
       <pubDate>#{generate_upload_date(media_item)}</pubDate>
+      <itunes:duration>#{media_item.duration_seconds}</itunes:duration>
       <enclosure
         url="#{media_stream_path(url_base, media_item)}"
         length="#{media_item.media_size_bytes}"
