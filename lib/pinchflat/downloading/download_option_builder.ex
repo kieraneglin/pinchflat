@@ -22,6 +22,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
         thumbnail_options(media_item_with_preloads) ++
         metadata_options(media_profile) ++
         quality_options(media_profile) ++
+        sponsorblock_options(media_profile) ++
         output_options(media_item_with_preloads)
 
     {:ok, built_options}
@@ -113,6 +114,17 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
       :"720p" -> [format_sort: "res:720,#{video_codec_options}"]
       :"1080p" -> [format_sort: "res:1080,#{video_codec_options}"]
       :"2160p" -> [format_sort: "res:2160,#{video_codec_options}"]
+    end
+  end
+
+  defp sponsorblock_options(media_profile) do
+    categories = media_profile.sponsorblock_categories
+    behaviour = media_profile.sponsorblock_behaviour
+
+    case {behaviour, categories} do
+      {_, []} -> []
+      {:remove, _} -> [sponsorblock_remove: Enum.join(categories, ",")]
+      {:disabled, _} -> []
     end
   end
 

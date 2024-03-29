@@ -32,6 +32,26 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
     ]
   end
 
+  def friendly_sponsorblock_options do
+    [
+      {"Disabled (default)", "disabled"},
+      {"Remove Segments", "remove"}
+    ]
+  end
+
+  def frieldly_sponsorblock_categories do
+    [
+      {"Sponsor", "sponsor"},
+      {"Intro/Intermission", "intro"},
+      {"Outro/Credits", "outro"},
+      {"Self Promotion", "selfpromo"},
+      {"Preview/Recap", "preview"},
+      {"Filler Tangent", "filler"},
+      {"Interaction Reminder", "interaction"},
+      {"Non-music Section", "music_offtopic"}
+    ]
+  end
+
   def custom_output_template_options do
     %{
       upload_day: nil,

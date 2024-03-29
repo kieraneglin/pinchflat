@@ -251,7 +251,7 @@ defmodule PinchflatWeb.CoreComponents do
   attr :type, :string,
     default: "text",
     values: ~w(checkbox color date datetime-local email file hidden month number password
-               toggle range radio search select tel text textarea time url week)
+            checkbox_group toggle range radio search select tel text textarea time url week)
 
   attr :field, Phoenix.HTML.FormField, doc: "a form field struct retrieved from the form, for example: @form[:email]"
 
@@ -298,6 +298,33 @@ defmodule PinchflatWeb.CoreComponents do
         <%= @label %>
         <span :if={@label_suffix} class="text-xs text-bodydark"><%= @label_suffix %></span>
       </label>
+      <.help :if={@help}><%= @help %></.help>
+      <.error :for={msg <- @errors}><%= msg %></.error>
+    </div>
+    """
+  end
+
+  def input(%{type: "checkbox_group"} = assigns) do
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <.label for={@id}>
+        <%= @label %><span :if={@label_suffix} class="text-xs text-bodydark"><%= @label_suffix %></span>
+      </.label>
+      <section class="grid grid-cols-1 gap-2 md:grid-cols-2 max-w-prose mb-4 ml-1">
+        <div :for={{option_name, option_value} <- @options} class="flex items-center">
+          <input
+            type="checkbox"
+            id={"#{@id}-#{option_value}"}
+            name={"#{@name}[]"}
+            value={option_value}
+            checked={option_value in @value}
+            class={["rounded focus:ring-offset-0 ring-offset-0 focus:ring-0 h-5 w-5 ", @inputclass]}
+          />
+          <label for={"#{@id}-#{option_value}"} class="ml-2 cursor-pointer select-none">
+            <%= option_name %>
+          </label>
+        </div>
+      </section>
       <.help :if={@help}><%= @help %></.help>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
@@ -600,6 +627,10 @@ defmodule PinchflatWeb.CoreComponents do
 
         _ ->
           true
+      end)
+      |> Enum.map(fn
+        {k, v} when is_list(v) -> {k, Enum.join(v, ", ")}
+        rest -> rest
       end)
 
     assigns = assign(assigns, iterable_attributes: attrs)
