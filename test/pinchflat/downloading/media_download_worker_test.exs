@@ -74,6 +74,12 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
       end)
     end
 
+    test "it ensures error are returned in a 2-item tuple", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:error, "error", 1} end)
+
+      assert {:error, :download_failed} = perform_job(MediaDownloadWorker, %{id: media_item.id})
+    end
+
     test "it does not download if the source is set to not download", %{media_item: media_item} do
       expect(YtDlpRunnerMock, :run, 0, fn _url, _opts, _ot -> :ok end)
 
