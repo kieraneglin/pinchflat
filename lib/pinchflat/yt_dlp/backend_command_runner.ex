@@ -8,4 +8,5 @@ defmodule Pinchflat.YtDlp.BackendCommandRunner do
 
   @callback run(binary(), keyword(), binary()) :: {:ok, binary()} | {:error, binary(), integer()}
   @callback run(binary(), keyword(), binary(), keyword()) :: {:ok, binary()} | {:error, binary(), integer()}
+  @callback version() :: {:ok, binary()} | {:error, binary()}
 end
