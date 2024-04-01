@@ -12,5 +12,9 @@ for ((i = 1; i <= $#; i++)); do
   fi
 done
 
-# Write all args to the file
-echo "$@" >"$file_location"
+if [ "${!i}" == "--print-to-file" ]; then
+  # Write all args to the file
+  echo "$@" >"$file_location"
+else
+  echo "$@"
+fi

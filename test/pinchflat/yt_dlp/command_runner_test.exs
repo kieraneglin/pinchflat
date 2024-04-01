@@ -102,6 +102,14 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
     end
   end
 
+  describe "version/0" do
+    test "adds the version arg" do
+      assert {:ok, output} = Runner.version()
+
+      assert String.contains?(output, "--version")
+    end
+  end
+
   defp wrap_executable(new_executable, fun) do
     Application.put_env(:pinchflat, :yt_dlp_executable, new_executable)
     fun.()

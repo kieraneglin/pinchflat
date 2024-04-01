@@ -48,6 +48,19 @@ defmodule Pinchflat.YtDlp.CommandRunner do
     end
   end
 
+  @impl BackendCommandRunner
+  def version do
+    command = backend_executable()
+
+    case System.cmd(command, ["--version"]) do
+      {output, 0} ->
+        {:ok, String.trim(output)}
+
+      {output, _} ->
+        {:error, output}
+    end
+  end
+
   defp build_cookie_options do
     base_dir = Application.get_env(:pinchflat, :extras_directory)
     cookie_file = Path.join(base_dir, "cookies.txt")
