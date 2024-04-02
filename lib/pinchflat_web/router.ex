@@ -47,6 +47,13 @@ defmodule PinchflatWeb.Router do
     get "/media/:uuid/stream", MediaItems.MediaItemController, :stream
   end
 
+  # No auth or CSRF protection for the health check endpoint
+  scope "/", PinchflatWeb do
+    pipe_through :api
+
+    get "/healthcheck", HealthController, :check
+  end
+
   scope "/dev" do
     pipe_through :browser
 
