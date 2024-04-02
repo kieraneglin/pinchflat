@@ -29,6 +29,7 @@ defmodule Pinchflat.Sources.Source do
     last_indexed_at
     original_url
     download_cutoff_date
+    retention_period_days
     title_filter_regex
     media_profile_id
   )a
@@ -72,6 +73,7 @@ defmodule Pinchflat.Sources.Source do
     field :last_indexed_at, :utc_datetime
     # Only download media items that were published after this date
     field :download_cutoff_date, :date
+    field :retention_period_days, :integer
     field :original_url, :string
     field :title_filter_regex, :string
 
