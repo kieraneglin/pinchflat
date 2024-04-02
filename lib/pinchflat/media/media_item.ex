@@ -30,7 +30,9 @@ defmodule Pinchflat.Media.MediaItem do
     :subtitle_filepaths,
     :thumbnail_filepath,
     :metadata_filepath,
-    :nfo_filepath
+    :nfo_filepath,
+    # These are user or system controlled fields
+    :prevent_download
   ]
   # Pretty much all the fields captured at index are required.
   @required_fields ~w(
@@ -70,6 +72,8 @@ defmodule Pinchflat.Media.MediaItem do
     # Will very likely revisit because I can't leave well-enough alone.
     field :subtitle_filepaths, {:array, {:array, :string}}, default: []
 
+    field :prevent_download, :boolean, default: false
+
     field :matching_search_term, :string, virtual: true
 
     belongs_to :source, Source
@@ -95,5 +99,15 @@ defmodule Pinchflat.Media.MediaItem do
   @doc false
   def filepath_attributes do
     ~w(media_filepath thumbnail_filepath metadata_filepath subtitle_filepaths nfo_filepath)a
+  end
+
+  @doc false
+  def filepath_attribute_defaults do
+    filepath_attributes()
+    |> Enum.map(fn
+      :subtitle_filepaths -> {:subtitle_filepaths, []}
+      field -> {field, nil}
+    end)
+    |> Enum.into(%{})
   end
 end
