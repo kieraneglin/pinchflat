@@ -113,5 +113,8 @@ COPY --from=builder /app/_build/${MIX_ENV}/rel/pinchflat ./
 # above and adding an entrypoint. See https://github.com/krallin/tini for details
 # ENTRYPOINT ["/tini", "--"]
 
+HEALTHCHECK --interval=120s --start-period=10s \
+  CMD curl --fail http://localhost:${PORT}/healthcheck || exit 1
+
 # Start the app
 CMD ["/app/bin/docker_start"]
