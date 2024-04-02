@@ -17,19 +17,12 @@ defmodule PinchflatWeb.MediaItems.MediaItemController do
   end
 
   def delete(conn, %{"id" => id} = params) do
-    delete_files = Map.get(params, "delete_files", false)
+    prevent_download = Map.get(params, "prevent_download", false)
     media_item = Media.get_media_item!(id)
-    {:ok, _} = Media.delete_media_item(media_item, delete_files: delete_files)
-
-    flash_message =
-      if delete_files do
-        "Record and files deleted successfully."
-      else
-        "Record deleted successfully. Files were not deleted."
-      end
+    {:ok, _} = Media.delete_media_files(media_item, prevent_download: prevent_download)
 
     conn
-    |> put_flash(:info, flash_message)
+    |> put_flash(:info, "Files deleted successfully.")
     |> redirect(to: ~p"/sources/#{media_item.source_id}")
   end
 
