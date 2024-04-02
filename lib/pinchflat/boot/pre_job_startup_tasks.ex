@@ -14,6 +14,7 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
 
   alias Pinchflat.Repo
   alias Pinchflat.Settings
+  alias Pinchflat.YtDlp.CommandRunner
   alias Pinchflat.Filesystem.FilesystemHelpers
 
   def start_link(opts \\ []) do
@@ -62,7 +63,10 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
   end
 
   defp apply_default_settings do
+    {:ok, yt_dlp_version} = CommandRunner.version()
+
     Settings.fetch!(:onboarding, true)
     Settings.fetch!(:pro_enabled, false)
+    Settings.set!(:yt_dlp_version, yt_dlp_version)
   end
 end
