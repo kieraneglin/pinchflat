@@ -30,7 +30,9 @@ defmodule Pinchflat.Media.MediaItem do
     :subtitle_filepaths,
     :thumbnail_filepath,
     :metadata_filepath,
-    :nfo_filepath
+    :nfo_filepath,
+    # These are user or system controlled fields
+    :prevent_download
   ]
   # Pretty much all the fields captured at index are required.
   @required_fields ~w(
@@ -69,6 +71,8 @@ defmodule Pinchflat.Media.MediaItem do
     # be an associated record, but I don't see the benefit right now.
     # Will very likely revisit because I can't leave well-enough alone.
     field :subtitle_filepaths, {:array, {:array, :string}}, default: []
+
+    field :prevent_download, :boolean, default: false
 
     field :matching_search_term, :string, virtual: true
 
