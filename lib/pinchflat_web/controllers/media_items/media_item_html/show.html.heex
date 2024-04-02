@@ -7,6 +7,14 @@
       <%= StringUtils.truncate(@media_item.title, 35) %>
     </h2>
   </div>
+
+  <nav>
+    <.link href={~p"/sources/#{@media_item.source_id}/media/#{@media_item}/edit"}>
+      <.button color="bg-primary" rounding="rounded-lg">
+        <.icon name="hero-pencil-square" class="mr-2" /> Edit
+      </.button>
+    </.link>
+  </nav>
 </div>
 <div class="rounded-sm border border-stroke bg-white py-5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark px-7.5">
   <div class="max-w-full overflow-x-auto">

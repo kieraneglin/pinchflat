@@ -15,6 +15,36 @@ defmodule PinchflatWeb.MediaItemControllerTest do
     end
   end
 
+  describe "edit media" do
+    setup [:create_media_item]
+
+    test "renders form for editing chosen media_item", %{conn: conn, media_item: media_item} do
+      conn = get(conn, ~p"/sources/#{media_item.source_id}/media/#{media_item}/edit")
+
+      assert html_response(conn, 200) =~ "Editing"
+    end
+  end
+
+  describe "update media" do
+    setup [:create_media_item]
+
+    test "redirects when data is valid", %{conn: conn, media_item: media_item} do
+      update_attrs = %{title: "New Title"}
+
+      conn = put(conn, ~p"/sources/#{media_item.source_id}/media/#{media_item}", media_item: update_attrs)
+      assert redirected_to(conn) == ~p"/sources/#{media_item.source_id}/media/#{media_item}"
+
+      conn = get(conn, ~p"/sources/#{media_item.source_id}/media/#{media_item}")
+      assert html_response(conn, 200) =~ update_attrs[:title]
+    end
+
+    test "renders errors when data is invalid", %{conn: conn, media_item: media_item} do
+      conn = put(conn, ~p"/sources/#{media_item.source_id}/media/#{media_item}", media_item: %{title: nil})
+
+      assert html_response(conn, 200) =~ "Editing"
+    end
+  end
+
   describe "delete media" do
     setup do
       media_item = media_item_with_attachments()

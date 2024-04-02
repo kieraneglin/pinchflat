@@ -1,0 +1,24 @@
+<.simple_form
+  :let={f}
+  for={@changeset}
+  action={@action}
+  x-data="{ advancedMode: !!JSON.parse(localStorage.getItem('advancedMode')) }"
+  x-init="$watch('advancedMode', value => localStorage.setItem('advancedMode', JSON.stringify(value)))"
+>
+  <.error :if={@changeset.action}>
+    Oops, something went wrong! Please check the errors below.
+  </.error>
+
+  <h3 class=" text-2xl text-black dark:text-white">
+    General Options
+  </h3>
+
+  <.input
+    field={f[:prevent_download]}
+    type="toggle"
+    label="Prevent Download"
+    help="Checking excludes this media item from being downloaded"
+  />
+
+  <.button class="my-10 sm:mb-7.5 w-full sm:w-auto" rounding="rounded-lg">Save Media Item</.button>
+</.simple_form>

@@ -16,6 +16,27 @@ defmodule PinchflatWeb.MediaItems.MediaItemController do
     render(conn, :show, media_item: media_item)
   end
 
+  def edit(conn, %{"id" => id}) do
+    media_item = Media.get_media_item!(id)
+    changeset = Media.change_media_item(media_item)
+
+    render(conn, :edit, media_item: media_item, changeset: changeset)
+  end
+
+  def update(conn, %{"id" => id, "media_item" => params}) do
+    media_item = Media.get_media_item!(id)
+
+    case Media.update_media_item(media_item, params) do
+      {:ok, media_item} ->
+        conn
+        |> put_flash(:info, "Media Item updated successfully.")
+        |> redirect(to: ~p"/sources/#{media_item.source_id}/media/#{media_item}")
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, :edit, media_item: media_item, changeset: changeset)
+    end
+  end
+
   def delete(conn, %{"id" => id} = params) do
     prevent_download = Map.get(params, "prevent_download", false)
     media_item = Media.get_media_item!(id)
