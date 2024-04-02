@@ -151,7 +151,7 @@ defmodule Pinchflat.SourcesTest do
       valid_once_attrs = %{
         media_profile_id: media_profile_fixture().id,
         original_url: "https://www.youtube.com/channel/abc123",
-        title_filter_regex: "TEST"
+        title_filter_regex: nil
       }
 
       assert {:ok, %Source{}} = Sources.create_source(valid_once_attrs)
