@@ -137,6 +137,75 @@ defmodule Pinchflat.SourcesTest do
       assert source.custom_name == "some channel name"
     end
 
+    test "creation enforces uniqueness of collection_id scoped to the media_profile and title regex" do
+      expect(YtDlpRunnerMock, :run, 2, fn _url, _opts, _ot ->
+        {:ok,
+         Phoenix.json_library().encode!(%{
+           channel: "some channel name",
+           channel_id: "some_channel_id_12345678",
+           playlist_id: "some_channel_id_12345678",
+           playlist_title: "some channel name - videos"
+         })}
+      end)
+
+      valid_once_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123",
+        title_filter_regex: "TEST"
+      }
+
+      assert {:ok, %Source{}} = Sources.create_source(valid_once_attrs)
+      assert {:error, %Ecto.Changeset{}} = Sources.create_source(valid_once_attrs)
+    end
+
+    test "creation lets you duplicate collection_ids and profiles as long as the regex is different" do
+      expect(YtDlpRunnerMock, :run, 2, fn _url, _opts, _ot ->
+        {:ok,
+         Phoenix.json_library().encode!(%{
+           channel: "some channel name",
+           channel_id: "some_channel_id_12345678",
+           playlist_id: "some_channel_id_12345678",
+           playlist_title: "some channel name - videos"
+         })}
+      end)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        name: "some name",
+        original_url: "https://www.youtube.com/channel/abc123"
+      }
+
+      source_1_attrs = Map.merge(valid_attrs, %{title_filter_regex: "foo"})
+      source_2_attrs = Map.merge(valid_attrs, %{title_filter_regex: "bar"})
+
+      assert {:ok, %Source{}} = Sources.create_source(source_1_attrs)
+      assert {:ok, %Source{}} = Sources.create_source(source_2_attrs)
+    end
+
+    test "creation lets you duplicate collection_ids as long as the media profile is different" do
+      expect(YtDlpRunnerMock, :run, 2, fn _url, _opts, _ot ->
+        {:ok,
+         Phoenix.json_library().encode!(%{
+           channel: "some channel name",
+           channel_id: "some_channel_id_12345678",
+           playlist_id: "some_channel_id_12345678",
+           playlist_title: "some channel name - videos"
+         })}
+      end)
+
+      valid_attrs = %{
+        name: "some name",
+        original_url: "https://www.youtube.com/channel/abc123",
+        title_filter_regex: "TEST"
+      }
+
+      source_1_attrs = Map.merge(valid_attrs, %{media_profile_id: media_profile_fixture().id})
+      source_2_attrs = Map.merge(valid_attrs, %{media_profile_id: media_profile_fixture().id})
+
+      assert {:ok, %Source{}} = Sources.create_source(source_1_attrs)
+      assert {:ok, %Source{}} = Sources.create_source(source_2_attrs)
+    end
+
     test "collection_type is inferred from source details" do
       expect(YtDlpRunnerMock, :run, &channel_mock/3)
       expect(YtDlpRunnerMock, :run, &playlist_mock/3)
