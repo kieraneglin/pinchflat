@@ -27,8 +27,8 @@ defmodule Pinchflat.Media do
   pending means the `media_filepath` is `nil` AND the media_item
   matches the format selection rules of the parent media_profile.
 
-  See `build_format_clauses` but tl;dr is it _may_ filter based
-  on shorts or livestreams depending on the media_profile settings.
+  See `matching_download_criteria_for` but tl;dr is it _may_ filter based
+  on shorts livestreams depending on the media_profile settings.
 
   Returns [%MediaItem{}, ...].
   """
@@ -161,12 +161,32 @@ defmodule Pinchflat.Media do
     Tasks.delete_tasks_for(media_item)
 
     if delete_files do
-      {:ok, _} = delete_media_files(media_item)
+      {:ok, _} = do_delete_media_files(media_item)
     end
 
     # Should delete these no matter what
     delete_internal_metadata_files(media_item)
     Repo.delete(media_item)
+  end
+
+  @doc """
+  Deletes the tasks and media files associated with a media_item but leaves the
+  media_item in the database. Does not delete anything to do with associated metadata.
+
+  ## Options:
+    - `:prevent_download` - If `true`, the media_item will be marked to prevent being redownloaded
+
+  Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}
+  """
+  def delete_media_files(%MediaItem{} = media_item, opts \\ []) do
+    prevent_download = Keyword.get(opts, :prevent_download, false)
+    filepath_attrs = MediaItem.filepath_attribute_defaults()
+    opt_attrs = %{prevent_download: prevent_download}
+
+    Tasks.delete_tasks_for(media_item)
+    {:ok, _} = do_delete_media_files(media_item)
+
+    update_media_item(media_item, Map.merge(filepath_attrs, opt_attrs))
   end
 
   @doc """
@@ -176,7 +196,7 @@ defmodule Pinchflat.Media do
     MediaItem.changeset(media_item, attrs)
   end
 
-  defp delete_media_files(media_item) do
+  defp do_delete_media_files(media_item) do
     mapped_struct = Map.from_struct(media_item)
 
     MediaItem.filepath_attributes()
@@ -203,6 +223,7 @@ defmodule Pinchflat.Media do
 
   defp matching_download_criteria_for(query, source_with_preloads) do
     query
+    |> MediaQuery.with_no_prevented_download()
     |> MediaQuery.with_no_media_filepath()
     |> MediaQuery.with_upload_date_after(source_with_preloads.download_cutoff_date)
     |> MediaQuery.with_format_preference(source_with_preloads.media_profile)

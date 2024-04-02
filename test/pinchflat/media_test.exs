@@ -233,6 +233,16 @@ defmodule Pinchflat.MediaTest do
     end
   end
 
+  describe "list_pending_media_items_for/1 when testing download prevention" do
+    test "returns only media items that are not prevented from downloading" do
+      source = source_fixture()
+      _prevented_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, prevent_download: true})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, prevent_download: false})
+
+      assert Media.list_pending_media_items_for(source) == [media_item]
+    end
+  end
+
   describe "list_downloaded_media_items_for/1" do
     test "returns only media items with a media_filepath" do
       source = source_fixture()
@@ -319,6 +329,18 @@ defmodule Pinchflat.MediaTest do
       media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, title: "foo"})
 
       assert Media.pending_download?(media_item)
+    end
+
+    test "returns true if the media item is not prevented from downloading" do
+      media_item = media_item_fixture(%{media_filepath: nil, prevent_download: false})
+
+      assert Media.pending_download?(media_item)
+    end
+
+    test "returns false if the media item is prevented from downloading" do
+      media_item = media_item_fixture(%{media_filepath: nil, prevent_download: true})
+
+      refute Media.pending_download?(media_item)
     end
   end
 
@@ -584,6 +606,62 @@ defmodule Pinchflat.MediaTest do
 
       :ok = File.rm(Path.join([root_directory, "test.txt"]))
       :ok = File.rmdir(root_directory)
+    end
+  end
+
+  describe "delete_media_files/2" do
+    test "does not delete the media_item" do
+      media_item = media_item_fixture()
+
+      assert {:ok, %MediaItem{}} = Media.delete_media_files(media_item)
+      assert Repo.reload!(media_item)
+    end
+
+    test "deletes attached tasks" do
+      media_item = media_item_fixture()
+      task = task_fixture(%{media_item_id: media_item.id})
+
+      assert {:ok, %MediaItem{}} = Media.delete_media_files(media_item)
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+
+    test "deletes the media_item's files" do
+      media_item = media_item_with_attachments()
+
+      assert {:ok, _} = Media.delete_media_files(media_item)
+      refute File.exists?(media_item.media_filepath)
+    end
+
+    test "does not delete the media item's metadata files" do
+      stub(HTTPClientMock, :get, fn _url, _headers, _opts -> {:ok, ""} end)
+      media_item = Repo.preload(media_item_with_attachments(), :metadata)
+
+      update_attrs = %{
+        metadata: %{
+          metadata_filepath: MetadataFileHelpers.compress_and_store_metadata_for(media_item, %{}),
+          thumbnail_filepath:
+            MetadataFileHelpers.download_and_store_thumbnail_for(media_item, %{
+              "thumbnail" => "https://example.com/thumbnail.jpg"
+            })
+        }
+      }
+
+      {:ok, updated_media_item} = Media.update_media_item(media_item, update_attrs)
+      metadata = Repo.preload(updated_media_item, :metadata).metadata
+
+      assert {:ok, _} = Media.delete_media_files(updated_media_item)
+      assert Repo.reload(metadata)
+      assert File.exists?(updated_media_item.metadata.metadata_filepath)
+
+      # cleanup
+      Media.delete_media_item(updated_media_item, delete_files: true)
+    end
+
+    test "can prevent the media item from being downloaded" do
+      media_item = media_item_with_attachments()
+
+      assert {:ok, updated_media_item} = Media.delete_media_files(media_item, prevent_download: true)
+      assert updated_media_item.prevent_download
     end
   end
 

@@ -100,4 +100,14 @@ defmodule Pinchflat.Media.MediaItem do
   def filepath_attributes do
     ~w(media_filepath thumbnail_filepath metadata_filepath subtitle_filepaths nfo_filepath)a
   end
+
+  @doc false
+  def filepath_attribute_defaults do
+    filepath_attributes()
+    |> Enum.map(fn
+      :subtitle_filepaths -> {:subtitle_filepaths, []}
+      field -> {field, nil}
+    end)
+    |> Enum.into(%{})
+  end
 end

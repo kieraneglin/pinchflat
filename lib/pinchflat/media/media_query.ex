@@ -53,6 +53,10 @@ defmodule Pinchflat.Media.MediaQuery do
     where(query, [mi], mi.upload_date >= ^date)
   end
 
+  def with_no_prevented_download(query) do
+    where(query, [mi], mi.prevent_download == false)
+  end
+
   def matching_title_regex(query, nil), do: query
 
   def matching_title_regex(query, regex) do
