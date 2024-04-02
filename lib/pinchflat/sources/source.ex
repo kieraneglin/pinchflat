@@ -107,7 +107,7 @@ defmodule Pinchflat.Sources.Source do
     |> dynamic_default(:uuid, fn _ -> Ecto.UUID.generate() end)
     |> validate_required(required_fields)
     |> cast_assoc(:metadata, with: &SourceMetadata.changeset/2, required: false)
-    |> unique_constraint([:collection_id, :media_profile_id, :title_filter_regex])
+    |> unique_constraint([:collection_id, :media_profile_id, :title_filter_regex], error_key: :original_url)
   end
 
   @doc false
