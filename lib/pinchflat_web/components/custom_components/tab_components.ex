@@ -14,7 +14,8 @@ defmodule PinchflatWeb.CustomComponents.TabComponents do
   def tabbed_layout(assigns) do
     ~H"""
     <div
-      x-data="{ openTab: 0, activeClasses: 'text-meta-5 border-meta-5', inactiveClasses: 'border-transparent' }"
+      x-data="{ openTab: getTabIndex(0), activeClasses: 'text-meta-5 border-meta-5', inactiveClasses: 'border-transparent' }"
+      @hashchange.window="openTab = getTabIndex(openTab)"
       class="w-full"
     >
       <header class="flex flex-col md:flex-row md:justify-between border-b border-strokedark">
@@ -22,7 +23,7 @@ defmodule PinchflatWeb.CustomComponents.TabComponents do
           <a
             :for={{tab, idx} <- Enum.with_index(@tab)}
             href="#"
-            @click.prevent={"openTab = #{idx}"}
+            @click.prevent={"openTab = setTabIndex(#{idx})"}
             x-bind:class={"openTab === #{idx} ? activeClasses : inactiveClasses"}
             class="border-b-2 py-4 w-full sm:w-fit text-sm font-medium hover:text-meta-5 md:text-base"
           >
