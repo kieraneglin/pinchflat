@@ -32,6 +32,9 @@ defmodule PinchflatWeb.Router do
     resources "/search", Searches.SearchController, only: [:show], singleton: true
 
     resources "/sources", Sources.SourceController do
+      post "/force_download", Sources.SourceController, :force_download
+      post "/force_index", Sources.SourceController, :force_index
+
       resources "/media", MediaItems.MediaItemController, only: [:show, :edit, :update, :delete]
     end
   end

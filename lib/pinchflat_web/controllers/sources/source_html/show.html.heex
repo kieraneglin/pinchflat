@@ -20,43 +20,7 @@
   <div class="max-w-full overflow-x-auto">
     <.tabbed_layout>
       <:tab_append>
-        <.button_dropdown text="Actions" class="justify-center w-full sm:w-50">
-          <:option>
-            <span
-              x-data="{ copied: false }"
-              x-on:click={"
-                window.copyTextToClipboard('#{rss_feed_url(@conn, @source)}')
-                copied = true
-                setTimeout(() => copied = false, 4000)
-              "}
-            >
-              Copy RSS Feed
-              <span x-show="copied" x-transition.duration.150ms><.icon name="hero-check" class="ml-2 h-4 w-4" /></span>
-            </span>
-          </:option>
-          <:option>
-            <div class="h-px w-full bg-bodydark2"></div>
-          </:option>
-          <:option>
-            <.link
-              href={~p"/sources/#{@source}"}
-              method="delete"
-              data-confirm="Are you sure you want to delete this source (leaving files in place)? This cannot be undone."
-            >
-              Delete Source
-            </.link>
-          </:option>
-          <:option>
-            <.link
-              href={~p"/sources/#{@source}?delete_files=true"}
-              method="delete"
-              data-confirm="Are you sure you want to delete this source and it's files on disk? This cannot be undone."
-              class="mt-5 md:mt-0"
-            >
-              Delete Source + Files
-            </.link>
-          </:option>
-        </.button_dropdown>
+        <.actions_dropdown source={@source} conn={@conn} />
       </:tab_append>
 
       <:tab title="Attributes">

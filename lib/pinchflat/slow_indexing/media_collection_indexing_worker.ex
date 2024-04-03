@@ -20,9 +20,10 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorker do
 
   Returns {:ok, %Task{}} | {:error, :duplicate_job} | {:error, %Ecto.Changeset{}}
   """
-  def kickoff_with_task(source, opts \\ []) do
+  def kickoff_with_task(source, job_args \\ %{}, job_opts \\ []) do
     %{id: source.id}
-    |> MediaCollectionIndexingWorker.new(opts)
+    |> Map.merge(job_args)
+    |> MediaCollectionIndexingWorker.new(job_opts)
     |> Tasks.create_job_with_task(source)
   end
 
@@ -30,8 +31,8 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorker do
   The ID is that of a source _record_, not a YouTube channel/playlist ID. Indexes
   the provided source, kicks off downloads for each new MediaItem, and
   reschedules the job to run again in the future. It will ALWAYS index a source
-  if it's never been indexed before, but rescheduling is determined by the
-  `index_frequency_minutes` field.
+  if it's never been indexed before or if `force` is set to `true`, but rescheduling
+  is determined by the `index_frequency_minutes` field.
 
   README: Re-scheduling here works a little different than you may expect.
   The reschedule time is relative to the time the job has actually _completed_.
@@ -71,7 +72,7 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorker do
   Returns :ok | {:ok, %Task{}}
   """
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"id" => source_id}}) do
+  def perform(%Oban.Job{args: %{"id" => source_id} = args}) do
     source = Sources.get_source!(source_id)
 
     case {source.index_frequency_minutes, source.last_indexed_at} do
@@ -89,7 +90,11 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorker do
 
       _ ->
         # If the source HAS been indexed and is not meant to reschedule,
-        # perform a no-op
+        # perform a no-op (unless forced)
+        if args["force"] do
+          SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
+        end
+
         :ok
     end
   rescue

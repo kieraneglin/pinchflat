@@ -21,8 +21,10 @@ defmodule PinchflatWeb.ConnCase do
     quote do
       # The default endpoint for testing
       @endpoint PinchflatWeb.Endpoint
+      alias Pinchflat.Repo
 
       use PinchflatWeb, :verified_routes
+      use Oban.Testing, repo: Repo
 
       # Import conveniences for testing with connections
       import Plug.Conn
