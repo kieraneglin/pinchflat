@@ -77,10 +77,17 @@
           <h4 class="text-white text-lg mb-6">Shows a maximum of 100 media items</h4>
           <.table rows={@pending_media} table_class="text-black dark:text-white">
             <:col :let={media_item} label="Title">
-              <%= StringUtils.truncate(media_item.title, 50) %>
+              <.subtle_link href={~p"/sources/#{@source.id}/media/#{media_item.id}"}>
+                <%= StringUtils.truncate(media_item.title, 50) %>
+              </.subtle_link>
             </:col>
             <:col :let={media_item} label="" class="flex place-content-evenly">
-              <.icon_link href={~p"/sources/#{@source.id}/media/#{media_item.id}"} icon="hero-eye" />
+              <.icon_link href={~p"/sources/#{@source.id}/media/#{media_item.id}"} icon="hero-eye" class="mx-1" />
+              <.icon_link
+                href={~p"/sources/#{@source.id}/media/#{media_item.id}/edit"}
+                icon="hero-pencil-square"
+                class="mx-1"
+              />
             </:col>
           </.table>
         <% else %>
@@ -92,10 +99,17 @@
           <h4 class="text-white text-lg mb-6">Shows a maximum of 100 media items (<%= @total_downloaded %> total)</h4>
           <.table rows={@downloaded_media} table_class="text-black dark:text-white">
             <:col :let={media_item} label="Title">
-              <%= StringUtils.truncate(media_item.title, 50) %>
+              <.subtle_link href={~p"/sources/#{@source.id}/media/#{media_item.id}"}>
+                <%= StringUtils.truncate(media_item.title, 50) %>
+              </.subtle_link>
             </:col>
             <:col :let={media_item} label="" class="flex place-content-evenly">
-              <.icon_link href={~p"/sources/#{@source.id}/media/#{media_item.id}"} icon="hero-eye" />
+              <.icon_link href={~p"/sources/#{@source.id}/media/#{media_item.id}"} icon="hero-eye" class="mx-1" />
+              <.icon_link
+                href={~p"/sources/#{@source.id}/media/#{media_item.id}/edit"}
+                icon="hero-pencil-square"
+                class="mx-1"
+              />
             </:col>
           </.table>
         <% else %>
