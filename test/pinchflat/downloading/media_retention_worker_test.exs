@@ -4,6 +4,7 @@ defmodule Pinchflat.Downloading.MediaRetentionWorkerTest do
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
 
+  alias Pinchflat.Media
   alias Pinchflat.Downloading.MediaRetentionWorker
 
   describe "perform/1" do
@@ -35,6 +36,17 @@ defmodule Pinchflat.Downloading.MediaRetentionWorkerTest do
       refute Repo.reload!(new_media_item).culled_at
       assert Repo.reload!(old_media_item).culled_at
       assert DateTime.diff(now(), Repo.reload!(old_media_item).culled_at) < 1
+    end
+
+    test "doesn't cull media items that have prevent_culling set" do
+      {_source, old_media_item, _new_media_item} = prepare_records()
+
+      Media.update_media_item(old_media_item, %{prevent_culling: true})
+
+      perform_job(MediaRetentionWorker, %{})
+
+      assert File.exists?(old_media_item.media_filepath)
+      assert Repo.reload!(old_media_item).media_filepath
     end
   end
 

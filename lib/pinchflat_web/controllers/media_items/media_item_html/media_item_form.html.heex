@@ -20,5 +20,12 @@
     help="Checking excludes this media item from being downloaded"
   />
 
+  <.input
+    field={f[:prevent_culling]}
+    type="toggle"
+    label="Prevent Automatic Deletion"
+    help="Checking excludes media from being automatically deleted based on media retention rules"
+  />
+
   <.button class="my-10 sm:mb-7.5 w-full sm:w-auto" rounding="rounded-lg">Save Media Item</.button>
 </.simple_form>

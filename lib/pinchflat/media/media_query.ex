@@ -49,6 +49,10 @@ defmodule Pinchflat.Media.MediaQuery do
     )
   end
 
+  def with_no_culling_prevention(query) do
+    where(query, [mi], mi.prevent_culling == false)
+  end
+
   def with_id(query, id) do
     where(query, [mi], mi.id == ^id)
   end

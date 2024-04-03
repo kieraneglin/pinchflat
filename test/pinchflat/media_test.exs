@@ -107,6 +107,27 @@ defmodule Pinchflat.MediaTest do
 
       assert Media.list_cullable_media_items() == [expected_media_item]
     end
+
+    test "doesn't return items that are set to prevent culling" do
+      source = source_fixture(%{retention_period_days: 2})
+
+      _media_item =
+        media_item_fixture(%{
+          source_id: source.id,
+          media_filepath: "/video/#{Faker.File.file_name(:video)}",
+          media_downloaded_at: now_minus(3, :days),
+          prevent_culling: true
+        })
+
+      expected_media_item =
+        media_item_fixture(%{
+          source_id: source.id,
+          media_filepath: "/video/#{Faker.File.file_name(:video)}",
+          media_downloaded_at: now_minus(3, :days)
+        })
+
+      assert Media.list_cullable_media_items() == [expected_media_item]
+    end
   end
 
   describe "list_pending_media_items_for/1" do

@@ -22,7 +22,6 @@ defmodule Pinchflat.Media do
     Repo.all(MediaItem)
   end
 
-  # TODO: add attr for excluding media items from this list (ie: keep forever)
   @doc """
   Returns a list of media_items that are cullable based on the retention period
   of the source they belong to.
@@ -34,6 +33,7 @@ defmodule Pinchflat.Media do
     |> MediaQuery.join_sources()
     |> MediaQuery.with_media_filepath()
     |> MediaQuery.with_passed_retention_period()
+    |> MediaQuery.with_no_culling_prevention()
     |> Repo.all()
   end
 
