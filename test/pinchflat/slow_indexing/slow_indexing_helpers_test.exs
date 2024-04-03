@@ -18,7 +18,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
 
   setup :verify_on_exit!
 
-  describe "kickoff_indexing_task/1" do
+  describe "kickoff_indexing_task/3" do
     test "it schedules a job" do
       source = source_fixture(index_frequency_minutes: 1)
 
@@ -63,6 +63,25 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       assert {:ok, _} = SlowIndexingHelpers.kickoff_indexing_task(source)
 
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+
+    test "can be called with additional job arguments" do
+      source = source_fixture(index_frequency_minutes: 1)
+      job_args = %{"force" => true}
+
+      assert {:ok, _} = SlowIndexingHelpers.kickoff_indexing_task(source, job_args)
+
+      assert_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id, "force" => true})
+    end
+
+    test "can be called with additional job options" do
+      source = source_fixture(index_frequency_minutes: 1)
+      job_opts = [max_attempts: 5]
+
+      assert {:ok, _} = SlowIndexingHelpers.kickoff_indexing_task(source, %{}, job_opts)
+
+      [job] = all_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
+      assert job.max_attempts == 5
     end
   end
 

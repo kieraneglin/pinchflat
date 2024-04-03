@@ -27,12 +27,12 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
 
   Returns {:ok, %Task{}}.
   """
-  def kickoff_indexing_task(%Source{} = source) do
+  def kickoff_indexing_task(%Source{} = source, job_args \\ %{}, job_opts \\ []) do
     Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
     Tasks.delete_pending_tasks_for(source, "MediaIndexingWorker")
     Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker")
 
-    MediaCollectionIndexingWorker.kickoff_with_task(source)
+    MediaCollectionIndexingWorker.kickoff_with_task(source, job_args, job_opts)
   end
 
   @doc """

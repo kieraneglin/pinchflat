@@ -10,6 +10,8 @@ defmodule PinchflatWeb.Sources.SourceController do
   alias Pinchflat.Profiles
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaQuery
+  alias Pinchflat.Downloading.DownloadingHelpers
+  alias Pinchflat.SlowIndexing.SlowIndexingHelpers
 
   def index(conn, _params) do
     sources = Repo.preload(Sources.list_sources(), :media_profile)
@@ -49,7 +51,11 @@ defmodule PinchflatWeb.Sources.SourceController do
   def show(conn, %{"id" => id}) do
     source = Repo.preload(Sources.get_source!(id), :media_profile)
 
-    pending_tasks = Repo.preload(Tasks.list_pending_tasks_for(source), :job)
+    pending_tasks =
+      source
+      |> Tasks.list_tasks_for(nil, [:executing, :available, :scheduled, :retryable])
+      |> Repo.preload(:job)
+
     pending_media = Media.list_pending_media_items_for(source, limit: 100)
     downloaded_media = Media.list_downloaded_media_items_for(source, limit: 100)
 
@@ -104,12 +110,28 @@ defmodule PinchflatWeb.Sources.SourceController do
     |> redirect(to: ~p"/sources")
   end
 
+  def force_download(conn, %{"source_id" => id}) do
+    source = Sources.get_source!(id)
+    DownloadingHelpers.enqueue_pending_download_tasks(source)
+
+    conn
+    |> put_flash(:info, "Forced download of pending media items.")
+    |> redirect(to: ~p"/sources/#{source}")
+  end
+
+  def force_index(conn, %{"source_id" => id}) do
+    source = Sources.get_source!(id)
+    SlowIndexingHelpers.kickoff_indexing_task(source, %{force: true})
+
+    conn
+    |> put_flash(:info, "Index enqueued.")
+    |> redirect(to: ~p"/sources/#{source}")
+  end
+
   defp media_profiles do
     Profiles.list_media_profiles()
   end
 
-  # NOTE: should move this out of the controller
-  # once I finally add some query fragment layer
   defp total_downloaded_for(source) do
     MediaQuery.new()
     |> MediaQuery.for_source(source)

@@ -20,26 +20,7 @@
   <div class="max-w-full overflow-x-auto">
     <.tabbed_layout>
       <:tab_append>
-        <.button_dropdown text="Actions" class="justify-center w-full sm:w-50">
-          <:option>
-            <.link
-              href={~p"/sources/#{@media_item.source_id}/media/#{@media_item}"}
-              method="delete"
-              data-confirm="Are you sure you want to delete all files for this media item? This cannot be undone."
-            >
-              Delete Files
-            </.link>
-          </:option>
-          <:option>
-            <.link
-              href={~p"/sources/#{@media_item.source_id}/media/#{@media_item}?prevent_download=true"}
-              method="delete"
-              data-confirm="Are you sure you want to delete all files for this media item and prevent it from re-downloading in the future? This cannot be undone."
-            >
-              Delete and Ignore
-            </.link>
-          </:option>
-        </.button_dropdown>
+        <.actions_dropdown media_item={@media_item} />
       </:tab_append>
 
       <:tab title="Attributes">
@@ -53,9 +34,9 @@
           <h3 class="font-bold text-xl">Attributes</h3>
           <section>
             <strong>Source:</strong>
-            <.inline_link href={~p"/sources/#{@media_item.source_id}"}>
+            <.subtle_link href={~p"/sources/#{@media_item.source_id}"}>
               <%= @media_item.source.custom_name %>
-            </.inline_link>
+            </.subtle_link>
           </section>
 
           <.list_items_from_map map={Map.from_struct(@media_item)} />

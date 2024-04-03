@@ -8,6 +8,8 @@ defmodule PinchflatWeb.SourceControllerTest do
 
   alias Pinchflat.Repo
   alias Pinchflat.Settings
+  alias Pinchflat.Downloading.MediaDownloadWorker
+  alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
 
   setup do
     media_profile = media_profile_fixture()
@@ -157,6 +159,59 @@ defmodule PinchflatWeb.SourceControllerTest do
     test "deletes the files", %{conn: conn, source: source, media_item: media_item} do
       delete(conn, ~p"/sources/#{source}?delete_files=true")
       refute File.exists?(media_item.media_filepath)
+    end
+  end
+
+  describe "force_download" do
+    test "enqueues pending download tasks", %{conn: conn} do
+      source = source_fixture()
+      _media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil})
+
+      assert [] = all_enqueued(worker: MediaDownloadWorker)
+      post(conn, ~p"/sources/#{source.id}/force_download")
+      assert [_] = all_enqueued(worker: MediaDownloadWorker)
+    end
+
+    test "redirects to the source page", %{conn: conn} do
+      source = source_fixture()
+
+      conn = post(conn, ~p"/sources/#{source.id}/force_download")
+      assert redirected_to(conn) == ~p"/sources/#{source.id}"
+    end
+  end
+
+  describe "force_index" do
+    test "forces an index", %{conn: conn} do
+      source = source_fixture()
+
+      assert [] = all_enqueued(worker: MediaCollectionIndexingWorker)
+      post(conn, ~p"/sources/#{source.id}/force_index")
+      assert [_] = all_enqueued(worker: MediaCollectionIndexingWorker)
+    end
+
+    test "forces an index even if one wouldn't normally run", %{conn: conn} do
+      source = source_fixture(index_frequency_minutes: 0, last_indexed_at: DateTime.utc_now())
+
+      post(conn, ~p"/sources/#{source.id}/force_index")
+      assert [job] = all_enqueued(worker: MediaCollectionIndexingWorker)
+      assert job.args == %{"id" => source.id, "force" => true}
+    end
+
+    test "deletes pending indexing tasks", %{conn: conn} do
+      source = source_fixture()
+      {:ok, task} = MediaCollectionIndexingWorker.kickoff_with_task(source)
+      job = Repo.preload(task, :job).job
+
+      assert job.state == "available"
+      post(conn, ~p"/sources/#{source.id}/force_index")
+      assert Repo.reload!(job).state == "cancelled"
+    end
+
+    test "redirects to the source page", %{conn: conn} do
+      source = source_fixture()
+
+      conn = post(conn, ~p"/sources/#{source.id}/force_index")
+      assert redirected_to(conn) == ~p"/sources/#{source.id}"
     end
   end
 

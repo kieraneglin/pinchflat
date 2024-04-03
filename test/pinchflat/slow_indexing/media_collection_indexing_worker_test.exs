@@ -14,6 +14,42 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorkerTest do
 
   setup :verify_on_exit!
 
+  describe "kickoff_with_task/3" do
+    setup do
+      source = source_fixture(index_frequency_minutes: 10)
+
+      {:ok, %{source: source}}
+    end
+
+    test "starts the worker", %{source: source} do
+      assert [] = all_enqueued(worker: MediaCollectionIndexingWorker)
+      assert {:ok, _} = MediaCollectionIndexingWorker.kickoff_with_task(source)
+      assert [_] = all_enqueued(worker: MediaCollectionIndexingWorker)
+    end
+
+    test "attaches a task", %{source: source} do
+      assert {:ok, task} = MediaCollectionIndexingWorker.kickoff_with_task(source)
+      assert task.source_id == source.id
+    end
+
+    test "can be called with additional job arguments", %{source: source} do
+      job_args = %{"force" => true}
+
+      assert {:ok, _} = MediaCollectionIndexingWorker.kickoff_with_task(source, job_args)
+
+      assert_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id, "force" => true})
+    end
+
+    test "can be called with additional job options", %{source: source} do
+      job_opts = [max_attempts: 5]
+
+      assert {:ok, _} = MediaCollectionIndexingWorker.kickoff_with_task(source, %{}, job_opts)
+
+      [job] = all_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
+      assert job.max_attempts == 5
+    end
+  end
+
   describe "perform/1" do
     test "it indexes the source if it should be indexed" do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:ok, ""} end)
@@ -29,6 +65,14 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorkerTest do
       source = source_fixture(index_frequency_minutes: 0, last_indexed_at: nil)
 
       perform_job(MediaCollectionIndexingWorker, %{id: source.id})
+    end
+
+    test "it indexes the source no matter what if the 'force' arg is passed" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:ok, ""} end)
+
+      source = source_fixture(index_frequency_minutes: 0, last_indexed_at: DateTime.utc_now())
+
+      perform_job(MediaCollectionIndexingWorker, %{id: source.id, force: true})
     end
 
     test "it does not do any indexing if the source has been indexed and shouldn't be rescheduled" do

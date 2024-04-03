@@ -6,6 +6,7 @@ defmodule PinchflatWeb.MediaItems.MediaItemController do
   alias Pinchflat.Repo
   alias Pinchflat.Media
   alias Pinchflat.Media.MediaItem
+  alias Pinchflat.Downloading.MediaDownloadWorker
 
   def show(conn, %{"id" => id}) do
     media_item =
@@ -45,6 +46,15 @@ defmodule PinchflatWeb.MediaItems.MediaItemController do
     conn
     |> put_flash(:info, "Files deleted successfully.")
     |> redirect(to: ~p"/sources/#{media_item.source_id}")
+  end
+
+  def force_download(conn, %{"media_item_id" => id}) do
+    media_item = Media.get_media_item!(id)
+    {:ok, _} = MediaDownloadWorker.kickoff_with_task(media_item, %{force: true})
+
+    conn
+    |> put_flash(:info, "Download task enqueued.")
+    |> redirect(to: ~p"/sources/#{media_item.source_id}/media/#{media_item}")
   end
 
   # See here for details on streaming files and range requests:

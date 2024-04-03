@@ -34,6 +34,23 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
       assert {:ok, task} = MediaDownloadWorker.kickoff_with_task(media_item)
       assert task.media_item_id == media_item.id
     end
+
+    test "can be called with additional job arguments", %{media_item: media_item} do
+      job_args = %{"force" => true}
+
+      assert {:ok, _} = MediaDownloadWorker.kickoff_with_task(media_item, job_args)
+
+      assert_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id, "force" => true})
+    end
+
+    test "can be called with additional job options", %{media_item: media_item} do
+      job_opts = [max_attempts: 5]
+
+      assert {:ok, _} = MediaDownloadWorker.kickoff_with_task(media_item, %{}, job_opts)
+
+      [job] = all_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
+      assert job.max_attempts == 5
+    end
   end
 
   describe "perform/1" do
@@ -86,6 +103,14 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
       Sources.update_source(media_item.source, %{download_media: false})
 
       perform_job(MediaDownloadWorker, %{id: media_item.id})
+    end
+
+    test "downloads anyway if forced", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> :ok end)
+
+      Sources.update_source(media_item.source, %{download_media: false})
+
+      perform_job(MediaDownloadWorker, %{id: media_item.id, force: true})
     end
 
     test "it saves the file's size to the database", %{media_item: media_item} do
