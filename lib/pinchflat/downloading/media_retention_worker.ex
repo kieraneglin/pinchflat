@@ -10,10 +10,6 @@ defmodule Pinchflat.Downloading.MediaRetentionWorker do
 
   alias Pinchflat.Media
 
-  # TODO: update wiki after this is merged
-  # TODO: remove data backfill worker
-  # TODO: (other PR - not this one) add way to manually trigger an index of a source AND a pending media download
-  # of a source
   @doc """
   Deletes media items that are past their retention date and prevents
   them from being re-downloaded.
