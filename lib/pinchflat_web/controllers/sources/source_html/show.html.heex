@@ -28,9 +28,9 @@
           <h3 class="font-bold text-lg">Attributes</h3>
           <section>
             <strong>Media Profile:</strong>
-            <.inline_link href={~p"/media_profiles/#{@source.media_profile_id}"}>
+            <.subtle_link href={~p"/media_profiles/#{@source.media_profile_id}"}>
               <%= @source.media_profile.name %>
-            </.inline_link>
+            </.subtle_link>
           </section>
 
           <.list_items_from_map map={Map.from_struct(@source)} />

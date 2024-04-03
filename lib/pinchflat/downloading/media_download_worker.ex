@@ -19,27 +19,29 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
 
   Returns {:ok, %Task{}} | {:error, :duplicate_job} | {:error, %Ecto.Changeset{}}
   """
-  def kickoff_with_task(media_item, opts \\ []) do
+  def kickoff_with_task(media_item, job_args \\ %{}, job_opts \\ []) do
     %{id: media_item.id}
-    |> MediaDownloadWorker.new(opts)
+    |> Map.merge(job_args)
+    |> MediaDownloadWorker.new(job_opts)
     |> Tasks.create_job_with_task(media_item)
   end
 
   @doc """
   For a given media item, download the media alongside any options.
-  Does not download media if its source is set to not download media.
+  Does not download media if its source is set to not download media
+  (unless forced).
 
   Returns :ok | {:ok, %MediaItem{}} | {:error, any, ...any}
   """
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"id" => media_item_id}}) do
+  def perform(%Oban.Job{args: %{"id" => media_item_id} = args}) do
     media_item =
       media_item_id
       |> Media.get_media_item!()
       |> Repo.preload(:source)
 
     # If the source is set to not download media, perform a no-op
-    if media_item.source.download_media do
+    if media_item.source.download_media || args["force"] do
       download_media_and_schedule_jobs(media_item)
     else
       :ok

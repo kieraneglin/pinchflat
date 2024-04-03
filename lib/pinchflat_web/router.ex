@@ -35,7 +35,9 @@ defmodule PinchflatWeb.Router do
       post "/force_download", Sources.SourceController, :force_download
       post "/force_index", Sources.SourceController, :force_index
 
-      resources "/media", MediaItems.MediaItemController, only: [:show, :edit, :update, :delete]
+      resources "/media", MediaItems.MediaItemController, only: [:show, :edit, :update, :delete] do
+        post "/force_download", MediaItems.MediaItemController, :force_download
+      end
     end
   end
 

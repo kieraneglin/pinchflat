@@ -4,6 +4,7 @@ defmodule PinchflatWeb.MediaItemControllerTest do
   import Pinchflat.MediaFixtures
 
   alias Pinchflat.Repo
+  alias Pinchflat.Downloading.MediaDownloadWorker
 
   describe "show media" do
     setup [:create_media_item]
@@ -84,6 +85,31 @@ defmodule PinchflatWeb.MediaItemControllerTest do
       media_item = Repo.reload(media_item)
 
       assert media_item.prevent_download
+    end
+  end
+
+  describe "force_download" do
+    test "enqueues download task", %{conn: conn} do
+      media_item = media_item_fixture()
+
+      assert [] = all_enqueued(worker: MediaDownloadWorker)
+      post(conn, ~p"/sources/#{media_item.source_id}/media/#{media_item.id}/force_download")
+      assert [_] = all_enqueued(worker: MediaDownloadWorker)
+    end
+
+    test "forces a download even if one wouldn't normally run", %{conn: conn} do
+      media_item = media_item_fixture(%{media_filepath: nil})
+
+      post(conn, ~p"/sources/#{media_item.source_id}/media/#{media_item.id}/force_download")
+      assert [_] = all_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id, "force" => true})
+    end
+
+    test "redirects to the show page", %{conn: conn} do
+      media_item = media_item_fixture()
+
+      conn = post(conn, ~p"/sources/#{media_item.source_id}/media/#{media_item.id}/force_download")
+
+      assert redirected_to(conn) == ~p"/sources/#{media_item.source_id}/media/#{media_item.id}"
     end
   end
 

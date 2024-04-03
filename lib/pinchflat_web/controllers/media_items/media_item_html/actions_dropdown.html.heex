@@ -1,0 +1,32 @@
+<.button_dropdown text="Actions" class="justify-center w-full sm:w-50">
+  <:option>
+    <.link
+      href={~p"/sources/#{@media_item.source_id}/media/#{@media_item}/force_download"}
+      method="post"
+      data-confirm="Are you sure you force a download of this media?"
+    >
+      Force Download
+    </.link>
+  </:option>
+  <:option>
+    <div class="h-px w-full bg-bodydark2"></div>
+  </:option>
+  <:option>
+    <.link
+      href={~p"/sources/#{@media_item.source_id}/media/#{@media_item}"}
+      method="delete"
+      data-confirm="Are you sure you want to delete all files for this media item? This cannot be undone."
+    >
+      Delete Files
+    </.link>
+  </:option>
+  <:option>
+    <.link
+      href={~p"/sources/#{@media_item.source_id}/media/#{@media_item}?prevent_download=true"}
+      method="delete"
+      data-confirm="Are you sure you want to delete all files for this media item and prevent it from re-downloading in the future? This cannot be undone."
+    >
+      Delete and Ignore
+    </.link>
+  </:option>
+</.button_dropdown>
