@@ -46,7 +46,13 @@ config :pinchflat, Oban,
   engine: Oban.Engines.Lite,
   repo: Pinchflat.Repo,
   # Keep old jobs for 30 days for display in the UI
-  plugins: [{Oban.Plugins.Pruner, max_age: 30 * 24 * 60 * 60}],
+  plugins: [
+    {Oban.Plugins.Pruner, max_age: 30 * 24 * 60 * 60},
+    {Oban.Plugins.Cron,
+     crontab: [
+       {"@midnight", Pinchflat.Downloading.MediaRetentionWorker}
+     ]}
+  ],
   # TODO: consider making this an env var or something?
   queues: [
     default: 10,

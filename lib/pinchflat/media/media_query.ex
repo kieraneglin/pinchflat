@@ -17,6 +17,7 @@ defmodule Pinchflat.Media.MediaQuery do
 
   # Prefixes:
   # - for_* - belonging to a certain record
+  # - join_* - for joining on a certain record
   # - with_* - for filtering based on full, concrete attributes
   # - matching_* - for filtering based on partial attributes (e.g. LIKE, regex, full-text search)
   #
@@ -29,6 +30,23 @@ defmodule Pinchflat.Media.MediaQuery do
 
   def for_source(query, source) do
     where(query, [mi], mi.source_id == ^source.id)
+  end
+
+  def join_sources(query) do
+    from(mi in query, join: s in assoc(mi, :source), as: :sources)
+  end
+
+  def with_passed_retention_period(query) do
+    where(
+      query,
+      [mi, sources],
+      fragment(
+        "IFNULL(?, 0) > 0 AND DATETIME('now', '-' || ? || ' day') > ?",
+        sources.retention_period_days,
+        sources.retention_period_days,
+        mi.media_downloaded_at
+      )
+    )
   end
 
   def with_id(query, id) do

@@ -44,7 +44,7 @@ defmodule Pinchflat.Media.MediaItem do
     source_id
     upload_date
     short_form_content
-    )a
+  )a
 
   schema "media_items" do
     # This is _not_ used as the primary key or internally in the database

@@ -22,6 +22,22 @@ defmodule Pinchflat.Media do
     Repo.all(MediaItem)
   end
 
+  # TODO: docs
+  # TODO: add attr for excluding media items from this list (ie: keep forever)
+  @doc """
+  Returns a list of media_items that are cullable based on the retention period
+  of the source they belong to.
+
+  Returns [%MediaItem{}, ...]
+  """
+  def list_cullable_media_items do
+    MediaQuery.new()
+    |> MediaQuery.join_sources()
+    |> MediaQuery.with_media_filepath()
+    |> MediaQuery.with_passed_retention_period()
+    |> Repo.all()
+  end
+
   @doc """
   Returns a list of pending media_items for a given source, where
   pending means the `media_filepath` is `nil` AND the media_item
