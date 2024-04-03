@@ -50,7 +50,7 @@ config :pinchflat, Oban,
     {Oban.Plugins.Pruner, max_age: 30 * 24 * 60 * 60},
     {Oban.Plugins.Cron,
      crontab: [
-       {"@midnight", Pinchflat.Downloading.MediaRetentionWorker}
+       {"@daily", Pinchflat.Downloading.MediaRetentionWorker}
      ]}
   ],
   # TODO: consider making this an env var or something?

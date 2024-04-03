@@ -22,7 +22,6 @@ defmodule Pinchflat.Media do
     Repo.all(MediaItem)
   end
 
-  # TODO: docs
   # TODO: add attr for excluding media items from this list (ie: keep forever)
   @doc """
   Returns a list of media_items that are cullable based on the retention period
@@ -189,20 +188,19 @@ defmodule Pinchflat.Media do
   Deletes the tasks and media files associated with a media_item but leaves the
   media_item in the database. Does not delete anything to do with associated metadata.
 
-  ## Options:
-    - `:prevent_download` - If `true`, the media_item will be marked to prevent being redownloaded
+  Optionally accepts a second argument `addl_attrs` which will be merged into the
+  media_item before it is updated. Useful for setting things like `prevent_download`
+  and `culled_at`, if wanted
 
   Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}
   """
-  def delete_media_files(%MediaItem{} = media_item, opts \\ []) do
-    prevent_download = Keyword.get(opts, :prevent_download, false)
+  def delete_media_files(%MediaItem{} = media_item, addl_attrs \\ %{}) do
     filepath_attrs = MediaItem.filepath_attribute_defaults()
-    opt_attrs = %{prevent_download: prevent_download}
 
     Tasks.delete_tasks_for(media_item)
     {:ok, _} = do_delete_media_files(media_item)
 
-    update_media_item(media_item, Map.merge(filepath_attrs, opt_attrs))
+    update_media_item(media_item, Map.merge(filepath_attrs, addl_attrs))
   end
 
   @doc """

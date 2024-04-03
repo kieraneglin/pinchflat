@@ -40,7 +40,7 @@ defmodule PinchflatWeb.MediaItems.MediaItemController do
   def delete(conn, %{"id" => id} = params) do
     prevent_download = Map.get(params, "prevent_download", false)
     media_item = Media.get_media_item!(id)
-    {:ok, _} = Media.delete_media_files(media_item, prevent_download: prevent_download)
+    {:ok, _} = Media.delete_media_files(media_item, %{prevent_download: prevent_download})
 
     conn
     |> put_flash(:info, "Files deleted successfully.")

@@ -699,6 +699,7 @@ defmodule Pinchflat.MediaTest do
     test "deletes the media_item's files" do
       media_item = media_item_with_attachments()
 
+      assert File.exists?(media_item.media_filepath)
       assert {:ok, _} = Media.delete_media_files(media_item)
       refute File.exists?(media_item.media_filepath)
     end
@@ -728,10 +729,10 @@ defmodule Pinchflat.MediaTest do
       Media.delete_media_item(updated_media_item, delete_files: true)
     end
 
-    test "can prevent the media item from being downloaded" do
+    test "can take additional attributes update media item" do
       media_item = media_item_with_attachments()
 
-      assert {:ok, updated_media_item} = Media.delete_media_files(media_item, prevent_download: true)
+      assert {:ok, updated_media_item} = Media.delete_media_files(media_item, %{prevent_download: true})
       assert updated_media_item.prevent_download
     end
   end
