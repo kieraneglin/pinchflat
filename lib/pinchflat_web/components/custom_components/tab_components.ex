@@ -34,7 +34,7 @@ defmodule PinchflatWeb.CustomComponents.TabComponents do
           <%= render_slot(@tab_append) %>
         </div>
       </header>
-      <div class="mt-4">
+      <div class="mt-4 min-h-96">
         <div :for={{tab, idx} <- Enum.with_index(@tab)} x-show={"openTab === #{idx}"} class="font-medium leading-relaxed">
           <%= render_slot(tab) %>
         </div>
