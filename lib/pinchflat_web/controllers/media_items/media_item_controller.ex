@@ -16,20 +16,34 @@ defmodule PinchflatWeb.MediaItems.MediaItemController do
     render(conn, :show, media_item: media_item)
   end
 
-  def delete(conn, %{"id" => id} = params) do
-    delete_files = Map.get(params, "delete_files", false)
+  def edit(conn, %{"id" => id}) do
     media_item = Media.get_media_item!(id)
-    {:ok, _} = Media.delete_media_item(media_item, delete_files: delete_files)
+    changeset = Media.change_media_item(media_item)
 
-    flash_message =
-      if delete_files do
-        "Record and files deleted successfully."
-      else
-        "Record deleted successfully. Files were not deleted."
-      end
+    render(conn, :edit, media_item: media_item, changeset: changeset)
+  end
+
+  def update(conn, %{"id" => id, "media_item" => params}) do
+    media_item = Media.get_media_item!(id)
+
+    case Media.update_media_item(media_item, params) do
+      {:ok, media_item} ->
+        conn
+        |> put_flash(:info, "Media Item updated successfully.")
+        |> redirect(to: ~p"/sources/#{media_item.source_id}/media/#{media_item}")
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, :edit, media_item: media_item, changeset: changeset)
+    end
+  end
+
+  def delete(conn, %{"id" => id} = params) do
+    prevent_download = Map.get(params, "prevent_download", false)
+    media_item = Media.get_media_item!(id)
+    {:ok, _} = Media.delete_media_files(media_item, %{prevent_download: prevent_download})
 
     conn
-    |> put_flash(:info, flash_message)
+    |> put_flash(:info, "Files deleted successfully.")
     |> redirect(to: ~p"/sources/#{media_item.source_id}")
   end
 

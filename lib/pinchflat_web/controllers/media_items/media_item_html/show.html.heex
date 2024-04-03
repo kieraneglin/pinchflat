@@ -4,9 +4,17 @@
       <.icon name="hero-arrow-left" class="w-10 h-10 hover:dark:text-white" />
     </.link>
     <h2 class="text-title-md2 font-bold text-black dark:text-white ml-4">
-      Media Item #<%= @media_item.id %>
+      <%= StringUtils.truncate(@media_item.title, 35) %>
     </h2>
   </div>
+
+  <nav>
+    <.link href={~p"/sources/#{@media_item.source_id}/media/#{@media_item}/edit"}>
+      <.button color="bg-primary" rounding="rounded-lg">
+        <.icon name="hero-pencil-square" class="mr-2" /> Edit
+      </.button>
+    </.link>
+  </nav>
 </div>
 <div class="rounded-sm border border-stroke bg-white py-5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark px-7.5">
   <div class="max-w-full overflow-x-auto">
@@ -15,11 +23,20 @@
         <.button_dropdown text="Actions" class="justify-center w-full sm:w-50">
           <:option>
             <.link
-              href={~p"/sources/#{@media_item.source_id}/media/#{@media_item}?delete_files=true"}
+              href={~p"/sources/#{@media_item.source_id}/media/#{@media_item}"}
               method="delete"
-              data-confirm="Are you sure you want to delete this record and all associated files on disk? This cannot be undone."
+              data-confirm="Are you sure you want to delete all files for this media item? This cannot be undone."
             >
               Delete Files
+            </.link>
+          </:option>
+          <:option>
+            <.link
+              href={~p"/sources/#{@media_item.source_id}/media/#{@media_item}?prevent_download=true"}
+              method="delete"
+              data-confirm="Are you sure you want to delete all files for this media item and prevent it from re-downloading in the future? This cannot be undone."
+            >
+              Delete and Ignore
             </.link>
           </:option>
         </.button_dropdown>
@@ -32,6 +49,7 @@
             <.media_preview media_item={@media_item} />
           <% end %>
 
+          <h2 class="font-bold text-2xl"><%= @media_item.title %></h2>
           <h3 class="font-bold text-xl">Attributes</h3>
           <section>
             <strong>Source:</strong>

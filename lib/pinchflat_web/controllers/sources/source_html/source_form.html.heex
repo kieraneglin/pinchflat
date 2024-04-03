@@ -88,6 +88,14 @@
     help="Only download media uploaded after this date. Leave blank to download all media. Must be in YYYY-MM-DD format"
   />
 
+  <.input
+    field={f[:retention_period_days]}
+    type="number"
+    label="Retention Period (days)"
+    min="0"
+    help="Days between when media is *downloaded* and when it's deleted. Leave blank to keep media indefinitely"
+  />
+
   <section x-show="advancedMode">
     <h3 class="mt-8 text-2xl text-black dark:text-white">
       Advanced Options

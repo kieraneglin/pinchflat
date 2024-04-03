@@ -29,6 +29,7 @@ defmodule Pinchflat.Sources.Source do
     last_indexed_at
     original_url
     download_cutoff_date
+    retention_period_days
     title_filter_regex
     media_profile_id
   )a
@@ -72,6 +73,7 @@ defmodule Pinchflat.Sources.Source do
     field :last_indexed_at, :utc_datetime
     # Only download media items that were published after this date
     field :download_cutoff_date, :date
+    field :retention_period_days, :integer
     field :original_url, :string
     field :title_filter_regex, :string
 
@@ -106,6 +108,7 @@ defmodule Pinchflat.Sources.Source do
     |> dynamic_default(:custom_name, fn cs -> get_field(cs, :collection_name) end)
     |> dynamic_default(:uuid, fn _ -> Ecto.UUID.generate() end)
     |> validate_required(required_fields)
+    |> validate_number(:retention_period_days, greater_than_or_equal_to: 0)
     |> cast_assoc(:metadata, with: &SourceMetadata.changeset/2, required: false)
     |> unique_constraint([:collection_id, :media_profile_id, :title_filter_regex], error_key: :original_url)
   end

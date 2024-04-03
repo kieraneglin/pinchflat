@@ -22,6 +22,13 @@
         <:col :let={source} label="Should Download?">
           <.icon name={if source.download_media, do: "hero-check", else: "hero-x-mark"} />
         </:col>
+        <:col :let={source} label="Retention">
+          <%= if source.retention_period_days && source.retention_period_days > 0 do %>
+            <%= source.retention_period_days %> day(s)
+          <% else %>
+            <span class="text-lg">∞</span>
+          <% end %>
+        </:col>
         <:col :let={source} label="Media Profile">
           <.subtle_link href={~p"/media_profiles/#{source.media_profile_id}"}>
             <%= source.media_profile.name %>

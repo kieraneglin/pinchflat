@@ -48,6 +48,7 @@ If it doesn't work for your use case, please make a feature request! You can als
   - Uses a novel approach to download new content more quickly than other apps
 - Supports downloading audio content
 - Custom rules for handling YouTube Shorts and livestreams
+- Optionally automatically delete old content ([docs](https://github.com/kieraneglin/pinchflat/wiki/Automatically-Delete-Media))
 - Advanced options like setting cutoff dates and filtering by title
 - Reliable hands-off operation
 - Can pass cookies to YouTube to download your private playlists ([docs](https://github.com/kieraneglin/pinchflat/wiki/YouTube-Cookies))
