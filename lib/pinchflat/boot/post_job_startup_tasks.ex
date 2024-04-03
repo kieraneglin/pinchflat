@@ -11,9 +11,6 @@ defmodule Pinchflat.Boot.PostJobStartupTasks do
   use GenServer, restart: :temporary
   import Ecto.Query, warn: false
 
-  alias Pinchflat.Repo
-  alias Pinchflat.Boot.DataBackfillWorker
-
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, %{}, opts)
   end
@@ -29,16 +26,7 @@ defmodule Pinchflat.Boot.PostJobStartupTasks do
   """
   @impl true
   def init(state) do
-    enqueue_backfill_worker()
-
+    # Empty for now, keeping because tasks _will_ be added in future
     {:ok, state}
-  end
-
-  defp enqueue_backfill_worker do
-    DataBackfillWorker.cancel_pending_backfill_jobs()
-
-    %{}
-    |> DataBackfillWorker.new()
-    |> Repo.insert_unique_job()
   end
 end
