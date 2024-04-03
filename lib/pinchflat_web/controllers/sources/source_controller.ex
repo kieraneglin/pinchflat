@@ -8,13 +8,19 @@ defmodule PinchflatWeb.Sources.SourceController do
   alias Pinchflat.Tasks
   alias Pinchflat.Sources
   alias Pinchflat.Profiles
+  alias Pinchflat.MediaQuery
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaQuery
+  alias Pinchflat.Profiles.MediaProfile
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.SlowIndexing.SlowIndexingHelpers
 
   def index(conn, _params) do
-    sources = Repo.preload(Sources.list_sources(), :media_profile)
+    sources =
+      Source
+      |> order_by(asc: :custom_name)
+      |> Repo.all()
+      |> Repo.preload(:media_profile)
 
     render(conn, :index, sources: sources)
   end
@@ -56,8 +62,20 @@ defmodule PinchflatWeb.Sources.SourceController do
       |> Tasks.list_tasks_for(nil, [:executing, :available, :scheduled, :retryable])
       |> Repo.preload(:job)
 
-    pending_media = Media.list_pending_media_items_for(source, limit: 100)
-    downloaded_media = Media.list_downloaded_media_items_for(source, limit: 100)
+    pending_media =
+      source
+      |> Media.pending_media_items_for()
+      |> order_by(desc: :id)
+      |> limit(100)
+      |> Repo.all()
+
+    downloaded_media =
+      MediaQuery.new()
+      |> MediaQuery.for_source(source)
+      |> MediaQuery.with_media_filepath()
+      |> order_by(desc: :id)
+      |> limit(100)
+      |> Repo.all()
 
     render(conn, :show,
       source: source,
@@ -129,7 +147,9 @@ defmodule PinchflatWeb.Sources.SourceController do
   end
 
   defp media_profiles do
-    Profiles.list_media_profiles()
+    MediaProfile
+    |> order_by(asc: :name)
+    |> Repo.all()
   end
 
   defp total_downloaded_for(source) do
