@@ -52,7 +52,9 @@
       <:tab title="Sources">
         <.table rows={@media_profile.sources} table_class="text-black dark:text-white">
           <:col :let={source} label="Name">
-            <%= source.custom_name || source.collection_name %>
+            <.subtle_link href={~p"/sources/#{source.id}"}>
+              <%= source.custom_name || source.collection_name %>
+            </.subtle_link>
           </:col>
           <:col :let={source} label="Type"><%= source.collection_type %></:col>
           <:col :let={source} label="Should Download?">
