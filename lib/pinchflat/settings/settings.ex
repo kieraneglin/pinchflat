@@ -2,94 +2,63 @@ defmodule Pinchflat.Settings do
   @moduledoc """
   The Settings context.
   """
-
   import Ecto.Query, warn: false
-  alias Pinchflat.Repo
 
+  alias Pinchflat.Repo
   alias Pinchflat.Settings.Setting
 
   @doc """
-  Returns the list of settings.
+  Returns the only setting record. It _should_ be impossible
+  to create or delete this record, so it's assertive about
+  assuming it's the only one.
 
-  Returns [%Setting{}, ...]
+  Returns %Setting{}
   """
-  def list_settings do
-    Repo.all(Setting)
+  def record do
+    Setting
+    |> limit(1)
+    |> Repo.one()
   end
 
   @doc """
-  Creates or updates a setting, returning the parsed value.
-  Raises if an unsupported datatype is used. Optionally allows
-  specifying the datatype.
+  Updates a setting, returning the new value.
+  Is setup to take a keyword list argument so you
+  can call it like `Settings.set(onboarding: true)`
 
-  Returns value in type of `Ecto.Enum.mappings(Setting, :datatype)`
+  Returns {:ok, value} | {:error, :invalid_key} | {:error, %Ecto.Changeset{}}
   """
-  def set!(name, value) do
-    set!(name, value, infer_datatype(value))
-  end
-
-  def set!(name, value, datatype) do
-    # Only create if doesn't exist
-    case Repo.get_by(Setting, name: to_string(name)) do
-      nil -> create_setting!(name, value, datatype)
-      setting -> update_setting!(setting, value, datatype)
+  def set([{attr, value}]) do
+    record()
+    |> Setting.changeset(%{attr => value})
+    |> Repo.update()
+    |> case do
+      {:ok, %{^attr => _}} -> {:ok, value}
+      {:ok, _} -> {:error, :invalid_key}
+      {:error, changeset} -> {:error, changeset}
     end
   end
 
   @doc """
-  Gets the parsed value of a setting. Raises if the setting does not exist.
+  Gets the value of a setting.
 
-  Returns value in type of `Ecto.Enum.mappings(Setting, :datatype)`
+  Returns {:ok, value} | {:error, :invalid_key}
+  """
+  def get(name) do
+    case Map.fetch(record(), name) do
+      {:ok, value} -> {:ok, value}
+      :error -> {:error, :invalid_key}
+    end
+  end
+
+  @doc """
+  Gets the value of a setting, raising if it doesn't exist.
+
+  Returns value
   """
   def get!(name) do
-    Setting
-    |> Repo.get_by!(name: to_string(name))
-    |> read_setting()
-  end
-
-  @doc """
-  Attempts to find a setting by name or creates a setting with value
-  if one doesn't exist, returning the parsed value. Optionally allows
-  specifying the datatype.
-
-  Returns value in type of `Ecto.Enum.mappings(Setting, :datatype)`
-  """
-  def fetch!(name, value) do
-    fetch!(name, value, infer_datatype(value))
-  end
-
-  def fetch!(name, value, datatype) do
-    case Repo.get_by(Setting, name: to_string(name)) do
-      nil -> create_setting!(name, value, datatype)
-      setting -> read_setting(setting)
+    case get(name) do
+      {:ok, value} -> value
+      {:error, _} -> raise "Setting `#{name}` not found"
     end
   end
-
-  defp change_setting(setting, attrs) do
-    Setting.changeset(setting, attrs)
-  end
-
-  defp create_setting!(name, value, datatype) do
-    %Setting{}
-    |> change_setting(%{name: to_string(name), value: to_string(value), datatype: datatype})
-    |> Repo.insert!()
-    |> read_setting()
-  end
-
-  defp update_setting!(setting, value, datatype) do
-    setting
-    |> change_setting(%{value: to_string(value), datatype: datatype})
-    |> Repo.update!()
-    |> read_setting()
-  end
-
-  defp read_setting(%{value: value, datatype: :string}), do: value
-  defp read_setting(%{value: value, datatype: :boolean}), do: value in ["true", "t", "1"]
-  defp read_setting(%{value: value, datatype: :integer}), do: String.to_integer(value)
-  defp read_setting(%{value: value, datatype: :float}), do: String.to_float(value)
-
-  defp infer_datatype(value) when is_boolean(value), do: :boolean
-  defp infer_datatype(value) when is_integer(value), do: :integer
-  defp infer_datatype(value) when is_float(value), do: :float
-  defp infer_datatype(value) when is_binary(value), do: :string
 end

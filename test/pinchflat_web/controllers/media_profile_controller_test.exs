@@ -16,7 +16,7 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
   @invalid_attrs %{name: nil, output_path_template: nil}
 
   setup do
-    Settings.set!(:onboarding, false)
+    Settings.set(onboarding: false)
 
     :ok
   end
@@ -35,7 +35,7 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
     end
 
     test "renders correct layout when onboarding", %{conn: conn} do
-      Settings.set!(:onboarding, true)
+      Settings.set(onboarding: true)
       conn = get(conn, ~p"/media_profiles/new")
 
       refute html_response(conn, 200) =~ "MENU"
@@ -59,14 +59,14 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
     end
 
     test "redirects to onboarding when onboarding", %{conn: conn} do
-      Settings.set!(:onboarding, true)
+      Settings.set(onboarding: true)
       conn = post(conn, ~p"/media_profiles", media_profile: @create_attrs)
 
       assert redirected_to(conn) == ~p"/?onboarding=1"
     end
 
     test "renders correct layout on error when onboarding", %{conn: conn} do
-      Settings.set!(:onboarding, true)
+      Settings.set(onboarding: true)
       conn = post(conn, ~p"/media_profiles", media_profile: @invalid_attrs)
 
       refute html_response(conn, 200) =~ "MENU"

@@ -65,8 +65,6 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
   defp apply_default_settings do
     {:ok, yt_dlp_version} = CommandRunner.version()
 
-    Settings.fetch!(:onboarding, true)
-    Settings.fetch!(:pro_enabled, false)
-    Settings.set!(:yt_dlp_version, yt_dlp_version)
+    Settings.set(yt_dlp_version: yt_dlp_version)
   end
 end

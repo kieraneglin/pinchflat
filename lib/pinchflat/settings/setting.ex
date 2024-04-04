@@ -1,24 +1,32 @@
 defmodule Pinchflat.Settings.Setting do
   @moduledoc """
-  A Setting is a key-value pair with a datatype used to track user-level settings.
+  The Setting schema.
   """
 
   use Ecto.Schema
   import Ecto.Changeset
 
-  schema "settings" do
-    field :name, :string
-    field :value, :string
-    field :datatype, Ecto.Enum, values: ~w(boolean string integer float)a
+  @allowed_fields [
+    :onboarding,
+    :pro_enabled,
+    :yt_dlp_version
+  ]
 
-    timestamps(type: :utc_datetime)
+  @required_fields ~w(
+    onboarding
+    pro_enabled
+  )a
+
+  schema "settings" do
+    field :onboarding, :boolean, default: true
+    field :pro_enabled, :boolean, default: false
+    field :yt_dlp_version, :string
   end
 
   @doc false
   def changeset(setting, attrs) do
     setting
-    |> cast(attrs, [:name, :value, :datatype])
-    |> validate_required([:name, :value, :datatype])
-    |> unique_constraint([:name])
+    |> cast(attrs, @allowed_fields)
+    |> validate_required(@required_fields)
   end
 end

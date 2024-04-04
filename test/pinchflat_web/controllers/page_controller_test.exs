@@ -10,7 +10,7 @@ defmodule PinchflatWeb.PageControllerTest do
     end
 
     test "displays the onboarding page when onboarding is forced", %{conn: conn} do
-      Settings.set!(:onboarding, false)
+      Settings.set(onboarding: false)
 
       conn = get(conn, ~p"/?onboarding=1")
       assert html_response(conn, 200) =~ "Welcome to Pinchflat"
@@ -25,7 +25,7 @@ defmodule PinchflatWeb.PageControllerTest do
     end
 
     test "displays the home page when not onboarding", %{conn: conn} do
-      Settings.set!(:onboarding, false)
+      Settings.set(onboarding: false)
 
       conn = get(conn, ~p"/")
       assert html_response(conn, 200) =~ "MENU"

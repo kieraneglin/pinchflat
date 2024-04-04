@@ -11,7 +11,7 @@ defmodule PinchflatWeb.Pages.PageController do
     done_onboarding = params["onboarding"] == "0"
     force_onboarding = params["onboarding"] == "1"
 
-    if done_onboarding, do: Settings.set!(:onboarding, false)
+    if done_onboarding, do: Settings.set(onboarding: false)
 
     if force_onboarding || Settings.get!(:onboarding) do
       render_onboarding_page(conn)
@@ -30,7 +30,7 @@ defmodule PinchflatWeb.Pages.PageController do
   end
 
   defp render_onboarding_page(conn) do
-    Settings.set!(:onboarding, true)
+    Settings.set(onboarding: true)
 
     conn
     |> render(:onboarding_checklist,
