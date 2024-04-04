@@ -5,7 +5,7 @@ defmodule Pinchflat.Podcasts.PodcastHelpers do
   """
 
   alias Pinchflat.Repo
-  alias Pinchflat.Media
+  alias Pinchflat.Media.MediaQuery
   alias Pinchflat.Metadata.MediaMetadata
   alias Pinchflat.Metadata.SourceMetadata
 
@@ -25,8 +25,11 @@ defmodule Pinchflat.Podcasts.PodcastHelpers do
   def persisted_media_items_for(source, opts \\ []) do
     limit = Keyword.get(opts, :limit, 500)
 
-    source
-    |> Media.list_downloaded_media_items_for(limit: limit)
+    MediaQuery.new()
+    |> MediaQuery.for_source(source)
+    |> MediaQuery.with_media_filepath()
+    |> Repo.maybe_limit(limit)
+    |> Repo.all()
     |> Enum.filter(fn media_item -> File.exists?(media_item.media_filepath) end)
   end
 

@@ -3,13 +3,10 @@ defmodule Pinchflat.Media.MediaQuery do
   Query helpers for the Media context.
 
   These methods are made to be one-ish liners used
-  to compose queries for media items. Each method should
-  strive to do _one_ thing. These don't need to be tested
-  as they are just building blocks for other functionality
+  to compose queries. Each method should strive to do
+  _one_ thing. These don't need to be tested as
+  they are just building blocks for other functionality
   which, itself, will be tested.
-
-  ALSO, this is me trying something new. If I like it,
-  I'll refactor other contexts to use this pattern.
   """
   import Ecto.Query, warn: false
 
@@ -37,13 +34,14 @@ defmodule Pinchflat.Media.MediaQuery do
   end
 
   def with_passed_retention_period(query) do
-    where(
-      query,
-      [mi, sources],
+    query
+    |> require_assoc(:source)
+    |> where(
+      [mi, source],
       fragment(
         "IFNULL(?, 0) > 0 AND DATETIME('now', '-' || ? || ' day') > ?",
-        sources.retention_period_days,
-        sources.retention_period_days,
+        source.retention_period_days,
+        source.retention_period_days,
         mi.media_downloaded_at
       )
     )
@@ -69,20 +67,23 @@ defmodule Pinchflat.Media.MediaQuery do
     where(query, [mi], is_nil(mi.media_filepath))
   end
 
-  def with_upload_date_after(query, nil), do: query
-
-  def with_upload_date_after(query, date) do
-    where(query, [mi], mi.upload_date >= ^date)
+  def with_upload_date_after_source_cutoff(query) do
+    query
+    |> require_assoc(:source)
+    |> where([mi, source], is_nil(source.download_cutoff_date) or mi.upload_date >= source.download_cutoff_date)
   end
 
   def with_no_prevented_download(query) do
     where(query, [mi], mi.prevent_download == false)
   end
 
-  def matching_title_regex(query, nil), do: query
-
-  def matching_title_regex(query, regex) do
-    where(query, [mi], fragment("regexp_like(?, ?)", mi.title, ^regex))
+  def matching_source_title_regex(query) do
+    query
+    |> require_assoc(:source)
+    |> where(
+      [mi, source],
+      is_nil(source.title_filter_regex) or fragment("regexp_like(?, ?)", mi.title, source.title_filter_regex)
+    )
   end
 
   def matching_search_term(query, nil), do: query
@@ -103,44 +104,55 @@ defmodule Pinchflat.Media.MediaQuery do
     )
   end
 
-  # NOTE: this method breaks the contract set by other methods in that it
-  # takes a media_profile struct instead of taking just the attributes it
-  # cares about. Consider refactoring but low priority.
-  def with_format_preference(query, media_profile) do
-    mapped_struct = Map.from_struct(media_profile)
+  def with_format_matching_profile_preference(query) do
+    query
+    |> require_assoc(:media_profile)
+    |> where(
+      fragment("""
+        CASE
+          WHEN shorts_behaviour = 'only' AND livestream_behaviour = 'only' THEN
+            livestream = true OR short_form_content = true
+          WHEN shorts_behaviour = 'only' THEN
+            short_form_content = true
+          WHEN livestream_behaviour = 'only' THEN
+            livestream = true
+          WHEN shorts_behaviour = 'exclude' AND livestream_behaviour = 'exclude' THEN
+            short_form_content = false AND livestream = false
+          WHEN shorts_behaviour = 'exclude' THEN
+            short_form_content = false
+          WHEN livestream_behaviour = 'exclude' THEN
+            livestream = false
+          ELSE
+            true
+        END
+      """)
+    )
+  end
 
-    finders =
-      Enum.reduce(mapped_struct, dynamic(true), fn attr, dynamic ->
-        case {attr, media_profile} do
-          {{:shorts_behaviour, :only}, %{livestream_behaviour: :only}} ->
-            dynamic(
-              [mi],
-              ^dynamic and (mi.livestream == true or mi.short_form_content == true)
-            )
+  def with_media_pending_download(query) do
+    query
+    |> with_no_prevented_download()
+    |> with_no_media_filepath()
+    |> with_upload_date_after_source_cutoff()
+    |> with_format_matching_profile_preference()
+    |> matching_source_title_regex()
+  end
 
-          # Technically redundant, but makes the other clauses easier to parse
-          # (redundant because this condition is the same as the condition above, just flipped)
-          {{:livestream_behaviour, :only}, %{shorts_behaviour: :only}} ->
-            dynamic
+  defp require_assoc(query, identifier) do
+    if has_named_binding?(query, identifier) do
+      query
+    else
+      do_require_assoc(query, identifier)
+    end
+  end
 
-          {{:shorts_behaviour, :only}, _} ->
-            dynamic([mi], ^dynamic and mi.short_form_content == true)
+  defp do_require_assoc(query, :source) do
+    from(mi in query, join: s in assoc(mi, :source), as: :source)
+  end
 
-          {{:livestream_behaviour, :only}, _} ->
-            dynamic([mi], ^dynamic and mi.livestream == true)
-
-          {{:shorts_behaviour, :exclude}, %{livestream_behaviour: lb}} when lb != :only ->
-            dynamic([mi], ^dynamic and mi.short_form_content == false)
-
-          {{:livestream_behaviour, :exclude}, %{shorts_behaviour: sb}} when sb != :only ->
-            # return records with livestream: false
-            dynamic([mi], ^dynamic and mi.livestream == false)
-
-          _ ->
-            dynamic
-        end
-      end)
-
-    where(query, ^finders)
+  defp do_require_assoc(query, :media_profile) do
+    query
+    |> require_assoc(:source)
+    |> join(:inner, [mi, source], mp in assoc(source, :media_profile), as: :media_profile)
   end
 end

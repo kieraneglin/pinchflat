@@ -30,7 +30,6 @@ defmodule Pinchflat.Media do
   """
   def list_cullable_media_items do
     MediaQuery.new()
-    |> MediaQuery.join_sources()
     |> MediaQuery.with_media_filepath()
     |> MediaQuery.with_passed_retention_period()
     |> MediaQuery.with_no_culling_prevention()
@@ -42,34 +41,15 @@ defmodule Pinchflat.Media do
   pending means the `media_filepath` is `nil` AND the media_item
   matches the format selection rules of the parent media_profile.
 
-  See `matching_download_criteria_for` but tl;dr is it _may_ filter based
+  See `where_pending` but tl;dr is it _may_ filter based
   on shorts livestreams depending on the media_profile settings.
 
   Returns [%MediaItem{}, ...].
   """
-  def list_pending_media_items_for(%Source{} = source, opts \\ []) do
-    limit = Keyword.get(opts, :limit, nil)
-    source = Repo.preload(source, :media_profile)
-
+  def list_pending_media_items_for(%Source{} = source) do
     MediaQuery.new()
     |> MediaQuery.for_source(source)
-    |> matching_download_criteria_for(source)
-    |> Repo.maybe_limit(limit)
-    |> Repo.all()
-  end
-
-  @doc """
-  Returns a list of downloaded media_items for a given source.
-
-  Returns [%MediaItem{}, ...].
-  """
-  def list_downloaded_media_items_for(%Source{} = source, opts \\ []) do
-    limit = Keyword.get(opts, :limit, nil)
-
-    MediaQuery.new()
-    |> MediaQuery.for_source(source)
-    |> MediaQuery.with_media_filepath()
-    |> Repo.maybe_limit(limit)
+    |> MediaQuery.with_media_pending_download()
     |> Repo.all()
   end
 
@@ -87,7 +67,7 @@ defmodule Pinchflat.Media do
 
     MediaQuery.new()
     |> MediaQuery.with_id(media_item.id)
-    |> matching_download_criteria_for(media_item.source)
+    |> MediaQuery.with_media_pending_download()
     |> Repo.exists?()
   end
 
@@ -233,14 +213,5 @@ defmodule Pinchflat.Media do
     |> Enum.map(fn field -> mapped_struct[field] end)
     |> Enum.filter(&is_binary/1)
     |> Enum.each(&FilesystemHelpers.delete_file_and_remove_empty_directories/1)
-  end
-
-  defp matching_download_criteria_for(query, source_with_preloads) do
-    query
-    |> MediaQuery.with_no_prevented_download()
-    |> MediaQuery.with_no_media_filepath()
-    |> MediaQuery.with_upload_date_after(source_with_preloads.download_cutoff_date)
-    |> MediaQuery.with_format_preference(source_with_preloads.media_profile)
-    |> MediaQuery.matching_title_regex(source_with_preloads.title_filter_regex)
   end
 end

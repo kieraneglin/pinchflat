@@ -50,7 +50,7 @@
         </div>
       </:tab>
       <:tab title="Sources">
-        <.table rows={@media_profile.sources} table_class="text-black dark:text-white">
+        <.table rows={@sources} table_class="text-black dark:text-white">
           <:col :let={source} label="Name">
             <.subtle_link href={~p"/sources/#{source.id}"}>
               <%= source.custom_name || source.collection_name %>

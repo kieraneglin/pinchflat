@@ -1,12 +1,19 @@
 defmodule PinchflatWeb.MediaProfiles.MediaProfileController do
   use PinchflatWeb, :controller
 
+  import Ecto.Query, warn: false
+
   alias Pinchflat.Repo
   alias Pinchflat.Profiles
+  alias Pinchflat.Sources.SourcesQuery
   alias Pinchflat.Profiles.MediaProfile
 
   def index(conn, _params) do
-    media_profiles = Profiles.list_media_profiles()
+    media_profiles =
+      MediaProfile
+      |> order_by(asc: :name)
+      |> Repo.all()
+
     render(conn, :index, media_profiles: media_profiles)
   end
 
@@ -32,12 +39,15 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileController do
   end
 
   def show(conn, %{"id" => id}) do
-    media_profile =
-      id
-      |> Profiles.get_media_profile!()
-      |> Repo.preload(:sources)
+    media_profile = Profiles.get_media_profile!(id)
 
-    render(conn, :show, media_profile: media_profile)
+    sources =
+      SourcesQuery.new()
+      |> SourcesQuery.for_media_profile(media_profile)
+      |> order_by(asc: :custom_name)
+      |> Repo.all()
+
+    render(conn, :show, media_profile: media_profile, sources: sources)
   end
 
   def edit(conn, %{"id" => id}) do

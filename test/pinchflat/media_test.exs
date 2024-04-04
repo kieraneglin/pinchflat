@@ -149,14 +149,6 @@ defmodule Pinchflat.MediaTest do
 
       assert Media.list_pending_media_items_for(source) == []
     end
-
-    test "optionally accepts a limit" do
-      source = source_fixture()
-      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil})
-
-      assert Media.list_pending_media_items_for(source, limit: 1) == [media_item]
-      assert Media.list_pending_media_items_for(source, limit: 0) == []
-    end
   end
 
   describe "list_pending_media_items_for/1 when testing shorts" do
@@ -332,25 +324,6 @@ defmodule Pinchflat.MediaTest do
       media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, prevent_download: false})
 
       assert Media.list_pending_media_items_for(source) == [media_item]
-    end
-  end
-
-  describe "list_downloaded_media_items_for/1" do
-    test "returns only media items with a media_filepath" do
-      source = source_fixture()
-      _media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil})
-      media_item = media_item_fixture(%{source_id: source.id, media_filepath: "/video/#{Faker.File.file_name(:video)}"})
-
-      assert Media.list_downloaded_media_items_for(source) == [media_item]
-    end
-
-    test "optionally accepts a limit" do
-      source = source_fixture()
-      _media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil})
-      media_item = media_item_fixture(%{source_id: source.id, media_filepath: "/video/#{Faker.File.file_name(:video)}"})
-
-      assert Media.list_downloaded_media_items_for(source, limit: 1) == [media_item]
-      assert Media.list_downloaded_media_items_for(source, limit: 0) == []
     end
   end
 
