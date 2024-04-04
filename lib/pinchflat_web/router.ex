@@ -27,11 +27,10 @@ defmodule PinchflatWeb.Router do
     pipe_through :browser
 
     get "/", Pages.PageController, :home
-    get "/settings", Settings.SettingController, :edit
-    resources "/settings", Settings.SettingController, only: [:update], singleton: true
 
     resources "/media_profiles", MediaProfiles.MediaProfileController
     resources "/search", Searches.SearchController, only: [:show], singleton: true
+    resources "/settings", Settings.SettingController, only: [:show, :update], singleton: true
 
     resources "/sources", Sources.SourceController do
       post "/force_download", Sources.SourceController, :force_download

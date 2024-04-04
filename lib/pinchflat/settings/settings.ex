@@ -21,6 +21,18 @@ defmodule Pinchflat.Settings do
   end
 
   @doc """
+  Updates the setting record.
+
+  Returns {:ok, %Setting{}} | {:error, %Ecto.Changeset{}}
+  """
+  # TODO: test
+  def update_setting(%Setting{} = setting, attrs) do
+    setting
+    |> Setting.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
   Updates a setting, returning the new value.
   Is setup to take a keyword list argument so you
   can call it like `Settings.set(onboarding: true)`
@@ -29,8 +41,7 @@ defmodule Pinchflat.Settings do
   """
   def set([{attr, value}]) do
     record()
-    |> Setting.changeset(%{attr => value})
-    |> Repo.update()
+    |> update_setting(%{attr => value})
     |> case do
       {:ok, %{^attr => _}} -> {:ok, value}
       {:ok, _} -> {:error, :invalid_key}
@@ -60,5 +71,13 @@ defmodule Pinchflat.Settings do
       {:ok, value} -> value
       {:error, _} -> raise "Setting `#{name}` not found"
     end
+  end
+
+  @doc """
+  Returns `%Ecto.Changeset{}`
+  """
+  # TODO: test
+  def change_setting(%Setting{} = setting, attrs \\ %{}) do
+    Setting.changeset(setting, attrs)
   end
 end

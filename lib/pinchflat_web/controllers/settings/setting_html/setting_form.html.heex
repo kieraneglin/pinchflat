@@ -1,0 +1,13 @@
+<.simple_form :let={f} for={@changeset} action={@action}>
+  <.error :if={@changeset.action}>
+    Oops, something went wrong! Please check the errors below.
+  </.error>
+
+  <h3 class="mt-8 text-2xl text-black dark:text-white">
+    TODO TEXT
+  </h3>
+
+  <.input field={f[:pro_enabled]} type="toggle" label="Pro Enabled" help="Just for testing" />
+
+  <.button class="my-10 sm:mb-7.5 w-full sm:w-auto" rounding="rounded-lg">Save Settings</.button>
+</.simple_form>
