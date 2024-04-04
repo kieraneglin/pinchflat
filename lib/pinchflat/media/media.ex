@@ -39,10 +39,9 @@ defmodule Pinchflat.Media do
   @doc """
   Returns a list of pending media_items for a given source, where
   pending means the `media_filepath` is `nil` AND the media_item
-  matches the format selection rules of the parent media_profile.
-
-  See `where_pending` but tl;dr is it _may_ filter based
-  on shorts livestreams depending on the media_profile settings.
+  matches satisfies `MediaQuery.with_media_pending_download`. You
+  should really check out that function if you need to know more
+  because it has a lot going on.
 
   Returns [%MediaItem{}, ...].
   """
