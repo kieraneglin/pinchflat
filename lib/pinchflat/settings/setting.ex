@@ -1,4 +1,8 @@
 defmodule Pinchflat.Settings.Setting do
+  @moduledoc """
+  The Setting schema.
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
 
