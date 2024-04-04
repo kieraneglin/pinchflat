@@ -1,4 +1,4 @@
-defmodule Pinchflat.Settings.Setting do
+defmodule Pinchflat.SettingsBackup.SettingBackup do
   @moduledoc """
   A Setting is a key-value pair with a datatype used to track user-level settings.
   """
@@ -6,7 +6,7 @@ defmodule Pinchflat.Settings.Setting do
   use Ecto.Schema
   import Ecto.Changeset
 
-  schema "settings" do
+  schema "settings_backup" do
     field :name, :string
     field :value, :string
     field :datatype, Ecto.Enum, values: ~w(boolean string integer float)a

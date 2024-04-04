@@ -1,4 +1,4 @@
-defmodule Pinchflat.Repo.Migrations.CreateSettings do
+defmodule Pinchflat.Repo.Migrations.CreateSettingsBackup do
   use Ecto.Migration
 
   def change do

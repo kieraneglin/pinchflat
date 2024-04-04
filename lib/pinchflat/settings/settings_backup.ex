@@ -1,20 +1,20 @@
-defmodule Pinchflat.Settings do
+defmodule Pinchflat.SettingsBackup do
   @moduledoc """
-  The Settings context.
+  The SettingsBackup context.
   """
 
   import Ecto.Query, warn: false
   alias Pinchflat.Repo
 
-  alias Pinchflat.Settings.Setting
+  alias Pinchflat.SettingsBackup.SettingBackup
 
   @doc """
   Returns the list of settings.
 
-  Returns [%Setting{}, ...]
+  Returns [%SettingBackup{}, ...]
   """
   def list_settings do
-    Repo.all(Setting)
+    Repo.all(SettingBackup)
   end
 
   @doc """
@@ -30,7 +30,7 @@ defmodule Pinchflat.Settings do
 
   def set!(name, value, datatype) do
     # Only create if doesn't exist
-    case Repo.get_by(Setting, name: to_string(name)) do
+    case Repo.get_by(SettingBackup, name: to_string(name)) do
       nil -> create_setting!(name, value, datatype)
       setting -> update_setting!(setting, value, datatype)
     end
@@ -42,7 +42,7 @@ defmodule Pinchflat.Settings do
   Returns value in type of `Ecto.Enum.mappings(Setting, :datatype)`
   """
   def get!(name) do
-    Setting
+    SettingBackup
     |> Repo.get_by!(name: to_string(name))
     |> read_setting()
   end
@@ -59,18 +59,18 @@ defmodule Pinchflat.Settings do
   end
 
   def fetch!(name, value, datatype) do
-    case Repo.get_by(Setting, name: to_string(name)) do
+    case Repo.get_by(SettingBackup, name: to_string(name)) do
       nil -> create_setting!(name, value, datatype)
       setting -> read_setting(setting)
     end
   end
 
   defp change_setting(setting, attrs) do
-    Setting.changeset(setting, attrs)
+    SettingBackup.changeset(setting, attrs)
   end
 
   defp create_setting!(name, value, datatype) do
-    %Setting{}
+    %SettingBackup{}
     |> change_setting(%{name: to_string(name), value: to_string(value), datatype: datatype})
     |> Repo.insert!()
     |> read_setting()

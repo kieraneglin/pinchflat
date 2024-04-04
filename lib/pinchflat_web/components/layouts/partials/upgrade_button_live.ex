@@ -30,7 +30,7 @@ defmodule Pinchflat.UpgradeButtonLive do
       |> String.downcase()
 
     if normalized_text == "got it!" do
-      Settings.set!(:pro_enabled, true)
+      SettingsBackup.set!(:pro_enabled, true)
 
       {:noreply, update(socket, :button_disabled, fn _ -> false end)}
     else

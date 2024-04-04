@@ -7,13 +7,13 @@ defmodule PinchflatWeb.SourceControllerTest do
   import Pinchflat.ProfilesFixtures
 
   alias Pinchflat.Repo
-  alias Pinchflat.Settings
+  alias Pinchflat.SettingsBackup
   alias Pinchflat.Downloading.MediaDownloadWorker
   alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
 
   setup do
     media_profile = media_profile_fixture()
-    Settings.set!(:onboarding, false)
+    SettingsBackup.set!(:onboarding, false)
 
     {
       :ok,
@@ -47,7 +47,7 @@ defmodule PinchflatWeb.SourceControllerTest do
     end
 
     test "renders correct layout when onboarding", %{conn: conn} do
-      Settings.set!(:onboarding, true)
+      SettingsBackup.set!(:onboarding, true)
       conn = get(conn, ~p"/sources/new")
 
       refute html_response(conn, 200) =~ "MENU"
@@ -74,14 +74,14 @@ defmodule PinchflatWeb.SourceControllerTest do
     test "redirects to onboarding when onboarding", %{conn: conn, create_attrs: create_attrs} do
       expect(YtDlpRunnerMock, :run, 1, &runner_function_mock/3)
 
-      Settings.set!(:onboarding, true)
+      SettingsBackup.set!(:onboarding, true)
       conn = post(conn, ~p"/sources", source: create_attrs)
 
       assert redirected_to(conn) == ~p"/?onboarding=1"
     end
 
     test "renders correct layout on error when onboarding", %{conn: conn, invalid_attrs: invalid_attrs} do
-      Settings.set!(:onboarding, true)
+      SettingsBackup.set!(:onboarding, true)
       conn = post(conn, ~p"/sources", source: invalid_attrs)
 
       refute html_response(conn, 200) =~ "MENU"
