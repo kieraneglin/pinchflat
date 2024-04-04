@@ -27,7 +27,7 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileController do
     case Profiles.create_media_profile(media_profile_params) do
       {:ok, media_profile} ->
         redirect_location =
-          if SettingsBackup.get!(:onboarding), do: ~p"/?onboarding=1", else: ~p"/media_profiles/#{media_profile}"
+          if Settings.get!(:onboarding), do: ~p"/?onboarding=1", else: ~p"/media_profiles/#{media_profile}"
 
         conn
         |> put_flash(:info, "Media profile created successfully.")
@@ -89,7 +89,7 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileController do
   end
 
   defp get_onboarding_layout do
-    if SettingsBackup.get!(:onboarding) do
+    if Settings.get!(:onboarding) do
       {Layouts, :onboarding}
     else
       {Layouts, :app}

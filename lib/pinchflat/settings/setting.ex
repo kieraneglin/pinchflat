@@ -14,7 +14,7 @@ defmodule Pinchflat.Settings.Setting do
   )a
 
   schema "settings" do
-    field :onboarding, :boolean, default: false
+    field :onboarding, :boolean, default: true
     field :pro_enabled, :boolean, default: false
     field :yt_dlp_version, :string
   end

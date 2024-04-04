@@ -11,7 +11,7 @@ alias Pinchflat.Tasks
 alias Pinchflat.Media
 alias Pinchflat.Profiles
 alias Pinchflat.Sources
-alias Pinchflat.SettingsBackup
+alias Pinchflat.Settings
 
 alias Pinchflat.Downloading.MediaDownloader
 alias Pinchflat.YtDlp.Media, as: YtDlpMedia

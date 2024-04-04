@@ -13,7 +13,7 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
   require Logger
 
   alias Pinchflat.Repo
-  alias Pinchflat.SettingsBackup
+  alias Pinchflat.Settings
   alias Pinchflat.YtDlp.CommandRunner
   alias Pinchflat.Filesystem.FilesystemHelpers
 
@@ -65,8 +65,6 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
   defp apply_default_settings do
     {:ok, yt_dlp_version} = CommandRunner.version()
 
-    SettingsBackup.fetch!(:onboarding, true)
-    SettingsBackup.fetch!(:pro_enabled, false)
-    SettingsBackup.set!(:yt_dlp_version, yt_dlp_version)
+    Settings.set(yt_dlp_version: yt_dlp_version)
   end
 end

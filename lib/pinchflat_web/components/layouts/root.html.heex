@@ -15,8 +15,8 @@
   <body
     x-data={"{ 
       sidebarVisible: false,
-      proEnabled: #{SettingsBackup.get!(:pro_enabled)},
-      onboarding: #{SettingsBackup.get!(:onboarding)}
+      proEnabled: #{Settings.get!(:pro_enabled)},
+      onboarding: #{Settings.get!(:onboarding)}
     }"}
     class="dark text-bodydark bg-boxdark-2"
   >

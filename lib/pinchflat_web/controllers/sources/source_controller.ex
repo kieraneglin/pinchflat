@@ -37,7 +37,7 @@ defmodule PinchflatWeb.Sources.SourceController do
     case Sources.create_source(source_params) do
       {:ok, source} ->
         redirect_location =
-          if SettingsBackup.get!(:onboarding), do: ~p"/?onboarding=1", else: ~p"/sources/#{source}"
+          if Settings.get!(:onboarding), do: ~p"/?onboarding=1", else: ~p"/sources/#{source}"
 
         conn
         |> put_flash(:info, "Source created successfully.")
@@ -159,7 +159,7 @@ defmodule PinchflatWeb.Sources.SourceController do
   end
 
   defp get_onboarding_layout do
-    if SettingsBackup.get!(:onboarding) do
+    if Settings.get!(:onboarding) do
       {Layouts, :onboarding}
     else
       {Layouts, :app}

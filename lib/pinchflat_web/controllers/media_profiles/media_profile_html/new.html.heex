@@ -1,5 +1,5 @@
 <div class="mb-6 flex gap-3 flex-row items-center">
-  <.link :if={!SettingsBackup.get!(:onboarding)} href={~p"/media_profiles"}>
+  <.link :if={!Settings.get!(:onboarding)} href={~p"/media_profiles"}>
     <.icon name="hero-arrow-left" class="w-10 h-10 hover:dark:text-white" />
   </.link>
   <h2 class="text-title-md2 font-bold text-black dark:text-white ml-4">New Media Profile</h2>

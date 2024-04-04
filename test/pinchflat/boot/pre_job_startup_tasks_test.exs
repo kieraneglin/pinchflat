@@ -1,25 +1,24 @@
 defmodule Pinchflat.Boot.PreJobStartupTasksTest do
   use Pinchflat.DataCase
 
-  alias Pinchflat.SettingsBackup
-  alias Pinchflat.SettingsBackup.SettingBackup
+  alias Pinchflat.Settings
   alias Pinchflat.Boot.PreJobStartupTasks
+
+  # TODO: write tests for things like cookie file creation
 
   describe "apply_default_settings" do
     setup do
-      Repo.delete_all(SettingBackup)
+      Settings.set(yt_dlp_version: nil)
 
       :ok
     end
 
     test "sets default settings" do
-      assert_raise Ecto.NoResultsError, fn -> SettingsBackup.get!(:onboarding) end
-      assert_raise Ecto.NoResultsError, fn -> SettingsBackup.get!(:pro_enabled) end
+      assert Settings.get!(:yt_dlp_version) == nil
 
       PreJobStartupTasks.start_link()
 
-      assert SettingsBackup.get!(:onboarding)
-      refute SettingsBackup.get!(:pro_enabled)
+      assert Settings.get!(:yt_dlp_version)
     end
   end
 end
