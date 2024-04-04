@@ -2,7 +2,7 @@ defmodule PinchflatWeb.Podcasts.PodcastController do
   use PinchflatWeb, :controller
 
   alias Pinchflat.Repo
-  alias Pinchflat.Media
+  alias Pinchflat.Media.MediaQuery
   alias Pinchflat.Sources.Source
   alias Pinchflat.Podcasts.RssFeedBuilder
   alias Pinchflat.Podcasts.PodcastHelpers
@@ -20,10 +20,15 @@ defmodule PinchflatWeb.Podcasts.PodcastController do
 
   def feed_image(conn, %{"uuid" => uuid}) do
     source = Repo.get_by!(Source, uuid: uuid)
-    # This provides a fallback image if the source has none.
-    # We only need one since we're using the internal metadata image which
-    # we know exists.
-    media_items = Media.list_downloaded_media_items_for(source, limit: 1)
+
+    # This is used to fetch a fallback cover image
+    # if the source doesn't have any usable images
+    media_items =
+      MediaQuery.new()
+      |> MediaQuery.for_source(source)
+      |> MediaQuery.with_media_filepath()
+      |> Repo.maybe_limit(1)
+      |> Repo.all()
 
     case PodcastHelpers.select_cover_image(source, media_items) do
       {:error, _} ->

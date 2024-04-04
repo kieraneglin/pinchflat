@@ -4,10 +4,8 @@ defmodule PinchflatWeb.Sources.SourceController do
   import Ecto.Query, warn: false
 
   alias Pinchflat.Repo
-  alias Pinchflat.Media
   alias Pinchflat.Tasks
   alias Pinchflat.Sources
-  alias Pinchflat.Profiles
   alias Pinchflat.MediaQuery
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaQuery
@@ -63,8 +61,9 @@ defmodule PinchflatWeb.Sources.SourceController do
       |> Repo.preload(:job)
 
     pending_media =
-      source
-      |> Media.pending_media_items_for()
+      MediaQuery.new()
+      |> MediaQuery.for_source(source)
+      |> MediaQuery.with_media_pending_download()
       |> order_by(desc: :id)
       |> limit(100)
       |> Repo.all()
