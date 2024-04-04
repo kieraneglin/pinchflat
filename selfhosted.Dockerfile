@@ -108,6 +108,17 @@ EXPOSE ${PORT}
 # Only copy the final release from the build stage
 COPY --from=builder /app/_build/${MIX_ENV}/rel/pinchflat ./
 
+# NEVER do this if you're running in an environment where you don't trust the user
+# (ie: most environments). This is only acceptable in a self-hosted environment.
+# The user could just run the whole container as root and bypass this anyway so
+# it's not a huge deal.
+# This removes the root password to allow users to assume root if needed. This is
+# preferrable to running the whole container as root so that the files/directories
+# created by the app aren't owned by root and are therefore easier for other users
+# and processes to interact with. If you want to just run the whole container as
+# root, use --user 0:0 or something.
+RUN passwd -d root
+
 # If using an environment that doesn't automatically reap zombie processes, it is
 # advised to add an init process such as tini via `apt-get install`
 # above and adding an entrypoint. See https://github.com/krallin/tini for details
