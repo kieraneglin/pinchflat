@@ -7,9 +7,9 @@ defmodule Pinchflat.YtDlp.CommandRunner do
 
   alias Pinchflat.Utils.StringUtils
   alias Pinchflat.Filesystem.FilesystemHelpers, as: FSUtils
-  alias Pinchflat.YtDlp.BackendCommandRunner
+  alias Pinchflat.YtDlp.YtDlpCommandRunner
 
-  @behaviour BackendCommandRunner
+  @behaviour YtDlpCommandRunner
 
   @doc """
   Runs a yt-dlp command and returns the string output. Saves the output to
@@ -23,7 +23,7 @@ defmodule Pinchflat.YtDlp.CommandRunner do
 
   Returns {:ok, binary()} | {:error, output, status}.
   """
-  @impl BackendCommandRunner
+  @impl YtDlpCommandRunner
   def run(url, command_opts, output_template, addl_opts \\ []) do
     # This approach lets us mock the command for testing
     command = backend_executable()
@@ -48,7 +48,7 @@ defmodule Pinchflat.YtDlp.CommandRunner do
     end
   end
 
-  @impl BackendCommandRunner
+  @impl YtDlpCommandRunner
   def version do
     command = backend_executable()
 
