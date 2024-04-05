@@ -9,7 +9,8 @@ defmodule Pinchflat.Settings.Setting do
   @allowed_fields [
     :onboarding,
     :pro_enabled,
-    :yt_dlp_version
+    :yt_dlp_version,
+    :apprise_server
   ]
 
   @required_fields ~w(
@@ -21,6 +22,7 @@ defmodule Pinchflat.Settings.Setting do
     field :onboarding, :boolean, default: true
     field :pro_enabled, :boolean, default: false
     field :yt_dlp_version, :string
+    field :apprise_server, :string
   end
 
   @doc false

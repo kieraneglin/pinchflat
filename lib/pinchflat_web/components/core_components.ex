@@ -247,6 +247,7 @@ defmodule PinchflatWeb.CoreComponents do
   attr :label_suffix, :string, default: nil
   attr :value, :any
   attr :help, :string, default: nil
+  attr :html_help, :boolean, default: false
 
   attr :type, :string,
     default: "text",
@@ -298,7 +299,7 @@ defmodule PinchflatWeb.CoreComponents do
         <%= @label %>
         <span :if={@label_suffix} class="text-xs text-bodydark"><%= @label_suffix %></span>
       </label>
-      <.help :if={@help}><%= @help %></.help>
+      <.help :if={@help}><%= if @html_help, do: Phoenix.HTML.raw(@help), else: @help %></.help>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
@@ -325,7 +326,7 @@ defmodule PinchflatWeb.CoreComponents do
           </label>
         </div>
       </section>
-      <.help :if={@help}><%= @help %></.help>
+      <.help :if={@help}><%= if @html_help, do: Phoenix.HTML.raw(@help), else: @help %></.help>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
@@ -356,7 +357,7 @@ defmodule PinchflatWeb.CoreComponents do
           >
           </div>
         </div>
-        <.help :if={@help}><%= @help %></.help>
+        <.help :if={@help}><%= if @html_help, do: Phoenix.HTML.raw(@help), else: @help %></.help>
         <.error :for={msg <- @errors}><%= msg %></.error>
       </div>
     </div>
@@ -387,7 +388,7 @@ defmodule PinchflatWeb.CoreComponents do
         </select>
         <%= render_slot(@inner_block) %>
       </div>
-      <.help :if={@help}><%= @help %></.help>
+      <.help :if={@help}><%= if @html_help, do: Phoenix.HTML.raw(@help), else: @help %></.help>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
@@ -411,7 +412,7 @@ defmodule PinchflatWeb.CoreComponents do
         ]}
         {@rest}
       ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
-      <.help :if={@help}><%= @help %></.help>
+      <.help :if={@help}><%= if @html_help, do: Phoenix.HTML.raw(@help), else: @help %></.help>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
@@ -438,7 +439,7 @@ defmodule PinchflatWeb.CoreComponents do
         ]}
         {@rest}
       />
-      <.help :if={@help}><%= @help %></.help>
+      <.help :if={@help}><%= if @html_help, do: Phoenix.HTML.raw(@help), else: @help %></.help>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """

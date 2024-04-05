@@ -18,7 +18,7 @@ defmodule PinchflatWeb.Settings.SettingController do
     setting = Settings.record()
 
     case Settings.update_setting(setting, setting_params) do
-      {:ok, setting} ->
+      {:ok, _} ->
         conn
         |> put_flash(:info, "Settings updated successfully.")
         |> redirect(to: ~p"/settings")
