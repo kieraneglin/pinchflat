@@ -25,7 +25,6 @@ defmodule Pinchflat.Settings do
 
   Returns {:ok, %Setting{}} | {:error, %Ecto.Changeset{}}
   """
-  # TODO: test
   def update_setting(%Setting{} = setting, attrs) do
     setting
     |> Setting.changeset(attrs)
@@ -76,7 +75,6 @@ defmodule Pinchflat.Settings do
   @doc """
   Returns `%Ecto.Changeset{}`
   """
-  # TODO: test
   def change_setting(%Setting{} = setting, attrs \\ %{}) do
     Setting.changeset(setting, attrs)
   end

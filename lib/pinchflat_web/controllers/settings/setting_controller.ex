@@ -1,12 +1,8 @@
 defmodule PinchflatWeb.Settings.SettingController do
   use PinchflatWeb, :controller
 
-  # import Ecto.Query, warn: false
-
-  # alias Pinchflat.Repo
   alias Pinchflat.Settings
 
-  # TODO: test
   def show(conn, _params) do
     setting = Settings.record()
     changeset = Settings.change_setting(setting)
