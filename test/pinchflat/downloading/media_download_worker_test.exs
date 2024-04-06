@@ -4,6 +4,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
   import Mox
   import Pinchflat.MediaFixtures
 
+  alias Pinchflat.Media
   alias Pinchflat.Sources
   alias Pinchflat.Filesystem.FilesystemHelpers
   alias Pinchflat.Downloading.MediaDownloadWorker
@@ -117,10 +118,19 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
       perform_job(MediaDownloadWorker, %{id: media_item.id})
     end
 
+    test "does not download if the media item is set to not download", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, 0, fn _url, _opts, _ot, _addl -> :ok end)
+
+      Media.update_media_item(media_item, %{prevent_download: true})
+
+      perform_job(MediaDownloadWorker, %{id: media_item.id})
+    end
+
     test "downloads anyway if forced", %{media_item: media_item} do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> :ok end)
 
       Sources.update_source(media_item.source, %{download_media: false})
+      Media.update_media_item(media_item, %{prevent_download: true})
 
       perform_job(MediaDownloadWorker, %{id: media_item.id, force: true})
     end

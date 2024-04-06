@@ -40,8 +40,8 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
       |> Media.get_media_item!()
       |> Repo.preload(:source)
 
-    # If the source is set to not download media, perform a no-op
-    if media_item.source.download_media || args["force"] do
+    # If the source or media item is set to not download media, perform a no-op unless forced
+    if (media_item.source.download_media && !media_item.prevent_download) || args["force"] do
       download_media_and_schedule_jobs(media_item)
     else
       :ok
