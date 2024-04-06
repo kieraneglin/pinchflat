@@ -5,6 +5,8 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
 
   @datetime_format "%a, %d %b %Y %H:%M:%S %z"
 
+  import Pinchflat.Utils.XmlUtils, only: [safe: 1]
+
   alias Pinchflat.Utils.DatetimeUtils
   alias Pinchflat.Podcasts.PodcastHelpers
   alias PinchflatWeb.Router.Helpers, as: Routes
@@ -92,14 +94,6 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
       <itunes:explicit>false</itunes:explicit>
     </item>
     """
-  end
-
-  defp safe(nil), do: ""
-
-  defp safe(value) do
-    value
-    |> Phoenix.HTML.html_escape()
-    |> Phoenix.HTML.safe_to_string()
   end
 
   defp generate_self_link(url_base, source) do
