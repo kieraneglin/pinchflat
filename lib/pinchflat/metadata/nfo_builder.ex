@@ -4,6 +4,8 @@ defmodule Pinchflat.Metadata.NfoBuilder do
   use by Kodi/Jellyfin and other media center software.
   """
 
+  import Pinchflat.Utils.XmlUtils, only: [safe: 1]
+
   alias Pinchflat.Metadata.MetadataFileHelpers
   alias Pinchflat.Filesystem.FilesystemHelpers
 
@@ -42,12 +44,12 @@ defmodule Pinchflat.Metadata.NfoBuilder do
     """
     <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
     <episodedetails>
-      <title>#{metadata["title"]}</title>
-      <showtitle>#{metadata["uploader"]}</showtitle>
-      <uniqueid type="youtube" default="true">#{metadata["id"]}</uniqueid>
-      <plot>#{metadata["description"]}</plot>
-      <aired>#{upload_date}</aired>
-      <season>#{upload_date.year}</season>
+      <title>#{safe(metadata["title"])}</title>
+      <showtitle>#{safe(metadata["uploader"])}</showtitle>
+      <uniqueid type="youtube" default="true">#{safe(metadata["id"])}</uniqueid>
+      <plot>#{safe(metadata["description"])}</plot>
+      <aired>#{safe(upload_date)}</aired>
+      <season>#{safe(upload_date.year)}</season>
       <episode>#{Calendar.strftime(upload_date, "%m%d")}</episode>
       <genre>YouTube</genre>
     </episodedetails>
@@ -58,9 +60,9 @@ defmodule Pinchflat.Metadata.NfoBuilder do
     """
     <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
     <tvshow>
-      <title>#{metadata["title"]}</title>
-      <plot>#{metadata["description"]}</plot>
-      <uniqueid type="youtube" default="true">#{metadata["id"]}</uniqueid>
+      <title>#{safe(metadata["title"])}</title>
+      <plot>#{safe(metadata["description"])}</plot>
+      <uniqueid type="youtube" default="true">#{safe(metadata["id"])}</uniqueid>
       <genre>YouTube</genre>
     </tvshow>
     """
