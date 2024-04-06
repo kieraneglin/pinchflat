@@ -53,14 +53,18 @@ defmodule Pinchflat.Boot.NfoBackfillWorker do
   end
 
   defp regenerate_nfo_for_media_item(media_item) do
-    case MetadataFileHelpers.read_compressed_metadata(media_item.metadata.metadata_filepath) do
-      {:ok, metadata} ->
-        Media.update_media_item(media_item, %{
-          nfo_filepath: NfoBuilder.build_and_store_for_media_item(media_item.nfo_filepath, metadata)
-        })
+    try do
+      case MetadataFileHelpers.read_compressed_metadata(media_item.metadata.metadata_filepath) do
+        {:ok, metadata} ->
+          Media.update_media_item(media_item, %{
+            nfo_filepath: NfoBuilder.build_and_store_for_media_item(media_item.nfo_filepath, metadata)
+          })
 
-      _err ->
-        Logger.error("Failed to read metadata for media item #{media_item.id}")
+        _err ->
+          Logger.error("Failed to read metadata for media item #{media_item.id}")
+      end
+    rescue
+      e -> Logger.error("Unknown error regenerating NFO file for MI ##{media_item.id}: #{inspect(e)}")
     end
   end
 end
