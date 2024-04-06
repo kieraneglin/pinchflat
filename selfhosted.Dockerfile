@@ -79,7 +79,7 @@ ARG PORT=8945
 
 RUN apt-get update -y
 RUN apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates \
-  ffmpeg curl git openssh-client nano
+  ffmpeg curl git openssh-client nano python3 python3-pip
 RUN apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # Download and update YT-DLP
@@ -87,9 +87,11 @@ RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o 
 RUN chmod a+rx /usr/local/bin/yt-dlp
 RUN yt-dlp -U
 
+# Download Apprise
+RUN python3 -m pip install -U apprise --break-system-packages
+
 # Set the locale
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
-
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
