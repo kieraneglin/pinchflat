@@ -58,9 +58,10 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
 
         {:ok, updated_media_item}
 
-      err ->
-        Logger.error("Failed to download media for media item #{media_item.id}: #{inspect(err)}")
+      {:recovered, _} ->
+        {:error, :retry}
 
+      {:error, _message} ->
         {:error, :download_failed}
     end
   end
