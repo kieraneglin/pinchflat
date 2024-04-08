@@ -19,8 +19,8 @@ defmodule Pinchflat.Notifications.SourceNotificationsTest do
         assert servers == @apprise_servers
 
         assert opts == [
-                 title: "[Pinchflat] New media found!",
-                 body: "Found 1 new media item(s) for #{source.custom_name}. Working on downloading them now!"
+                 title: "[Pinchflat] New media found",
+                 body: "Found 1 new media item(s) for #{source.custom_name}. Downloading them now"
                ]
 
         {:ok, ""}
@@ -38,8 +38,8 @@ defmodule Pinchflat.Notifications.SourceNotificationsTest do
         assert servers == @apprise_servers
 
         assert opts == [
-                 title: "[Pinchflat] New media found!",
-                 body: "Found 1 new media item(s) for #{source.custom_name}. Working on downloading them now!"
+                 title: "[Pinchflat] New media found",
+                 body: "Found 1 new media item(s) for #{source.custom_name}. Downloading them now"
                ]
 
         {:ok, ""}
@@ -78,8 +78,8 @@ defmodule Pinchflat.Notifications.SourceNotificationsTest do
         assert servers == @apprise_servers
 
         assert opts == [
-                 title: "[Pinchflat] New media found!",
-                 body: "Found 1 new media item(s) for #{source.custom_name}. Working on downloading them now!"
+                 title: "[Pinchflat] New media found",
+                 body: "Found 1 new media item(s) for #{source.custom_name}. Downloading them now"
                ]
 
         {:ok, ""}
