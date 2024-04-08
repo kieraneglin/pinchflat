@@ -12,7 +12,7 @@ defmodule Pinchflat.Notifications.CommandRunner do
   @behaviour AppriseCommandRunner
 
   @doc """
-  Runs an apprise command and returns the string output (often just "").
+  Runs an apprise command and returns the string output.
   Can take a single server string or a list of servers as well as additional
   arguments to pass to the command.
 
@@ -23,16 +23,18 @@ defmodule Pinchflat.Notifications.CommandRunner do
   def run("", _), do: {:error, :no_servers}
   def run([], _), do: {:error, :no_servers}
 
-  def run(endpoints, args) do
+  def run(endpoints, command_opts) do
     endpoints = List.wrap(endpoints)
-    parsed_args = CliUtils.parse_options(args)
+    default_opts = [:verbose]
+    parsed_opts = CliUtils.parse_options(default_opts ++ command_opts)
 
-    case System.cmd(backend_executable(), parsed_args ++ endpoints) do
-      {output, 0} ->
-        {:ok, String.trim(output)}
+    Logger.info("[apprise] called with: #{Enum.join(parsed_opts ++ endpoints, " ")}")
+    {output, return_code} = System.cmd(backend_executable(), parsed_opts ++ endpoints)
+    Logger.info("[apprise] response: #{output}")
 
-      {output, _} ->
-        {:error, String.trim(output)}
+    case return_code do
+      0 -> {:ok, String.trim(output)}
+      _ -> {:error, String.trim(output)}
     end
   end
 
