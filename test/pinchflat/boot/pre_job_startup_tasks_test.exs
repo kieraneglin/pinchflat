@@ -1,10 +1,18 @@
 defmodule Pinchflat.Boot.PreJobStartupTasksTest do
   use Pinchflat.DataCase
 
+  import Mox
   import Pinchflat.JobFixtures
 
   alias Pinchflat.Settings
   alias Pinchflat.Boot.PreJobStartupTasks
+
+  setup do
+    stub(YtDlpRunnerMock, :version, fn -> {:ok, "1"} end)
+    stub(AppriseRunnerMock, :version, fn -> {:ok, "2"} end)
+
+    :ok
+  end
 
   describe "reset_executing_jobs" do
     test "resets executing jobs" do
@@ -13,7 +21,7 @@ defmodule Pinchflat.Boot.PreJobStartupTasksTest do
 
       assert Repo.reload!(job).state == "executing"
 
-      PreJobStartupTasks.start_link()
+      PreJobStartupTasks.init(%{})
 
       assert Repo.reload!(job).state == "retryable"
     end
@@ -27,21 +35,31 @@ defmodule Pinchflat.Boot.PreJobStartupTasksTest do
 
       refute File.exists?(filepath)
 
-      PreJobStartupTasks.start_link()
+      PreJobStartupTasks.init(%{})
 
       assert File.exists?(filepath)
     end
   end
 
   describe "apply_default_settings" do
-    test "sets default settings" do
+    test "sets yt_dlp version" do
       Settings.set(yt_dlp_version: nil)
 
       refute Settings.get!(:yt_dlp_version)
 
-      PreJobStartupTasks.start_link()
+      PreJobStartupTasks.init(%{})
 
       assert Settings.get!(:yt_dlp_version)
+    end
+
+    test "sets apprise version" do
+      Settings.set(apprise_version: nil)
+
+      refute Settings.get!(:apprise_version)
+
+      PreJobStartupTasks.init(%{})
+
+      assert Settings.get!(:apprise_version)
     end
   end
 end

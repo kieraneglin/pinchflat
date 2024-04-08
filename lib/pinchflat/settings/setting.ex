@@ -10,6 +10,7 @@ defmodule Pinchflat.Settings.Setting do
     :onboarding,
     :pro_enabled,
     :yt_dlp_version,
+    :apprise_version,
     :apprise_server
   ]
 
@@ -22,6 +23,7 @@ defmodule Pinchflat.Settings.Setting do
     field :onboarding, :boolean, default: true
     field :pro_enabled, :boolean, default: false
     field :yt_dlp_version, :string
+    field :apprise_version, :string
     field :apprise_server, :string
   end
 

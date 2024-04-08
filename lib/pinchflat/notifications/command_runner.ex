@@ -5,16 +5,39 @@ defmodule Pinchflat.Notifications.CommandRunner do
 
   require Logger
 
+  alias Pinchflat.Utils.CliUtils
   alias Pinchflat.Utils.FunctionUtils
+  alias Pinchflat.Notifications.AppriseCommandRunner
+
+  @behaviour AppriseCommandRunner
 
   @doc """
-  # TODO
+  Runs an apprise command and returns the string output (often just "").
+  Can take a single server string or a list of servers as well as additional
+  arguments to pass to the command.
+
+  Returns {:ok, binary()} | {:error, binary()}.
   """
-  def run() do
+  @impl AppriseCommandRunner
+  def run(endpoints, args) do
+    endpoints = List.wrap(endpoints)
+    parsed_args = CliUtils.parse_options(args)
+
+    case System.cmd(backend_executable(), parsed_args ++ endpoints) do
+      {output, 0} ->
+        {:ok, String.trim(output)}
+
+      {output, _} ->
+        {:error, String.trim(output)}
+    end
   end
 
-  # TODO: test
-  # TODO: add behaviour
+  @doc """
+  Returns the version of apprise as a string.
+
+  Returns {:ok, binary()} | {:error, binary()}
+  """
+  @impl AppriseCommandRunner
   def version do
     case System.cmd(backend_executable(), ["--version"]) do
       {output, 0} ->
