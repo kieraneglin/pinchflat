@@ -35,10 +35,10 @@ defmodule Pinchflat.YtDlp.Media do
 
   Returns {:ok, map()} | {:error, any, ...}.
   """
-  def download(url, command_opts \\ []) do
+  def download(url, command_opts \\ [], addl_opts \\ []) do
     opts = [:no_simulate] ++ command_opts
 
-    with {:ok, output} <- backend_runner().run(url, opts, "after_move:%()j"),
+    with {:ok, output} <- backend_runner().run(url, opts, "after_move:%()j", addl_opts),
          {:ok, parsed_json} <- Phoenix.json_library().decode(output) do
       {:ok, parsed_json}
     else

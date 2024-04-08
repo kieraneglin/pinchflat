@@ -29,7 +29,7 @@ defmodule Pinchflat.YtDlp.CommandRunner do
     command = backend_executable()
     # These must stay in exactly this order, hence why I'm giving it its own variable.
     # Also, can't use RAM file since yt-dlp needs a concrete filepath.
-    output_filepath = Keyword.get(addl_opts, :output_filepath, FSUtils.generate_metadata_tmpfile(:json))
+    output_filepath = generate_output_filepath(addl_opts)
     print_to_file_opts = [{:print_to_file, output_template}, output_filepath]
     cookie_opts = build_cookie_options()
     formatted_command_opts = [url] ++ parse_options(command_opts ++ print_to_file_opts ++ cookie_opts)
@@ -58,6 +58,13 @@ defmodule Pinchflat.YtDlp.CommandRunner do
 
       {output, _} ->
         {:error, output}
+    end
+  end
+
+  defp generate_output_filepath(addl_opts) do
+    case Keyword.get(addl_opts, :output_filepath) do
+      nil -> FSUtils.generate_metadata_tmpfile(:json)
+      path -> path
     end
   end
 

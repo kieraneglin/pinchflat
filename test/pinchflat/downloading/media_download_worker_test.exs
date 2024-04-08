@@ -4,6 +4,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
   import Mox
   import Pinchflat.MediaFixtures
 
+  alias Pinchflat.Media
   alias Pinchflat.Sources
   alias Pinchflat.Filesystem.FilesystemHelpers
   alias Pinchflat.Downloading.MediaDownloadWorker
@@ -55,7 +56,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
 
   describe "perform/1" do
     test "it saves attributes to the media_item", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
         {:ok, render_metadata(:media_metadata)}
       end)
 
@@ -65,7 +66,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
     end
 
     test "it saves the metadata to the media_item", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
         {:ok, render_metadata(:media_metadata)}
       end)
 
@@ -82,7 +83,19 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
     end
 
     test "it sets the job to retryable if the download fails", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:error, "error"} end)
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> {:error, "error"} end)
+
+      Oban.Testing.with_testing_mode(:inline, fn ->
+        {:ok, job} = Oban.insert(MediaDownloadWorker.new(%{id: media_item.id}))
+
+        assert job.state == "retryable"
+      end)
+    end
+
+    test "sets the job to retryable if the download failed and was retried", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+        {:error, "Unable to communicate with SponsorBlock", 1}
+      end)
 
       Oban.Testing.with_testing_mode(:inline, fn ->
         {:ok, job} = Oban.insert(MediaDownloadWorker.new(%{id: media_item.id}))
@@ -92,29 +105,38 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
     end
 
     test "it ensures error are returned in a 2-item tuple", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:error, "error", 1} end)
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> {:error, "error", 1} end)
 
       assert {:error, :download_failed} = perform_job(MediaDownloadWorker, %{id: media_item.id})
     end
 
     test "it does not download if the source is set to not download", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, 0, fn _url, _opts, _ot -> :ok end)
+      expect(YtDlpRunnerMock, :run, 0, fn _url, _opts, _ot, _addl -> :ok end)
 
       Sources.update_source(media_item.source, %{download_media: false})
 
       perform_job(MediaDownloadWorker, %{id: media_item.id})
     end
 
+    test "does not download if the media item is set to not download", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, 0, fn _url, _opts, _ot, _addl -> :ok end)
+
+      Media.update_media_item(media_item, %{prevent_download: true})
+
+      perform_job(MediaDownloadWorker, %{id: media_item.id})
+    end
+
     test "downloads anyway if forced", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> :ok end)
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> :ok end)
 
       Sources.update_source(media_item.source, %{download_media: false})
+      Media.update_media_item(media_item, %{prevent_download: true})
 
       perform_job(MediaDownloadWorker, %{id: media_item.id, force: true})
     end
 
     test "it saves the file's size to the database", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
         metadata = render_parsed_metadata(:media_metadata)
         FilesystemHelpers.write_p!(metadata["filepath"], "test")
 

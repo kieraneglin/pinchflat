@@ -40,8 +40,8 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
       |> Media.get_media_item!()
       |> Repo.preload(:source)
 
-    # If the source is set to not download media, perform a no-op
-    if media_item.source.download_media || args["force"] do
+    # If the source or media item is set to not download media, perform a no-op unless forced
+    if (media_item.source.download_media && !media_item.prevent_download) || args["force"] do
       download_media_and_schedule_jobs(media_item)
     else
       :ok
@@ -58,9 +58,10 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
 
         {:ok, updated_media_item}
 
-      err ->
-        Logger.error("Failed to download media for media item #{media_item.id}: #{inspect(err)}")
+      {:recovered, _} ->
+        {:error, :retry}
 
+      {:error, _message} ->
         {:error, :download_failed}
     end
   end

@@ -25,9 +25,11 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
 
   describe "download_for_media_item/3" do
     test "it calls the backend runner", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn url, _opts, ot ->
+      expect(YtDlpRunnerMock, :run, fn url, _opts, ot, addl ->
         assert url == media_item.original_url
         assert ot == "after_move:%()j"
+        assert [{:output_filepath, filepath}] = addl
+        assert is_binary(filepath)
 
         {:ok, render_metadata(:media_metadata)}
       end)
@@ -36,7 +38,7 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
     end
 
     test "it saves the metadata filepath to the database", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
         {:ok, render_metadata(:media_metadata)}
       end)
 
@@ -47,18 +49,56 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
       assert updated_media_item.metadata.thumbnail_filepath =~ "media_items/#{media_item.id}/maxresdefault.jpg"
     end
 
-    test "errors are passed through", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
-        {:error, :some_error}
+    test "non-recoverable errors are passed through", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+        {:error, :some_error, 1}
       end)
 
       assert {:error, :some_error} = MediaDownloader.download_for_media_item(media_item)
+    end
+
+    test "unknown errors are passed through", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+        {:error, :some_error}
+      end)
+
+      assert {:error, message} = MediaDownloader.download_for_media_item(media_item)
+      assert message == "Unknown error: {:error, :some_error}"
+    end
+  end
+
+  describe "download_for_media_item/3 when testing retries" do
+    test "returns a recovered tuple on recoverable errors", %{media_item: media_item} do
+      message = "Unable to communicate with SponsorBlock"
+
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+        {:error, message, 1}
+      end)
+
+      assert {:recovered, ^message} = MediaDownloader.download_for_media_item(media_item)
+    end
+
+    test "attempts to update the media item on recoverable errors", %{media_item: media_item} do
+      message = "Unable to communicate with SponsorBlock"
+
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl ->
+        [{:output_filepath, filepath}] = addl
+        File.write(filepath, render_metadata(:media_metadata))
+
+        {:error, message, 1}
+      end)
+
+      assert {:recovered, ^message} = MediaDownloader.download_for_media_item(media_item)
+      media_item = Repo.reload(media_item)
+
+      assert DateTime.diff(DateTime.utc_now(), media_item.media_downloaded_at) < 2
+      assert String.ends_with?(media_item.media_filepath, ".mkv")
     end
   end
 
   describe "download_for_media_item/3 when testing media_item attributes" do
     setup do
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
         {:ok, render_metadata(:media_metadata)}
       end)
 
@@ -100,7 +140,7 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
     end
 
     test "it extracts the thumbnail_filepath", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
         metadata = render_parsed_metadata(:media_metadata)
 
         thumbnail_filepath =
@@ -124,7 +164,7 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
     end
 
     test "it extracts the metadata_filepath", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
         metadata = render_parsed_metadata(:media_metadata)
 
         infojson_filepath = metadata["infojson_filename"]
@@ -143,7 +183,7 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
 
   describe "download_for_media_item/3 when testing NFO generation" do
     setup do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
         {:ok, render_metadata(:media_metadata)}
       end)
 
