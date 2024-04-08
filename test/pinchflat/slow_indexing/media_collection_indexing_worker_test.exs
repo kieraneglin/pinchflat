@@ -7,6 +7,7 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorkerTest do
   import Pinchflat.SourcesFixtures
 
   alias Pinchflat.Tasks
+  alias Pinchflat.Settings
   alias Pinchflat.Sources.Source
   alias Pinchflat.FastIndexing.FastIndexingWorker
   alias Pinchflat.Downloading.MediaDownloadWorker
@@ -51,6 +52,12 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorkerTest do
   end
 
   describe "perform/1" do
+    setup do
+      stub(AppriseRunnerMock, :run, fn _, _ -> {:ok, ""} end)
+
+      :ok
+    end
+
     test "it indexes the source if it should be indexed" do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:ok, ""} end)
 
@@ -208,6 +215,32 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorkerTest do
 
     test "does not blow up if the record doesn't exist" do
       assert :ok = perform_job(MediaCollectionIndexingWorker, %{id: 0})
+    end
+  end
+
+  describe "perform/1 when testing apprise notifications" do
+    setup do
+      Settings.set(apprise_server: "server_1")
+
+      :ok
+    end
+
+    test "sends a notification if new media was found" do
+      source = source_fixture()
+
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts ->
+        {:ok, source_attributes_return_fixture()}
+      end)
+
+      expect(AppriseRunnerMock, :run, fn servers, opts ->
+        assert "server_1" = servers
+        assert is_binary(Keyword.get(opts, :title))
+        assert is_binary(Keyword.get(opts, :body))
+
+        {:ok, ""}
+      end)
+
+      perform_job(MediaCollectionIndexingWorker, %{id: source.id})
     end
   end
 end

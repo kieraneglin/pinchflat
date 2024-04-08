@@ -11,9 +11,11 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorker do
   alias __MODULE__
   alias Pinchflat.Tasks
   alias Pinchflat.Sources
+  alias Pinchflat.Settings
   alias Pinchflat.Sources.Source
   alias Pinchflat.FastIndexing.FastIndexingWorker
   alias Pinchflat.SlowIndexing.SlowIndexingHelpers
+  alias Pinchflat.Notifications.SourceNotifications
 
   @doc """
   Starts the source slow indexing worker and creates a task for the source.
@@ -78,21 +80,21 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorker do
     case {source.index_frequency_minutes, source.last_indexed_at} do
       {index_freq, _} when index_freq > 0 ->
         # If the indexing is on a schedule simply run indexing and reschedule
-        SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
+        perform_indexing_and_notification(source)
         maybe_enqueue_fast_indexing_task(source)
         reschedule_indexing(source)
 
       {_, nil} ->
         # If the source has never been indexed, index it once
         # even if it's not meant to reschedule
-        SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
+        perform_indexing_and_notification(source)
         :ok
 
       _ ->
         # If the source HAS been indexed and is not meant to reschedule,
         # perform a no-op (unless forced)
         if args["force"] do
-          SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
+          perform_indexing_and_notification(source)
         end
 
         :ok
@@ -100,6 +102,14 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorker do
   rescue
     Ecto.NoResultsError -> Logger.info("#{__MODULE__} discarded: source #{source_id} not found")
     Ecto.StaleEntryError -> Logger.info("#{__MODULE__} discarded: source #{source_id} stale")
+  end
+
+  defp perform_indexing_and_notification(source) do
+    apprise_server = Settings.get!(:apprise_server)
+
+    SourceNotifications.wrap_new_media_notification(apprise_server, source, fn ->
+      SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
+    end)
   end
 
   defp reschedule_indexing(source) do

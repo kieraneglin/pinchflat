@@ -16,9 +16,13 @@ defmodule Pinchflat.Notifications.CommandRunner do
   Can take a single server string or a list of servers as well as additional
   arguments to pass to the command.
 
-  Returns {:ok, binary()} | {:error, binary()}.
+  Returns {:ok, binary()} | {:error, :no_servers} | {:error, binary()}
   """
   @impl AppriseCommandRunner
+  def run(nil, _), do: {:error, :no_servers}
+  def run("", _), do: {:error, :no_servers}
+  def run([], _), do: {:error, :no_servers}
+
   def run(endpoints, args) do
     endpoints = List.wrap(endpoints)
     parsed_args = CliUtils.parse_options(args)

@@ -11,8 +11,10 @@ defmodule Pinchflat.FastIndexing.FastIndexingWorker do
   alias __MODULE__
   alias Pinchflat.Tasks
   alias Pinchflat.Sources
+  alias Pinchflat.Settings
   alias Pinchflat.Sources.Source
   alias Pinchflat.FastIndexing.FastIndexingHelpers
+  alias Pinchflat.Notifications.SourceNotifications
 
   @doc """
   Starts the source fast indexing worker and creates a task for the source.
@@ -37,8 +39,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingWorker do
     source = Sources.get_source!(source_id)
 
     if source.fast_index do
-      FastIndexingHelpers.kickoff_indexing_tasks_from_youtube_rss_feed(source)
-
+      perform_indexing_and_notification(source)
       reschedule_indexing(source)
     else
       :ok
@@ -46,6 +47,13 @@ defmodule Pinchflat.FastIndexing.FastIndexingWorker do
   rescue
     Ecto.NoResultsError -> Logger.info("#{__MODULE__} discarded: source #{source_id} not found")
     Ecto.StaleEntryError -> Logger.info("#{__MODULE__} discarded: source #{source_id} stale")
+  end
+
+  defp perform_indexing_and_notification(source) do
+    apprise_server = Settings.get!(:apprise_server)
+    new_media_items = FastIndexingHelpers.kickoff_indexing_tasks_from_youtube_rss_feed(source)
+
+    SourceNotifications.send_new_media_notification(apprise_server, source, length(new_media_items))
   end
 
   defp reschedule_indexing(source) do

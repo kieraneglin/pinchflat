@@ -11,7 +11,7 @@ defmodule Pinchflat.Notifications.CommandRunnerTest do
 
   describe "run/2" do
     test "returns :ok when the command succeeds" do
-      assert {:ok, _} = Runner.run("", [])
+      assert {:ok, _} = Runner.run("server_1", [])
     end
 
     test "includes the servers as the first argument" do
@@ -27,15 +27,21 @@ defmodule Pinchflat.Notifications.CommandRunnerTest do
     end
 
     test "passes all arguments to the command" do
-      assert {:ok, output} = Runner.run("", ["--dry-run"])
+      assert {:ok, output} = Runner.run("server_1", ["--dry-run"])
 
       assert String.contains?(output, "--dry-run")
     end
 
     test "returns the output when the command fails" do
       wrap_executable("/bin/false", fn ->
-        assert {:error, ""} = Runner.run("", [])
+        assert {:error, ""} = Runner.run("server_1", [])
       end)
+    end
+
+    test "returns a relevant error if no servers are provided" do
+      assert {:error, :no_servers} = Runner.run(nil, [])
+      assert {:error, :no_servers} = Runner.run("", [])
+      assert {:error, :no_servers} = Runner.run([], [])
     end
   end
 
