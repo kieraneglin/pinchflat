@@ -4,6 +4,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingWorkerTest do
   import Mox
   import Pinchflat.SourcesFixtures
 
+  alias Pinchflat.Settings
   alias Pinchflat.Sources.Source
   alias Pinchflat.FastIndexing.FastIndexingWorker
 
@@ -72,6 +73,30 @@ defmodule Pinchflat.FastIndexing.FastIndexingWorkerTest do
 
     test "does not blow up if the record doesn't exist" do
       assert :ok = perform_job(FastIndexingWorker, %{id: 0})
+    end
+  end
+
+  describe "perform/1 when testing notifications" do
+    setup do
+      Settings.set(apprise_server: "server_1")
+
+      :ok
+    end
+
+    test "sends a notification if new media was found" do
+      source = source_fixture(fast_index: true)
+
+      expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
+
+      expect(AppriseRunnerMock, :run, fn servers, opts ->
+        assert "server_1" = servers
+        assert is_binary(Keyword.get(opts, :title))
+        assert is_binary(Keyword.get(opts, :body))
+
+        {:ok, ""}
+      end)
+
+      perform_job(FastIndexingWorker, %{id: source.id})
     end
   end
 end

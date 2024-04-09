@@ -25,7 +25,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
   function starts individual indexing tasks for each new media item. I think it does
   make sense grammatically, but I could see how that's confusing.
 
-  Returns :ok
+  Returns [binary()] where each binary is the media ID of a new media item.
   """
   def kickoff_indexing_tasks_from_youtube_rss_feed(%Source{} = source) do
     {:ok, media_ids} = YoutubeRss.get_recent_media_ids_from_rss(source)
@@ -37,6 +37,8 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
 
       MediaIndexingWorker.kickoff_with_task(source, url)
     end)
+
+    new_media_ids
   end
 
   @doc """

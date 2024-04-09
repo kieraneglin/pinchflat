@@ -1,0 +1,12 @@
+<div class="mb-6 flex gap-3 flex-row items-center justify-between">
+  <div class="flex gap-3 items-center">
+    <h2 class="text-title-md2 font-bold text-black dark:text-white ml-4">
+      Settings
+    </h2>
+  </div>
+</div>
+<div class="rounded-sm border border-stroke bg-white px-5 py-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5">
+  <div class="max-w-full overflow-x-auto">
+    <.setting_form changeset={@changeset} action={~p"/settings"} />
+  </div>
+</div>

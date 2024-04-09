@@ -24,6 +24,16 @@ defmodule Pinchflat.SettingsTest do
     end
   end
 
+  describe "update_setting/2" do
+    test "updates the setting" do
+      setting = Settings.record()
+
+      assert {:ok, false} = Settings.get(:onboarding)
+      assert {:ok, %Setting{}} = Settings.update_setting(setting, %{onboarding: true})
+      assert {:ok, true} = Settings.get(:onboarding)
+    end
+  end
+
   describe "set/1" do
     test "updates the setting" do
       assert {:ok, true} = Settings.set(onboarding: true)
@@ -58,6 +68,14 @@ defmodule Pinchflat.SettingsTest do
       assert_raise RuntimeError, "Setting `foo` not found", fn ->
         Settings.get!(:foo)
       end
+    end
+  end
+
+  describe "change_setting/2" do
+    test "returns a changeset" do
+      setting = Settings.record()
+
+      assert %Ecto.Changeset{} = Settings.change_setting(setting, %{onboarding: true})
     end
   end
 end

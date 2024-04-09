@@ -1,0 +1,21 @@
+<.simple_form :let={f} for={@changeset} action={@action}>
+  <.error :if={@changeset.action}>
+    Oops, something went wrong! Please check the errors below.
+  </.error>
+
+  <h3 class="mt-8 text-2xl text-black dark:text-white">
+    Notification Settings
+  </h3>
+
+  <.input
+    field={f[:apprise_server]}
+    type="text"
+    label="Apprise Server"
+    help={apprise_server_help()}
+    html_help={true}
+    inputclass="font-mono text-sm"
+    placeholder="https://discordapp.com/api/webhooks/{WebhookID}/{WebhookToken}"
+  />
+
+  <.button class="my-10 sm:mb-7.5 w-full sm:w-auto" rounding="rounded-lg">Save Settings</.button>
+</.simple_form>

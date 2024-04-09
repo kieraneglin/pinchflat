@@ -30,6 +30,7 @@ defmodule PinchflatWeb.Router do
 
     resources "/media_profiles", MediaProfiles.MediaProfileController
     resources "/search", Searches.SearchController, only: [:show], singleton: true
+    resources "/settings", Settings.SettingController, only: [:show, :update], singleton: true
 
     resources "/sources", Sources.SourceController do
       post "/force_download", Sources.SourceController, :force_download
