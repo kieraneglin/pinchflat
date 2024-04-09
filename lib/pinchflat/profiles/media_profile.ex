@@ -26,12 +26,14 @@ defmodule Pinchflat.Profiles.MediaProfile do
     shorts_behaviour
     livestream_behaviour
     preferred_resolution
+    redownload_delay_days
   )a
 
   @required_fields ~w(name output_path_template)a
 
   schema "media_profiles" do
     field :name, :string
+    field :redownload_delay_days, :integer
 
     field :output_path_template, :string,
       default: "/{{ source_custom_name }}/{{ upload_yyyy_mm_dd }} {{ title }}/{{ title }} [{{ id }}].{{ ext }}"
@@ -60,7 +62,6 @@ defmodule Pinchflat.Profiles.MediaProfile do
     # See `build_format_clauses` in the Media context for more.
     field :shorts_behaviour, Ecto.Enum, values: ~w(include exclude only)a, default: :include
     field :livestream_behaviour, Ecto.Enum, values: ~w(include exclude only)a, default: :include
-
     field :preferred_resolution, Ecto.Enum, values: ~w(2160p 1080p 720p 480p 360p audio)a, default: :"1080p"
 
     has_many :sources, Source
@@ -75,6 +76,7 @@ defmodule Pinchflat.Profiles.MediaProfile do
     |> validate_required(@required_fields)
     # Ensures it ends with `.{{ ext }}` or `.%(ext)s` or similar (with a little wiggle room)
     |> validate_format(:output_path_template, ext_regex(), message: "must end with .{{ ext }}")
+    |> validate_number(:redownload_delay_days, greater_than_or_equal_to: 0)
     |> unique_constraint(:name)
   end
 

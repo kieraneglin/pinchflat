@@ -34,7 +34,8 @@ defmodule Pinchflat.Media.MediaItem do
     # These are user or system controlled fields
     :prevent_download,
     :prevent_culling,
-    :culled_at
+    :culled_at,
+    :redownloaded_at
   ]
   # Pretty much all the fields captured at index are required.
   @required_fields ~w(
@@ -77,6 +78,7 @@ defmodule Pinchflat.Media.MediaItem do
     field :prevent_download, :boolean, default: false
     field :prevent_culling, :boolean, default: false
     field :culled_at, :utc_datetime
+    field :redownloaded_at, :utc_datetime
 
     field :matching_search_term, :string, virtual: true
 
