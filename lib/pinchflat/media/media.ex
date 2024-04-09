@@ -31,15 +31,31 @@ defmodule Pinchflat.Media do
   def list_cullable_media_items do
     MediaQuery.new()
     |> MediaQuery.with_media_filepath()
-    |> MediaQuery.with_passed_retention_period()
-    |> MediaQuery.with_no_culling_prevention()
+    |> MediaQuery.where_past_retention_period()
+    |> MediaQuery.where_culling_not_prevented()
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns a list of media_items that are redownloadable based on the redownload delay
+  of the media_profile their source belongs to.
+
+  Returns [%MediaItem{}, ...]
+  """
+  def list_redownloadable_media_items do
+    MediaQuery.new()
+    |> MediaQuery.with_media_filepath()
+    |> MediaQuery.where_download_not_prevented()
+    |> MediaQuery.where_not_culled()
+    |> MediaQuery.where_media_not_redownloaded()
+    |> MediaQuery.where_past_redownload_delay()
     |> Repo.all()
   end
 
   @doc """
   Returns a list of pending media_items for a given source, where
   pending means the `media_filepath` is `nil` AND the media_item
-  matches satisfies `MediaQuery.with_media_pending_download`. You
+  matches satisfies `MediaQuery.where_pending_download`. You
   should really check out that function if you need to know more
   because it has a lot going on.
 
@@ -48,7 +64,7 @@ defmodule Pinchflat.Media do
   def list_pending_media_items_for(%Source{} = source) do
     MediaQuery.new()
     |> MediaQuery.for_source(source)
-    |> MediaQuery.with_media_pending_download()
+    |> MediaQuery.where_pending_download()
     |> Repo.all()
   end
 
@@ -66,7 +82,7 @@ defmodule Pinchflat.Media do
 
     MediaQuery.new()
     |> MediaQuery.with_id(media_item.id)
-    |> MediaQuery.with_media_pending_download()
+    |> MediaQuery.where_pending_download()
     |> Repo.exists?()
   end
 

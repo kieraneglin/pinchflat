@@ -7,7 +7,7 @@ defmodule Pinchflat.Repo.Migrations.AddRedownloadedFields do
     end
 
     alter table(:media_items) do
-      add :redownloaded_at, :utc_datetime
+      add :media_redownloaded_at, :utc_datetime
     end
   end
 end

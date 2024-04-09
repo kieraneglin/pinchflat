@@ -35,7 +35,7 @@ defmodule Pinchflat.Media.MediaItem do
     :prevent_download,
     :prevent_culling,
     :culled_at,
-    :redownloaded_at
+    :media_redownloaded_at
   ]
   # Pretty much all the fields captured at index are required.
   @required_fields ~w(
@@ -62,6 +62,7 @@ defmodule Pinchflat.Media.MediaItem do
     field :livestream, :boolean, default: false
     field :short_form_content, :boolean, default: false
     field :media_downloaded_at, :utc_datetime
+    field :media_redownloaded_at, :utc_datetime
     field :upload_date, :date
     field :duration_seconds, :integer
 
@@ -78,7 +79,6 @@ defmodule Pinchflat.Media.MediaItem do
     field :prevent_download, :boolean, default: false
     field :prevent_culling, :boolean, default: false
     field :culled_at, :utc_datetime
-    field :redownloaded_at, :utc_datetime
 
     field :matching_search_term, :string, virtual: true
 

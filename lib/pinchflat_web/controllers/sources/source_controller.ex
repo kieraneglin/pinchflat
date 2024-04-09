@@ -63,7 +63,7 @@ defmodule PinchflatWeb.Sources.SourceController do
     pending_media =
       MediaQuery.new()
       |> MediaQuery.for_source(source)
-      |> MediaQuery.with_media_pending_download()
+      |> MediaQuery.where_pending_download()
       |> order_by(desc: :id)
       |> limit(100)
       |> Repo.all()

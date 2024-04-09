@@ -130,6 +130,83 @@ defmodule Pinchflat.MediaTest do
     end
   end
 
+  describe "list_redownloadable_media_items/0" do
+    setup do
+      media_profile = media_profile_fixture(%{redownload_delay_days: 4})
+      source = source_fixture(%{media_profile_id: media_profile.id})
+
+      {:ok, %{media_profile: media_profile, source: source}}
+    end
+
+    test "returns media eligible for redownload", %{source: source} do
+      media_item = media_item_fixture(%{source_id: source.id, upload_date: now_minus(5, :days)})
+
+      assert Media.list_redownloadable_media_items() == [media_item]
+    end
+
+    test "does not return media items without a media_filepath", %{source: source} do
+      _media_item =
+        media_item_fixture(%{
+          source_id: source.id,
+          upload_date: now_minus(5, :days),
+          media_filepath: nil
+        })
+
+      assert Media.list_redownloadable_media_items() == []
+    end
+
+    test "does not return media items that are set to prevent download", %{source: source} do
+      _media_item =
+        media_item_fixture(%{
+          source_id: source.id,
+          upload_date: now_minus(5, :days),
+          prevent_download: true
+        })
+
+      assert Media.list_redownloadable_media_items() == []
+    end
+
+    test "does not return media items that have been culled", %{source: source} do
+      _media_item =
+        media_item_fixture(%{
+          source_id: source.id,
+          upload_date: now_minus(5, :days),
+          culled_at: now()
+        })
+
+      assert Media.list_redownloadable_media_items() == []
+    end
+
+    test "does not return media items before the download delay", %{source: source} do
+      _media_item =
+        media_item_fixture(%{
+          source_id: source.id,
+          upload_date: now_minus(3, :days)
+        })
+
+      assert Media.list_redownloadable_media_items() == []
+    end
+
+    test "does not return media items that have already been redownloaded", %{source: source} do
+      _media_item =
+        media_item_fixture(%{
+          source_id: source.id,
+          upload_date: now_minus(5, :days),
+          media_redownloaded_at: now()
+        })
+
+      assert Media.list_redownloadable_media_items() == []
+    end
+
+    test "does not return media items without a redownload delay" do
+      media_profile = media_profile_fixture(%{redownload_delay_days: nil})
+      source = source_fixture(%{media_profile_id: media_profile.id})
+      _media_item = media_item_fixture(%{source_id: source.id, upload_date: now_minus(5, :days)})
+
+      assert Media.list_redownloadable_media_items() == []
+    end
+  end
+
   describe "list_pending_media_items_for/1" do
     test "it returns pending without a filepath for a given source" do
       source = source_fixture()

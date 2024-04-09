@@ -15,7 +15,7 @@ defmodule Pinchflat.Media.MediaQuery do
   # Prefixes:
   # - for_* - belonging to a certain record
   # - join_* - for joining on a certain record
-  # - with_* - for filtering based on full, concrete attributes
+  # - with_*, where_* - for filtering based on full, concrete attributes
   # - matching_* - for filtering based on partial attributes (e.g. LIKE, regex, full-text search)
   #
   # Suffixes:
@@ -33,7 +33,7 @@ defmodule Pinchflat.Media.MediaQuery do
     from(mi in query, join: s in assoc(mi, :source), as: :sources)
   end
 
-  def with_passed_retention_period(query) do
+  def where_past_retention_period(query) do
     query
     |> require_assoc(:source)
     |> where(
@@ -47,8 +47,31 @@ defmodule Pinchflat.Media.MediaQuery do
     )
   end
 
-  def with_no_culling_prevention(query) do
+  def where_past_redownload_delay(query) do
+    query
+    |> require_assoc(:source)
+    |> require_assoc(:media_profile)
+    |> where(
+      [mi, source, media_profile],
+      fragment(
+        "IFNULL(?, 0) > 0 AND DATETIME('now', '-' || ? || ' day') > ?",
+        media_profile.redownload_delay_days,
+        media_profile.redownload_delay_days,
+        mi.upload_date
+      )
+    )
+  end
+
+  def where_culling_not_prevented(query) do
     where(query, [mi], mi.prevent_culling == false)
+  end
+
+  def where_not_culled(query) do
+    where(query, [mi], is_nil(mi.culled_at))
+  end
+
+  def where_media_not_redownloaded(query) do
+    where(query, [mi], is_nil(mi.media_redownloaded_at))
   end
 
   def with_id(query, id) do
@@ -73,7 +96,7 @@ defmodule Pinchflat.Media.MediaQuery do
     |> where([mi, source], is_nil(source.download_cutoff_date) or mi.upload_date >= source.download_cutoff_date)
   end
 
-  def with_no_prevented_download(query) do
+  def where_download_not_prevented(query) do
     where(query, [mi], mi.prevent_download == false)
   end
 
@@ -129,9 +152,9 @@ defmodule Pinchflat.Media.MediaQuery do
     )
   end
 
-  def with_media_pending_download(query) do
+  def where_pending_download(query) do
     query
-    |> with_no_prevented_download()
+    |> where_download_not_prevented()
     |> with_no_media_filepath()
     |> with_upload_date_after_source_cutoff()
     |> with_format_matching_profile_preference()
