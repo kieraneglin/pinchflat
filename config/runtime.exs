@@ -57,6 +57,7 @@ if config_env() == :prod do
 
   config :pinchflat,
     yt_dlp_executable: System.find_executable("yt-dlp"),
+    apprise_executable: System.find_executable("apprise"),
     media_directory: "/downloads",
     metadata_directory: metadata_path,
     extras_directory: extras_path,
