@@ -14,7 +14,6 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
 
   alias Pinchflat.Repo
   alias Pinchflat.Settings
-  alias Pinchflat.YtDlp.CommandRunner
   alias Pinchflat.Filesystem.FilesystemHelpers
 
   def start_link(opts \\ []) do
@@ -56,15 +55,25 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
     filepath = Path.join(base_dir, "cookies.txt")
 
     if !File.exists?(filepath) do
-      Logger.info("Cookies does not exist - creating it")
+      Logger.info("yt-dlp cookie file does not exist - creating it")
 
       FilesystemHelpers.write_p!(filepath, "")
     end
   end
 
   defp apply_default_settings do
-    {:ok, yt_dlp_version} = CommandRunner.version()
+    {:ok, yt_dlp_version} = yt_dlp_runner().version()
+    {:ok, apprise_version} = apprise_runner().version()
 
     Settings.set(yt_dlp_version: yt_dlp_version)
+    Settings.set(apprise_version: apprise_version)
+  end
+
+  defp yt_dlp_runner do
+    Application.get_env(:pinchflat, :yt_dlp_runner)
+  end
+
+  defp apprise_runner do
+    Application.get_env(:pinchflat, :apprise_runner)
   end
 end

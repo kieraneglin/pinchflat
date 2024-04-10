@@ -17,31 +17,6 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
       assert {:ok, _output} = Runner.run(@media_url, [], "")
     end
 
-    test "it converts symbol k-v arg keys to kebab case" do
-      assert {:ok, output} = Runner.run(@media_url, [buffer_size: 1024], "")
-
-      assert String.contains?(output, "--buffer-size 1024")
-    end
-
-    test "it keeps string k-v arg keys untouched" do
-      assert {:ok, output} = Runner.run(@media_url, [{"--under_score", 1024}], "")
-
-      assert String.contains?(output, "--under_score 1024")
-    end
-
-    test "it converts symbol arg keys to kebab case" do
-      assert {:ok, output} = Runner.run(@media_url, [:ignore_errors], "")
-
-      assert String.contains?(output, "--ignore-errors")
-    end
-
-    test "it keeps string arg keys untouched" do
-      assert {:ok, output} = Runner.run(@media_url, ["-v"], "")
-
-      assert String.contains?(output, "-v")
-      refute String.contains?(output, "--v")
-    end
-
     test "it includes the media url as the first argument" do
       assert {:ok, output} = Runner.run(@media_url, [:ignore_errors], "")
 

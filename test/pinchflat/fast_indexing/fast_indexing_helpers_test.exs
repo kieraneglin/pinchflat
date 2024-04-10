@@ -24,7 +24,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
     test "enqueues a new worker for each new media_id in the source's RSS feed", %{source: source} do
       expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
 
-      assert :ok = FastIndexingHelpers.kickoff_indexing_tasks_from_youtube_rss_feed(source)
+      assert [_] = FastIndexingHelpers.kickoff_indexing_tasks_from_youtube_rss_feed(source)
 
       assert [worker] = all_enqueued(worker: MediaIndexingWorker)
       assert worker.args["id"] == source.id
@@ -35,9 +35,15 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
       expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
       media_item_fixture(source_id: source.id, media_id: "test_1")
 
-      assert :ok = FastIndexingHelpers.kickoff_indexing_tasks_from_youtube_rss_feed(source)
+      assert [] = FastIndexingHelpers.kickoff_indexing_tasks_from_youtube_rss_feed(source)
 
       refute_enqueued(worker: MediaIndexingWorker)
+    end
+
+    test "returns the IDs of the found media items", %{source: source} do
+      expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
+
+      assert ["test_1"] = FastIndexingHelpers.kickoff_indexing_tasks_from_youtube_rss_feed(source)
     end
   end
 

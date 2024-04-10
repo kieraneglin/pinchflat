@@ -60,7 +60,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   def index_and_enqueue_download_for_media_items(%Source{} = source) do
     # See the method definition below for more info on how file watchers work
     # (important reading if you're not familiar with it)
-    {:ok, media_attributes} = get_media_attributes_for_collection_and_setup_file_watcher(source)
+    {:ok, media_attributes} = setup_file_watcher_and_kickoff_indexing(source)
     # Reload because the source may have been updated during the (long-running) indexing process
     # and important settings like `download_media` may have changed.
     source = Repo.reload!(source)
@@ -84,15 +84,15 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   # lines (ie: you should gracefully fail if you can't parse a line).
   #
   # This works in-tandem with the normal (blocking) media indexing behaviour. When
-  # the `get_media_attributes_for_collection` method completes it'll return the FULL result to
-  # the caller for parsing. Ideally, every item in the list will have already
+  # the `setup_file_watcher_and_kickoff_indexing` method completes it'll return the
+  # FULL result to the caller for parsing. Ideally, every item in the list will have already
   # been processed by the file follower, but if not, the caller handles creation
   # of any media items that were missed/initially failed.
   #
   # It attempts a graceful shutdown of the file follower after the indexing is done,
   # but the FileFollowerServer will also stop itself if it doesn't see any activity
   # for a sufficiently long time.
-  defp get_media_attributes_for_collection_and_setup_file_watcher(source) do
+  defp setup_file_watcher_and_kickoff_indexing(source) do
     {:ok, pid} = FileFollowerServer.start_link()
 
     handler = fn filepath -> setup_file_follower_watcher(pid, filepath, source) end
