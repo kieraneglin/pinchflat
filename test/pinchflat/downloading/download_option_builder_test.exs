@@ -39,6 +39,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
 
       assert :no_progress in res
       assert :windows_filenames in res
+      assert :force_overwrites in res
     end
   end
 
