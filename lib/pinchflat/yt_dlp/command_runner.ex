@@ -76,11 +76,7 @@ defmodule Pinchflat.YtDlp.CommandRunner do
 
   defp build_external_file_options do
     base_dir = Application.get_env(:pinchflat, :extras_directory)
-
-    filename_options_map = %{
-      cookies: "cookies.txt",
-      config_locations: "yt-dlp-configs/main.txt"
-    }
+    filename_options_map = %{cookies: "cookies.txt"}
 
     Enum.reduce(filename_options_map, [], fn {opt_name, filename}, acc ->
       filepath = Path.join(base_dir, filename)

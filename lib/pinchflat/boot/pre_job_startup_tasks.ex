@@ -51,7 +51,7 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
   end
 
   defp create_blank_yt_dlp_files do
-    files = ["cookies.txt", "yt-dlp-configs/main.txt"]
+    files = ["cookies.txt", "yt-dlp-configs/base-config.txt"]
     base_dir = Application.get_env(:pinchflat, :extras_directory)
 
     Enum.each(files, fn file ->

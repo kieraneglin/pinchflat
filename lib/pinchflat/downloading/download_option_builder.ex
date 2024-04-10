@@ -10,8 +10,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
   @doc """
   Builds the options for yt-dlp to download media based on the given media's profile.
 
-  IDEA: consider adding the ability to pass in a second argument to override
-        these options
+  Returns {:ok, [Keyword.t()]}
   """
   def build(%MediaItem{} = media_item_with_preloads) do
     media_profile = media_item_with_preloads.source.media_profile
@@ -23,7 +22,8 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
         metadata_options(media_profile) ++
         quality_options(media_profile) ++
         sponsorblock_options(media_profile) ++
-        output_options(media_item_with_preloads)
+        output_options(media_item_with_preloads) ++
+        config_file_options(media_item_with_preloads)
 
     {:ok, built_options}
   end
@@ -126,6 +126,35 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
       {:remove, _} -> [sponsorblock_remove: Enum.join(categories, ",")]
       {:disabled, _} -> []
     end
+  end
+
+  # This is put here instead of the CommandRunner module because it should only
+  # be applied to downloading - if it were in CommandRunner it would apply to
+  # all yt-dlp commands (like indexing)
+  defp config_file_options(media_item) do
+    base_dir = Path.join(Application.get_env(:pinchflat, :extras_directory), "yt-dlp-configs")
+    # Ordered by priority - the first file has the highest priority
+    filenames = [
+      "media-item-#{media_item.id}-config.txt",
+      "source-#{media_item.source_id}-config.txt",
+      "media-profile-#{media_item.source.media_profile_id}-config.txt",
+      "base-config.txt"
+    ]
+
+    config_filepaths =
+      Enum.reduce(filenames, [], fn filename, acc ->
+        filepath = Path.join(base_dir, filename)
+
+        case File.read(filepath) do
+          {:ok, file_data} ->
+            if String.trim(file_data) != "", do: [filepath | acc], else: acc
+
+          {:error, _} ->
+            acc
+        end
+      end)
+
+    Enum.map(config_filepaths, fn filepath -> {:config_locations, filepath} end)
   end
 
   defp output_options(media_item_with_preloads) do

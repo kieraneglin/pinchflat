@@ -42,7 +42,7 @@ defmodule Pinchflat.Boot.PreJobStartupTasksTest do
 
     test "creates a blank yt-dlp config file" do
       base_dir = Application.get_env(:pinchflat, :extras_directory)
-      filepath = Path.join([base_dir, "yt-dlp-configs", "main.txt"])
+      filepath = Path.join([base_dir, "yt-dlp-configs", "base-config.txt"])
       File.rm(filepath)
 
       refute File.exists?(filepath)
