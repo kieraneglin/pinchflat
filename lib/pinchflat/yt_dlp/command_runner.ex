@@ -27,13 +27,14 @@ defmodule Pinchflat.YtDlp.CommandRunner do
   def run(url, command_opts, output_template, addl_opts \\ []) do
     # This approach lets us mock the command for testing
     command = backend_executable()
-    # These must stay in exactly this order, hence why I'm giving it its own variable.
-    # Also, can't use RAM file since yt-dlp needs a concrete filepath.
+
     output_filepath = generate_output_filepath(addl_opts)
     print_to_file_opts = [{:print_to_file, output_template}, output_filepath]
-    cookie_opts = build_cookie_options()
-    formatted_command_opts = [url] ++ CliUtils.parse_options(command_opts ++ print_to_file_opts ++ cookie_opts)
+    external_file_opts = build_external_file_options()
+    # These must stay in exactly this order, hence why I'm giving it its own variable.
+    all_opts = command_opts ++ print_to_file_opts ++ external_file_opts
 
+    formatted_command_opts = [url] ++ CliUtils.parse_options(all_opts)
     Logger.info("[yt-dlp] called with: #{Enum.join(formatted_command_opts, " ")}")
 
     case System.cmd(command, formatted_command_opts, stderr_to_stdout: true) do
@@ -73,17 +74,25 @@ defmodule Pinchflat.YtDlp.CommandRunner do
     end
   end
 
-  defp build_cookie_options do
+  defp build_external_file_options do
     base_dir = Application.get_env(:pinchflat, :extras_directory)
-    cookie_file = Path.join(base_dir, "cookies.txt")
+    filename_options_map = %{cookies: "cookies.txt"}
 
-    case File.read(cookie_file) do
-      {:ok, cookie_data} ->
-        if String.trim(cookie_data) != "", do: [cookies: cookie_file], else: []
+    Enum.reduce(filename_options_map, [], fn {opt_name, filename}, acc ->
+      filepath = Path.join(base_dir, filename)
 
-      {:error, _} ->
-        []
-    end
+      case File.read(filepath) do
+        {:ok, file_data} ->
+          if String.trim(file_data) != "" do
+            [{opt_name, filepath} | acc]
+          else
+            acc
+          end
+
+        {:error, _} ->
+          acc
+      end
+    end)
   end
 
   defp backend_executable do

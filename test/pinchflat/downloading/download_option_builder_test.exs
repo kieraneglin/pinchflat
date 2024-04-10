@@ -5,6 +5,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
   import Pinchflat.ProfilesFixtures
 
   alias Pinchflat.Profiles
+  alias Pinchflat.Utils.FilesystemUtils
   alias Pinchflat.Downloading.DownloadOptionBuilder
 
   setup do
@@ -258,6 +259,96 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
       refute {:sponsorblock_remove, ""} in res
       refute {:sponsorblock_remove, []} in res
       refute :sponsorblock_remove in res
+    end
+  end
+
+  describe "build/1 when testing config file options" do
+    setup do
+      base_dir = Path.join(Application.get_env(:pinchflat, :extras_directory), "yt-dlp-configs")
+
+      {:ok, %{base_dir: base_dir}}
+    end
+
+    test "includes base config file if it's present", %{media_item: media_item, base_dir: base_dir} do
+      filepath = Path.join(base_dir, "base-config.txt")
+
+      FilesystemUtils.write_p!(filepath, "base config")
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+      assert {:config_locations, filepath} in res
+    end
+
+    test "includes media profile config file if it's present", %{media_item: media_item, base_dir: base_dir} do
+      media_profile = media_item.source.media_profile
+      filepath = Path.join(base_dir, "media-profile-#{media_profile.id}-config.txt")
+
+      FilesystemUtils.write_p!(filepath, "profile config")
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+      assert {:config_locations, filepath} in res
+    end
+
+    test "includes source config file if it's present", %{media_item: media_item, base_dir: base_dir} do
+      source = media_item.source
+      filepath = Path.join(base_dir, "source-#{source.id}-config.txt")
+
+      FilesystemUtils.write_p!(filepath, "profile config")
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+      assert {:config_locations, filepath} in res
+    end
+
+    test "includes media item config file if it's present", %{media_item: media_item, base_dir: base_dir} do
+      filepath = Path.join(base_dir, "media-item-#{media_item.id}-config.txt")
+
+      FilesystemUtils.write_p!(filepath, "media item config")
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+      assert {:config_locations, filepath} in res
+    end
+
+    test "does not include config file options if they are not present", %{media_item: media_item} do
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+
+      refute :config_locations in res
+    end
+
+    test "does not return a config file if it's blank", %{media_item: media_item, base_dir: base_dir} do
+      filepath = Path.join(base_dir, "base-config.txt")
+
+      FilesystemUtils.write_p!(filepath, " \n \n ")
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+      refute :config_locations in res
+    end
+
+    test "returns config files in order of precedence", %{media_item: media_item, base_dir: base_dir} do
+      source = media_item.source
+      media_profile = source.media_profile
+
+      base_filepath = Path.join(base_dir, "base-config.txt")
+      source_filepath = Path.join(base_dir, "source-#{source.id}-config.txt")
+      media_item_filepath = Path.join(base_dir, "media-item-#{media_item.id}-config.txt")
+      media_profile_filepath = Path.join(base_dir, "media-profile-#{media_profile.id}-config.txt")
+
+      FilesystemUtils.write_p!(base_filepath, "config")
+      FilesystemUtils.write_p!(source_filepath, "config")
+      FilesystemUtils.write_p!(media_item_filepath, "config")
+      FilesystemUtils.write_p!(media_profile_filepath, "config")
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+
+      expected_order = [
+        {:config_locations, base_filepath},
+        {:config_locations, media_profile_filepath},
+        {:config_locations, source_filepath},
+        {:config_locations, media_item_filepath}
+      ]
+
+      assert Enum.filter(res, fn
+               {:config_locations, _} -> true
+               _ -> false
+             end) == expected_order
     end
   end
 
