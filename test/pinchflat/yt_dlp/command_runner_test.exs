@@ -46,7 +46,7 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
     setup do
       base_dir = Application.get_env(:pinchflat, :extras_directory)
       cookie_file = Path.join(base_dir, "cookies.txt")
-      yt_dlp_file = Path.join(base_dir, "yt-dlp-config.txt")
+      yt_dlp_file = Path.join([base_dir, "yt-dlp-configs", "main.txt"])
 
       {:ok, cookie_file: cookie_file, yt_dlp_file: yt_dlp_file}
     end

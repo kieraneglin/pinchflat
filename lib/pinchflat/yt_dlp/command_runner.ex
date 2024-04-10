@@ -79,7 +79,7 @@ defmodule Pinchflat.YtDlp.CommandRunner do
 
     filename_options_map = %{
       cookies: "cookies.txt",
-      config_locations: "yt-dlp-config.txt"
+      config_locations: "yt-dlp-configs/main.txt"
     }
 
     Enum.reduce(filename_options_map, [], fn {opt_name, filename}, acc ->
