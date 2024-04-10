@@ -6,7 +6,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
 
   alias Pinchflat.Media
   alias Pinchflat.Sources
-  alias Pinchflat.Filesystem.FilesystemHelpers
+  alias Pinchflat.Utils.FilesystemUtils
   alias Pinchflat.Downloading.MediaDownloadWorker
 
   setup :verify_on_exit!
@@ -140,7 +140,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
     test "it saves the file's size to the database", %{media_item: media_item} do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
         metadata = render_parsed_metadata(:media_metadata)
-        FilesystemHelpers.write_p!(metadata["filepath"], "test")
+        FilesystemUtils.write_p!(metadata["filepath"], "test")
 
         {:ok, Phoenix.json_library().encode!(metadata)}
       end)

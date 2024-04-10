@@ -11,7 +11,7 @@ defmodule Pinchflat.Media do
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Media.MediaQuery
   alias Pinchflat.Metadata.MediaMetadata
-  alias Pinchflat.Filesystem.FilesystemHelpers
+  alias Pinchflat.Utils.FilesystemUtils
 
   @doc """
   Returns the list of media_items.
@@ -223,7 +223,7 @@ defmodule Pinchflat.Media do
     end)
     |> List.flatten()
     |> Enum.filter(&is_binary/1)
-    |> Enum.each(&FilesystemHelpers.delete_file_and_remove_empty_directories/1)
+    |> Enum.each(&FilesystemUtils.delete_file_and_remove_empty_directories/1)
 
     {:ok, media_item}
   end
@@ -235,6 +235,6 @@ defmodule Pinchflat.Media do
     MediaMetadata.filepath_attributes()
     |> Enum.map(fn field -> mapped_struct[field] end)
     |> Enum.filter(&is_binary/1)
-    |> Enum.each(&FilesystemHelpers.delete_file_and_remove_empty_directories/1)
+    |> Enum.each(&FilesystemUtils.delete_file_and_remove_empty_directories/1)
   end
 end

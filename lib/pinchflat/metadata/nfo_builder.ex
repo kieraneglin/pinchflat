@@ -7,7 +7,7 @@ defmodule Pinchflat.Metadata.NfoBuilder do
   import Pinchflat.Utils.XmlUtils, only: [safe: 1]
 
   alias Pinchflat.Metadata.MetadataFileHelpers
-  alias Pinchflat.Filesystem.FilesystemHelpers
+  alias Pinchflat.Utils.FilesystemUtils
 
   @doc """
   Builds an NFO file for a media item (read: single "episode") and
@@ -18,7 +18,7 @@ defmodule Pinchflat.Metadata.NfoBuilder do
   def build_and_store_for_media_item(filepath, metadata) do
     nfo = build_for_media_item(metadata)
 
-    FilesystemHelpers.write_p!(filepath, nfo)
+    FilesystemUtils.write_p!(filepath, nfo)
 
     filepath
   end
@@ -32,7 +32,7 @@ defmodule Pinchflat.Metadata.NfoBuilder do
   def build_and_store_for_source(filepath, metadata) do
     nfo = build_for_source(metadata)
 
-    FilesystemHelpers.write_p!(filepath, nfo)
+    FilesystemUtils.write_p!(filepath, nfo)
 
     filepath
   end

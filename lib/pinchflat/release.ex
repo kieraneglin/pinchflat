@@ -7,7 +7,7 @@ defmodule Pinchflat.Release do
 
   require Logger
 
-  alias Pinchflat.Filesystem.FilesystemHelpers
+  alias Pinchflat.Utils.FilesystemUtils
 
   def migrate do
     load_app()
@@ -39,7 +39,7 @@ defmodule Pinchflat.Release do
       Logger.info("Checking permissions for #{dir}")
       filepath = Path.join([dir, ".keep"])
 
-      case FilesystemHelpers.write_p(filepath, "") do
+      case FilesystemUtils.write_p(filepath, "") do
         :ok ->
           Logger.info("Permissions OK")
 

@@ -13,7 +13,7 @@ defmodule Pinchflat.Downloading.MediaDownloader do
   alias Pinchflat.Metadata.NfoBuilder
   alias Pinchflat.Metadata.MetadataParser
   alias Pinchflat.Metadata.MetadataFileHelpers
-  alias Pinchflat.Filesystem.FilesystemHelpers
+  alias Pinchflat.Utils.FilesystemUtils
   alias Pinchflat.Downloading.DownloadOptionBuilder
 
   alias Pinchflat.YtDlp.Media, as: YtDlpMedia
@@ -30,7 +30,7 @@ defmodule Pinchflat.Downloading.MediaDownloader do
   Returns {:ok, %MediaItem{}} | {:error, any, ...any}
   """
   def download_for_media_item(%MediaItem{} = media_item) do
-    output_filepath = FilesystemHelpers.generate_metadata_tmpfile(:json)
+    output_filepath = FilesystemUtils.generate_metadata_tmpfile(:json)
     media_with_preloads = Repo.preload(media_item, [:metadata, source: :media_profile])
 
     case download_with_options(media_item.original_url, media_with_preloads, output_filepath) do

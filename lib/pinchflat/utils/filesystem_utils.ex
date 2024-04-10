@@ -1,4 +1,4 @@
-defmodule Pinchflat.Filesystem.FilesystemHelpers do
+defmodule Pinchflat.Utils.FilesystemUtils do
   @moduledoc """
   Utility methods for working with the filesystem
   """

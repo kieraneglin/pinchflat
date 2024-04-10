@@ -8,7 +8,7 @@ defmodule Pinchflat.SourcesFixtures do
   alias Pinchflat.MediaFixtures
   alias Pinchflat.Sources.Source
   alias Pinchflat.ProfilesFixtures
-  alias Pinchflat.Filesystem.FilesystemHelpers
+  alias Pinchflat.Utils.FilesystemUtils
 
   @doc """
   Generate a source.
@@ -59,9 +59,9 @@ defmodule Pinchflat.SourcesFixtures do
     poster_filepath = Path.join(metadata_dir, "poster.jpg")
     fanart_filepath = Path.join(metadata_dir, "fanart.jpg")
 
-    FilesystemHelpers.cp_p!(MediaFixtures.media_metadata_filepath_fixture(), json_gz_filepath)
-    FilesystemHelpers.cp_p!(MediaFixtures.thumbnail_filepath_fixture(), poster_filepath)
-    FilesystemHelpers.cp_p!(MediaFixtures.thumbnail_filepath_fixture(), fanart_filepath)
+    FilesystemUtils.cp_p!(MediaFixtures.media_metadata_filepath_fixture(), json_gz_filepath)
+    FilesystemUtils.cp_p!(MediaFixtures.thumbnail_filepath_fixture(), poster_filepath)
+    FilesystemUtils.cp_p!(MediaFixtures.thumbnail_filepath_fixture(), fanart_filepath)
 
     merged_attrs =
       Map.merge(attrs, %{
