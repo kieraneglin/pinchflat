@@ -203,6 +203,17 @@
       />
     </section>
 
+    <section x-data="{ presets: { default: null, media_center: 1, audio: null, archiving: 1 } }">
+      <.input
+        field={f[:redownload_delay_days]}
+        type="number"
+        label="Redownload Delay (days)"
+        min="0"
+        help="Delay in days until new media is redownloaded. Redownloading new media can improve its quality or SponsorBlock tags. Leave blank to not redownload"
+        x-init="$watch('selectedPreset', p => p && ($el.value = presets[p]))"
+      />
+    </section>
+
     <h3 class="mt-8 text-2xl text-black dark:text-white">
       Media Center Options
     </h3>
