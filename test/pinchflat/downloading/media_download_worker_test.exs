@@ -62,7 +62,9 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
 
       assert media_item.media_filepath == nil
       perform_job(MediaDownloadWorker, %{id: media_item.id})
-      assert Repo.reload(media_item).media_filepath != nil
+      media_item = Repo.reload(media_item)
+
+      assert media_item.media_filepath != nil
     end
 
     test "it saves the metadata to the media_item", %{media_item: media_item} do
@@ -147,6 +149,28 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
       media_item = Repo.reload(media_item)
 
       assert media_item.media_size_bytes > 0
+    end
+
+    test "saves redownloaded_at if this is for a redownload", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+        {:ok, render_metadata(:media_metadata)}
+      end)
+
+      perform_job(MediaDownloadWorker, %{id: media_item.id, redownload?: true})
+      media_item = Repo.reload(media_item)
+
+      assert media_item.media_redownloaded_at != nil
+    end
+
+    test "doesn't save redownloaded_at if this is not for a redownload", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+        {:ok, render_metadata(:media_metadata)}
+      end)
+
+      perform_job(MediaDownloadWorker, %{id: media_item.id})
+      media_item = Repo.reload(media_item)
+
+      assert media_item.media_redownloaded_at == nil
     end
 
     test "does not blow up if the record doesn't exist" do

@@ -15,7 +15,7 @@ defmodule Pinchflat.Media.MediaQuery do
   # Prefixes:
   # - for_* - belonging to a certain record
   # - join_* - for joining on a certain record
-  # - with_* - for filtering based on full, concrete attributes
+  # - with_*, where_* - for filtering based on full, concrete attributes
   # - matching_* - for filtering based on partial attributes (e.g. LIKE, regex, full-text search)
   #
   # Suffixes:
@@ -33,22 +33,44 @@ defmodule Pinchflat.Media.MediaQuery do
     from(mi in query, join: s in assoc(mi, :source), as: :sources)
   end
 
-  def with_passed_retention_period(query) do
+  def where_past_retention_period(query) do
     query
     |> require_assoc(:source)
     |> where(
       [mi, source],
-      fragment(
-        "IFNULL(?, 0) > 0 AND DATETIME('now', '-' || ? || ' day') > ?",
-        source.retention_period_days,
-        source.retention_period_days,
-        mi.media_downloaded_at
-      )
+      fragment("""
+      IFNULL(retention_period_days, 0) > 0 AND
+      DATETIME('now', '-' || retention_period_days || ' day') > media_downloaded_at
+      """)
     )
   end
 
-  def with_no_culling_prevention(query) do
+  def where_past_redownload_delay(query) do
+    query
+    |> require_assoc(:source)
+    |> require_assoc(:media_profile)
+    |> where(
+      [_mi, _source, _media_profile],
+      # Returns media items where the upload_date is at least redownload_delay_days ago AND
+      # downloaded_at minus the redownload_delay_days is before the upload date
+      fragment("""
+        IFNULL(redownload_delay_days, 0) > 0 AND
+        DATETIME('now', '-' || redownload_delay_days || ' day') > upload_date AND
+        DATETIME(media_downloaded_at, '-' || redownload_delay_days || ' day') < upload_date
+      """)
+    )
+  end
+
+  def where_culling_not_prevented(query) do
     where(query, [mi], mi.prevent_culling == false)
+  end
+
+  def where_not_culled(query) do
+    where(query, [mi], is_nil(mi.culled_at))
+  end
+
+  def where_media_not_redownloaded(query) do
+    where(query, [mi], is_nil(mi.media_redownloaded_at))
   end
 
   def with_id(query, id) do
@@ -57,6 +79,10 @@ defmodule Pinchflat.Media.MediaQuery do
 
   def with_media_ids(query, media_ids) do
     where(query, [mi], mi.media_id in ^media_ids)
+  end
+
+  def with_media_downloaded_at(query) do
+    where(query, [mi], not is_nil(mi.media_downloaded_at))
   end
 
   def with_media_filepath(query) do
@@ -73,7 +99,7 @@ defmodule Pinchflat.Media.MediaQuery do
     |> where([mi, source], is_nil(source.download_cutoff_date) or mi.upload_date >= source.download_cutoff_date)
   end
 
-  def with_no_prevented_download(query) do
+  def where_download_not_prevented(query) do
     where(query, [mi], mi.prevent_download == false)
   end
 
@@ -129,9 +155,9 @@ defmodule Pinchflat.Media.MediaQuery do
     )
   end
 
-  def with_media_pending_download(query) do
+  def where_pending_download(query) do
     query
-    |> with_no_prevented_download()
+    |> where_download_not_prevented()
     |> with_no_media_filepath()
     |> with_upload_date_after_source_cutoff()
     |> with_format_matching_profile_preference()
