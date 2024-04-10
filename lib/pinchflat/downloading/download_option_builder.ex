@@ -144,6 +144,8 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
   defp output_options_map(source) do
     %{
       "source_custom_name" => source.custom_name,
+      "source_collection_id" => source.collection_id,
+      "source_collection_name" => source.collection_name,
       "source_collection_type" => source.collection_type
     }
   end
