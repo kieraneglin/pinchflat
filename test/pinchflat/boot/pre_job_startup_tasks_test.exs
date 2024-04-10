@@ -27,10 +27,22 @@ defmodule Pinchflat.Boot.PreJobStartupTasksTest do
     end
   end
 
-  describe "create_blank_cookie_file" do
+  describe "create_blank_yt_dlp_files" do
     test "creates a blank cookie file" do
       base_dir = Application.get_env(:pinchflat, :extras_directory)
       filepath = Path.join(base_dir, "cookies.txt")
+      File.rm(filepath)
+
+      refute File.exists?(filepath)
+
+      PreJobStartupTasks.init(%{})
+
+      assert File.exists?(filepath)
+    end
+
+    test "creates a blank yt-dlp config file" do
+      base_dir = Application.get_env(:pinchflat, :extras_directory)
+      filepath = Path.join(base_dir, "yt-dlp-config.txt")
       File.rm(filepath)
 
       refute File.exists?(filepath)

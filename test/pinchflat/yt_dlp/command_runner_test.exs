@@ -42,12 +42,13 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
     end
   end
 
-  describe "run/4 when testing cookie options" do
+  describe "run/4 when testing external file options" do
     setup do
       base_dir = Application.get_env(:pinchflat, :extras_directory)
       cookie_file = Path.join(base_dir, "cookies.txt")
+      yt_dlp_file = Path.join(base_dir, "yt-dlp-config.txt")
 
-      {:ok, cookie_file: cookie_file}
+      {:ok, cookie_file: cookie_file, yt_dlp_file: yt_dlp_file}
     end
 
     test "includes cookie options when cookies.txt exists", %{cookie_file: cookie_file} do
@@ -74,6 +75,32 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
 
       refute String.contains?(output, "--cookies")
       refute String.contains?(output, cookie_file)
+    end
+
+    test "includes yt-dlp options when config file exists", %{yt_dlp_file: yt_dlp_file} do
+      FilesystemUtils.write_p!(yt_dlp_file, "config data")
+
+      assert {:ok, output} = Runner.run(@media_url, [], "")
+
+      assert String.contains?(output, "--config-locations #{yt_dlp_file}")
+    end
+
+    test "doesn't include yt-dlp options when config file blank", %{yt_dlp_file: yt_dlp_file} do
+      FilesystemUtils.write_p!(yt_dlp_file, " \n \n ")
+
+      assert {:ok, output} = Runner.run(@media_url, [], "")
+
+      refute String.contains?(output, "--config-locations")
+      refute String.contains?(output, yt_dlp_file)
+    end
+
+    test "ddoesn't include yt-dlp options when config file doesn't exist", %{yt_dlp_file: yt_dlp_file} do
+      File.rm(yt_dlp_file)
+
+      assert {:ok, output} = Runner.run(@media_url, [], "")
+
+      refute String.contains?(output, "--config-locations")
+      refute String.contains?(output, yt_dlp_file)
     end
   end
 

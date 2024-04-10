@@ -32,7 +32,7 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
   @impl true
   def init(state) do
     reset_executing_jobs()
-    create_blank_cookie_file()
+    create_blank_yt_dlp_files()
     apply_default_settings()
 
     {:ok, state}
@@ -50,15 +50,19 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
     Logger.info("Reset #{count} executing jobs")
   end
 
-  defp create_blank_cookie_file do
+  defp create_blank_yt_dlp_files do
+    files = ["cookies.txt", "yt-dlp-config.txt"]
     base_dir = Application.get_env(:pinchflat, :extras_directory)
-    filepath = Path.join(base_dir, "cookies.txt")
 
-    if !File.exists?(filepath) do
-      Logger.info("yt-dlp cookie file does not exist - creating it")
+    Enum.each(files, fn file ->
+      filepath = Path.join(base_dir, file)
 
-      FilesystemUtils.write_p!(filepath, "")
-    end
+      if !File.exists?(filepath) do
+        Logger.info("Creating blank file: #{filepath}")
+
+        FilesystemUtils.write_p!(filepath, "")
+      end
+    end)
   end
 
   defp apply_default_settings do
