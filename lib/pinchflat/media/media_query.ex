@@ -38,12 +38,10 @@ defmodule Pinchflat.Media.MediaQuery do
     |> require_assoc(:source)
     |> where(
       [mi, source],
-      fragment(
-        "IFNULL(?, 0) > 0 AND DATETIME('now', '-' || ? || ' day') > ?",
-        source.retention_period_days,
-        source.retention_period_days,
-        mi.media_downloaded_at
-      )
+      fragment("""
+      IFNULL(retention_period_days, 0) > 0 AND
+      DATETIME('now', '-' || retention_period_days || ' day') > media_downloaded_at
+      """)
     )
   end
 
@@ -52,13 +50,14 @@ defmodule Pinchflat.Media.MediaQuery do
     |> require_assoc(:source)
     |> require_assoc(:media_profile)
     |> where(
-      [mi, source, media_profile],
-      fragment(
-        "IFNULL(?, 0) > 0 AND DATETIME('now', '-' || ? || ' day') > ?",
-        media_profile.redownload_delay_days,
-        media_profile.redownload_delay_days,
-        mi.upload_date
-      )
+      [_mi, _source, _media_profile],
+      # Returns media items where the upload_date is at least redownload_delay_days ago AND
+      # downloaded_at minus the redownload_delay_days is before the upload date
+      fragment("""
+        IFNULL(redownload_delay_days, 0) > 0 AND
+        DATETIME('now', '-' || redownload_delay_days || ' day') > upload_date AND
+        DATETIME(media_downloaded_at, '-' || redownload_delay_days || ' day') < upload_date
+      """)
     )
   end
 
@@ -80,6 +79,10 @@ defmodule Pinchflat.Media.MediaQuery do
 
   def with_media_ids(query, media_ids) do
     where(query, [mi], mi.media_id in ^media_ids)
+  end
+
+  def with_media_downloaded_at(query) do
+    where(query, [mi], not is_nil(mi.media_downloaded_at))
   end
 
   def with_media_filepath(query) do

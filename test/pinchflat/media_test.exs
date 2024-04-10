@@ -133,23 +133,39 @@ defmodule Pinchflat.MediaTest do
   describe "list_redownloadable_media_items/0" do
     setup do
       media_profile = media_profile_fixture(%{redownload_delay_days: 4})
-      source = source_fixture(%{media_profile_id: media_profile.id})
+      source = source_fixture(%{media_profile_id: media_profile.id, inserted_at: now_minus(10, :days)})
 
       {:ok, %{media_profile: media_profile, source: source}}
     end
 
     test "returns media eligible for redownload", %{source: source} do
-      media_item = media_item_fixture(%{source_id: source.id, upload_date: now_minus(5, :days)})
+      media_item =
+        media_item_fixture(%{
+          source_id: source.id,
+          upload_date: now_minus(6, :days),
+          media_downloaded_at: now_minus(5, :days)
+        })
 
       assert Media.list_redownloadable_media_items() == [media_item]
     end
 
-    test "does not return media items without a media_filepath", %{source: source} do
+    test "returns media items that were downloaded in past but still meet redownload delay", %{source: source} do
+      media_item =
+        media_item_fixture(%{
+          source_id: source.id,
+          upload_date: now_minus(20, :days),
+          media_downloaded_at: now_minus(19, :days)
+        })
+
+      assert Media.list_redownloadable_media_items() == [media_item]
+    end
+
+    test "does not return media items without a media_downloaded_at", %{source: source} do
       _media_item =
         media_item_fixture(%{
           source_id: source.id,
           upload_date: now_minus(5, :days),
-          media_filepath: nil
+          media_downloaded_at: nil
         })
 
       assert Media.list_redownloadable_media_items() == []
@@ -160,6 +176,7 @@ defmodule Pinchflat.MediaTest do
         media_item_fixture(%{
           source_id: source.id,
           upload_date: now_minus(5, :days),
+          media_downloaded_at: now(),
           prevent_download: true
         })
 
@@ -171,6 +188,7 @@ defmodule Pinchflat.MediaTest do
         media_item_fixture(%{
           source_id: source.id,
           upload_date: now_minus(5, :days),
+          media_downloaded_at: now(),
           culled_at: now()
         })
 
@@ -181,7 +199,8 @@ defmodule Pinchflat.MediaTest do
       _media_item =
         media_item_fixture(%{
           source_id: source.id,
-          upload_date: now_minus(3, :days)
+          upload_date: now_minus(3, :days),
+          media_downloaded_at: now_minus(3, :days)
         })
 
       assert Media.list_redownloadable_media_items() == []
@@ -192,7 +211,30 @@ defmodule Pinchflat.MediaTest do
         media_item_fixture(%{
           source_id: source.id,
           upload_date: now_minus(5, :days),
+          media_downloaded_at: now(),
           media_redownloaded_at: now()
+        })
+
+      assert Media.list_redownloadable_media_items() == []
+    end
+
+    test "does not return media items that were first downloaded well after the upload_date", %{source: source} do
+      _media_item =
+        media_item_fixture(%{
+          source_id: source.id,
+          media_downloaded_at: now(),
+          upload_date: now_minus(20, :days)
+        })
+
+      assert Media.list_redownloadable_media_items() == []
+    end
+
+    test "does not return media items that were recently uploaded", %{source: source} do
+      _media_item =
+        media_item_fixture(%{
+          source_id: source.id,
+          media_downloaded_at: now(),
+          upload_date: now_minus(2, :days)
         })
 
       assert Media.list_redownloadable_media_items() == []
@@ -201,7 +243,13 @@ defmodule Pinchflat.MediaTest do
     test "does not return media items without a redownload delay" do
       media_profile = media_profile_fixture(%{redownload_delay_days: nil})
       source = source_fixture(%{media_profile_id: media_profile.id})
-      _media_item = media_item_fixture(%{source_id: source.id, upload_date: now_minus(5, :days)})
+
+      _media_item =
+        media_item_fixture(%{
+          source_id: source.id,
+          upload_date: now_minus(6, :days),
+          media_downloaded_at: now_minus(5, :days)
+        })
 
       assert Media.list_redownloadable_media_items() == []
     end

@@ -40,11 +40,19 @@ defmodule Pinchflat.Media do
   Returns a list of media_items that are redownloadable based on the redownload delay
   of the media_profile their source belongs to.
 
+  The logic is that a media_item is past_redownload_delay if the media_item's
+  upload_date is at least redownload_delay_days ago AND
+  `media_downloaded_at` - `redownload_delay_days` is before the media_item's `upload_date`.
+  This logic grabs media that we've recently downloaded AND is recently uploaded, but
+  doesn't grab media that we've recently downloaded and was uploaded a long time ago.
+  This also makes things work as expected when downloading media from a source for the
+  first time.
+
   Returns [%MediaItem{}, ...]
   """
   def list_redownloadable_media_items do
     MediaQuery.new()
-    |> MediaQuery.with_media_filepath()
+    |> MediaQuery.with_media_downloaded_at()
     |> MediaQuery.where_download_not_prevented()
     |> MediaQuery.where_not_culled()
     |> MediaQuery.where_media_not_redownloaded()
