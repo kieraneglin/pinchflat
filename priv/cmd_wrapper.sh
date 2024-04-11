@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# This script is a wrapper for other programs
+# that ensures they are killed when stdin closes
+# (eg: a job terminates)
+
 # Start the program in the background
 exec "$@" &
 pid1=$!

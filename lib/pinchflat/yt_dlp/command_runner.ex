@@ -37,7 +37,7 @@ defmodule Pinchflat.YtDlp.CommandRunner do
     formatted_command_opts = [url] ++ CliUtils.parse_options(all_opts)
     Logger.info("[yt-dlp] called with: #{Enum.join(formatted_command_opts, " ")}")
 
-    case System.cmd(command, formatted_command_opts, stderr_to_stdout: true) do
+    case CliUtils.wrap_cmd(command, formatted_command_opts, stderr_to_stdout: true) do
       {_, 0} ->
         # IDEA: consider deleting the file after reading it. It's in the tmp dir, so it's not
         # a huge deal, but it's still a good idea to clean up after ourselves.
