@@ -32,6 +32,7 @@ defmodule Pinchflat.Sources.Source do
     retention_period_days
     title_filter_regex
     media_profile_id
+    output_path_template_override
   )a
 
   # Expensive API calls are made when a source is inserted/updated so
@@ -76,6 +77,7 @@ defmodule Pinchflat.Sources.Source do
     field :retention_period_days, :integer
     field :original_url, :string
     field :title_filter_regex, :string
+    field :output_path_template_override, :string
 
     field :series_directory, :string
     field :nfo_filepath, :string
@@ -109,6 +111,8 @@ defmodule Pinchflat.Sources.Source do
     |> dynamic_default(:uuid, fn _ -> Ecto.UUID.generate() end)
     |> validate_required(required_fields)
     |> validate_number(:retention_period_days, greater_than_or_equal_to: 0)
+    # Ensures it ends with `.{{ ext }}` or `.%(ext)s` or similar (with a little wiggle room)
+    |> validate_format(:output_path_template_override, MediaProfile.ext_regex(), message: "must end with .{{ ext }}")
     |> cast_assoc(:metadata, with: &SourceMetadata.changeset/2, required: false)
     |> unique_constraint([:collection_id, :media_profile_id, :title_filter_regex], error_key: :original_url)
   end
