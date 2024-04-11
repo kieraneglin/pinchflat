@@ -45,7 +45,7 @@ defmodule Pinchflat.Notifications.CommandRunner do
   """
   @impl AppriseCommandRunner
   def version do
-    case System.cmd(backend_executable(), ["--version"]) do
+    case CliUtils.wrap_cmd(backend_executable(), ["--version"]) do
       {output, 0} ->
         output
         |> String.split(~r{\r?\n})

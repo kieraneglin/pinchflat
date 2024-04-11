@@ -6,6 +6,23 @@ defmodule Pinchflat.Utils.CliUtils do
   alias Pinchflat.Utils.StringUtils
 
   @doc """
+  Wraps a command in a shell script that will terminate
+  the command if stdin is closed. Useful for stopping
+  commands if the job runner is cancelled.
+
+  Delegates to `System.cmd/3` and any options/output
+  are passed through.
+
+  Returns {binary(), integer()}
+  """
+  def wrap_cmd(command, args, opts \\ []) do
+    wrapper_command = Path.join(:code.priv_dir(:pinchflat), "cmd_wrapper.sh")
+    actual_command = [command] ++ args
+
+    System.cmd(wrapper_command, actual_command, opts)
+  end
+
+  @doc """
   Parses a list of command options into a list of strings suitable for passing to
   `System.cmd/3`.
 
