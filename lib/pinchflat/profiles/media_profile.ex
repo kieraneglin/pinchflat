@@ -80,7 +80,8 @@ defmodule Pinchflat.Profiles.MediaProfile do
     |> unique_constraint(:name)
   end
 
-  defp ext_regex do
+  @doc false
+  def ext_regex do
     ~r/\.({{ ?ext ?}}|%\( ?ext ?\)[sS])$/
   end
 end

@@ -35,6 +35,28 @@ defmodule Pinchflat.SourcesTest do
     end
   end
 
+  describe "output_path_template/1" do
+    test "returns the source's override if present" do
+      source = source_fixture(%{output_path_template_override: "/override/{{ title }}.{{ ext }}"})
+
+      assert Sources.output_path_template(source) == "/override/{{ title }}.{{ ext }}"
+    end
+
+    test "returns the media profile's template if no override is present" do
+      media_profile = media_profile_fixture(%{output_path_template: "/profile/{{ title }}.{{ ext }}"})
+      source = source_fixture(%{media_profile_id: media_profile.id})
+
+      assert Sources.output_path_template(source) == "/profile/{{ title }}.{{ ext }}"
+    end
+
+    test "Treats empty strings as being blank" do
+      media_profile = media_profile_fixture(%{output_path_template: "/profile/{{ title }}.{{ ext }}"})
+      source = source_fixture(%{media_profile_id: media_profile.id, output_path_template_override: "  "})
+
+      assert Sources.output_path_template(source) == "/profile/{{ title }}.{{ ext }}"
+    end
+  end
+
   describe "list_sources/0" do
     test "it returns all sources" do
       source = source_fixture()
