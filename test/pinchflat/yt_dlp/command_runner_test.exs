@@ -42,12 +42,13 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
     end
   end
 
-  describe "run/4 when testing cookie options" do
+  describe "run/4 when testing external file options" do
     setup do
       base_dir = Application.get_env(:pinchflat, :extras_directory)
       cookie_file = Path.join(base_dir, "cookies.txt")
+      yt_dlp_file = Path.join([base_dir, "yt-dlp-configs", "main.txt"])
 
-      {:ok, cookie_file: cookie_file}
+      {:ok, cookie_file: cookie_file, yt_dlp_file: yt_dlp_file}
     end
 
     test "includes cookie options when cookies.txt exists", %{cookie_file: cookie_file} do
