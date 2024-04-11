@@ -9,113 +9,139 @@
     Oops, something went wrong! Please check the errors below.
   </.error>
 
-  <section class="flex justify-between items-center mt-8">
-    <h3 class=" text-2xl text-black dark:text-white">
-      General Options
-    </h3>
-    <span class="cursor-pointer hover:underline" x-on:click="advancedMode = !advancedMode">
-      Editing Mode: <span x-text="advancedMode ? 'Advanced' : 'Basic'"></span>
-    </span>
-  </section>
+  <section x-data="{ mediaProfileId: null }">
+    <section class="flex justify-between items-center mt-8">
+      <h3 class=" text-2xl text-black dark:text-white">
+        General Options
+      </h3>
+      <span class="cursor-pointer hover:underline" x-on:click="advancedMode = !advancedMode">
+        Editing Mode: <span x-text="advancedMode ? 'Advanced' : 'Basic'"></span>
+      </span>
+    </section>
 
-  <.input
-    field={f[:custom_name]}
-    type="text"
-    label="Custom Name"
-    help="Something descriptive. Does not impact indexing or downloading"
-  />
-
-  <.input field={f[:original_url]} type="text" label="Source URL" help="URL of a channel or playlist (required)" />
-
-  <.input
-    field={f[:media_profile_id]}
-    options={Enum.map(@media_profiles, &{&1.name, &1.id})}
-    type="select"
-    label="Media Profile"
-    help="Sets your preferences for what media to look for and how to store it"
-  />
-
-  <h3 class="mt-8 text-2xl text-black dark:text-white">
-    Indexing Options
-  </h3>
-
-  <section x-data="{ fastIndexingEnabled: null }">
     <.input
-      field={f[:index_frequency_minutes]}
-      options={friendly_index_frequencies()}
-      type="select"
-      label="Index Frequency"
-      x-bind:disabled="fastIndexingEnabled == true"
-      x-init="$watch('fastIndexingEnabled', v => v && ($el.value = 30 * 24 * 60))"
-      help="Indexing is the process of checking for media to download. Sets the time between one index of this source finishing and the next one starting"
+      field={f[:custom_name]}
+      type="text"
+      label="Custom Name"
+      help="Something descriptive. Does not impact indexing or downloading"
     />
 
-    <div phx-click={show_modal("upgrade-modal")}>
+    <.input field={f[:original_url]} type="text" label="Source URL" help="URL of a channel or playlist (required)" />
+
+    <.input
+      field={f[:media_profile_id]}
+      options={Enum.map(@media_profiles, &{&1.name, &1.id})}
+      type="select"
+      label="Media Profile"
+      help="Sets your preferences for what media to look for and how to store it"
+      x-model.fill="mediaProfileId"
+    />
+
+    <h3 class="mt-8 text-2xl text-black dark:text-white">
+      Indexing Options
+    </h3>
+
+    <section x-data="{ fastIndexingEnabled: null }">
       <.input
-        field={f[:fast_index]}
-        type="toggle"
-        label="Use Fast Indexing"
-        label_suffix="(pro)"
-        help="Experimental. Overrides 'Index Frequency'. Recommended for large channels that upload frequently. Does not work with private playlists. See below for more info"
-        x-init="
+        field={f[:index_frequency_minutes]}
+        options={friendly_index_frequencies()}
+        type="select"
+        label="Index Frequency"
+        x-bind:disabled="fastIndexingEnabled == true"
+        x-init="$watch('fastIndexingEnabled', v => v && ($el.value = 30 * 24 * 60))"
+        help="Indexing is the process of checking for media to download. Sets the time between one index of this source finishing and the next one starting"
+      />
+
+      <div phx-click={show_modal("upgrade-modal")}>
+        <.input
+          field={f[:fast_index]}
+          type="toggle"
+          label="Use Fast Indexing"
+          label_suffix="(pro)"
+          help="Experimental. Overrides 'Index Frequency'. Recommended for large channels that upload frequently. Does not work with private playlists. See below for more info"
+          x-init="
           // `enabled` is the data attribute that the toggle uses internally
           fastIndexingEnabled = enabled
           $watch('enabled', value => fastIndexingEnabled = !!value)
         "
-      />
-    </div>
-  </section>
+        />
+      </div>
+    </section>
 
-  <h3 class="mt-8 text-2xl text-black dark:text-white">
-    Downloading Options
-  </h3>
-
-  <.input
-    field={f[:download_media]}
-    type="toggle"
-    label="Download Media"
-    help="Unchecking still indexes media but it won't be downloaded until you enable this option"
-  />
-
-  <.input
-    field={f[:download_cutoff_date]}
-    type="text"
-    label="Download Cutoff Date"
-    placeholder="YYYY-MM-DD"
-    maxlength="10"
-    pattern="((?:19|20)[0-9][0-9])-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])"
-    title="YYYY-MM-DD"
-    help="Only download media uploaded after this date. Leave blank to download all media. Must be in YYYY-MM-DD format"
-  />
-
-  <.input
-    field={f[:retention_period_days]}
-    type="number"
-    label="Retention Period (days)"
-    min="0"
-    help="Days between when media is *downloaded* and when it's deleted. Leave blank to keep media indefinitely"
-  />
-
-  <section x-show="advancedMode">
     <h3 class="mt-8 text-2xl text-black dark:text-white">
-      Advanced Options
+      Downloading Options
     </h3>
-    <p class="text-sm mt-2">
-      Tread carefully
-    </p>
 
     <.input
-      field={f[:title_filter_regex]}
-      type="text"
-      label="Title Filter Regex"
-      placeholder="(?i)^How to Bike$"
-      help="A PCRE-compatible regex. Only media with titles that match this regex will be downloaded. Look up 'SQLean Regex docs' for more"
+      field={f[:download_media]}
+      type="toggle"
+      label="Download Media"
+      help="Unchecking still indexes media but it won't be downloaded until you enable this option"
     />
+
+    <.input
+      field={f[:download_cutoff_date]}
+      type="text"
+      label="Download Cutoff Date"
+      placeholder="YYYY-MM-DD"
+      maxlength="10"
+      pattern="((?:19|20)[0-9][0-9])-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])"
+      title="YYYY-MM-DD"
+      help="Only download media uploaded after this date. Leave blank to download all media. Must be in YYYY-MM-DD format"
+    />
+
+    <.input
+      field={f[:retention_period_days]}
+      type="number"
+      label="Retention Period (days)"
+      min="0"
+      help="Days between when media is *downloaded* and when it's deleted. Leave blank to keep media indefinitely"
+    />
+
+    <section x-show="advancedMode">
+      <h3 class="mt-8 text-2xl text-black dark:text-white">
+        Advanced Options
+      </h3>
+      <p class="text-sm mt-2">
+        Tread carefully
+      </p>
+
+      <.input
+        field={f[:title_filter_regex]}
+        type="text"
+        label="Title Filter Regex"
+        placeholder="(?i)^How to Bike$"
+        help="A PCRE-compatible regex. Only media with titles that match this regex will be downloaded. Look up 'SQLean Regex docs' for more"
+      />
+
+      <section
+        x-data={
+          """
+          { 
+            placeholders: JSON.parse('#{output_path_template_override_placeholders(@media_profiles)}'),
+            inputValue: null
+          }
+          """
+        }
+        x-on:load-template="inputValue = placeholders[mediaProfileId]"
+      >
+        <.input
+          field={f[:output_path_template_override]}
+          type="text"
+          inputclass="font-mono"
+          label="Output path template override"
+          help={output_path_template_override_help()}
+          html_help={true}
+          x-bind:placeholder="placeholders[mediaProfileId]"
+          x-model.fill="inputValue"
+        />
+      </section>
+    </section>
+
+    <.button class="my-10 sm:mb-7.5 w-full sm:w-auto" rounding="rounded-lg">Save Source</.button>
+
+    <div class="rounded-sm dark:bg-meta-4 p-4 md:p-6 mb-5">
+      <.fast_indexing_help />
+    </div>
   </section>
-
-  <.button class="my-10 sm:mb-7.5 w-full sm:w-auto" rounding="rounded-lg">Save Source</.button>
-
-  <div class="rounded-sm dark:bg-meta-4 p-4 md:p-6 mb-5">
-    <.fast_indexing_help />
-  </div>
 </.simple_form>

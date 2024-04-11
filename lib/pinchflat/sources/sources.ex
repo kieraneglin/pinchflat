@@ -20,6 +20,19 @@ defmodule Pinchflat.Sources do
   alias Pinchflat.Metadata.SourceMetadataStorageWorker
 
   @doc """
+  Returns the relevant output path template for a source.
+  Pulls from the source's override if present, otherwise uses the media profile's.
+
+  Returns binary()
+  """
+  def output_path_template(source) do
+    source = Repo.preload(source, :media_profile)
+    media_profile = source.media_profile
+
+    source.output_path_template_override || media_profile.output_path_template
+  end
+
+  @doc """
   Returns the list of sources. Returns [%Source{}, ...]
   """
   def list_sources do

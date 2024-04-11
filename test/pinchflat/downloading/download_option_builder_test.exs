@@ -4,6 +4,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
   import Pinchflat.SourcesFixtures
   import Pinchflat.ProfilesFixtures
 
+  alias Pinchflat.Sources
   alias Pinchflat.Profiles
   alias Pinchflat.Utils.FilesystemUtils
   alias Pinchflat.Downloading.DownloadOptionBuilder
@@ -30,6 +31,20 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
       assert {:ok, res} = DownloadOptionBuilder.build(media_item)
 
       assert {:output, "/tmp/test/media/#{media_item.source.custom_name}.%(ext)s"} in res
+    end
+
+    test "uses source's output override if present", %{media_item: media_item} do
+      source = media_item.source
+      {:ok, _} = Sources.update_source(source, %{output_path_template_override: "override.%(ext)s"})
+
+      media_item =
+        media_item
+        |> Repo.reload()
+        |> Repo.preload(source: :media_profile)
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+
+      assert {:output, "/tmp/test/media/override.%(ext)s"} in res
     end
   end
 
@@ -133,6 +148,20 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
       assert {:ok, res} = DownloadOptionBuilder.build(media_item)
 
       assert {:output, "thumbnail:/tmp/test/media/%(title)S-thumb.%(ext)s"} in res
+    end
+
+    test "appends -thumb to source's output path override, if present", %{media_item: media_item} do
+      media_item = update_media_profile_attribute(media_item, %{download_thumbnail: true})
+      {:ok, _} = Sources.update_source(media_item.source, %{output_path_template_override: "override.%(ext)s"})
+
+      media_item =
+        media_item
+        |> Repo.reload()
+        |> Repo.preload(source: :media_profile)
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+
+      assert {:output, "thumbnail:/tmp/test/media/override-thumb.%(ext)s"} in res
     end
 
     test "converts thumbnail to jpg when download_thumbnail is true", %{media_item: media_item} do
@@ -358,6 +387,15 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
       path = DownloadOptionBuilder.build_output_path_for(media_item.source)
 
       assert path == "/tmp/test/media/%(title)S.%(ext)s"
+    end
+
+    test "uses source's output override if present", %{media_item: media_item} do
+      source = media_item.source
+      {:ok, source} = Sources.update_source(source, %{output_path_template_override: "override.%(ext)s"})
+
+      path = DownloadOptionBuilder.build_output_path_for(source)
+
+      assert path == "/tmp/test/media/override.%(ext)s"
     end
   end
 

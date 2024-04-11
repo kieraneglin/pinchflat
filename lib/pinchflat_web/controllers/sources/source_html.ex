@@ -28,4 +28,20 @@ defmodule PinchflatWeb.Sources.SourceHTML do
   def rss_feed_url(conn, source) do
     url(conn, ~p"/sources/#{source.uuid}/feed") <> ".xml"
   end
+
+  def output_path_template_override_placeholders(media_profiles) do
+    media_profiles
+    |> Enum.map(&{&1.id, &1.output_path_template})
+    |> Map.new()
+    |> Phoenix.json_library().encode!()
+  end
+
+  def output_path_template_override_help do
+    help_button_classes = "underline decoration-bodydark decoration-1 hover:decoration-white cursor-pointer"
+    help_button = ~s{<span class="#{help_button_classes}" x-on:click="$dispatch('load-template')">Click here</span>}
+
+    """
+    Must end with .{{ ext }}. Same rules as Media Profile output path templates. #{help_button} to load your media profile's output template
+    """
+  end
 end

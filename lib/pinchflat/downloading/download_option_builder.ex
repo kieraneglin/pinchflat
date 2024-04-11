@@ -3,6 +3,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
   Builds the options for yt-dlp to download media based on the given media profile.
   """
 
+  alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Downloading.OutputPathBuilder
@@ -30,12 +31,12 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
 
   @doc """
   Builds the output path for yt-dlp to download media based on the given source's
-  media profile.
+  media profile. Uses the source's override output path template if it exists.
 
   Returns binary()
   """
   def build_output_path_for(%Source{} = source_with_preloads) do
-    output_path_template = source_with_preloads.media_profile.output_path_template
+    output_path_template = Sources.output_path_template(source_with_preloads)
 
     build_output_path(output_path_template, source_with_preloads)
   end
@@ -184,7 +185,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
   # It's dependent on the output_path_template being a string ending `.{{ ext }}`
   # (or equivalent), but that's validated by the MediaProfile schema.
   defp determine_thumbnail_location(media_item_with_preloads) do
-    output_path_template = media_item_with_preloads.source.media_profile.output_path_template
+    output_path_template = Sources.output_path_template(media_item_with_preloads.source)
 
     output_path_template
     |> String.split(~r{\.}, include_captures: true)
