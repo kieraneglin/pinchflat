@@ -22,4 +22,7 @@ alias Pinchflat.Metadata.MetadataFileHelpers
 
 alias Pinchflat.SlowIndexing.FileFollowerServer
 
+# TODO: remove
+alias Pinchflat.KilledWorker
+
 Pinchflat.Release.check_file_permissions()
