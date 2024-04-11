@@ -31,15 +31,39 @@ defmodule Pinchflat.Media do
   def list_cullable_media_items do
     MediaQuery.new()
     |> MediaQuery.with_media_filepath()
-    |> MediaQuery.with_passed_retention_period()
-    |> MediaQuery.with_no_culling_prevention()
+    |> MediaQuery.where_past_retention_period()
+    |> MediaQuery.where_culling_not_prevented()
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns a list of media_items that are redownloadable based on the redownload delay
+  of the media_profile their source belongs to.
+
+  The logic is that a media_item is past_redownload_delay if the media_item's
+  upload_date is at least redownload_delay_days ago AND
+  `media_downloaded_at` - `redownload_delay_days` is before the media_item's `upload_date`.
+  This logic grabs media that we've recently downloaded AND is recently uploaded, but
+  doesn't grab media that we've recently downloaded and was uploaded a long time ago.
+  This also makes things work as expected when downloading media from a source for the
+  first time.
+
+  Returns [%MediaItem{}, ...]
+  """
+  def list_redownloadable_media_items do
+    MediaQuery.new()
+    |> MediaQuery.with_media_downloaded_at()
+    |> MediaQuery.where_download_not_prevented()
+    |> MediaQuery.where_not_culled()
+    |> MediaQuery.where_media_not_redownloaded()
+    |> MediaQuery.where_past_redownload_delay()
     |> Repo.all()
   end
 
   @doc """
   Returns a list of pending media_items for a given source, where
   pending means the `media_filepath` is `nil` AND the media_item
-  matches satisfies `MediaQuery.with_media_pending_download`. You
+  matches satisfies `MediaQuery.where_pending_download`. You
   should really check out that function if you need to know more
   because it has a lot going on.
 
@@ -48,7 +72,7 @@ defmodule Pinchflat.Media do
   def list_pending_media_items_for(%Source{} = source) do
     MediaQuery.new()
     |> MediaQuery.for_source(source)
-    |> MediaQuery.with_media_pending_download()
+    |> MediaQuery.where_pending_download()
     |> Repo.all()
   end
 
@@ -66,7 +90,7 @@ defmodule Pinchflat.Media do
 
     MediaQuery.new()
     |> MediaQuery.with_id(media_item.id)
-    |> MediaQuery.with_media_pending_download()
+    |> MediaQuery.where_pending_download()
     |> Repo.exists?()
   end
 

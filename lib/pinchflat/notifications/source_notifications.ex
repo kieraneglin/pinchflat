@@ -59,7 +59,7 @@ defmodule Pinchflat.Notifications.SourceNotifications do
   defp pending_media_item_count(source) do
     MediaQuery.new()
     |> MediaQuery.for_source(source)
-    |> MediaQuery.with_media_pending_download()
+    |> MediaQuery.where_pending_download()
     |> Repo.aggregate(:count)
   end
 

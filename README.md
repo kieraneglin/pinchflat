@@ -49,6 +49,8 @@ If it doesn't work for your use case, please make a feature request! You can als
 - Supports downloading audio content
 - Custom rules for handling YouTube Shorts and livestreams
 - Apprise support for notifications
+- Allows automatically redownloading new media after a set period
+  - This can help improve the download quality of new content or improve SponsorBlock tags
 - Optionally automatically delete old content ([docs](https://github.com/kieraneglin/pinchflat/wiki/Automatically-Delete-Media))
 - Advanced options like setting cutoff dates and filtering by title
 - Reliable hands-off operation

@@ -35,14 +35,17 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
   """
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"id" => media_item_id} = args}) do
+    should_force = Map.get(args, "force", false)
+    is_redownload = Map.get(args, "redownload?", false)
+
     media_item =
       media_item_id
       |> Media.get_media_item!()
       |> Repo.preload(:source)
 
     # If the source or media item is set to not download media, perform a no-op unless forced
-    if (media_item.source.download_media && !media_item.prevent_download) || args["force"] do
-      download_media_and_schedule_jobs(media_item)
+    if (media_item.source.download_media && !media_item.prevent_download) || should_force do
+      download_media_and_schedule_jobs(media_item, is_redownload)
     else
       :ok
     end
@@ -51,10 +54,13 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
     Ecto.StaleEntryError -> Logger.info("#{__MODULE__} discarded: media item #{media_item_id} stale")
   end
 
-  defp download_media_and_schedule_jobs(media_item) do
+  defp download_media_and_schedule_jobs(media_item, is_redownload) do
     case MediaDownloader.download_for_media_item(media_item) do
       {:ok, updated_media_item} ->
-        compute_and_save_media_filesize(updated_media_item)
+        Media.update_media_item(updated_media_item, %{
+          media_size_bytes: compute_media_filesize(updated_media_item),
+          media_redownloaded_at: get_redownloaded_at(is_redownload)
+        })
 
         {:ok, updated_media_item}
 
@@ -66,13 +72,21 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
     end
   end
 
-  defp compute_and_save_media_filesize(media_item) do
+  defp compute_media_filesize(media_item) do
     case File.stat(media_item.media_filepath) do
       {:ok, %{size: size}} ->
-        Media.update_media_item(media_item, %{media_size_bytes: size})
+        size
 
       _ ->
-        :ok
+        nil
+    end
+  end
+
+  defp get_redownloaded_at(is_redownload) do
+    if is_redownload do
+      DateTime.utc_now()
+    else
+      nil
     end
   end
 end
