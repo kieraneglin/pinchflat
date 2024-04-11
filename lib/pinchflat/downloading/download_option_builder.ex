@@ -106,16 +106,18 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
   end
 
   defp quality_options(media_profile) do
-    video_codec_options = "+codec:avc:m4a"
+    video_codec_option = fn res ->
+      [format_sort: "res:#{res},+codec:avc:m4a", remux_video: "mp4"]
+    end
 
     case media_profile.preferred_resolution do
       # Also be aware that :audio disabled all embedding options for subtitles
       :audio -> [:extract_audio, format: "bestaudio[ext=m4a]"]
-      :"360p" -> [format_sort: "res:360,#{video_codec_options}"]
-      :"480p" -> [format_sort: "res:480,#{video_codec_options}"]
-      :"720p" -> [format_sort: "res:720,#{video_codec_options}"]
-      :"1080p" -> [format_sort: "res:1080,#{video_codec_options}"]
-      :"2160p" -> [format_sort: "res:2160,#{video_codec_options}"]
+      :"360p" -> video_codec_option.("360")
+      :"480p" -> video_codec_option.("480")
+      :"720p" -> video_codec_option.("720")
+      :"1080p" -> video_codec_option.("1080")
+      :"2160p" -> video_codec_option.("2160")
     end
   end
 
