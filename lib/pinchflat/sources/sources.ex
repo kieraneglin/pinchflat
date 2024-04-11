@@ -13,7 +13,7 @@ defmodule Pinchflat.Sources do
   alias Pinchflat.Profiles.MediaProfile
   alias Pinchflat.YtDlp.MediaCollection
   alias Pinchflat.Metadata.SourceMetadata
-  alias Pinchflat.Filesystem.FilesystemHelpers
+  alias Pinchflat.Utils.FilesystemUtils
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.FastIndexing.FastIndexingWorker
   alias Pinchflat.SlowIndexing.SlowIndexingHelpers
@@ -153,7 +153,7 @@ defmodule Pinchflat.Sources do
     Source.filepath_attributes()
     |> Enum.map(fn field -> mapped_struct[field] end)
     |> Enum.filter(&is_binary/1)
-    |> Enum.each(&FilesystemHelpers.delete_file_and_remove_empty_directories/1)
+    |> Enum.each(&FilesystemUtils.delete_file_and_remove_empty_directories/1)
   end
 
   defp delete_internal_metadata_files(source) do
@@ -163,7 +163,7 @@ defmodule Pinchflat.Sources do
     SourceMetadata.filepath_attributes()
     |> Enum.map(fn field -> mapped_struct[field] end)
     |> Enum.filter(&is_binary/1)
-    |> Enum.each(&FilesystemHelpers.delete_file_and_remove_empty_directories/1)
+    |> Enum.each(&FilesystemUtils.delete_file_and_remove_empty_directories/1)
   end
 
   defp add_source_details_to_changeset(source, changeset) do

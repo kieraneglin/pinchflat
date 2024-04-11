@@ -1,13 +1,13 @@
-defmodule Pinchflat.Filesystem.FilesystemHelpersTest do
+defmodule Pinchflat.Utils.FilesystemUtilsTest do
   use Pinchflat.DataCase
 
   import Pinchflat.MediaFixtures
 
-  alias Pinchflat.Filesystem.FilesystemHelpers
+  alias Pinchflat.Utils.FilesystemUtils
 
   describe "generate_metadata_tmpfile/1" do
     test "creates a tmpfile and returns its path" do
-      res = FilesystemHelpers.generate_metadata_tmpfile(:json)
+      res = FilesystemUtils.generate_metadata_tmpfile(:json)
 
       assert String.ends_with?(res, ".json")
       assert File.exists?(res)
@@ -22,7 +22,7 @@ defmodule Pinchflat.Filesystem.FilesystemHelpersTest do
 
       refute media_item.media_size_bytes
 
-      assert {:ok, media_item} = FilesystemHelpers.compute_and_save_media_filesize(media_item)
+      assert {:ok, media_item} = FilesystemUtils.compute_and_save_media_filesize(media_item)
 
       assert Repo.reload!(media_item).media_size_bytes
     end
@@ -30,16 +30,16 @@ defmodule Pinchflat.Filesystem.FilesystemHelpersTest do
     test "returns the error if operation fails" do
       media_item = media_item_fixture(%{media_filepath: "/nonexistent/file.mkv"})
 
-      assert {:error, _} = FilesystemHelpers.compute_and_save_media_filesize(media_item)
+      assert {:error, _} = FilesystemUtils.compute_and_save_media_filesize(media_item)
     end
   end
 
   describe "write_p/3" do
     test "writes content to a file" do
-      filepath = FilesystemHelpers.generate_metadata_tmpfile(:json)
+      filepath = FilesystemUtils.generate_metadata_tmpfile(:json)
       content = "{}"
 
-      assert :ok = FilesystemHelpers.write_p(filepath, content)
+      assert :ok = FilesystemUtils.write_p(filepath, content)
       assert File.read!(filepath) == content
 
       File.rm!(filepath)
@@ -50,7 +50,7 @@ defmodule Pinchflat.Filesystem.FilesystemHelpersTest do
       filepath = Path.join([tmpfile_directory, "foo", "bar", "file.json"])
       content = "{}"
 
-      assert :ok = FilesystemHelpers.write_p(filepath, content)
+      assert :ok = FilesystemUtils.write_p(filepath, content)
       assert File.read!(filepath) == content
 
       File.rm!(filepath)
@@ -59,10 +59,10 @@ defmodule Pinchflat.Filesystem.FilesystemHelpersTest do
 
   describe "write_p!/3" do
     test "writes content to a file" do
-      filepath = FilesystemHelpers.generate_metadata_tmpfile(:json)
+      filepath = FilesystemUtils.generate_metadata_tmpfile(:json)
       content = "{}"
 
-      assert :ok = FilesystemHelpers.write_p!(filepath, content)
+      assert :ok = FilesystemUtils.write_p!(filepath, content)
       assert File.read!(filepath) == content
 
       File.rm!(filepath)
@@ -73,7 +73,7 @@ defmodule Pinchflat.Filesystem.FilesystemHelpersTest do
       filepath = Path.join([tmpfile_directory, "foo", "bar", "file.json"])
       content = "{}"
 
-      assert :ok = FilesystemHelpers.write_p!(filepath, content)
+      assert :ok = FilesystemUtils.write_p!(filepath, content)
       assert File.read!(filepath) == content
 
       File.rm!(filepath)
@@ -82,11 +82,11 @@ defmodule Pinchflat.Filesystem.FilesystemHelpersTest do
 
   describe "delete_file_and_remove_empty_directories/1" do
     test "deletes file at the provided filepath" do
-      filepath = FilesystemHelpers.generate_metadata_tmpfile(:json)
+      filepath = FilesystemUtils.generate_metadata_tmpfile(:json)
 
       assert File.exists?(filepath)
 
-      assert :ok = FilesystemHelpers.delete_file_and_remove_empty_directories(filepath)
+      assert :ok = FilesystemUtils.delete_file_and_remove_empty_directories(filepath)
 
       refute File.exists?(filepath)
     end
@@ -94,9 +94,9 @@ defmodule Pinchflat.Filesystem.FilesystemHelpersTest do
     test "deletes empty directories" do
       tmpfile_directory = Application.get_env(:pinchflat, :tmpfile_directory)
       filepath = Path.join([tmpfile_directory, "foo", "bar", "baz", "qux.json"])
-      FilesystemHelpers.write_p!(filepath, "")
+      FilesystemUtils.write_p!(filepath, "")
 
-      assert :ok = FilesystemHelpers.delete_file_and_remove_empty_directories(filepath)
+      assert :ok = FilesystemUtils.delete_file_and_remove_empty_directories(filepath)
 
       refute File.exists?(filepath)
       refute File.exists?(Path.join([tmpfile_directory, "foo", "bar", "baz"]))
@@ -108,10 +108,10 @@ defmodule Pinchflat.Filesystem.FilesystemHelpersTest do
       tmpfile_directory = Application.get_env(:pinchflat, :tmpfile_directory)
       filepath_1 = Path.join([tmpfile_directory, "foo", "bar", "baz", "qux.json"])
       filepath_2 = Path.join([tmpfile_directory, "foo", "baz.json"])
-      FilesystemHelpers.write_p!(filepath_1, "")
-      FilesystemHelpers.write_p!(filepath_2, "")
+      FilesystemUtils.write_p!(filepath_1, "")
+      FilesystemUtils.write_p!(filepath_2, "")
 
-      assert :ok = FilesystemHelpers.delete_file_and_remove_empty_directories(filepath_1)
+      assert :ok = FilesystemUtils.delete_file_and_remove_empty_directories(filepath_1)
 
       refute File.exists?(filepath_1)
       refute File.exists?(Path.join([tmpfile_directory, "foo", "bar", "baz"]))
@@ -121,24 +121,24 @@ defmodule Pinchflat.Filesystem.FilesystemHelpersTest do
       assert File.exists?(Path.join([tmpfile_directory, "foo"]))
 
       # cleanup
-      FilesystemHelpers.delete_file_and_remove_empty_directories(filepath_2)
+      FilesystemUtils.delete_file_and_remove_empty_directories(filepath_2)
     end
 
     test "returns an error if file could not be deleted" do
       filepath = "/nonexistent/file.json"
 
-      assert {:error, _} = FilesystemHelpers.delete_file_and_remove_empty_directories(filepath)
+      assert {:error, _} = FilesystemUtils.delete_file_and_remove_empty_directories(filepath)
     end
   end
 
   describe "cp_p!/2" do
     test "copies a file from source to destination" do
       source = "#{tmpfile_directory()}/source.json"
-      FilesystemHelpers.write_p!(source, "TEST")
+      FilesystemUtils.write_p!(source, "TEST")
       destination = "#{tmpfile_directory()}/destination.json"
 
       refute File.exists?(destination)
-      FilesystemHelpers.cp_p!(source, destination)
+      FilesystemUtils.cp_p!(source, destination)
       assert File.exists?(destination)
       assert File.read!(destination) == "TEST"
 
@@ -148,11 +148,11 @@ defmodule Pinchflat.Filesystem.FilesystemHelpersTest do
 
     test "creates directories as needed" do
       source = "#{tmpfile_directory()}/source.json"
-      FilesystemHelpers.write_p!(source, "TEST")
+      FilesystemUtils.write_p!(source, "TEST")
       destination = "#{tmpfile_directory()}/foo/bar/destination.json"
 
       refute File.exists?(destination)
-      FilesystemHelpers.cp_p!(source, destination)
+      FilesystemUtils.cp_p!(source, destination)
       assert File.exists?(destination)
 
       File.rm!(source)

@@ -1,7 +1,7 @@
 defmodule Pinchflat.YtDlp.CommandRunnerTest do
   use ExUnit.Case, async: true
 
-  alias Pinchflat.Filesystem.FilesystemHelpers
+  alias Pinchflat.Utils.FilesystemUtils
 
   alias Pinchflat.YtDlp.CommandRunner, as: Runner
 
@@ -51,7 +51,7 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
     end
 
     test "includes cookie options when cookies.txt exists", %{cookie_file: cookie_file} do
-      FilesystemHelpers.write_p!(cookie_file, "cookie data")
+      FilesystemUtils.write_p!(cookie_file, "cookie data")
 
       assert {:ok, output} = Runner.run(@media_url, [], "")
 
@@ -59,7 +59,7 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
     end
 
     test "doesn't include cookie options when cookies.txt blank", %{cookie_file: cookie_file} do
-      FilesystemHelpers.write_p!(cookie_file, " \n \n ")
+      FilesystemUtils.write_p!(cookie_file, " \n \n ")
 
       assert {:ok, output} = Runner.run(@media_url, [], "")
 

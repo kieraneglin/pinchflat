@@ -2,10 +2,10 @@ defmodule Pinchflat.Metadata.NfoBuilderTest do
   use Pinchflat.DataCase
 
   alias Pinchflat.Metadata.NfoBuilder
-  alias Pinchflat.Filesystem.FilesystemHelpers
+  alias Pinchflat.Utils.FilesystemUtils
 
   setup do
-    filepath = FilesystemHelpers.generate_metadata_tmpfile(:json)
+    filepath = FilesystemUtils.generate_metadata_tmpfile(:json)
 
     on_exit(fn -> File.rm!(filepath) end)
 

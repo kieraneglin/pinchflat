@@ -14,7 +14,7 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
 
   alias Pinchflat.Repo
   alias Pinchflat.Settings
-  alias Pinchflat.Filesystem.FilesystemHelpers
+  alias Pinchflat.Utils.FilesystemUtils
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, %{}, opts)
@@ -57,7 +57,7 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
     if !File.exists?(filepath) do
       Logger.info("yt-dlp cookie file does not exist - creating it")
 
-      FilesystemHelpers.write_p!(filepath, "")
+      FilesystemUtils.write_p!(filepath, "")
     end
   end
 

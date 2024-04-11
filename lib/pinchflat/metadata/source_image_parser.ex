@@ -2,7 +2,7 @@ defmodule Pinchflat.Metadata.SourceImageParser do
   @moduledoc """
   Functions for parsing and storing source images.
   """
-  alias Pinchflat.Filesystem.FilesystemHelpers
+  alias Pinchflat.Utils.FilesystemUtils
 
   @doc """
   Given a base directory and source metadata, look for the appropriate images
@@ -62,7 +62,7 @@ defmodule Pinchflat.Metadata.SourceImageParser do
     extension = Path.extname(tmp_filepath)
     final_filepath = Path.join([base_directory, "#{filename}#{extension}"])
 
-    FilesystemHelpers.cp_p!(tmp_filepath, final_filepath)
+    FilesystemUtils.cp_p!(tmp_filepath, final_filepath)
 
     {source_attr_name, final_filepath}
   end

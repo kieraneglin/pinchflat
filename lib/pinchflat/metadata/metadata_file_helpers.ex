@@ -9,7 +9,7 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
   needed
   """
 
-  alias Pinchflat.Filesystem.FilesystemHelpers
+  alias Pinchflat.Utils.FilesystemUtils
 
   @doc """
   Returns the directory where metadata for a database record should be stored.
@@ -36,7 +36,7 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
     filepath = generate_filepath_for(database_record, "metadata.json.gz")
     {:ok, json} = Phoenix.json_library().encode(metadata_map)
 
-    :ok = FilesystemHelpers.write_p!(filepath, json, [:compressed])
+    :ok = FilesystemUtils.write_p!(filepath, json, [:compressed])
 
     filepath
   end
@@ -62,7 +62,7 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
     filepath = generate_filepath_for(database_record, Path.basename(thumbnail_url))
     thumbnail_blob = fetch_thumbnail_from_url(thumbnail_url)
 
-    :ok = FilesystemHelpers.write_p!(filepath, thumbnail_blob)
+    :ok = FilesystemUtils.write_p!(filepath, thumbnail_blob)
 
     filepath
   end

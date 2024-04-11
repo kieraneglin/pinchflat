@@ -5,7 +5,7 @@ defmodule Pinchflat.MediaFixtures do
   """
 
   alias Pinchflat.SourcesFixtures
-  alias Pinchflat.Filesystem.FilesystemHelpers
+  alias Pinchflat.Utils.FilesystemUtils
 
   @doc """
   Generate a media_item.
@@ -52,8 +52,8 @@ defmodule Pinchflat.MediaFixtures do
     json_gz_filepath = Path.join(metadata_dir, "metadata.json.gz")
     thumbnail_filepath = Path.join(metadata_dir, "thumbnail.jpg")
 
-    FilesystemHelpers.cp_p!(media_metadata_filepath_fixture(), json_gz_filepath)
-    FilesystemHelpers.cp_p!(thumbnail_filepath_fixture(), thumbnail_filepath)
+    FilesystemUtils.cp_p!(media_metadata_filepath_fixture(), json_gz_filepath)
+    FilesystemUtils.cp_p!(thumbnail_filepath_fixture(), thumbnail_filepath)
 
     merged_attrs =
       Map.merge(attrs, %{
@@ -74,7 +74,7 @@ defmodule Pinchflat.MediaFixtures do
         "#{:rand.uniform(1_000_000)}_media.mp4"
       ])
 
-    FilesystemHelpers.cp_p!(media_filepath_fixture(), stored_media_filepath)
+    FilesystemUtils.cp_p!(media_filepath_fixture(), stored_media_filepath)
 
     merged_attrs = Map.merge(attrs, %{media_filepath: stored_media_filepath})
     media_item_fixture(merged_attrs)

@@ -6,7 +6,7 @@ defmodule Pinchflat.YtDlp.MediaCollection do
 
   require Logger
 
-  alias Pinchflat.Filesystem.FilesystemHelpers
+  alias Pinchflat.Utils.FilesystemUtils
   alias Pinchflat.YtDlp.Media, as: YtDlpMedia
 
   @doc """
@@ -26,7 +26,7 @@ defmodule Pinchflat.YtDlp.MediaCollection do
     # available formats since we're just getting the media details
     command_opts = [:simulate, :skip_download, :ignore_no_formats_error]
     output_template = YtDlpMedia.indexing_output_template()
-    output_filepath = FilesystemHelpers.generate_metadata_tmpfile(:json)
+    output_filepath = FilesystemUtils.generate_metadata_tmpfile(:json)
     file_listener_handler = Keyword.get(addl_opts, :file_listener_handler, false)
 
     if file_listener_handler do

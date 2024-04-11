@@ -7,7 +7,7 @@ defmodule Pinchflat.YtDlp.CommandRunner do
 
   alias Pinchflat.Utils.CliUtils
   alias Pinchflat.YtDlp.YtDlpCommandRunner
-  alias Pinchflat.Filesystem.FilesystemHelpers, as: FSUtils
+  alias Pinchflat.Utils.FilesystemUtils, as: FSUtils
 
   @behaviour YtDlpCommandRunner
 
