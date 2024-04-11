@@ -41,7 +41,8 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
   end
 
   defp default_options do
-    [:no_progress, :windows_filenames]
+    # Add force-overwrites to make sure redownloading works
+    [:no_progress, :windows_filenames, :force_overwrites]
   end
 
   defp subtitle_options(media_profile) do
