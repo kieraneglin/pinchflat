@@ -106,7 +106,6 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
   end
 
   defp quality_options(media_profile) do
-    # TODO: test
     video_codec_option = fn res ->
       [format_sort: "res:#{res},+codec:avc:m4a", remux_video: "mp4"]
     end
