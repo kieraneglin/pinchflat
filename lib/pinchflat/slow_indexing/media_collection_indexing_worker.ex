@@ -61,9 +61,8 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorker do
     5. If the source uses fast indexing, that job is kicked off as well. It
        uses RSS to run a smaller, faster, and more frequent index. That job
        handles rescheduling itself but largely has a similar behaviour to this
-       job in that it kicks off index and maybe download jobs. The biggest difference
-       is that an index job is kicked off _for each new media item_ as opposed
-       to one larger index job. Check out `MediaIndexingWorker` comments for more.
+       job in that it runs and index and maybe kicks off media download jobs.
+       Check out `FastIndexingWorker` comments for more.
     6. If the job reschedules, the cycle from step 3 repeats until the heat death
        of the universe. The user changing things like the index frequency can
        dequeue or reschedule jobs as well

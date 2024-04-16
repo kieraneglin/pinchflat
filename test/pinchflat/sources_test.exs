@@ -13,7 +13,6 @@ defmodule Pinchflat.SourcesTest do
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.FastIndexing.FastIndexingWorker
   alias Pinchflat.Downloading.MediaDownloadWorker
-  alias Pinchflat.FastIndexing.MediaIndexingWorker
   alias Pinchflat.Metadata.SourceMetadataStorageWorker
   alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
 
@@ -415,16 +414,13 @@ defmodule Pinchflat.SourcesTest do
 
       {:ok, job_1} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
       task_1 = task_fixture(source_id: source.id, job_id: job_1.id)
-      {:ok, job_2} = Oban.insert(MediaIndexingWorker.new(%{"id" => source.id}))
+      {:ok, job_2} = Oban.insert(MediaCollectionIndexingWorker.new(%{"id" => source.id}))
       task_2 = task_fixture(source_id: source.id, job_id: job_2.id)
-      {:ok, job_3} = Oban.insert(MediaCollectionIndexingWorker.new(%{"id" => source.id}))
-      task_3 = task_fixture(source_id: source.id, job_id: job_3.id)
 
       assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
 
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task_1) end
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task_2) end
-      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task_3) end
     end
 
     test "not updating the index frequency will not re-schedule the indexing task or delete tasks" do

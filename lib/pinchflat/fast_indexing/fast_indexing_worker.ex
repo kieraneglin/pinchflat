@@ -10,6 +10,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingWorker do
 
   alias __MODULE__
   alias Pinchflat.Tasks
+  alias Pinchflat.Media
   alias Pinchflat.Sources
   alias Pinchflat.Settings
   alias Pinchflat.Sources.Source
@@ -28,9 +29,21 @@ defmodule Pinchflat.FastIndexing.FastIndexingWorker do
   end
 
   @doc """
-  Kicks off the fast indexing process for a source, reschedules the job to run again
-  once complete. See `MediaCollectionIndexingWorker` and `MediaIndexingWorker` comments
-  for more
+  Similar to `MediaCollectionIndexingWorker`, but for working with RSS feeds.
+  `MediaCollectionIndexingWorker` should be preferred in general, but this is
+  useful for downloading small batches of media items via fast indexing.
+
+  Only kicks off downloads for media that _should_ be downloaded
+  (ie: the source is set to download and the media matches the profile's format preferences)
+
+  Order of operations:
+    1. FastIndexingWorker (this module) periodically checks the YouTube RSS feed for new media.
+       with `FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed`
+    2. If the above `kickoff_download_tasks_from_youtube_rss_feed` finds new media items in the RSS feed,
+       it indexes them with a yt-dlp call to create the media item records then kicks off downloading
+       tasks (MediaDownloadWorker) for any new media items _that should be downloaded_.
+    3. Once downloads are kicked off, this worker sends a notification to the apprise server if applicable
+       then reschedules itself to run again in the future.
 
   Returns :ok | {:ok, :job_exists} | {:ok, %Task{}}
   """
@@ -39,7 +52,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingWorker do
     source = Sources.get_source!(source_id)
 
     if source.fast_index do
-      perform_indexing_and_notification(source)
+      perform_indexing_and_send_notification(source)
       reschedule_indexing(source)
     else
       :ok
@@ -49,11 +62,17 @@ defmodule Pinchflat.FastIndexing.FastIndexingWorker do
     Ecto.StaleEntryError -> Logger.info("#{__MODULE__} discarded: source #{source_id} stale")
   end
 
-  defp perform_indexing_and_notification(source) do
+  defp perform_indexing_and_send_notification(source) do
     apprise_server = Settings.get!(:apprise_server)
-    new_media_items = FastIndexingHelpers.kickoff_indexing_tasks_from_youtube_rss_feed(source)
 
-    SourceNotifications.send_new_media_notification(apprise_server, source, length(new_media_items))
+    new_media_items =
+      source
+      |> FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed()
+      |> Enum.filter(&Media.pending_download?(&1))
+
+    if source.download_media do
+      SourceNotifications.send_new_media_notification(apprise_server, source, length(new_media_items))
+    end
   end
 
   defp reschedule_indexing(source) do

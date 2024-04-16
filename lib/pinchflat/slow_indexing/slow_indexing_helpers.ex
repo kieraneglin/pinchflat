@@ -16,7 +16,6 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   alias Pinchflat.YtDlp.MediaCollection
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.SlowIndexing.FileFollowerServer
-  alias Pinchflat.Downloading.MediaDownloadWorker
   alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
 
   alias Pinchflat.YtDlp.Media, as: YtDlpMedia
@@ -29,7 +28,6 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   """
   def kickoff_indexing_task(%Source{} = source, job_args \\ %{}, job_opts \\ []) do
     Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
-    Tasks.delete_pending_tasks_for(source, "MediaIndexingWorker")
     Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker")
 
     MediaCollectionIndexingWorker.kickoff_with_task(source, job_args, job_opts)
@@ -127,11 +125,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
 
     case Media.create_media_item_from_backend_attrs(source, media_attrs) do
       {:ok, %MediaItem{} = media_item} ->
-        if source.download_media && Media.pending_download?(media_item) do
-          Logger.debug("FileFollowerServer Handler: Enqueuing download task for #{inspect(media_attrs)}")
-
-          MediaDownloadWorker.kickoff_with_task(media_item)
-        end
+        DownloadingHelpers.kickoff_download_if_pending(media_item)
 
       {:error, changeset} ->
         changeset
