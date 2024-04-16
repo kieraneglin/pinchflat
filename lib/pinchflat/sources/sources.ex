@@ -288,7 +288,6 @@ defmodule Pinchflat.Sources do
 
       %{index_frequency_minutes: _} ->
         Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
-        Tasks.delete_pending_tasks_for(source, "MediaIndexingWorker")
         Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker")
 
       _ ->

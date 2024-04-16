@@ -7,9 +7,11 @@ defmodule Pinchflat.Downloading.DownloadingHelpers do
 
   require Logger
 
+  alias Pinchflat.Repo
   alias Pinchflat.Media
   alias Pinchflat.Tasks
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Media.MediaItem
   alias Pinchflat.Downloading.MediaDownloadWorker
 
   @doc """
@@ -42,5 +44,24 @@ defmodule Pinchflat.Downloading.DownloadingHelpers do
     source
     |> Media.list_pending_media_items_for()
     |> Enum.each(&Tasks.delete_pending_tasks_for/1)
+  end
+
+  @doc """
+  Takes a single media item and enqueues a download job if the media should be
+  downloaded, based on the source's download settings and whether media is
+  considered pending.
+
+  Returns {:ok, %Task{}} | {:error, :should_not_download} | {:error, any()}
+  """
+  def kickoff_download_if_pending(%MediaItem{} = media_item) do
+    media_item = Repo.preload(media_item, :source)
+
+    if media_item.source.download_media && Media.pending_download?(media_item) do
+      Logger.info("Kicking off download for media item ##{media_item.id} (#{media_item.media_id})")
+
+      MediaDownloadWorker.kickoff_with_task(media_item)
+    else
+      {:error, :should_not_download}
+    end
   end
 end

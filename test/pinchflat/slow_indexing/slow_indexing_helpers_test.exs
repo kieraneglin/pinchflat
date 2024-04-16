@@ -12,7 +12,6 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.FastIndexing.FastIndexingWorker
   alias Pinchflat.Downloading.MediaDownloadWorker
-  alias Pinchflat.FastIndexing.MediaIndexingWorker
   alias Pinchflat.SlowIndexing.SlowIndexingHelpers
   alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
 
@@ -47,7 +46,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
 
     test "it deletes any pending media tasks for the source" do
       source = source_fixture()
-      {:ok, job} = Oban.insert(MediaIndexingWorker.new(%{"id" => source.id}))
+      {:ok, job} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
       task = task_fixture(source_id: source.id, job_id: job.id)
 
       assert {:ok, _} = SlowIndexingHelpers.kickoff_indexing_task(source)
