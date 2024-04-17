@@ -23,23 +23,33 @@
         <.actions_dropdown media_item={@media_item} />
       </:tab_append>
 
-      <:tab title="Attributes">
+      <:tab title="Media">
         <div class="flex flex-col gap-10 dark:text-white">
           <%= if media_file_exists?(@media_item) do %>
-            <h3 class="font-bold text-xl">Preview</h3>
-            <.media_preview media_item={@media_item} />
+            <section class="grid grid-cols-1 xl:grid-cols-2 xl:gap-6 mt-6">
+              <div>
+                <.media_preview media_item={@media_item} />
+              </div>
+              <aside class="mt-4 xl:mt-0">
+                <div>Uploaded: <%= @media_item.upload_date %></div>
+                <div>
+                  <.subtle_link href={@media_item.original_url} target="_blank">Open Original</.subtle_link>
+                </div>
+                <div class="mt-4 text-bodydark">
+                  <.break_on_newline text={@media_item.description} />
+                </div>
+              </aside>
+            </section>
           <% end %>
 
-          <h2 class="font-bold text-2xl"><%= @media_item.title %></h2>
-          <h3 class="font-bold text-xl">Attributes</h3>
+          <h3 class="font-bold text-xl mt-6">Raw Attributes</h3>
           <section>
             <strong>Source:</strong>
             <.subtle_link href={~p"/sources/#{@media_item.source_id}"}>
               <%= @media_item.source.custom_name %>
             </.subtle_link>
+            <.list_items_from_map map={Map.from_struct(@media_item)} />
           </section>
-
-          <.list_items_from_map map={Map.from_struct(@media_item)} />
         </div>
       </:tab>
       <:tab title="Tasks">

@@ -1,12 +1,12 @@
 <%= if media_type(@media_item) == :video do %>
-  <video controls class="max-h-96 w-full lg:w-2/3 xl:w-1/2">
+  <video controls class="max-h-96 w-full">
     <source src={~p"/media/#{@media_item.uuid}/stream"} type="video/mp4" />
     Your browser does not support the video element.
   </video>
 <% end %>
 
 <%= if media_type(@media_item) == :audio do %>
-  <audio controls class="w-full lg:w-2/3 xl:w-1/2">
+  <audio controls class="w-full">
     <source src={~p"/media/#{@media_item.uuid}/stream"} type="audio/mpeg" />
     Your browser does not support the audio element.
   </audio>
