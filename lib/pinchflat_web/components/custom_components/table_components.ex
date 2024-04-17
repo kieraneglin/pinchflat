@@ -2,6 +2,8 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
   @moduledoc false
   use Phoenix.Component
 
+  alias PinchflatWeb.CoreComponents
+
   @doc """
   Renders a table component with the given rows and columns.
 
@@ -48,6 +50,47 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
         </tr>
       </tbody>
     </table>
+    """
+  end
+
+  attr :page_number, :integer, default: 1
+  attr :total_pages, :integer, default: 1
+
+  def pagination_controls(assigns) do
+    ~H"""
+    <nav>
+      <ul class="flex flex-wrap items-center">
+        <li>
+          <span
+            class={[
+              "flex h-8 w-8 items-center justify-center rounded",
+              @page_number != 1 && "cursor-pointer hover:bg-primary hover:text-white",
+              @page_number == 1 && "cursor-not-allowed"
+            ]}
+            phx-click={@page_number != 1 && "page_change"}
+            phx-value-direction="dec"
+          >
+            <CoreComponents.icon name="hero-chevron-left" />
+          </span>
+        </li>
+        <li>
+          <span class="mx-2">Page <%= @page_number %> of <%= @total_pages %></span>
+        </li>
+        <li>
+          <span
+            class={[
+              "flex h-8 w-8 items-center justify-center rounded",
+              @page_number != @total_pages && "cursor-pointer hover:bg-primary hover:text-white",
+              @page_number == @total_pages && "cursor-not-allowed"
+            ]}
+            phx-click={@page_number != @total_pages && "page_change"}
+            phx-value-direction="inc"
+          >
+            <CoreComponents.icon name="hero-chevron-right" />
+          </span>
+        </li>
+      </ul>
+    </nav>
     """
   end
 end

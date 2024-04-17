@@ -37,26 +37,7 @@
         </div>
       </:tab>
       <:tab title="Pending Media">
-        <%= if match?([_|_], @pending_media) do %>
-          <h4 class="text-white text-lg mb-6">Shows a maximum of 100 media items</h4>
-          <.table rows={@pending_media} table_class="text-black dark:text-white">
-            <:col :let={media_item} label="Title">
-              <.subtle_link href={~p"/sources/#{@source.id}/media/#{media_item.id}"}>
-                <%= StringUtils.truncate(media_item.title, 50) %>
-              </.subtle_link>
-            </:col>
-            <:col :let={media_item} label="" class="flex place-content-evenly">
-              <.icon_link href={~p"/sources/#{@source.id}/media/#{media_item.id}"} icon="hero-eye" class="mx-1" />
-              <.icon_link
-                href={~p"/sources/#{@source.id}/media/#{media_item.id}/edit"}
-                icon="hero-pencil-square"
-                class="mx-1"
-              />
-            </:col>
-          </.table>
-        <% else %>
-          <p class="text-black dark:text-white">Nothing Here!</p>
-        <% end %>
+        <%= live_render(@conn, Pinchflat.PendingTableLive, session: %{"source_id" => @source.id}) %>
       </:tab>
       <:tab title="Downloaded Media">
         <%= if match?([_|_], @downloaded_media) do %>
