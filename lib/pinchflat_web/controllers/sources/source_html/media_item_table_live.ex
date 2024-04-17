@@ -1,4 +1,4 @@
-defmodule Pinchflat.PendingTableLive do
+defmodule Pinchflat.Sources.MediaItemTableLive do
   use PinchflatWeb, :live_view
   import Ecto.Query, warn: false
 
@@ -33,7 +33,7 @@ defmodule Pinchflat.PendingTableLive do
         </:col>
       </.table>
       <section class="flex justify-center mt-5">
-        <.pagination_controls page_number={@page} total_pages={@total_pages} />
+        <.live_pagination_controls page_number={@page} total_pages={@total_pages} />
       </section>
     </div>
     """
@@ -41,8 +41,9 @@ defmodule Pinchflat.PendingTableLive do
 
   def mount(_params, session, socket) do
     page = 1
+    media_state = session["media_state"]
     source = Sources.get_source!(session["source_id"])
-    base_query = generate_base_query(source)
+    base_query = generate_base_query(source, media_state)
     pagination_attrs = fetch_pagination_attributes(base_query, page)
 
     {:ok, assign(socket, Map.merge(pagination_attrs, %{base_query: base_query, source: source}))}
@@ -58,18 +59,11 @@ defmodule Pinchflat.PendingTableLive do
 
   defp fetch_pagination_attributes(base_query, page) do
     total_record_count = Repo.aggregate(base_query, :count, :id)
-    total_pages = ceil(total_record_count / @limit)
+    total_pages = max(ceil(total_record_count / @limit), 1)
     page = NumberUtils.clamp(page, 1, total_pages)
     records = fetch_records(base_query, page)
 
     %{page: page, total_pages: total_pages, records: records, total_record_count: total_record_count}
-  end
-
-  defp generate_base_query(source) do
-    MediaQuery.new()
-    |> MediaQuery.for_source(source)
-    |> MediaQuery.where_pending_download()
-    |> order_by(desc: :id)
   end
 
   defp fetch_records(base_query, page) do
@@ -79,5 +73,19 @@ defmodule Pinchflat.PendingTableLive do
     |> limit(^@limit)
     |> offset(^offset)
     |> Repo.all()
+  end
+
+  defp generate_base_query(source, "pending") do
+    MediaQuery.new()
+    |> MediaQuery.for_source(source)
+    |> MediaQuery.where_pending_download()
+    |> order_by(desc: :id)
+  end
+
+  defp generate_base_query(source, "downloaded") do
+    MediaQuery.new()
+    |> MediaQuery.for_source(source)
+    |> MediaQuery.with_media_filepath()
+    |> order_by(desc: :id)
   end
 end

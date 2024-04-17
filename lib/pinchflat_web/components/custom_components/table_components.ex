@@ -53,10 +53,17 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
     """
   end
 
+  @doc """
+  Renders simple pagination controls for a table in a liveview.
+
+  ## Examples
+
+      <.live_pagination_controls page_number={@page} total_pages={@total_pages} />
+  """
   attr :page_number, :integer, default: 1
   attr :total_pages, :integer, default: 1
 
-  def pagination_controls(assigns) do
+  def live_pagination_controls(assigns) do
     ~H"""
     <nav>
       <ul class="flex flex-wrap items-center">

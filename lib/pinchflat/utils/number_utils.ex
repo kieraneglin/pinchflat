@@ -3,7 +3,11 @@ defmodule Pinchflat.Utils.NumberUtils do
   Utility methods for working with numbers
   """
 
-  # TODO: test
+  @doc """
+  Clamps a number between a minimum and maximum value
+
+  Returns integer() | float()
+  """
   def clamp(num, minimum, maximum) do
     num
     |> max(minimum)
