@@ -12,6 +12,14 @@
   </sup>
 </p>
 
+<div align="center">
+
+[![](https://img.shields.io/github/license/kieraneglin/pinchflat?style=for-the-badge&color=ee512b)](LICENSE)
+[![](https://img.shields.io/github/v/release/kieraneglin/pinchflat?style=for-the-badge)](https://github.com/kieraneglin/pinchflat/releases)
+[![](https://img.shields.io/github/actions/workflow/status/kieraneglin/pinchflat/lint_and_test.yml?style=for-the-badge)](#)
+
+</div>
+
 # Your next YouTube media manager
 
 ## Table of contents:
@@ -21,6 +29,7 @@
 - [Screenshots](#screenshots)
 - [Installation](#installation)
   - [Unraid](#unraid)
+  - [Portainer](#portainer)
   - [Docker](#docker)
 - [Username and Password (authentication)](https://github.com/kieraneglin/pinchflat/wiki/Username-and-Password)
 - [Frequently asked questions](https://github.com/kieraneglin/pinchflat/wiki/Frequently-Asked-Questions)
@@ -71,7 +80,8 @@ Simply search for Pinchflat in the Community Apps store!
 
 ### Portainer
 
-Important: See the note below about storing config on a network file share. It's preferred to store the config on a local disk if at all possible.
+> [!IMPORTANT]  
+> See the note below about storing config on a network file share. It's preferred to store the config on a local disk if at all possible.
 
 Docker Compose file:
 
@@ -110,13 +120,18 @@ docker run \
 
 You _must_ ensure the host directories you've mounted are writable by the user running the Docker container. If you get a permission error follow the steps it suggests. See [#106](https://github.com/kieraneglin/pinchflat/issues/106) for more.
 
-It's recommended to not run the container as root. Doing so can create permission issues if other apps need to work with the downloaded media. If you need to run any command as root, you can run `su` from the container's shell as there is no password set for the root user.
+> [!IMPORTANT]
+> It's not recommended to run the container as root. Doing so can create permission issues if other apps need to work with the downloaded media.
 
-### Advanced: storing Pinchflat config directory on a network share
+> [!TIP]
+> If you need to run any command as root, you can run `su` from the container's shell as there is no password set for the root user.
+
+### ADVANCED: Storing Pinchflat config directory on a network share
 
 As pointed out in [#137](https://github.com/kieraneglin/pinchflat/issues/137), SQLite doesn't like being run in WAL mode on network shares. If you're running Pinchflat on a network share, you can disable WAL mode by setting the `JOURNAL_MODE` environment variable to `delete`. This will make Pinchflat run in rollback journal mode which is less performant but should work on network shares.
 
-Changing this setting from WAL to `delete` on an existing Pinchflat instance could, conceivably, result in data loss. Only change this setting if you know what you're doing, why this is important, and are okay with possible data loss or DB corruption. Backup your database first!
+> [!CAUTION]
+> Changing this setting from WAL to `delete` on an existing Pinchflat instance could, conceivably, result in data loss. Only change this setting if you know what you're doing, why this is important, and are okay with possible data loss or DB corruption. Backup your database first!
 
 If you change this setting and it works well for you, please leave a comment on [#137](https://github.com/kieraneglin/pinchflat/issues/137)! Doubly so if it does _not_ work well.
 
@@ -131,3 +146,8 @@ This is pre-release software and anything can break at any time. I make not guar
 ## License
 
 See `LICENSE` file
+
+<!-- Images and links -->
+
+[license-badge]: https://img.shields.io/github/license/kieraneglin/pinchflat?style=for-the-badge&color=ee512b
+[license-badge-url]: LICENSE
