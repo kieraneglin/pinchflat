@@ -68,7 +68,15 @@ defmodule Pinchflat.YtDlp.MediaCollection do
     # `ignore_no_formats_error` is necessary because yt-dlp will error out if
     # the first video has not released yet (ie: is a premier). We don't care about
     # available formats since we're just getting the source details
-    command_opts = [:simulate, :skip_download, :ignore_no_formats_error, playlist_end: 1] ++ addl_opts
+    default_opts = [
+      :windows_filenames,
+      :simulate,
+      :skip_download,
+      :ignore_no_formats_error,
+      playlist_end: 1
+    ]
+
+    command_opts = default_opts ++ addl_opts
     output_template = "%(.{channel,channel_id,playlist_id,playlist_title,filename})j"
 
     with {:ok, output} <- backend_runner().run(source_url, command_opts, output_template),
