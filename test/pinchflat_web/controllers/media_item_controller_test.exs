@@ -97,6 +97,15 @@ defmodule PinchflatWeb.MediaItemControllerTest do
       assert [_] = all_enqueued(worker: MediaDownloadWorker)
     end
 
+    test "doesn't freak out if the task is a duplicate", %{conn: conn} do
+      media_item = media_item_fixture()
+
+      MediaDownloadWorker.kickoff_with_task(media_item, %{force: true})
+
+      post(conn, ~p"/sources/#{media_item.source_id}/media/#{media_item.id}/force_download")
+      assert [_] = all_enqueued(worker: MediaDownloadWorker)
+    end
+
     test "forces a download even if one wouldn't normally run", %{conn: conn} do
       media_item = media_item_fixture(%{media_filepath: nil})
 

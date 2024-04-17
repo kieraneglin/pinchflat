@@ -50,7 +50,13 @@ defmodule PinchflatWeb.MediaItems.MediaItemController do
 
   def force_download(conn, %{"media_item_id" => id}) do
     media_item = Media.get_media_item!(id)
-    {:ok, _} = MediaDownloadWorker.kickoff_with_task(media_item, %{force: true})
+
+    :ok =
+      case MediaDownloadWorker.kickoff_with_task(media_item, %{force: true}) do
+        {:ok, _} -> :ok
+        {:error, :duplicate_job} -> :ok
+        err -> err
+      end
 
     conn
     |> put_flash(:info, "Download task enqueued.")
