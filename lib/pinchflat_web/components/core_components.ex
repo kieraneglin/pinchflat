@@ -19,7 +19,6 @@ defmodule PinchflatWeb.CoreComponents do
   import PinchflatWeb.Gettext
 
   alias Phoenix.LiveView.JS
-  alias PinchflatWeb.CustomComponents.TextComponents
 
   @doc """
   Renders a modal.
@@ -638,9 +637,11 @@ defmodule PinchflatWeb.CoreComponents do
 
     ~H"""
     <ul>
-      <li :for={{k, v} <- @iterable_attributes} class="mb-2">
+      <li :for={{k, v} <- @iterable_attributes} class="mb-2 w-2/3">
         <strong><%= k %>:</strong>
-        <TextComponents.inline_code><%= v %></TextComponents.inline_code>
+        <code class="inline-block text-sm font-mono text-gray p-0.5 mx-0.5">
+          <%= v %>
+        </code>
       </li>
     </ul>
     """

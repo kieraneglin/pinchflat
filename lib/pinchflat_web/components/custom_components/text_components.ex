@@ -35,11 +35,12 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
   Renders a subtle link with the given href and content.
   """
   attr :href, :string, required: true
+  attr :target, :string, default: "_self"
   slot :inner_block
 
   def subtle_link(assigns) do
     ~H"""
-    <.link href={@href} class="underline decoration-bodydark decoration-1 hover:decoration-white">
+    <.link href={@href} target={@target} class="underline decoration-bodydark decoration-1 hover:decoration-white">
       <%= render_slot(@inner_block) %>
     </.link>
     """
@@ -57,6 +58,24 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
     <.link href={@href} class={["hover:text-secondary duration-200 ease-in-out", @class]}>
       <CoreComponents.icon name={@icon} />
     </.link>
+    """
+  end
+
+  @doc """
+  Renders a block of text with each line broken into a separate span.
+  """
+  attr :text, :string, required: true
+
+  def break_on_newline(assigns) do
+    broken_text =
+      assigns.text
+      |> String.split("\n", trim: false)
+      |> Enum.intersperse(Phoenix.HTML.Tag.tag(:span, class: "inline-block mt-2"))
+
+    assigns = Map.put(assigns, :text, broken_text)
+
+    ~H"""
+    <span><%= @text %></span>
     """
   end
 end

@@ -43,9 +43,9 @@
         </.button_dropdown>
       </:tab_append>
 
-      <:tab title="Attributes">
+      <:tab title="Media Profile">
         <div class="flex flex-col gap-10 text-white">
-          <h3 class="font-bold text-xl">Attributes for "<%= @media_profile.name %>"</h3>
+          <h3 class="font-bold text-xl mt-6">Raw Attributes</h3>
           <.list_items_from_map map={Map.from_struct(@media_profile)} />
         </div>
       </:tab>
