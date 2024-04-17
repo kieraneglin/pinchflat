@@ -3,6 +3,8 @@ defmodule Pinchflat.Utils.CliUtils do
   Utility methods for working with CLI executables
   """
 
+  require Logger
+
   alias Pinchflat.Utils.StringUtils
 
   @doc """
@@ -18,6 +20,8 @@ defmodule Pinchflat.Utils.CliUtils do
   def wrap_cmd(command, args, opts \\ []) do
     wrapper_command = Path.join(:code.priv_dir(:pinchflat), "cmd_wrapper.sh")
     actual_command = [command] ++ args
+
+    Logger.info("[command_wrapper]: #{command} called with: #{Enum.join(args, " ")}")
 
     System.cmd(wrapper_command, actual_command, opts)
   end

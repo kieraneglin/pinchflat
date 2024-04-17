@@ -63,8 +63,8 @@ defmodule Pinchflat.YtDlp.Media do
         |> response_to_struct()
         |> FunctionUtils.wrap_ok()
 
-      res ->
-        res
+      err ->
+        err
     end
   end
 

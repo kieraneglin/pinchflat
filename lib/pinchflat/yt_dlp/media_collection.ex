@@ -50,8 +50,8 @@ defmodule Pinchflat.YtDlp.MediaCollection do
 
         {:ok, Enum.filter(parsed_lines, &(&1 != nil))}
 
-      res ->
-        res
+      err ->
+        err
     end
   end
 

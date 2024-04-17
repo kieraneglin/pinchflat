@@ -3,8 +3,6 @@ defmodule Pinchflat.YtDlp.CommandRunner do
   Runs yt-dlp commands using the `System.cmd/3` function
   """
 
-  require Logger
-
   alias Pinchflat.Utils.CliUtils
   alias Pinchflat.YtDlp.YtDlpCommandRunner
   alias Pinchflat.Utils.FilesystemUtils, as: FSUtils
@@ -34,7 +32,6 @@ defmodule Pinchflat.YtDlp.CommandRunner do
     # These must stay in exactly this order, hence why I'm giving it its own variable.
     all_opts = command_opts ++ print_to_file_opts ++ user_configured_opts
     formatted_command_opts = [url] ++ CliUtils.parse_options(all_opts)
-    Logger.info("[yt-dlp] called with: #{Enum.join(formatted_command_opts, " ")}")
 
     case CliUtils.wrap_cmd(command, formatted_command_opts, stderr_to_stdout: true) do
       {_, 0} ->
@@ -57,8 +54,7 @@ defmodule Pinchflat.YtDlp.CommandRunner do
   def version do
     command = backend_executable()
 
-    # TODO: fix to use CliUtils.wrap_cmd (and look at apprise too)
-    case System.cmd(command, ["--version"]) do
+    case CliUtils.wrap_cmd(command, ["--version"]) do
       {output, 0} ->
         {:ok, String.trim(output)}
 
