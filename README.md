@@ -52,7 +52,7 @@ If it doesn't work for your use case, please make a feature request! You can als
 - Powerful naming system so content is stored where and how you want it
 - Easy-to-use web interface with presets to get you started right away
 - First-class support for media center apps like Plex, Jellyfin, and Kodi
-- Supports serving RSS feeds to your favourite podcast app (beta - [docs](<https://github.com/kieraneglin/pinchflat/wiki/Podcast-RSS-Feeds-(beta)>))
+- Supports serving RSS feeds to your favourite podcast app ([docs](https://github.com/kieraneglin/pinchflat/wiki/Podcast-RSS-Feeds))
 - Automatically downloads new content from channels and playlists
   - Uses a novel approach to download new content more quickly than other apps
 - Supports downloading audio content
