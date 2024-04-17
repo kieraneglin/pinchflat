@@ -6,9 +6,7 @@ defmodule PinchflatWeb.Sources.SourceController do
   alias Pinchflat.Repo
   alias Pinchflat.Tasks
   alias Pinchflat.Sources
-  alias Pinchflat.MediaQuery
   alias Pinchflat.Sources.Source
-  alias Pinchflat.Media.MediaQuery
   alias Pinchflat.Profiles.MediaProfile
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.SlowIndexing.SlowIndexingHelpers
@@ -60,29 +58,7 @@ defmodule PinchflatWeb.Sources.SourceController do
       |> Tasks.list_tasks_for(nil, [:executing, :available, :scheduled, :retryable])
       |> Repo.preload(:job)
 
-    pending_media =
-      MediaQuery.new()
-      |> MediaQuery.for_source(source)
-      |> MediaQuery.where_pending_download()
-      |> order_by(desc: :id)
-      |> limit(100)
-      |> Repo.all()
-
-    downloaded_media =
-      MediaQuery.new()
-      |> MediaQuery.for_source(source)
-      |> MediaQuery.with_media_filepath()
-      |> order_by(desc: :id)
-      |> limit(100)
-      |> Repo.all()
-
-    render(conn, :show,
-      source: source,
-      pending_tasks: pending_tasks,
-      pending_media: pending_media,
-      downloaded_media: downloaded_media,
-      total_downloaded: total_downloaded_for(source)
-    )
+    render(conn, :show, source: source, pending_tasks: pending_tasks)
   end
 
   def edit(conn, %{"id" => id}) do
@@ -149,13 +125,6 @@ defmodule PinchflatWeb.Sources.SourceController do
     MediaProfile
     |> order_by(asc: :name)
     |> Repo.all()
-  end
-
-  defp total_downloaded_for(source) do
-    MediaQuery.new()
-    |> MediaQuery.for_source(source)
-    |> MediaQuery.with_media_filepath()
-    |> Repo.aggregate(:count, :id)
   end
 
   defp get_onboarding_layout do
