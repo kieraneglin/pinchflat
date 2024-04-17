@@ -69,7 +69,6 @@ defmodule Pinchflat.YtDlp.MediaCollection do
     # the first video has not released yet (ie: is a premier). We don't care about
     # available formats since we're just getting the source details
     default_opts = [
-      :windows_filenames,
       :simulate,
       :skip_download,
       :ignore_no_formats_error,

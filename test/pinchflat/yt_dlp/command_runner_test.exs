@@ -78,6 +78,14 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
     end
   end
 
+  describe "run/4 when testing global options" do
+    test "creates windows-safe filenames" do
+      assert {:ok, output} = Runner.run(@media_url, [], "")
+
+      assert String.contains?(output, "--windows-filenames")
+    end
+  end
+
   describe "version/0" do
     test "adds the version arg" do
       assert {:ok, output} = Runner.version()
