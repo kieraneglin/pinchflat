@@ -54,13 +54,11 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
   describe "download_and_store_thumbnail_for/2" do
     setup do
       # This tests that the HTTP endpoint is being called with every test
-      expect(HTTPClientMock, :get, fn url, _headers, _opts ->
-        assert url =~ "example.com"
-
+      expect(HTTPClientMock, :get, fn _url, _headers, _opts ->
         {:ok, "thumbnail data"}
       end)
 
-      metadata = %{"thumbnail" => "example.com/thumbnail.jpg"}
+      metadata = render_parsed_metadata(:media_metadata)
 
       {:ok, %{metadata: metadata}}
     end
@@ -68,7 +66,7 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
     test "returns the filepath", %{media_item: media_item, metadata: metadata} do
       filepath = Helpers.download_and_store_thumbnail_for(media_item, metadata)
 
-      assert filepath =~ ~r{/media_items/#{media_item.id}/thumbnail.jpg}
+      assert filepath =~ ~r{/media_items/#{media_item.id}/maxresdefault.jpg}
     end
 
     test "creates folder structure based on passed record", %{media_item: media_item, metadata: metadata} do
@@ -77,11 +75,19 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
       assert File.exists?(Path.dirname(filepath))
     end
 
-    test "the filename and extension is based on the URL", %{media_item: media_item} do
-      metadata = %{"thumbnail" => "example.com/maxres.webp"}
+    test "chooses the highest preference jpg thumbnail available", %{media_item: media_item} do
+      metadata = %{
+        "thumbnails" => [
+          %{"url" => "https://i.ytimg.com/vi/ABC123/img_1.jpg", "preference" => -1},
+          %{"url" => "https://i.ytimg.com/vi/ABC123/img_2.jpg", "preference" => 1},
+          %{"url" => "https://i.ytimg.com/vi/ABC123/img_3.jpg", "preference" => -10},
+          %{"url" => "https://i.ytimg.com/vi/ABC123/img_4.webp", "preference" => 10}
+        ]
+      }
+
       filepath = Helpers.download_and_store_thumbnail_for(media_item, metadata)
 
-      assert Path.basename(filepath) == "maxres.webp"
+      assert filepath =~ ~r{/media_items/#{media_item.id}/img_2.jpg}
     end
   end
 

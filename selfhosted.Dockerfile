@@ -90,6 +90,9 @@ RUN yt-dlp -U
 # Download Apprise
 RUN python3 -m pip install -U apprise --break-system-packages
 
+# Download Mutagen for music thumbnail generation
+RUN python3 -m pip install -U mutagen --break-system-packages
+
 # Set the locale
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
 ENV LANG en_US.UTF-8

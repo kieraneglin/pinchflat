@@ -731,9 +731,7 @@ defmodule Pinchflat.MediaTest do
         metadata: %{
           metadata_filepath: MetadataFileHelpers.compress_and_store_metadata_for(media_item, %{}),
           thumbnail_filepath:
-            MetadataFileHelpers.download_and_store_thumbnail_for(media_item, %{
-              "thumbnail" => "https://example.com/thumbnail.jpg"
-            })
+            MetadataFileHelpers.download_and_store_thumbnail_for(media_item, render_parsed_metadata(:media_metadata))
         }
       }
 
@@ -760,9 +758,7 @@ defmodule Pinchflat.MediaTest do
         metadata: %{
           metadata_filepath: MetadataFileHelpers.compress_and_store_metadata_for(media_item, %{}),
           thumbnail_filepath:
-            MetadataFileHelpers.download_and_store_thumbnail_for(media_item, %{
-              "thumbnail" => "https://example.com/thumbnail.jpg"
-            })
+            MetadataFileHelpers.download_and_store_thumbnail_for(media_item, render_parsed_metadata(:media_metadata))
         }
       }
 
@@ -831,9 +827,7 @@ defmodule Pinchflat.MediaTest do
         metadata: %{
           metadata_filepath: MetadataFileHelpers.compress_and_store_metadata_for(media_item, %{}),
           thumbnail_filepath:
-            MetadataFileHelpers.download_and_store_thumbnail_for(media_item, %{
-              "thumbnail" => "https://example.com/thumbnail.jpg"
-            })
+            MetadataFileHelpers.download_and_store_thumbnail_for(media_item, render_parsed_metadata(:media_metadata))
         }
       }
 
