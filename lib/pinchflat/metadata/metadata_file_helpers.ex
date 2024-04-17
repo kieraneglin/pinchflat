@@ -54,11 +54,18 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
 
   @doc """
   Downloads and stores a thumbnail for a media item, returning the filepath.
+  Chooses the highest quality jpg thumbnail available.
 
   Returns binary()
   """
   def download_and_store_thumbnail_for(database_record, metadata_map) do
-    thumbnail_url = metadata_map["thumbnail"]
+    thumbnail_url =
+      metadata_map["thumbnails"]
+      |> Enum.filter(&(&1["preference"] && String.ends_with?(&1["url"], ".jpg")))
+      |> Enum.sort(&(&1["preference"] >= &2["preference"]))
+      |> List.first()
+      |> Map.get("url")
+
     filepath = generate_filepath_for(database_record, Path.basename(thumbnail_url))
     thumbnail_blob = fetch_thumbnail_from_url(thumbnail_url)
 
