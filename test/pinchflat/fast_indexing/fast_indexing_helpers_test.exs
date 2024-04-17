@@ -89,5 +89,25 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
 
       refute_enqueued(worker: MediaDownloadWorker)
     end
+
+    test "does not blow up if a media item cannot be created", %{source: source} do
+      expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
+
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+        {:ok, "{}"}
+      end)
+
+      assert [] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+    end
+
+    test "does not blow up if a media item causes a yt-dlp error", %{source: source} do
+      expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
+
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+        {:error, "message", 1}
+      end)
+
+      assert [] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+    end
   end
 end

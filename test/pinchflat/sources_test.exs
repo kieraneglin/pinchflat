@@ -131,6 +131,18 @@ defmodule Pinchflat.SourcesTest do
       assert String.starts_with?(source.collection_id, "some_playlist_id_")
     end
 
+    test "adds an error if the runner fails" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:error, "some error", 1} end)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123"
+      }
+
+      assert {:error, %Ecto.Changeset{} = changeset} = Sources.create_source(valid_attrs)
+      assert "could not fetch source details from URL" in errors_on(changeset).original_url
+    end
+
     test "you can specify a custom custom_name" do
       expect(YtDlpRunnerMock, :run, &channel_mock/3)
 

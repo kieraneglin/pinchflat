@@ -3,8 +3,6 @@ defmodule Pinchflat.YtDlp.CommandRunner do
   Runs yt-dlp commands using the `System.cmd/3` function
   """
 
-  require Logger
-
   alias Pinchflat.Utils.CliUtils
   alias Pinchflat.YtDlp.YtDlpCommandRunner
   alias Pinchflat.Utils.FilesystemUtils, as: FSUtils
@@ -30,12 +28,10 @@ defmodule Pinchflat.YtDlp.CommandRunner do
 
     output_filepath = generate_output_filepath(addl_opts)
     print_to_file_opts = [{:print_to_file, output_template}, output_filepath]
-    external_file_opts = build_external_file_options()
+    user_configured_opts = cookie_file_options() ++ global_options()
     # These must stay in exactly this order, hence why I'm giving it its own variable.
-    all_opts = command_opts ++ print_to_file_opts ++ external_file_opts
-
+    all_opts = command_opts ++ print_to_file_opts ++ user_configured_opts
     formatted_command_opts = [url] ++ CliUtils.parse_options(all_opts)
-    Logger.info("[yt-dlp] called with: #{Enum.join(formatted_command_opts, " ")}")
 
     case CliUtils.wrap_cmd(command, formatted_command_opts, stderr_to_stdout: true) do
       {_, 0} ->
@@ -58,7 +54,7 @@ defmodule Pinchflat.YtDlp.CommandRunner do
   def version do
     command = backend_executable()
 
-    case System.cmd(command, ["--version"]) do
+    case CliUtils.wrap_cmd(command, ["--version"]) do
       {output, 0} ->
         {:ok, String.trim(output)}
 
@@ -74,7 +70,11 @@ defmodule Pinchflat.YtDlp.CommandRunner do
     end
   end
 
-  defp build_external_file_options do
+  defp global_options do
+    [:windows_filenames]
+  end
+
+  defp cookie_file_options do
     base_dir = Application.get_env(:pinchflat, :extras_directory)
     filename_options_map = %{cookies: "cookies.txt"}
 

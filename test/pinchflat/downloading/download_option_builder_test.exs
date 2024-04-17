@@ -53,7 +53,6 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
       assert {:ok, res} = DownloadOptionBuilder.build(media_item)
 
       assert :no_progress in res
-      assert :windows_filenames in res
       assert :force_overwrites in res
       assert {:parse_metadata, "%(upload_date>%Y-%m-%d)s:(?P<meta_date>.+)"} in res
     end

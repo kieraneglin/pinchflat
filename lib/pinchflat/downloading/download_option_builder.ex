@@ -44,7 +44,6 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
   defp default_options do
     [
       :no_progress,
-      :windows_filenames,
       # Add force-overwrites to make sure redownloading works
       :force_overwrites,
       # This makes the date metadata conform to what jellyfin expects
