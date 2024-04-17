@@ -36,6 +36,17 @@ let liveSocket = new LiveSocket('/live', Socket, {
         window.Alpine.clone(from, to)
       }
     }
+  },
+  hooks: {
+    supressEnterSubmission: {
+      mounted() {
+        this.el.addEventListener('keypress', (event) => {
+          if (event.key === 'Enter') {
+            event.preventDefault()
+          }
+        })
+      }
+    }
   }
 })
 
