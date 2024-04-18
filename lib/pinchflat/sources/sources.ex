@@ -237,7 +237,7 @@ defmodule Pinchflat.Sources do
         if run_post_commit_tasks do
           maybe_handle_media_tasks(changeset, source)
           maybe_run_indexing_task(changeset, source)
-          run_metadata_storage_task(source)
+          maybe_run_metadata_storage_task(changeset, source)
         end
 
         {:ok, source}
@@ -276,9 +276,20 @@ defmodule Pinchflat.Sources do
     end
   end
 
-  # This runs every time to pick up any changes to the metadata
-  defp run_metadata_storage_task(source) do
-    SourceMetadataStorageWorker.kickoff_with_task(source)
+  defp maybe_run_metadata_storage_task(changeset, source) do
+    case {changeset.data, changeset.changes} do
+      # If the changeset is new (not persisted), fetch metadata no matter what
+      {%{__meta__: %{state: :built}}, _} ->
+        SourceMetadataStorageWorker.kickoff_with_task(source)
+
+      # If the record has been persisted, only fetch metadata if the
+      # original_url has changed
+      {_, %{original_url: _}} ->
+        SourceMetadataStorageWorker.kickoff_with_task(source)
+
+      _ ->
+        :ok
+    end
   end
 
   defp maybe_update_slow_indexing_task(changeset, source) do

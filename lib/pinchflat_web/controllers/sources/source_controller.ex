@@ -10,6 +10,7 @@ defmodule PinchflatWeb.Sources.SourceController do
   alias Pinchflat.Profiles.MediaProfile
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.SlowIndexing.SlowIndexingHelpers
+  alias Pinchflat.Metadata.SourceMetadataStorageWorker
 
   def index(conn, _params) do
     sources =
@@ -104,20 +105,38 @@ defmodule PinchflatWeb.Sources.SourceController do
   end
 
   def force_download(conn, %{"source_id" => id}) do
-    source = Sources.get_source!(id)
-    DownloadingHelpers.enqueue_pending_download_tasks(source)
-
-    conn
-    |> put_flash(:info, "Forced download of pending media items.")
-    |> redirect(to: ~p"/sources/#{source}")
+    wrap_forced_action(
+      conn,
+      id,
+      "Forcing download of pending media items.",
+      &DownloadingHelpers.enqueue_pending_download_tasks/1
+    )
   end
 
   def force_index(conn, %{"source_id" => id}) do
-    source = Sources.get_source!(id)
-    SlowIndexingHelpers.kickoff_indexing_task(source, %{force: true})
+    wrap_forced_action(
+      conn,
+      id,
+      "Index enqueued.",
+      &SlowIndexingHelpers.kickoff_indexing_task(&1, %{force: true})
+    )
+  end
+
+  def force_metadata_refresh(conn, %{"source_id" => id}) do
+    wrap_forced_action(
+      conn,
+      id,
+      "Metadata refresh enqueued.",
+      &SourceMetadataStorageWorker.kickoff_with_task/1
+    )
+  end
+
+  defp wrap_forced_action(conn, source_id, message, fun) do
+    source = Sources.get_source!(source_id)
+    fun.(source)
 
     conn
-    |> put_flash(:info, "Index enqueued.")
+    |> put_flash(:info, message)
     |> redirect(to: ~p"/sources/#{source}")
   end
 

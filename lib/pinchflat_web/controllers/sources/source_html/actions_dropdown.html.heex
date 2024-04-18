@@ -31,6 +31,15 @@
     </.link>
   </:option>
   <:option>
+    <.link
+      href={~p"/sources/#{@source}/force_metadata_refresh"}
+      method="post"
+      data-confirm="Are you sure you want to refresh this source's metadata?"
+    >
+      Refresh Metadata
+    </.link>
+  </:option>
+  <:option>
     <div class="h-px w-full bg-bodydark2"></div>
   </:option>
   <:option>

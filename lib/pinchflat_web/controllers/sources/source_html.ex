@@ -36,6 +36,15 @@ defmodule PinchflatWeb.Sources.SourceHTML do
     |> Phoenix.json_library().encode!()
   end
 
+  def title_filter_regex_help do
+    url = "https://github.com/nalgeon/sqlean/blob/main/docs/regexp.md#supported-syntax"
+    classes = "underline decoration-bodydark decoration-1 hover:decoration-white"
+
+    """
+    A PCRE-compatible regex. Only media with titles that match this regex will be downloaded. <a href="#{url}" class="#{classes}" target="_blank">See here</a> for syntax
+    """
+  end
+
   def output_path_template_override_help do
     help_button_classes = "underline decoration-bodydark decoration-1 hover:decoration-white cursor-pointer"
     help_button = ~s{<span class="#{help_button_classes}" x-on:click="$dispatch('load-template')">Click here</span>}
