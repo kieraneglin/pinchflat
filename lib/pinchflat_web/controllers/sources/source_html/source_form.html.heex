@@ -23,7 +23,7 @@
       field={f[:custom_name]}
       type="text"
       label="Custom Name"
-      help="Something descriptive. Does not impact indexing or downloading"
+      help="Does not impact indexing or downloading. Will be inferred from the source if left blank"
     />
 
     <.input field={f[:original_url]} type="text" label="Source URL" help="URL of a channel or playlist (required)" />
@@ -111,7 +111,8 @@
         type="text"
         label="Title Filter Regex"
         placeholder="(?i)^How to Bike$"
-        help="A PCRE-compatible regex. Only media with titles that match this regex will be downloaded. Look up 'SQLean Regex docs' for more"
+        help={title_filter_regex_help()}
+        html_help={true}
       />
 
       <section
