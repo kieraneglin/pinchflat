@@ -38,9 +38,9 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
     - The NFO file for the source (if specified)
     - Downloads and stores source images (if specified)
 
-  The worker is kicked off after a source is inserted/updated - this can
-  take an unknown amount of time so don't rely on this data being here
-  before, say, the first indexing or downloading task is complete.
+  The worker is kicked off after a source is inserted or it's original_url
+  is updated - this can take an unknown amount of time so don't rely on this
+  data being here before, say, the first indexing or downloading task is complete.
 
   Returns :ok
   """

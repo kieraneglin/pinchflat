@@ -514,13 +514,23 @@ defmodule Pinchflat.SourcesTest do
       assert source.index_frequency_minutes == 0
     end
 
-    test "updating will kickoff a metadata storage worker" do
+    test "updating will kickoff a metadata storage worker if the original_url changes" do
+      expect(YtDlpRunnerMock, :run, &playlist_mock/3)
       source = source_fixture()
-      update_attrs = %{name: "some updated name"}
+      update_attrs = %{original_url: "https://www.youtube.com/channel/cba321"}
 
       assert {:ok, %Source{} = source} = Sources.update_source(source, update_attrs)
 
       assert_enqueued(worker: SourceMetadataStorageWorker, args: %{"id" => source.id})
+    end
+
+    test "updating will not kickoff a metadata storage worker other attrs change" do
+      source = source_fixture()
+      update_attrs = %{name: "some new name"}
+
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+
+      refute_enqueued(worker: SourceMetadataStorageWorker)
     end
   end
 
