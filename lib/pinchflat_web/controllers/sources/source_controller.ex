@@ -62,6 +62,31 @@ defmodule PinchflatWeb.Sources.SourceController do
     render(conn, :show, source: source, pending_tasks: pending_tasks)
   end
 
+  # TODO: test
+  # TODO: also do for media items
+  # TODO: check to see if I've lost the plot here
+  def show_image(conn, %{"source_id" => id, "image_type" => image_type}) do
+    source = Sources.get_source!(id)
+
+    filepath =
+      case image_type do
+        "poster" -> source.poster_filepath
+        "fanart" -> source.fanart_filepath
+        "banner" -> source.banner_filepath
+        _ -> nil
+      end
+
+    if filepath && File.exists?(filepath) do
+      conn
+      |> put_resp_content_type(MIME.from_path(filepath))
+      |> send_file(200, filepath)
+    else
+      conn
+      |> put_status(404)
+      |> text("Image not found")
+    end
+  end
+
   def edit(conn, %{"id" => id}) do
     source = Sources.get_source!(id)
     changeset = Sources.change_source(source)

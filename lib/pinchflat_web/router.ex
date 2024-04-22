@@ -33,6 +33,7 @@ defmodule PinchflatWeb.Router do
     resources "/settings", Settings.SettingController, only: [:show, :update], singleton: true
 
     resources "/sources", Sources.SourceController do
+      get "/image/:image_type", Sources.SourceController, :show_image
       post "/force_download", Sources.SourceController, :force_download
       post "/force_index", Sources.SourceController, :force_index
       post "/force_metadata_refresh", Sources.SourceController, :force_metadata_refresh

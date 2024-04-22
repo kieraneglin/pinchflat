@@ -36,6 +36,23 @@
           <.list_items_from_map map={Map.from_struct(@source)} />
         </div>
       </:tab>
+      <:tab title="Images">
+        <section>
+          <h3 class="font-bold text-xl mt-6 mb-4">Images</h3>
+          <%= if source_image_mapping(@source) == [] do %>
+            <p class="text-black dark:text-white">Nothing Here!</p>
+          <% else %>
+            <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+              <div :for={{name, _, image_type} <- source_image_mapping(@source)}>
+                <span><%= name %></span>
+                <a href={~p"/sources/#{@source}/image/#{image_type}"} target="_blank">
+                  <img src={~p"/sources/#{@source}/image/#{image_type}"} alt={name} class="w-full h-auto" />
+                </a>
+              </div>
+            </div>
+          <% end %>
+        </section>
+      </:tab>
       <:tab title="Pending Media">
         <%= live_render(
           @conn,

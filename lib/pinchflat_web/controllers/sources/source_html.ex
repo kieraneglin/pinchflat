@@ -25,6 +25,16 @@ defmodule PinchflatWeb.Sources.SourceHTML do
     ]
   end
 
+  def source_image_mapping(source) do
+    image_mapping = [
+      {"Poster", source.poster_filepath, "poster"},
+      {"Banner", source.banner_filepath, "banner"},
+      {"Fanart", source.fanart_filepath, "fanart"}
+    ]
+
+    Enum.filter(image_mapping, fn {_, filepath, _} -> filepath end)
+  end
+
   def rss_feed_url(conn, source) do
     url(conn, ~p"/sources/#{source.uuid}/feed") <> ".xml"
   end
