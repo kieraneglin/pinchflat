@@ -7,9 +7,6 @@ defmodule Pinchflat.Boot.PostJobStartupTasks do
   Phoenix supervision tree.
   """
 
-  alias Pinchflat.Repo
-  alias Pinchflat.Boot.NfoBackfillWorker
-
   # restart: :temporary means that this process will never be restarted (ie: will run once and then die)
   use GenServer, restart: :temporary
   import Ecto.Query, warn: false
@@ -29,7 +26,7 @@ defmodule Pinchflat.Boot.PostJobStartupTasks do
   """
   @impl true
   def init(state) do
-    Repo.insert_unique_job(NfoBackfillWorker.new(%{}))
+    # Nothing at the moment!
 
     {:ok, state}
   end
