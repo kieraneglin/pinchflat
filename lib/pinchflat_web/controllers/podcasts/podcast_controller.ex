@@ -2,8 +2,9 @@ defmodule PinchflatWeb.Podcasts.PodcastController do
   use PinchflatWeb, :controller
 
   alias Pinchflat.Repo
-  alias Pinchflat.Media.MediaQuery
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Media.MediaItem
+  alias Pinchflat.Media.MediaQuery
   alias Pinchflat.Podcasts.RssFeedBuilder
   alias Pinchflat.Podcasts.PodcastHelpers
 
@@ -38,6 +39,18 @@ defmodule PinchflatWeb.Podcasts.PodcastController do
         conn
         |> put_resp_content_type(MIME.from_path(filepath))
         |> send_file(200, filepath)
+    end
+  end
+
+  def episode_image(conn, %{"uuid" => uuid}) do
+    media_item = Repo.get_by!(MediaItem, uuid: uuid)
+
+    if media_item.thumbnail_filepath && File.exists?(media_item.thumbnail_filepath) do
+      conn
+      |> put_resp_content_type(MIME.from_path(media_item.thumbnail_filepath))
+      |> send_file(200, media_item.thumbnail_filepath)
+    else
+      send_resp(conn, 404, "Image not found")
     end
   end
 end

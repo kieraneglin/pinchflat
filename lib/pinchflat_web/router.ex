@@ -50,6 +50,7 @@ defmodule PinchflatWeb.Router do
 
     get "/sources/:uuid/feed", Podcasts.PodcastController, :rss_feed
     get "/sources/:uuid/feed_image", Podcasts.PodcastController, :feed_image
+    get "/media/:uuid/episode_image", Podcasts.PodcastController, :episode_image
 
     get "/media/:uuid/stream", MediaItems.MediaItemController, :stream
   end
