@@ -137,6 +137,34 @@ defmodule Pinchflat.Podcasts.RssFeedBuilderTest do
       assert String.contains?(item_xml, ~s(length="1234"))
       assert String.contains?(item_xml, ~s(type="video/mp4"))
     end
+
+    test "returns image tags if the media has a thumbnail", %{source: source} do
+      media_item = media_item_with_attachments(%{source_id: source.id, media_size_bytes: 1234})
+
+      res = RssFeedBuilder.build(source)
+      [_before, item_xml, _after] = String.split(res, ~r(</?item>))
+
+      assert String.contains?(
+               item_xml,
+               ~s(<itunes:image href="http://localhost:8945/media/#{media_item.uuid}/episode_image.jpg"></itunes:image>)
+             )
+
+      assert String.contains?(
+               item_xml,
+               ~s(<podcast:images srcset="http://localhost:8945/media/#{media_item.uuid}/episode_image.jpg" />)
+             )
+    end
+
+    test "does not return image tags if the media does not have a thumbnail", %{source: source} do
+      media_item = media_item_with_attachments(%{source_id: source.id})
+      File.rm!(media_item.thumbnail_filepath)
+
+      res = RssFeedBuilder.build(source)
+      [_before, item_xml, _after] = String.split(res, ~r(</?item>))
+
+      refute String.contains?(item_xml, ~s(itunes:image))
+      refute String.contains?(item_xml, ~s(podcast:images))
+    end
   end
 
   defp format_date(date) do

@@ -1,6 +1,7 @@
 defmodule PinchflatWeb.PodcastControllerTest do
   use PinchflatWeb.ConnCase
 
+  import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
 
   describe "rss_feed" do
@@ -30,6 +31,27 @@ defmodule PinchflatWeb.PodcastControllerTest do
       source = source_fixture()
 
       conn = get(conn, ~p"/sources/#{source.uuid}/feed_image" <> ".jpg")
+
+      assert conn.status == 404
+      assert conn.resp_body == "Image not found"
+    end
+  end
+
+  describe "episode_image" do
+    test "returns an episode image if one can be found", %{conn: conn} do
+      media_item = media_item_with_attachments()
+
+      conn = get(conn, ~p"/media/#{media_item.uuid}/episode_image" <> ".jpg")
+
+      assert conn.status == 200
+      assert {"content-type", "image/jpeg; charset=utf-8"} in conn.resp_headers
+      assert conn.resp_body == File.read!(media_item.thumbnail_filepath)
+    end
+
+    test "returns 404 if an image cannot be found", %{conn: conn} do
+      media_item = media_item_fixture()
+
+      conn = get(conn, ~p"/media/#{media_item.uuid}/episode_image" <> ".jpg")
 
       assert conn.status == 404
       assert conn.resp_body == "Image not found"

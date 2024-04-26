@@ -75,6 +75,8 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
   end
 
   defp build_media_item_xml(source, media_item, url_base) do
+    item_image_path = item_image_path(url_base, media_item)
+
     """
     <item>
       <guid isPermaLink="false">#{media_item.uuid}</guid>
@@ -91,6 +93,10 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
       <itunes:author>#{safe(source.custom_name)}</itunes:author>
       <itunes:subtitle>#{safe(media_item.title)}</itunes:subtitle>
       <itunes:summary><![CDATA[#{media_item.description}]]></itunes:summary>
+
+      #{item_image_path && ~s(<itunes:image href="#{safe(item_image_path)}"></itunes:image>)}
+      #{item_image_path && ~s(<podcast:images srcset="#{safe(item_image_path)}" />)}
+
       <itunes:explicit>false</itunes:explicit>
     </item>
     """
@@ -114,6 +120,16 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
       {:ok, filepath} ->
         extension = Path.extname(filepath)
         Path.join(url_base, "#{podcast_route(:feed_image, source.uuid)}#{extension}")
+    end
+  end
+
+  def item_image_path(url_base, media_item) do
+    if media_item.thumbnail_filepath && File.exists?(media_item.thumbnail_filepath) do
+      extension = Path.extname(media_item.thumbnail_filepath)
+
+      Path.join(url_base, "#{podcast_route(:episode_image, media_item.uuid)}#{extension}")
+    else
+      nil
     end
   end
 

@@ -67,16 +67,24 @@ defmodule Pinchflat.MediaFixtures do
   end
 
   def media_item_with_attachments(attrs \\ %{}) do
-    stored_media_filepath =
+    base_dir =
       Path.join([
         Application.get_env(:pinchflat, :media_directory),
-        "#{:rand.uniform(1_000_000)}",
-        "#{:rand.uniform(1_000_000)}_media.mp4"
+        "#{:rand.uniform(1_000_000)}"
       ])
 
-    FilesystemUtils.cp_p!(media_filepath_fixture(), stored_media_filepath)
+    stored_media_filepath = Path.join(base_dir, "#media.mp4")
+    thumbnail_filepath = Path.join(base_dir, "thumbnail.jpg")
 
-    merged_attrs = Map.merge(attrs, %{media_filepath: stored_media_filepath})
+    FilesystemUtils.cp_p!(media_filepath_fixture(), stored_media_filepath)
+    FilesystemUtils.cp_p!(thumbnail_filepath_fixture(), thumbnail_filepath)
+
+    merged_attrs =
+      Map.merge(attrs, %{
+        media_filepath: stored_media_filepath,
+        thumbnail_filepath: thumbnail_filepath
+      })
+
     media_item_fixture(merged_attrs)
   end
 
