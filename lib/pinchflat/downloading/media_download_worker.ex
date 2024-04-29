@@ -67,8 +67,8 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
       {:recovered, _} ->
         {:error, :retry}
 
-      {:error, _message} ->
-        {:error, :download_failed}
+      {:error, message} ->
+        action_on_error(message)
     end
   end
 
@@ -87,6 +87,20 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
       DateTime.utc_now()
     else
       nil
+    end
+  end
+
+  defp action_on_error(message) do
+    # This will attempt re-download at the next indexing, but it won't be retried
+    # immediately as part of job failure logic
+    non_retryable_errors = ["Video unavailable"]
+
+    if String.contains?(to_string(message), non_retryable_errors) do
+      Logger.error("yt-dlp download will not be retried: #{inspect(message)}")
+
+      {:ok, :non_retry}
+    else
+      {:error, :download_failed}
     end
   end
 end
