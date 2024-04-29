@@ -106,6 +106,18 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
       end)
     end
 
+    test "does not set the job to retryable if retrying wouldn't fix the issue", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+        {:error, "Something something Video unavailable something something", 1}
+      end)
+
+      Oban.Testing.with_testing_mode(:inline, fn ->
+        {:ok, job} = Oban.insert(MediaDownloadWorker.new(%{id: media_item.id, redownload?: true}))
+
+        assert job.state == "completed"
+      end)
+    end
+
     test "it ensures error are returned in a 2-item tuple", %{media_item: media_item} do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> {:error, "error", 1} end)
 
