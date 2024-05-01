@@ -1,5 +1,5 @@
 defmodule Pinchflat.Utils.DatetimeUtilsTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   alias Pinchflat.Utils.DatetimeUtils
 

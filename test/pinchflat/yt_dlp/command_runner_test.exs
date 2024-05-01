@@ -1,5 +1,5 @@
 defmodule Pinchflat.YtDlp.CommandRunnerTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   alias Pinchflat.Utils.FilesystemUtils
 
@@ -75,6 +75,9 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
 
       refute String.contains?(output, "--cookies")
       refute String.contains?(output, cookie_file)
+
+      # Cleanup
+      FilesystemUtils.write_p!(cookie_file, "")
     end
   end
 

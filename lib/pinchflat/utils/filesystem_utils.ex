@@ -6,6 +6,21 @@ defmodule Pinchflat.Utils.FilesystemUtils do
   alias Pinchflat.Utils.StringUtils
 
   @doc """
+  Checks if a file exists and has non-whitespace contents.
+
+  Returns boolean()
+  """
+  def exists_and_nonempty?(filepath) do
+    case File.read(filepath) do
+      {:ok, contents} ->
+        String.trim(contents) != ""
+
+      _ ->
+        false
+    end
+  end
+
+  @doc """
   Generates a temporary file and returns its path. The file is empty and has the given type.
   Generates all the directories in the path if they don't exist.
 

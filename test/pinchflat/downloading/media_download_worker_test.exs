@@ -12,9 +12,8 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
   setup :verify_on_exit!
 
   setup do
-    stub(HTTPClientMock, :get, fn _url, _headers, _opts ->
-      {:ok, ""}
-    end)
+    stub(UserScriptRunnerMock, :run, fn _event_type, _data -> :ok end)
+    stub(HTTPClientMock, :get, fn _url, _headers, _opts -> {:ok, ""} end)
 
     media_item =
       %{media_filepath: nil}
@@ -183,6 +182,20 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
       media_item = Repo.reload(media_item)
 
       assert media_item.media_redownloaded_at == nil
+    end
+
+    test "calls the user script runner", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+        {:ok, render_metadata(:media_metadata)}
+      end)
+
+      expect(UserScriptRunnerMock, :run, fn :media_downloaded, data ->
+        assert data.id == media_item.id
+
+        :ok
+      end)
+
+      perform_job(MediaDownloadWorker, %{id: media_item.id})
     end
 
     test "does not blow up if the record doesn't exist" do

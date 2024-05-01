@@ -13,17 +13,22 @@ defmodule Pinchflat.Utils.CliUtils do
   commands if the job runner is cancelled.
 
   Delegates to `System.cmd/3` and any options/output
-  are passed through.
+  are passed through. Custom options can be passed in.
+
+  Custom options:
+    - logging_arg_override: if set, the passed value will be logged in place of
+      the actual arguments passed to the command
 
   Returns {binary(), integer()}
   """
-  def wrap_cmd(command, args, opts \\ []) do
+  def wrap_cmd(command, args, passthrough_opts \\ [], opts \\ []) do
     wrapper_command = Path.join(:code.priv_dir(:pinchflat), "cmd_wrapper.sh")
     actual_command = [command] ++ args
+    logging_arg_override = Keyword.get(opts, :logging_arg_override, Enum.join(args, " "))
 
-    Logger.info("[command_wrapper]: #{command} called with: #{Enum.join(args, " ")}")
+    Logger.info("[command_wrapper]: #{command} called with: #{logging_arg_override}")
 
-    System.cmd(wrapper_command, actual_command, opts)
+    System.cmd(wrapper_command, actual_command, passthrough_opts)
   end
 
   @doc """

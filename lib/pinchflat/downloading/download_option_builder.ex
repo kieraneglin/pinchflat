@@ -8,6 +8,8 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Downloading.OutputPathBuilder
 
+  alias Pinchflat.Utils.FilesystemUtils, as: FSUtils
+
   @doc """
   Builds the options for yt-dlp to download media based on the given media's profile.
 
@@ -154,12 +156,10 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
       Enum.reduce(filenames, [], fn filename, acc ->
         filepath = Path.join(base_dir, filename)
 
-        case File.read(filepath) do
-          {:ok, file_data} ->
-            if String.trim(file_data) != "", do: [filepath | acc], else: acc
-
-          {:error, _} ->
-            acc
+        if FSUtils.exists_and_nonempty?(filepath) do
+          [filepath | acc]
+        else
+          acc
         end
       end)
 

@@ -1,5 +1,5 @@
 defmodule Pinchflat.Utils.ChangesetUtilsTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   defmodule MockSchema do
     use Ecto.Schema

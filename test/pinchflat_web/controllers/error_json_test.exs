@@ -1,5 +1,5 @@
 defmodule PinchflatWeb.ErrorJSONTest do
-  use PinchflatWeb.ConnCase, async: true
+  use PinchflatWeb.ConnCase, async: false
 
   test "renders 404" do
     assert PinchflatWeb.ErrorJSON.render("404.json", %{}) == %{errors: %{detail: "Not Found"}}

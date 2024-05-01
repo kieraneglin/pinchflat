@@ -5,6 +5,38 @@ defmodule Pinchflat.Utils.FilesystemUtilsTest do
 
   alias Pinchflat.Utils.FilesystemUtils
 
+  describe "exists_and_nonempty?" do
+    test "returns true if a file exists and has contents" do
+      filepath = FilesystemUtils.generate_metadata_tmpfile(:json)
+      File.write(filepath, "{}")
+
+      assert FilesystemUtils.exists_and_nonempty?(filepath)
+
+      File.rm!(filepath)
+    end
+
+    test "returns false if a file doesn't exist" do
+      refute FilesystemUtils.exists_and_nonempty?("/nonexistent/file.json")
+    end
+
+    test "returns false if a file exists but is empty" do
+      filepath = FilesystemUtils.generate_metadata_tmpfile(:json)
+
+      refute FilesystemUtils.exists_and_nonempty?(filepath)
+
+      File.rm!(filepath)
+    end
+
+    test "trims the contents before checking" do
+      filepath = FilesystemUtils.generate_metadata_tmpfile(:json)
+      File.write(filepath, "  \n\n  \r\n  ")
+
+      refute FilesystemUtils.exists_and_nonempty?(filepath)
+
+      File.rm!(filepath)
+    end
+  end
+
   describe "generate_metadata_tmpfile/1" do
     test "creates a tmpfile and returns its path" do
       res = FilesystemUtils.generate_metadata_tmpfile(:json)

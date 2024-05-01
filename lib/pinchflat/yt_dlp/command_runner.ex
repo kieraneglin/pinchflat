@@ -81,16 +81,10 @@ defmodule Pinchflat.YtDlp.CommandRunner do
     Enum.reduce(filename_options_map, [], fn {opt_name, filename}, acc ->
       filepath = Path.join(base_dir, filename)
 
-      case File.read(filepath) do
-        {:ok, file_data} ->
-          if String.trim(file_data) != "" do
-            [{opt_name, filepath} | acc]
-          else
-            acc
-          end
-
-        {:error, _} ->
-          acc
+      if FSUtils.exists_and_nonempty?(filepath) do
+        [{opt_name, filepath} | acc]
+      else
+        acc
       end
     end)
   end

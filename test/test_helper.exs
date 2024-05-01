@@ -7,6 +7,9 @@ Application.put_env(:pinchflat, :apprise_runner, AppriseRunnerMock)
 Mox.defmock(HTTPClientMock, for: Pinchflat.HTTP.HTTPBehaviour)
 Application.put_env(:pinchflat, :http_client, HTTPClientMock)
 
+Mox.defmock(UserScriptRunnerMock, for: Pinchflat.Lifecycle.UserScripts.UserScriptCommandRunner)
+Application.put_env(:pinchflat, :user_script_runner, UserScriptRunnerMock)
+
 ExUnit.start()
 Ecto.Adapters.SQL.Sandbox.mode(Pinchflat.Repo, :manual)
 Faker.start()

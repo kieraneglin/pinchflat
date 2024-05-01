@@ -1,5 +1,5 @@
 defmodule PinchflatWeb.ErrorHTMLTest do
-  use PinchflatWeb.ConnCase, async: true
+  use PinchflatWeb.ConnCase, async: false
 
   # Bring render_to_string/4 for testing custom views
   import Phoenix.Template
