@@ -1,4 +1,4 @@
-defmodule Pinchflat.Notifications.AppriseCommandRunner do
+defmodule Pinchflat.Lifecycle.Notifications.AppriseCommandRunner do
   @moduledoc """
   A behaviour for running CLI commands against a notification backend (apprise).
 

@@ -1,7 +1,7 @@
 Mox.defmock(YtDlpRunnerMock, for: Pinchflat.YtDlp.YtDlpCommandRunner)
 Application.put_env(:pinchflat, :yt_dlp_runner, YtDlpRunnerMock)
 
-Mox.defmock(AppriseRunnerMock, for: Pinchflat.Notifications.AppriseCommandRunner)
+Mox.defmock(AppriseRunnerMock, for: Pinchflat.Lifecycle.Notifications.AppriseCommandRunner)
 Application.put_env(:pinchflat, :apprise_runner, AppriseRunnerMock)
 
 Mox.defmock(HTTPClientMock, for: Pinchflat.HTTP.HTTPBehaviour)

@@ -1,4 +1,4 @@
-defmodule Pinchflat.Notifications.SourceNotifications do
+defmodule Pinchflat.Lifecycle.Notifications.SourceNotifications do
   @moduledoc """
   Contains utilities for sending notifications about sources
   """

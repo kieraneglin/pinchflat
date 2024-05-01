@@ -1,4 +1,4 @@
-defmodule Pinchflat.Notifications.CommandRunner do
+defmodule Pinchflat.Lifecycle.Notifications.CommandRunner do
   @moduledoc """
   Runs apprise commands using the `System.cmd/3` function
   """
@@ -7,7 +7,7 @@ defmodule Pinchflat.Notifications.CommandRunner do
 
   alias Pinchflat.Utils.CliUtils
   alias Pinchflat.Utils.FunctionUtils
-  alias Pinchflat.Notifications.AppriseCommandRunner
+  alias Pinchflat.Lifecycle.Notifications.AppriseCommandRunner
 
   @behaviour AppriseCommandRunner
 
