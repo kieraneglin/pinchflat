@@ -1,13 +1,22 @@
 defmodule Pinchflat.Downloading.MediaRetentionWorkerTest do
   use Pinchflat.DataCase
 
+  import Mox
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
 
   alias Pinchflat.Media
   alias Pinchflat.Downloading.MediaRetentionWorker
 
+  setup :verify_on_exit!
+
   describe "perform/1" do
+    setup do
+      stub(UserScriptRunnerMock, :run, fn _event_type, _data -> :ok end)
+
+      :ok
+    end
+
     test "deletes media files that are past their retention date" do
       {_source, old_media_item, new_media_item} = prepare_records()
 

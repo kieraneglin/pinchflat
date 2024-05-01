@@ -749,6 +749,12 @@ defmodule Pinchflat.MediaTest do
   end
 
   describe "delete_media_item/2 when testing file deletion" do
+    setup do
+      stub(UserScriptRunnerMock, :run, fn _event_type, _data -> :ok end)
+
+      :ok
+    end
+
     test "deletes the media item's files" do
       media_item = media_item_with_attachments()
 
@@ -799,9 +805,27 @@ defmodule Pinchflat.MediaTest do
       :ok = File.rm(Path.join([root_directory, "test.txt"]))
       :ok = File.rmdir(root_directory)
     end
+
+    test "calls the user script runner" do
+      media_item = media_item_with_attachments()
+
+      expect(UserScriptRunnerMock, :run, fn :media_deleted, data ->
+        assert data.id == media_item.id
+
+        :ok
+      end)
+
+      assert {:ok, _} = Media.delete_media_item(media_item, delete_files: true)
+    end
   end
 
   describe "delete_media_files/2" do
+    setup do
+      stub(UserScriptRunnerMock, :run, fn _event_type, _data -> :ok end)
+
+      :ok
+    end
+
     test "does not delete the media_item" do
       media_item = media_item_fixture()
 
@@ -853,6 +877,18 @@ defmodule Pinchflat.MediaTest do
 
       assert {:ok, updated_media_item} = Media.delete_media_files(media_item, %{prevent_download: true})
       assert updated_media_item.prevent_download
+    end
+
+    test "calls the user script runner" do
+      media_item = media_item_with_attachments()
+
+      expect(UserScriptRunnerMock, :run, fn :media_deleted, data ->
+        assert data.id == media_item.id
+
+        :ok
+      end)
+
+      assert {:ok, _} = Media.delete_media_files(media_item)
     end
   end
 

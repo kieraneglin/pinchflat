@@ -1,6 +1,7 @@
 defmodule PinchflatWeb.MediaProfileControllerTest do
   use PinchflatWeb.ConnCase
 
+  import Mox
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
   import Pinchflat.ProfilesFixtures
@@ -14,6 +15,8 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
     output_path_template: "new_output_template.{{ ext }}"
   }
   @invalid_attrs %{name: nil, output_path_template: nil}
+
+  setup :verify_on_exit!
 
   setup do
     Settings.set(onboarding: false)
@@ -135,6 +138,12 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
 
   describe "delete media_profile when deleting the records and files" do
     setup [:create_media_profile]
+
+    setup do
+      stub(UserScriptRunnerMock, :run, fn _event_type, _data -> :ok end)
+
+      :ok
+    end
 
     test "deletes chosen media_profile and its associations", %{conn: conn, media_profile: media_profile} do
       source = source_fixture(media_profile_id: media_profile.id)

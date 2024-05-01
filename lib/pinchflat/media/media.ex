@@ -10,8 +10,10 @@ defmodule Pinchflat.Media do
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Media.MediaQuery
-  alias Pinchflat.Metadata.MediaMetadata
   alias Pinchflat.Utils.FilesystemUtils
+  alias Pinchflat.Metadata.MediaMetadata
+
+  alias Pinchflat.Lifecycle.UserScripts.CommandRunner, as: UserScriptRunner
 
   @doc """
   Returns the list of media_items.
@@ -180,6 +182,7 @@ defmodule Pinchflat.Media do
 
     if delete_files do
       {:ok, _} = do_delete_media_files(media_item)
+      :ok = run_user_script(:media_deleted, media_item)
     end
 
     # Should delete these no matter what
@@ -202,6 +205,7 @@ defmodule Pinchflat.Media do
 
     Tasks.delete_tasks_for(media_item)
     {:ok, _} = do_delete_media_files(media_item)
+    :ok = run_user_script(:media_deleted, media_item)
 
     update_media_item(media_item, Map.merge(filepath_attrs, addl_attrs))
   end
@@ -236,5 +240,11 @@ defmodule Pinchflat.Media do
     |> Enum.map(fn field -> mapped_struct[field] end)
     |> Enum.filter(&is_binary/1)
     |> Enum.each(&FilesystemUtils.delete_file_and_remove_empty_directories/1)
+  end
+
+  defp run_user_script(event, media_item) do
+    runner = Application.get_env(:pinchflat, :user_script_runner, UserScriptRunner)
+
+    runner.run(event, media_item)
   end
 end

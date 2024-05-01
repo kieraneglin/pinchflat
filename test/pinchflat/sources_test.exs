@@ -618,6 +618,12 @@ defmodule Pinchflat.SourcesTest do
   end
 
   describe "delete_source/2 when deleting files" do
+    setup do
+      stub(UserScriptRunnerMock, :run, fn _event_type, _data -> :ok end)
+
+      :ok
+    end
+
     test "deletes source and media_items" do
       source = source_fixture()
       media_item = media_item_with_attachments(%{source_id: source.id})
