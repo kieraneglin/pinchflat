@@ -44,7 +44,7 @@ defmodule Pinchflat.Lifecycle.UserScripts.CommandRunner do
             executable_path,
             [to_string(event_type), encoded_data],
             [],
-            logging_arg_override: "[supressed]"
+            logging_arg_override: "[suppressed]"
           )
 
         handle_output(output, exit_code)
@@ -56,7 +56,7 @@ defmodule Pinchflat.Lifecycle.UserScripts.CommandRunner do
   end
 
   defp handle_output(output, exit_code) do
-    Logger.debug("Custom lifecycle script had an exit code of #{exit_code} output: #{output}")
+    Logger.debug("Custom lifecycle script exit code: #{exit_code} with output: #{output}")
 
     :ok
   end

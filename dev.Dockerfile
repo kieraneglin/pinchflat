@@ -7,7 +7,7 @@ FROM ${DEV_IMAGE}
 
 # Install debian packages
 RUN apt-get update -qq
-RUN apt-get install -y inotify-tools ffmpeg curl git openssh-client \
+RUN apt-get install -y inotify-tools ffmpeg curl git openssh-client jq \
   python3 python3-pip python3-setuptools python3-wheel python3-dev locales procps
 
 # Install nodejs

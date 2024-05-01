@@ -79,7 +79,7 @@ ARG PORT=8945
 
 RUN apt-get update -y
 RUN apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates \
-  ffmpeg curl git openssh-client nano python3 python3-pip
+  ffmpeg curl git openssh-client nano python3 python3-pip jq procps
 RUN apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # Download and update YT-DLP
