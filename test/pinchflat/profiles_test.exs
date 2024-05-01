@@ -10,6 +10,14 @@ defmodule Pinchflat.ProfilesTest do
 
   @invalid_attrs %{name: nil, output_path_template: nil}
 
+  describe "schema" do
+    test "can be JSON encoded without error" do
+      profile = media_profile_fixture()
+
+      assert {:ok, _} = Phoenix.json_library().encode(profile)
+    end
+  end
+
   describe "list_media_profiles/0" do
     test "it returns all media_profiles" do
       media_profile = media_profile_fixture()

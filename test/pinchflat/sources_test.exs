@@ -32,6 +32,12 @@ defmodule Pinchflat.SourcesTest do
         Repo.reload!(metadata)
       end
     end
+
+    test "can be JSON encoded without error" do
+      source = source_fixture()
+
+      assert {:ok, _} = Phoenix.json_library().encode(source)
+    end
   end
 
   describe "output_path_template/1" do

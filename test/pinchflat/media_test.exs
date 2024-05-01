@@ -29,6 +29,12 @@ defmodule Pinchflat.MediaTest do
         Repo.reload!(metadata)
       end
     end
+
+    test "can be JSON encoded without error" do
+      media_item = media_item_fixture()
+
+      assert {:ok, _} = Phoenix.json_library().encode(media_item)
+    end
   end
 
   describe "list_media_items/0" do
