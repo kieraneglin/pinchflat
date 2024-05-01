@@ -53,7 +53,11 @@ defmodule Pinchflat.Notifications.SourceNotifications do
   end
 
   defp relevant_media_item_count(source) do
-    pending_media_item_count(source) + downloaded_media_item_count(source)
+    if source.download_media do
+      pending_media_item_count(source) + downloaded_media_item_count(source)
+    else
+      0
+    end
   end
 
   defp pending_media_item_count(source) do

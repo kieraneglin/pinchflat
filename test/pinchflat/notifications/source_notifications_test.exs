@@ -60,6 +60,17 @@ defmodule Pinchflat.Notifications.SourceNotificationsTest do
       end)
     end
 
+    test "does not send a notification if the source is set to not download media" do
+      source = source_fixture(%{download_media: false})
+
+      expect(AppriseRunnerMock, :run, 0, fn _, _ -> {:ok, ""} end)
+
+      SourceNotifications.wrap_new_media_notification(@apprise_servers, source, fn ->
+        media_item_fixture(%{source_id: source.id, media_filepath: nil})
+        media_item_fixture(%{source_id: source.id, media_filepath: "file.mp4"})
+      end)
+    end
+
     test "returns the value of the function" do
       source = source_fixture()
       expect(AppriseRunnerMock, :run, 0, fn _, _ -> {:ok, ""} end)
