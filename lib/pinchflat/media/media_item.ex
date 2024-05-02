@@ -24,6 +24,7 @@ defmodule Pinchflat.Media.MediaItem do
     :source_id,
     :short_form_content,
     :upload_date,
+    :upload_date_index,
     :duration_seconds,
     # these fields are captured only on download
     :media_downloaded_at,
@@ -66,6 +67,7 @@ defmodule Pinchflat.Media.MediaItem do
     field :media_downloaded_at, :utc_datetime
     field :media_redownloaded_at, :utc_datetime
     field :upload_date, :date
+    field :upload_date_index, :integer, default: 0
     field :duration_seconds, :integer
 
     field :media_filepath, :string
