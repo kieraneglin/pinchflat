@@ -11,6 +11,7 @@ defmodule Pinchflat.Media.MediaItem do
   alias Pinchflat.Repo
   alias Pinchflat.Tasks.Task
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Media.MediaQuery
   alias Pinchflat.Metadata.MediaMetadata
   alias Pinchflat.Media.MediaItemsSearchIndex
 
@@ -102,6 +103,7 @@ defmodule Pinchflat.Media.MediaItem do
     |> cast(attrs, @allowed_fields)
     |> cast_assoc(:metadata, with: &MediaMetadata.changeset/2, required: false)
     |> dynamic_default(:uuid, fn _ -> Ecto.UUID.generate() end)
+    |> update_upload_date_index()
     |> validate_required(@required_fields)
     |> unique_constraint([:media_id, :source_id])
   end
@@ -125,6 +127,23 @@ defmodule Pinchflat.Media.MediaItem do
   def json_exluded_fields do
     ~w(__meta__ __struct__ metadata tasks media_items_search_index)a
   end
+
+  defp update_upload_date_index(%{changes: changes} = changeset) when is_map_key(changes, :upload_date) do
+    source_id = get_field(changeset, :source_id)
+
+    current_max =
+      MediaQuery.new()
+      |> MediaQuery.for_source(source_id)
+      |> MediaQuery.where_uploaded_on_date(changes.upload_date)
+      |> Repo.aggregate(:max, :upload_date_index)
+
+    case current_max do
+      nil -> put_change(changeset, :upload_date_index, 0)
+      max -> put_change(changeset, :upload_date_index, max + 1)
+    end
+  end
+
+  defp update_upload_date_index(changeset), do: changeset
 
   defimpl Jason.Encoder, for: MediaItem do
     def encode(value, opts) do
