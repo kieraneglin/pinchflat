@@ -1,6 +1,7 @@
 defmodule Pinchflat.ProfilesTest do
   use Pinchflat.DataCase
 
+  import Mox
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
   import Pinchflat.ProfilesFixtures
@@ -9,6 +10,16 @@ defmodule Pinchflat.ProfilesTest do
   alias Pinchflat.Profiles.MediaProfile
 
   @invalid_attrs %{name: nil, output_path_template: nil}
+
+  setup :verify_on_exit!
+
+  describe "schema" do
+    test "can be JSON encoded without error" do
+      profile = media_profile_fixture()
+
+      assert {:ok, _} = Phoenix.json_library().encode(profile)
+    end
+  end
 
   describe "list_media_profiles/0" do
     test "it returns all media_profiles" do
@@ -104,6 +115,12 @@ defmodule Pinchflat.ProfilesTest do
   end
 
   describe "delete_media_profile/2 when deleting files" do
+    setup do
+      stub(UserScriptRunnerMock, :run, fn _event_type, _data -> :ok end)
+
+      :ok
+    end
+
     test "still deletes all the needful records" do
       media_profile = media_profile_fixture()
       source = source_fixture(media_profile_id: media_profile.id)

@@ -33,6 +33,7 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
   def init(state) do
     reset_executing_jobs()
     create_blank_yt_dlp_files()
+    create_blank_user_script_file()
     apply_default_settings()
 
     {:ok, state}
@@ -63,6 +64,18 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
         FilesystemUtils.write_p!(filepath, "")
       end
     end)
+  end
+
+  defp create_blank_user_script_file do
+    base_dir = Application.get_env(:pinchflat, :extras_directory)
+    filepath = Path.join([base_dir, "user-scripts", "lifecycle"])
+
+    if !File.exists?(filepath) do
+      Logger.info("Creating blank file and making it executable: #{filepath}")
+
+      FilesystemUtils.write_p!(filepath, "")
+      File.chmod(filepath, 0o755)
+    end
   end
 
   defp apply_default_settings do

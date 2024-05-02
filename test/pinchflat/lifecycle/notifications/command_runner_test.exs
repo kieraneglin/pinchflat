@@ -1,7 +1,7 @@
-defmodule Pinchflat.Notifications.CommandRunnerTest do
-  use ExUnit.Case, async: true
+defmodule Pinchflat.Lifecycle.Notifications.CommandRunnerTest do
+  use ExUnit.Case, async: false
 
-  alias Pinchflat.Notifications.CommandRunner, as: Runner
+  alias Pinchflat.Lifecycle.Notifications.CommandRunner, as: Runner
 
   @original_executable Application.compile_env(:pinchflat, :apprise_executable)
 

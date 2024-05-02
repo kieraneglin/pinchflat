@@ -6,6 +6,7 @@ defmodule Pinchflat.Profiles.MediaProfile do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias __MODULE__
   alias Pinchflat.Sources.Source
 
   @allowed_fields ~w(
@@ -83,5 +84,18 @@ defmodule Pinchflat.Profiles.MediaProfile do
   @doc false
   def ext_regex do
     ~r/\.({{ ?ext ?}}|%\( ?ext ?\)[sS])$/
+  end
+
+  @doc false
+  def json_exluded_fields do
+    ~w(__meta__ __struct__ sources)a
+  end
+
+  defimpl Jason.Encoder, for: MediaProfile do
+    def encode(value, opts) do
+      value
+      |> Map.drop(MediaProfile.json_exluded_fields())
+      |> Jason.Encode.map(opts)
+    end
   end
 end

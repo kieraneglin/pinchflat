@@ -7,6 +7,8 @@ defmodule Pinchflat.Sources.Source do
   import Ecto.Changeset
   import Pinchflat.Utils.ChangesetUtils
 
+  alias __MODULE__
+  alias Pinchflat.Repo
   alias Pinchflat.Tasks.Task
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Profiles.MediaProfile
@@ -132,5 +134,19 @@ defmodule Pinchflat.Sources.Source do
   @doc false
   def filepath_attributes do
     ~w(nfo_filepath fanart_filepath poster_filepath banner_filepath)a
+  end
+
+  @doc false
+  def json_exluded_fields do
+    ~w(__meta__ __struct__ metadata tasks media_items)a
+  end
+
+  defimpl Jason.Encoder, for: Source do
+    def encode(value, opts) do
+      value
+      |> Repo.preload(:media_profile)
+      |> Map.drop(Source.json_exluded_fields())
+      |> Jason.Encode.map(opts)
+    end
   end
 end

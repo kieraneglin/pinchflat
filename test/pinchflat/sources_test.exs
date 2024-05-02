@@ -32,6 +32,12 @@ defmodule Pinchflat.SourcesTest do
         Repo.reload!(metadata)
       end
     end
+
+    test "can be JSON encoded without error" do
+      source = source_fixture()
+
+      assert {:ok, _} = Phoenix.json_library().encode(source)
+    end
   end
 
   describe "output_path_template/1" do
@@ -612,6 +618,12 @@ defmodule Pinchflat.SourcesTest do
   end
 
   describe "delete_source/2 when deleting files" do
+    setup do
+      stub(UserScriptRunnerMock, :run, fn _event_type, _data -> :ok end)
+
+      :ok
+    end
+
     test "deletes source and media_items" do
       source = source_fixture()
       media_item = media_item_with_attachments(%{source_id: source.id})

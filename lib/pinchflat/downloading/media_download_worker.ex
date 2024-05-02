@@ -14,6 +14,8 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
   alias Pinchflat.Media
   alias Pinchflat.Downloading.MediaDownloader
 
+  alias Pinchflat.Lifecycle.UserScripts.CommandRunner, as: UserScriptRunner
+
   @doc """
   Starts the media_item media download worker and creates a task for the media_item.
 
@@ -56,11 +58,14 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
 
   defp download_media_and_schedule_jobs(media_item, is_redownload) do
     case MediaDownloader.download_for_media_item(media_item) do
-      {:ok, updated_media_item} ->
-        Media.update_media_item(updated_media_item, %{
-          media_size_bytes: compute_media_filesize(updated_media_item),
-          media_redownloaded_at: get_redownloaded_at(is_redownload)
-        })
+      {:ok, downloaded_media_item} ->
+        {:ok, updated_media_item} =
+          Media.update_media_item(downloaded_media_item, %{
+            media_size_bytes: compute_media_filesize(downloaded_media_item),
+            media_redownloaded_at: get_redownloaded_at(is_redownload)
+          })
+
+        :ok = run_user_script(updated_media_item)
 
         {:ok, updated_media_item}
 
@@ -74,21 +79,13 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
 
   defp compute_media_filesize(media_item) do
     case File.stat(media_item.media_filepath) do
-      {:ok, %{size: size}} ->
-        size
-
-      _ ->
-        nil
+      {:ok, %{size: size}} -> size
+      _ -> nil
     end
   end
 
-  defp get_redownloaded_at(is_redownload) do
-    if is_redownload do
-      DateTime.utc_now()
-    else
-      nil
-    end
-  end
+  defp get_redownloaded_at(true), do: DateTime.utc_now()
+  defp get_redownloaded_at(_), do: nil
 
   defp action_on_error(message) do
     # This will attempt re-download at the next indexing, but it won't be retried
@@ -102,5 +99,13 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
     else
       {:error, :download_failed}
     end
+  end
+
+  # NOTE: I like this pattern of using the default value so that I don't have to
+  # define it in config.exs (and friends). Consider using this elsewhere.
+  defp run_user_script(media_item) do
+    runner = Application.get_env(:pinchflat, :user_script_runner, UserScriptRunner)
+
+    runner.run(:media_downloaded, media_item)
   end
 end

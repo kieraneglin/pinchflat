@@ -1,10 +1,13 @@
 defmodule PinchflatWeb.MediaItemControllerTest do
   use PinchflatWeb.ConnCase
 
+  import Mox
   import Pinchflat.MediaFixtures
 
   alias Pinchflat.Repo
   alias Pinchflat.Downloading.MediaDownloadWorker
+
+  setup :verify_on_exit!
 
   describe "show media" do
     setup [:create_media_item]
@@ -49,6 +52,7 @@ defmodule PinchflatWeb.MediaItemControllerTest do
   describe "delete media" do
     setup do
       media_item = media_item_with_attachments()
+      stub(UserScriptRunnerMock, :run, fn _event_type, _data -> :ok end)
 
       %{media_item: media_item}
     end

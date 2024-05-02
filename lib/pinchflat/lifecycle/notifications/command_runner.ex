@@ -1,4 +1,4 @@
-defmodule Pinchflat.Notifications.CommandRunner do
+defmodule Pinchflat.Lifecycle.Notifications.CommandRunner do
   @moduledoc """
   Runs apprise commands using the `System.cmd/3` function
   """
@@ -7,7 +7,7 @@ defmodule Pinchflat.Notifications.CommandRunner do
 
   alias Pinchflat.Utils.CliUtils
   alias Pinchflat.Utils.FunctionUtils
-  alias Pinchflat.Notifications.AppriseCommandRunner
+  alias Pinchflat.Lifecycle.Notifications.AppriseCommandRunner
 
   @behaviour AppriseCommandRunner
 
@@ -28,10 +28,10 @@ defmodule Pinchflat.Notifications.CommandRunner do
     default_opts = [:verbose]
     parsed_opts = CliUtils.parse_options(default_opts ++ command_opts)
 
-    {output, return_code} = CliUtils.wrap_cmd(backend_executable(), parsed_opts ++ endpoints)
+    {output, exit_code} = CliUtils.wrap_cmd(backend_executable(), parsed_opts ++ endpoints)
     Logger.info("[apprise] response: #{output}")
 
-    case return_code do
+    case exit_code do
       0 -> {:ok, String.trim(output)}
       _ -> {:error, String.trim(output)}
     end

@@ -1,11 +1,11 @@
-defmodule Pinchflat.Notifications.SourceNotificationsTest do
+defmodule Pinchflat.Lifecycle.Notifications.SourceNotificationsTest do
   use Pinchflat.DataCase
 
   import Mox
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
 
-  alias Pinchflat.Notifications.SourceNotifications
+  alias Pinchflat.Lifecycle.Notifications.SourceNotifications
 
   @apprise_servers ["server_1", "server_2"]
 

@@ -15,7 +15,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingWorker do
   alias Pinchflat.Settings
   alias Pinchflat.Sources.Source
   alias Pinchflat.FastIndexing.FastIndexingHelpers
-  alias Pinchflat.Notifications.SourceNotifications
+  alias Pinchflat.Lifecycle.Notifications.SourceNotifications
 
   @doc """
   Starts the source fast indexing worker and creates a task for the source.

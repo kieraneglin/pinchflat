@@ -15,7 +15,7 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorker do
   alias Pinchflat.Sources.Source
   alias Pinchflat.FastIndexing.FastIndexingWorker
   alias Pinchflat.SlowIndexing.SlowIndexingHelpers
-  alias Pinchflat.Notifications.SourceNotifications
+  alias Pinchflat.Lifecycle.Notifications.SourceNotifications
 
   @doc """
   Starts the source slow indexing worker and creates a task for the source.

@@ -53,6 +53,30 @@ defmodule Pinchflat.Boot.PreJobStartupTasksTest do
     end
   end
 
+  describe "create_blank_user_script_file" do
+    test "creates a blank script file" do
+      base_dir = Application.get_env(:pinchflat, :extras_directory)
+      filepath = Path.join([base_dir, "user-scripts", "lifecycle"])
+      File.rm(filepath)
+
+      refute File.exists?(filepath)
+
+      PreJobStartupTasks.init(%{})
+
+      assert File.exists?(filepath)
+    end
+
+    test "gives it 755 permissions" do
+      base_dir = Application.get_env(:pinchflat, :extras_directory)
+      filepath = Path.join([base_dir, "user-scripts", "lifecycle"])
+      File.rm(filepath)
+
+      PreJobStartupTasks.init(%{})
+
+      assert File.stat!(filepath).mode == 0o100755
+    end
+  end
+
   describe "apply_default_settings" do
     test "sets yt_dlp version" do
       Settings.set(yt_dlp_version: nil)

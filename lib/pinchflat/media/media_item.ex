@@ -7,6 +7,8 @@ defmodule Pinchflat.Media.MediaItem do
   import Ecto.Changeset
   import Pinchflat.Utils.ChangesetUtils
 
+  alias __MODULE__
+  alias Pinchflat.Repo
   alias Pinchflat.Tasks.Task
   alias Pinchflat.Sources.Source
   alias Pinchflat.Metadata.MediaMetadata
@@ -115,5 +117,19 @@ defmodule Pinchflat.Media.MediaItem do
       field -> {field, nil}
     end)
     |> Enum.into(%{})
+  end
+
+  @doc false
+  def json_exluded_fields do
+    ~w(__meta__ __struct__ metadata tasks media_items_search_index)a
+  end
+
+  defimpl Jason.Encoder, for: MediaItem do
+    def encode(value, opts) do
+      value
+      |> Repo.preload(:source)
+      |> Map.drop(MediaItem.json_exluded_fields())
+      |> Jason.Encode.map(opts)
+    end
   end
 end
