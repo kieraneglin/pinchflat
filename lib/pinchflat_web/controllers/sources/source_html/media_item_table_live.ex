@@ -11,17 +11,33 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
 
   def render(%{records: []} = assigns) do
     ~H"""
-    <p class="text-black dark:text-white">Nothing Here!</p>
+    <div class="mb-4 flex items-center">
+      <button
+        class="flex justify-center items-center rounded-lg bg-form-input border-2 border-strokedark h-10 w-10"
+        phx-click="reload_page"
+        type="button"
+      >
+        <.icon name="hero-arrow-path" class="text-stroke" />
+      </button>
+      <p class="ml-2">Nothing Here!</p>
+    </div>
     """
   end
 
   def render(assigns) do
     ~H"""
     <div>
-      <span class="mb-4 inline-block">
-        Showing <%= length(@records) %> of <%= @total_record_count %>
+      <span class="mb-4 flex items-center">
+        <button
+          class="flex justify-center items-center rounded-lg bg-form-input border-2 border-strokedark h-10 w-10"
+          phx-click="reload_page"
+          type="button"
+        >
+          <.icon name="hero-arrow-path" class="text-stroke" />
+        </button>
+        <span class="ml-2">Showing <%= length(@records) %> of <%= @total_record_count %></span>
       </span>
-      <.table rows={@records} table_class="text-black dark:text-white">
+      <.table rows={@records} table_class="text-white">
         <:col :let={media_item} label="Title">
           <.subtle_link href={~p"/sources/#{@source.id}/media/#{media_item.id}"}>
             <%= StringUtils.truncate(media_item.title, 50) %>
@@ -53,6 +69,12 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
     direction = if direction == "inc", do: 1, else: -1
     new_page = assigns.page + direction
     new_assigns = fetch_pagination_attributes(assigns.base_query, new_page)
+
+    {:noreply, assign(socket, new_assigns)}
+  end
+
+  def handle_event("reload_page", _params, %{assigns: assigns} = socket) do
+    new_assigns = fetch_pagination_attributes(assigns.base_query, assigns.page)
 
     {:noreply, assign(socket, new_assigns)}
   end
