@@ -54,10 +54,22 @@
           </span>
         </li>
         <li>
-          <span class="group relative flex items-center gap-2.5 px-4 pt-2 text-sm">
-            Pinchflat v<%= Application.spec(:pinchflat)[:vsn] %>
+          <span
+            class="group relative flex items-center gap-2.5 px-4 pt-2 text-sm"
+            x-on:click={"markVersionAsSeen('#{Application.spec(:pinchflat)[:vsn]}')"}
+          >
+            <span>Pinchflat v<%= Application.spec(:pinchflat)[:vsn] %></span>
+            <a
+              href="https://github.com/kieraneglin/pinchflat/releases"
+              target="_blank"
+              class="bg-meta-2 text-boxdark px-1.5 rounded-full text-xs"
+              x-cloak
+              x-show={"!isVersionSeen('#{Application.spec(:pinchflat)[:vsn]}')"}
+            >
+              NEW
+            </a>
           </span>
-          <span class="group relative flex items-center gap-2.5 px-4 text-sm">
+          <span class="group relative flex items-center gap-2.5 px-4 pt-2 text-sm">
             yt-dlp <%= Settings.get!(:yt_dlp_version) %>
           </span>
         </li>

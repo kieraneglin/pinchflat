@@ -23,6 +23,7 @@ import { LiveSocket } from 'phoenix_live_view'
 import topbar from '../vendor/topbar'
 import Alpine from 'alpinejs'
 import './tabs'
+import './alpine_helpers'
 
 window.Alpine = Alpine
 Alpine.start()
@@ -49,30 +50,6 @@ let liveSocket = new LiveSocket('/live', Socket, {
     }
   }
 })
-
-window.copyTextToClipboard = async (text) => {
-  // Navigator clipboard api needs a secure context (https)
-  if (navigator.clipboard && window.isSecureContext) {
-    await navigator.clipboard.writeText(text)
-  } else {
-    const textArea = document.createElement('textarea')
-    textArea.value = text
-    // Move textarea out of the viewport so it's not visible
-    textArea.style.position = 'absolute'
-    textArea.style.left = '-999999px'
-
-    document.body.prepend(textArea)
-    textArea.select()
-
-    try {
-      document.execCommand('copy')
-    } catch (error) {
-      console.error(error)
-    } finally {
-      textArea.remove()
-    }
-  }
-}
 
 // Show progress bar on live navigation and form submits
 topbar.config({ barColors: { 0: '#29d' }, shadowColor: 'rgba(0, 0, 0, .3)' })
