@@ -3,12 +3,26 @@
     <span
       x-data="{ copied: false }"
       x-on:click={"
-                window.copyTextToClipboard('#{rss_feed_url(@conn, @source)}')
-                copied = true
-                setTimeout(() => copied = false, 4000)
-              "}
+        copyWithCallbacks(
+          '#{rss_feed_url(@conn, @source)}', 
+          () => copied = true, 
+          () => copied = false
+        )
+      "}
     >
       Copy RSS Feed
+      <span x-show="copied" x-transition.duration.150ms><.icon name="hero-check" class="ml-2 h-4 w-4" /></span>
+    </span>
+  </:option>
+  <:option>
+    <span x-data="{ copied: false }" x-on:click={~s"
+        copyWithCallbacks(
+          `#{Jason.Formatter.pretty_print(Phoenix.json_library().encode!(@source))}`, 
+          () => copied = true, 
+          () => copied = false
+        )
+      "}>
+      Copy JSON
       <span x-show="copied" x-transition.duration.150ms><.icon name="hero-check" class="ml-2 h-4 w-4" /></span>
     </span>
   </:option>
