@@ -106,7 +106,7 @@ defmodule Pinchflat.Metadata.MetadataParserTest do
 
       :ok = File.cp(thumbnail_filepath_fixture(), thumbnail_filepath)
 
-      on_exit(fn -> File.rm(thumbnail_filepath) end)
+      on_exit(fn -> File.rm_rf(thumbnail_filepath) end)
 
       {:ok, filepath: thumbnail_filepath}
     end
@@ -127,7 +127,7 @@ defmodule Pinchflat.Metadata.MetadataParserTest do
     end
 
     test "doesn't include thumbnail if the file doesn't exist on-disk", %{metadata: metadata, filepath: filepath} do
-      File.rm(filepath)
+      File.rm_rf(filepath)
 
       result = Parser.parse_for_media_item(metadata)
 
@@ -156,7 +156,7 @@ defmodule Pinchflat.Metadata.MetadataParserTest do
       infojson_filepath = metadata["infojson_filename"]
       :ok = File.cp(infojson_filepath_fixture(), infojson_filepath)
 
-      on_exit(fn -> File.rm(infojson_filepath) end)
+      on_exit(fn -> File.rm_rf(infojson_filepath) end)
 
       {:ok, filepath: infojson_filepath}
     end
@@ -168,7 +168,7 @@ defmodule Pinchflat.Metadata.MetadataParserTest do
     end
 
     test "doesn't include metadata if the file doesn't exist on-disk", %{metadata: metadata, filepath: filepath} do
-      File.rm(filepath)
+      File.rm_rf(filepath)
 
       result = Parser.parse_for_media_item(metadata)
 
