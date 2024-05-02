@@ -9,6 +9,7 @@ defmodule Pinchflat.Media.MediaItem do
 
   alias __MODULE__
   alias Pinchflat.Repo
+  alias Pinchflat.Sources
   alias Pinchflat.Tasks.Task
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaQuery
@@ -130,16 +131,23 @@ defmodule Pinchflat.Media.MediaItem do
 
   defp update_upload_date_index(%{changes: changes} = changeset) when is_map_key(changes, :upload_date) do
     source_id = get_field(changeset, :source_id)
+    source = Sources.get_source!(source_id)
+    # Channels should count down from 99, playlists should count up from 0
+    # This reflects the fact that channels prepend new videos to the top of the list
+    # and playlists append new videos to the bottom of the list.
+    default_index = if source.collection_type == :channel, do: 99, else: 0
+    aggregator = if source.collection_type == :channel, do: :min, else: :max
+    change_direction = if source.collection_type == :channel, do: -1, else: 1
 
     current_max =
       MediaQuery.new()
       |> MediaQuery.for_source(source_id)
       |> MediaQuery.where_uploaded_on_date(changes.upload_date)
-      |> Repo.aggregate(:max, :upload_date_index)
+      |> Repo.aggregate(aggregator, :upload_date_index)
 
     case current_max do
-      nil -> put_change(changeset, :upload_date_index, 0)
-      max -> put_change(changeset, :upload_date_index, max + 1)
+      nil -> put_change(changeset, :upload_date_index, default_index)
+      max -> put_change(changeset, :upload_date_index, max + change_direction)
     end
   end
 

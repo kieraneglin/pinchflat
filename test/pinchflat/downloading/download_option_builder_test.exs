@@ -39,7 +39,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
 
       assert {:ok, res} = DownloadOptionBuilder.build(media_item)
 
-      assert {:output, "/tmp/test/media/00.%(ext)s"} in res
+      assert {:output, "/tmp/test/media/99.%(ext)s"} in res
     end
 
     test "uses source's output override if present", %{media_item: media_item} do
