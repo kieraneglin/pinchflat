@@ -63,7 +63,11 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
       source_collection_name:
         "the YouTube name of the sources that use this profile (often the same as source_custom_name)",
       source_collection_type: "the collection type of the sources using this profile. Either 'channel' or 'playlist'",
-      artist_name: "the name of the artist with fallbacks to other uploader fields"
+      artist_name: "the name of the artist with fallbacks to other uploader fields",
+      season_from_date: "alias for upload_year",
+      season_episode_from_date: "the upload date formatted as sYYYYeMMDD",
+      season_episode_index_from_date:
+        "the upload date formatted as sYYYYeMMDDII where II is an index to prevent date collisions"
     }
   end
 
@@ -94,7 +98,7 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
   end
 
   defp media_center_output_template do
-    "/shows/{{ source_custom_name }}/Season {{ season_from_date }}/{{ season_episode_from_date }} - {{ title }}.{{ ext }}"
+    "/shows/{{ source_custom_name }}/Season {{ season_from_date }}/{{ season_episode_index_from_date }} - {{ title }}.{{ ext }}"
   end
 
   defp audio_output_template do

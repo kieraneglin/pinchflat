@@ -33,6 +33,15 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
       assert {:output, "/tmp/test/media/#{media_item.source.custom_name}.%(ext)s"} in res
     end
 
+    test "respects custom media_item-related output path options", %{media_item: media_item} do
+      media_item =
+        update_media_profile_attribute(media_item, %{output_path_template: "{{ media_upload_date_index }}.%(ext)s"})
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+
+      assert {:output, "/tmp/test/media/99.%(ext)s"} in res
+    end
+
     test "uses source's output override if present", %{media_item: media_item} do
       source = media_item.source
       {:ok, _} = Sources.update_source(source, %{output_path_template_override: "override.%(ext)s"})
@@ -386,6 +395,12 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
   end
 
   describe "build_output_path_for/1" do
+    test "builds an output path for a media item", %{media_item: media_item} do
+      path = DownloadOptionBuilder.build_output_path_for(media_item)
+
+      assert path == "/tmp/test/media/%(title)S.%(ext)s"
+    end
+
     test "builds an output path for a source", %{media_item: media_item} do
       path = DownloadOptionBuilder.build_output_path_for(media_item.source)
 

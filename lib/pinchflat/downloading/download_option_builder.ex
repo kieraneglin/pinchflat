@@ -35,12 +35,19 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
   Builds the output path for yt-dlp to download media based on the given source's
   media profile. Uses the source's override output path template if it exists.
 
+  Accepts a %MediaItem{} or %Source{} struct. If a %Source{} struct is passed, it
+  will use a default %MediaItem{} struct with the given source.
+
   Returns binary()
   """
-  def build_output_path_for(%Source{} = source_with_preloads) do
-    output_path_template = Sources.output_path_template(source_with_preloads)
+  def build_output_path_for(%MediaItem{} = media_item_with_preloads) do
+    output_path_template = Sources.output_path_template(media_item_with_preloads.source)
 
-    build_output_path(output_path_template, source_with_preloads)
+    build_output_path(output_path_template, media_item_with_preloads)
+  end
+
+  def build_output_path_for(%Source{} = source_with_preloads) do
+    build_output_path_for(%MediaItem{source: source_with_preloads})
   end
 
   defp default_options do
@@ -168,23 +175,29 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
 
   defp output_options(media_item_with_preloads) do
     [
-      output: build_output_path_for(media_item_with_preloads.source)
+      output: build_output_path_for(media_item_with_preloads)
     ]
   end
 
-  defp build_output_path(string, source) do
-    additional_options_map = output_options_map(source)
+  defp build_output_path(string, media_item_with_preloads) do
+    additional_options_map = output_options_map(media_item_with_preloads)
     {:ok, output_path} = OutputPathBuilder.build(string, additional_options_map)
 
     Path.join(base_directory(), output_path)
   end
 
-  defp output_options_map(source) do
+  defp output_options_map(media_item_with_preloads) do
+    source = media_item_with_preloads.source
+
     %{
       "source_custom_name" => source.custom_name,
       "source_collection_id" => source.collection_id,
       "source_collection_name" => source.collection_name,
-      "source_collection_type" => source.collection_type
+      "source_collection_type" => to_string(source.collection_type),
+      "media_upload_date_index" =>
+        media_item_with_preloads.upload_date_index
+        |> to_string()
+        |> String.pad_leading(2, "0")
     }
   end
 
@@ -198,7 +211,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
     |> String.split(~r{\.}, include_captures: true)
     |> List.insert_at(-3, "-thumb")
     |> Enum.join()
-    |> build_output_path(media_item_with_preloads.source)
+    |> build_output_path(media_item_with_preloads)
   end
 
   defp base_directory do

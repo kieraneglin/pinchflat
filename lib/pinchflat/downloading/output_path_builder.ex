@@ -9,13 +9,23 @@ defmodule Pinchflat.Downloading.OutputPathBuilder do
   Builds the actual final filepath from a given template. Optionally, you can pass in
   a map of additional options to be used in the template.
 
+  Custom options are recursively expanded _once_ so you can nest custom options
+  one-deep if needed.
+
   Translates liquid-style templates into yt-dlp-style templates,
   leaving yt-dlp syntax intact.
   """
   def build(template_string, additional_template_options \\ %{}) do
     combined_options = Map.merge(custom_yt_dlp_option_map(), additional_template_options)
 
-    TemplateParser.parse(template_string, combined_options, &identifier_fn/2)
+    expanded_options =
+      Enum.map(combined_options, fn {key, value} ->
+        {:ok, parse_result} = TemplateParser.parse(value, combined_options, &identifier_fn/2)
+
+        {key, parse_result}
+      end)
+
+    TemplateParser.parse(template_string, Map.new(expanded_options), &identifier_fn/2)
   end
 
   # The `nil` case simply wraps the identifier in yt-dlp-style syntax. This assumes that
@@ -43,6 +53,7 @@ defmodule Pinchflat.Downloading.OutputPathBuilder do
       "upload_yyyy_mm_dd" => "%(upload_date>%Y-%m-%d)S",
       "season_from_date" => "%(upload_date>%Y)S",
       "season_episode_from_date" => "s%(upload_date>%Y)Se%(upload_date>%m%d)S",
+      "season_episode_index_from_date" => "s%(upload_date>%Y)Se%(upload_date>%m%d)S{{ media_upload_date_index }}",
       "artist_name" => "%(artist,creator,uploader,uploader_id)S"
     }
   end

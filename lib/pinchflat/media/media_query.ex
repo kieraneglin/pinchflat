@@ -25,6 +25,10 @@ defmodule Pinchflat.Media.MediaQuery do
     MediaItem
   end
 
+  def for_source(query, source_id) when is_integer(source_id) do
+    where(query, [mi], mi.source_id == ^source_id)
+  end
+
   def for_source(query, source) do
     where(query, [mi], mi.source_id == ^source.id)
   end
@@ -97,6 +101,10 @@ defmodule Pinchflat.Media.MediaQuery do
     query
     |> require_assoc(:source)
     |> where([mi, source], is_nil(source.download_cutoff_date) or mi.upload_date >= source.download_cutoff_date)
+  end
+
+  def where_uploaded_on_date(query, date) do
+    where(query, [mi], mi.upload_date == ^date)
   end
 
   def where_download_not_prevented(query) do

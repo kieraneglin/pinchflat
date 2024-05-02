@@ -27,5 +27,15 @@ defmodule Pinchflat.Downloading.OutputPathBuilderTest do
 
       assert res == "/videos/%(title)s.%(ext)s"
     end
+
+    test "recursively expands variables" do
+      additional_options = %{
+        "media_upload_date_index" => "99"
+      }
+
+      assert {:ok, res} = OutputPathBuilder.build("{{ season_episode_index_from_date }}.{{ ext }}", additional_options)
+
+      assert res == "s%(upload_date>%Y)Se%(upload_date>%m%d)S99.%(ext)S"
+    end
   end
 end

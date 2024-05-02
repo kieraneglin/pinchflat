@@ -9,8 +9,10 @@ defmodule Pinchflat.Media.MediaItem do
 
   alias __MODULE__
   alias Pinchflat.Repo
+  alias Pinchflat.Sources
   alias Pinchflat.Tasks.Task
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Media.MediaQuery
   alias Pinchflat.Metadata.MediaMetadata
   alias Pinchflat.Media.MediaItemsSearchIndex
 
@@ -24,6 +26,7 @@ defmodule Pinchflat.Media.MediaItem do
     :source_id,
     :short_form_content,
     :upload_date,
+    :upload_date_index,
     :duration_seconds,
     # these fields are captured only on download
     :media_downloaded_at,
@@ -66,6 +69,7 @@ defmodule Pinchflat.Media.MediaItem do
     field :media_downloaded_at, :utc_datetime
     field :media_redownloaded_at, :utc_datetime
     field :upload_date, :date
+    field :upload_date_index, :integer, default: 0
     field :duration_seconds, :integer
 
     field :media_filepath, :string
@@ -100,6 +104,7 @@ defmodule Pinchflat.Media.MediaItem do
     |> cast(attrs, @allowed_fields)
     |> cast_assoc(:metadata, with: &MediaMetadata.changeset/2, required: false)
     |> dynamic_default(:uuid, fn _ -> Ecto.UUID.generate() end)
+    |> update_upload_date_index()
     |> validate_required(@required_fields)
     |> unique_constraint([:media_id, :source_id])
   end
@@ -123,6 +128,30 @@ defmodule Pinchflat.Media.MediaItem do
   def json_exluded_fields do
     ~w(__meta__ __struct__ metadata tasks media_items_search_index)a
   end
+
+  defp update_upload_date_index(%{changes: changes} = changeset) when is_map_key(changes, :upload_date) do
+    source_id = get_field(changeset, :source_id)
+    source = Sources.get_source!(source_id)
+    # Channels should count down from 99, playlists should count up from 0
+    # This reflects the fact that channels prepend new videos to the top of the list
+    # and playlists append new videos to the bottom of the list.
+    default_index = if source.collection_type == :channel, do: 99, else: 0
+    aggregator = if source.collection_type == :channel, do: :min, else: :max
+    change_direction = if source.collection_type == :channel, do: -1, else: 1
+
+    current_max =
+      MediaQuery.new()
+      |> MediaQuery.for_source(source_id)
+      |> MediaQuery.where_uploaded_on_date(changes.upload_date)
+      |> Repo.aggregate(aggregator, :upload_date_index)
+
+    case current_max do
+      nil -> put_change(changeset, :upload_date_index, default_index)
+      max -> put_change(changeset, :upload_date_index, max + change_direction)
+    end
+  end
+
+  defp update_upload_date_index(changeset), do: changeset
 
   defimpl Jason.Encoder, for: MediaItem do
     def encode(value, opts) do

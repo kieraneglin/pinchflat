@@ -37,6 +37,150 @@ defmodule Pinchflat.MediaTest do
     end
   end
 
+  describe "schema when testing upload_date_index and source is a channel" do
+    test "upload_date_index is set to 99 if it's the only video uploaded that day" do
+      upload_date = Date.utc_today()
+      source = source_fixture(%{collection_type: :channel})
+      media_item = media_item_fixture(%{source_id: source.id, upload_date: upload_date})
+
+      assert media_item.upload_date_index == 99
+    end
+
+    test "upload_date_index is set to 98 if it's the second video uploaded that day" do
+      upload_date = Date.utc_today()
+      source = source_fixture(%{collection_type: :channel})
+
+      media_item_one = media_item_fixture(%{source_id: source.id, upload_date: upload_date})
+      media_item_two = media_item_fixture(%{source_id: source.id, upload_date: upload_date})
+
+      assert media_item_one.upload_date_index == 99
+      assert media_item_two.upload_date_index == 98
+    end
+
+    test "upload_date_index doesn't decrement if the video is uploaded on a different day" do
+      today = Date.utc_today()
+      one_day_ago = Date.add(today, -1)
+      source = source_fixture(%{collection_type: :channel})
+
+      media_item_new = media_item_fixture(%{source_id: source.id, upload_date: today})
+      media_item_old = media_item_fixture(%{source_id: source.id, upload_date: one_day_ago})
+
+      assert media_item_new.upload_date_index == 99
+      assert media_item_old.upload_date_index == 99
+    end
+
+    test "recomputes upload_date_index if an upload_date is changed...somehow" do
+      today = Date.utc_today()
+      one_day_ago = Date.add(today, -1)
+      source = source_fixture(%{collection_type: :channel})
+
+      media_item_new = media_item_fixture(%{source_id: source.id, upload_date: today})
+      media_item_old = media_item_fixture(%{source_id: source.id, upload_date: one_day_ago})
+
+      {:ok, updated_media_item} = Media.update_media_item(media_item_old, %{upload_date: today})
+
+      assert media_item_new.upload_date_index == 99
+      assert updated_media_item.upload_date_index == 98
+    end
+
+    test "upload_date_index doesn't decrement if the video is for a different source" do
+      today = Date.utc_today()
+
+      source_one = source_fixture(%{collection_type: :channel})
+      source_two = source_fixture(%{collection_type: :channel})
+
+      media_item_one = media_item_fixture(%{source_id: source_one.id, upload_date: today})
+      media_item_two = media_item_fixture(%{source_id: source_two.id, upload_date: today})
+
+      assert media_item_one.upload_date_index == 99
+      assert media_item_two.upload_date_index == 99
+    end
+
+    test "upload_date_index doesn't decrement if the a video's upload_date is updated but doesn't change" do
+      today = Date.utc_today()
+      source = source_fixture(%{collection_type: :channel})
+
+      media_item_one = media_item_fixture(%{source_id: source.id, upload_date: today})
+      _media_item_two = media_item_fixture(%{source_id: source.id, upload_date: today})
+
+      {:ok, updated_media_item} = Media.update_media_item(media_item_one, %{upload_date: today, title: "New title"})
+
+      assert updated_media_item.upload_date_index == 99
+    end
+  end
+
+  describe "schema when testing upload_date_index and source is a playlist" do
+    test "upload_date_index is set to 0 if it's the only video uploaded that day" do
+      upload_date = Date.utc_today()
+      source = source_fixture(%{collection_type: :playlist})
+      media_item = media_item_fixture(%{source_id: source.id, upload_date: upload_date})
+
+      assert media_item.upload_date_index == 0
+    end
+
+    test "upload_date_index is set to 1 if it's the second video uploaded that day" do
+      upload_date = Date.utc_today()
+      source = source_fixture(%{collection_type: :playlist})
+
+      media_item_one = media_item_fixture(%{source_id: source.id, upload_date: upload_date})
+      media_item_two = media_item_fixture(%{source_id: source.id, upload_date: upload_date})
+
+      assert media_item_one.upload_date_index == 0
+      assert media_item_two.upload_date_index == 1
+    end
+
+    test "upload_date_index doesn't increment if the video is uploaded on a different day" do
+      today = Date.utc_today()
+      one_day_ago = Date.add(today, -1)
+      source = source_fixture(%{collection_type: :playlist})
+
+      media_item_new = media_item_fixture(%{source_id: source.id, upload_date: today})
+      media_item_old = media_item_fixture(%{source_id: source.id, upload_date: one_day_ago})
+
+      assert media_item_new.upload_date_index == 0
+      assert media_item_old.upload_date_index == 0
+    end
+
+    test "recomputes upload_date_index if an upload_date is changed...somehow" do
+      today = Date.utc_today()
+      one_day_ago = Date.add(today, -1)
+      source = source_fixture(%{collection_type: :playlist})
+
+      media_item_new = media_item_fixture(%{source_id: source.id, upload_date: today})
+      media_item_old = media_item_fixture(%{source_id: source.id, upload_date: one_day_ago})
+
+      {:ok, updated_media_item} = Media.update_media_item(media_item_old, %{upload_date: today})
+
+      assert media_item_new.upload_date_index == 0
+      assert updated_media_item.upload_date_index == 1
+    end
+
+    test "upload_date_index doesn't increment if the video is for a different source" do
+      today = Date.utc_today()
+
+      source_one = source_fixture(%{collection_type: :playlist})
+      source_two = source_fixture(%{collection_type: :playlist})
+
+      media_item_one = media_item_fixture(%{source_id: source_one.id, upload_date: today})
+      media_item_two = media_item_fixture(%{source_id: source_two.id, upload_date: today})
+
+      assert media_item_one.upload_date_index == 0
+      assert media_item_two.upload_date_index == 0
+    end
+
+    test "upload_date_index doesn't increment if the a video's upload_date is updated but doesn't change" do
+      today = Date.utc_today()
+      source = source_fixture(%{collection_type: :playlist})
+
+      media_item_one = media_item_fixture(%{source_id: source.id, upload_date: today})
+      _media_item_two = media_item_fixture(%{source_id: source.id, upload_date: today})
+
+      {:ok, updated_media_item} = Media.update_media_item(media_item_one, %{upload_date: today, title: "New title"})
+
+      assert updated_media_item.upload_date_index == 0
+    end
+  end
+
   describe "list_media_items/0" do
     test "it returns all media_items" do
       media_item = media_item_fixture()
