@@ -124,9 +124,18 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
       [format_sort: "res:#{res},+codec:avc:m4a", remux_video: "mp4"]
     end
 
+    audio_format_precedence = [
+      "bestaudio[ext=m4a]",
+      "bestaudio[ext=mp3]",
+      "bestaudio",
+      "best[ext=m4a]",
+      "best[ext=mp3]",
+      "best"
+    ]
+
     case media_profile.preferred_resolution do
       # Also be aware that :audio disabled all embedding options for subtitles
-      :audio -> [:extract_audio, format: "bestaudio[ext=m4a]"]
+      :audio -> [:extract_audio, format: Enum.join(audio_format_precedence, "/")]
       :"360p" -> video_codec_option.("360")
       :"480p" -> video_codec_option.("480")
       :"720p" -> video_codec_option.("720")

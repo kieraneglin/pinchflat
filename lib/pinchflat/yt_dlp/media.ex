@@ -87,7 +87,7 @@ defmodule Pinchflat.YtDlp.Media do
       title: response["title"],
       description: response["description"],
       original_url: response["webpage_url"],
-      livestream: response["was_live"],
+      livestream: !!response["was_live"],
       duration_seconds: response["duration"] && round(response["duration"]),
       short_form_content: response["webpage_url"] && short_form_content?(response),
       upload_date: response["upload_date"] && MetadataFileHelpers.parse_upload_date(response["upload_date"])
