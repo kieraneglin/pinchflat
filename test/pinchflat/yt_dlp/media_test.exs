@@ -199,5 +199,16 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
       assert %Media{duration_seconds: nil} = Media.response_to_struct(response)
     end
+
+    test "sets livestream to false if the was_live field isn't present" do
+      response = %{
+        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "aspect_ratio" => 1.0,
+        "duration" => 60,
+        "upload_date" => "20210101"
+      }
+
+      assert %Media{livestream: false} = Media.response_to_struct(response)
+    end
   end
 end

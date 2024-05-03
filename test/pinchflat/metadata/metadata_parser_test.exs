@@ -46,6 +46,14 @@ defmodule Pinchflat.Metadata.MetadataParserTest do
       assert result.livestream == metadata["was_live"]
     end
 
+    test "the livestream flag defaults to false", %{metadata: metadata} do
+      metadata = Map.put(metadata, "was_live", nil)
+
+      result = Parser.parse_for_media_item(metadata)
+
+      assert result.livestream == false
+    end
+
     test "it extracts the duration in seconds", %{metadata: metadata} do
       result = Parser.parse_for_media_item(metadata)
 
