@@ -259,7 +259,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
       assert {:ok, res} = DownloadOptionBuilder.build(media_item)
 
       assert :extract_audio in res
-      assert {:format, "bestaudio[ext=m4a]"} in res
+      assert {:format, "bestaudio[ext=m4a]/bestaudio[ext=mp3]/bestaudio/best[ext=m4a]/best[ext=mp3]/best"} in res
 
       refute {:remux_video, "mp4"} in res
     end

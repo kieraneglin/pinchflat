@@ -89,6 +89,48 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
 
       assert filepath =~ ~r{/media_items/#{media_item.id}/img_2.jpg}
     end
+
+    test "will fall back to a non-jpg if it has to", %{media_item: media_item} do
+      metadata = %{
+        "thumbnails" => [
+          %{"url" => "https://i.ytimg.com/vi/ABC123/img_1.webp", "preference" => -1}
+        ]
+      }
+
+      filepath = Helpers.download_and_store_thumbnail_for(media_item, metadata)
+
+      assert filepath =~ ~r{/media_items/#{media_item.id}/img_1.webp}
+    end
+
+    test "does not require a preference field", %{media_item: media_item} do
+      metadata = %{
+        "thumbnails" => [
+          %{"url" => "https://i.ytimg.com/vi/ABC123/img_1.webp"}
+        ]
+      }
+
+      filepath = Helpers.download_and_store_thumbnail_for(media_item, metadata)
+
+      assert filepath =~ ~r{/media_items/#{media_item.id}/img_1.webp}
+    end
+  end
+
+  describe "download_and_store_thumbnail_for/2 when not downloading thumbnails" do
+    test "returns nil if there are no thumbnails", %{media_item: media_item} do
+      metadata = %{"thumbnails" => []}
+
+      filepath = Helpers.download_and_store_thumbnail_for(media_item, metadata)
+
+      assert filepath == nil
+    end
+
+    test "returns nil if there is no thumbnail field", %{media_item: media_item} do
+      metadata = %{}
+
+      filepath = Helpers.download_and_store_thumbnail_for(media_item, metadata)
+
+      assert filepath == nil
+    end
   end
 
   describe "parse_upload_date/1" do
