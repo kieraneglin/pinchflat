@@ -22,6 +22,12 @@ window.copyTextToClipboard = async (text) => {
   }
 }
 
+window.copyWithCallbacks = async (text, onCopy, onAfterDelay, delay = 4000) => {
+  await window.copyTextToClipboard(text)
+  onCopy()
+  setTimeout(onAfterDelay, delay)
+}
+
 window.markVersionAsSeen = (versionString) => {
   localStorage.setItem('seenVersion', versionString)
 }
