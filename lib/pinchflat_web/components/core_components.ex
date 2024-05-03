@@ -266,6 +266,7 @@ defmodule PinchflatWeb.CoreComponents do
                 multiple pattern placeholder readonly required rows size step)
 
   slot :inner_block
+  slot :input_append
 
   def input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
     assigns
@@ -424,20 +425,23 @@ defmodule PinchflatWeb.CoreComponents do
       <.label for={@id}>
         <%= @label %><span :if={@label_suffix} class="text-xs text-bodydark"><%= @label_suffix %></span>
       </.label>
-      <input
-        type={@type}
-        name={@name}
-        id={@id}
-        value={Phoenix.HTML.Form.normalize_value(@type, @value)}
-        class={[
-          "w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal text-black",
-          "outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter",
-          "dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary",
-          @inputclass,
-          @errors != [] && "border-rose-400 focus:border-rose-400"
-        ]}
-        {@rest}
-      />
+      <div class="flex items-center">
+        <input
+          type={@type}
+          name={@name}
+          id={@id}
+          value={Phoenix.HTML.Form.normalize_value(@type, @value)}
+          class={[
+            "w-full rounded-lg border-[1.5px] px-5 py-3 font-normal border-form-strokedark bg-form-input",
+            "outline-none transition active:border-primary disabled:cursor-default disabled:bg-whiter",
+            "text-white focus:border-primary",
+            @inputclass,
+            @errors != [] && "border-rose-400 focus:border-rose-400"
+          ]}
+          {@rest}
+        />
+        <%= render_slot(@input_append) %>
+      </div>
       <.help :if={@help}><%= if @html_help, do: Phoenix.HTML.raw(@help), else: @help %></.help>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>

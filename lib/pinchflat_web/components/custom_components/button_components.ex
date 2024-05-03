@@ -89,4 +89,46 @@ defmodule PinchflatWeb.CustomComponents.ButtonComponents do
     </div>
     """
   end
+
+  @doc """
+  Render a button with an icon. Optionally include a tooltip.
+
+  ## Examples
+
+      <.icon_button icon_name="hero-check" tooltip="Complete" />
+  """
+  attr :icon_name, :string, required: true
+  attr :class, :string, default: ""
+  attr :tooltip, :string, default: nil
+  attr :rest, :global
+
+  def icon_button(assigns) do
+    ~H"""
+    <div class="group relative inline-block">
+      <button
+        class={[
+          "flex justify-center items-center rounded-lg ",
+          "bg-form-input border-2 border-strokedark",
+          "hover:bg-meta-4 hover:border-form-strokedark",
+          @class
+        ]}
+        type="button"
+        {@rest}
+      >
+        <CoreComponents.icon name={@icon_name} class="text-stroke" />
+      </button>
+      <div
+        :if={@tooltip}
+        class={[
+          "hidden absolute left-1/2 top-full z-20 mt-3 -translate-x-1/2 whitespace-nowrap rounded-md",
+          "px-4.5 py-1.5 text-sm font-medium opacity-0 drop-shadow-4 group-hover:opacity-100 group-hover:block bg-meta-4"
+        ]}
+      >
+        <span class="border-light absolute -top-1 left-1/2 -z-10 h-2 w-2 -translate-x-1/2 rotate-45 rounded-sm bg-meta-4">
+        </span>
+        <span><%= @tooltip %></span>
+      </div>
+    </div>
+    """
+  end
 end

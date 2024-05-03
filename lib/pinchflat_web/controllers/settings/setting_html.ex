@@ -6,6 +6,7 @@ defmodule PinchflatWeb.Settings.SettingHTML do
   @doc """
   Renders a setting form.
   """
+  attr :conn, Plug.Conn, required: true
   attr :changeset, Ecto.Changeset, required: true
   attr :action, :string, required: true
 
