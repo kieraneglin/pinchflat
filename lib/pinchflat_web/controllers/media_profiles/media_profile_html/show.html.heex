@@ -17,30 +17,10 @@
   </nav>
 </div>
 <div class="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
-  <div class="max-w-full overflow-x-auto">
+  <div class="max-w-full">
     <.tabbed_layout>
       <:tab_append>
-        <.button_dropdown text="Actions" class="justify-center w-full sm:w-50">
-          <:option>
-            <.link
-              href={~p"/media_profiles/#{@media_profile}"}
-              method="delete"
-              data-confirm="Are you sure you want to delete this profile and all its sources (leaving files in place)? This cannot be undone."
-            >
-              Delete Profile
-            </.link>
-          </:option>
-          <:option>
-            <.link
-              href={~p"/media_profiles/#{@media_profile}?delete_files=true"}
-              method="delete"
-              data-confirm="Are you sure you want to delete this profile, all its sources, and its files on disk? This cannot be undone."
-              class="mt-5 md:mt-0"
-            >
-              Delete Profile + Files
-            </.link>
-          </:option>
-        </.button_dropdown>
+        <.actions_dropdown media_profile={@media_profile} />
       </:tab_append>
 
       <:tab title="Media Profile">

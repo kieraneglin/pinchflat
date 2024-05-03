@@ -26,6 +26,9 @@
       <span x-show="copied" x-transition.duration.150ms><.icon name="hero-check" class="ml-2 h-4 w-4" /></span>
     </span>
   </:option>
+  <:option>
+    <div class="h-px w-full bg-bodydark2"></div>
+  </:option>
   <:option :if={@source.download_media}>
     <.link
       href={~p"/sources/#{@source}/force_download"}

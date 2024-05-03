@@ -5,7 +5,7 @@
 </div>
 
 <div class="rounded-sm border border-stroke bg-white px-5 py-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5">
-  <div class="max-w-full overflow-x-auto">
+  <div class="max-w-full">
     <div class="flex flex-col gap-10 dark:text-white">
       <%= if match?([_|_], @search_results) do %>
         <.table rows={@search_results} table_class="text-black dark:text-white">
