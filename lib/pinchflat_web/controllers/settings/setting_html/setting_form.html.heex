@@ -7,15 +7,13 @@
     Notification Settings
   </h3>
 
-  <.input
-    field={f[:apprise_server]}
-    type="text"
-    label="Apprise Server"
-    help={apprise_server_help()}
-    html_help={true}
-    inputclass="font-mono text-sm"
-    placeholder="https://discordapp.com/api/webhooks/{WebhookID}/{WebhookToken}"
-  />
+  <section>
+    <%= live_render(
+      @conn,
+      Pinchflat.Settings.AppriseServerLive,
+      session: %{"value" => f[:apprise_server].value}
+    ) %>
+  </section>
 
   <.button class="mt-10 mb-4 sm:mb-8 w-full sm:w-auto" rounding="rounded-lg">Save Settings</.button>
 </.simple_form>

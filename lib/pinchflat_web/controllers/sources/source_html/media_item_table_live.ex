@@ -12,13 +12,7 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
   def render(%{records: []} = assigns) do
     ~H"""
     <div class="mb-4 flex items-center">
-      <button
-        class="flex justify-center items-center rounded-lg bg-form-input border-2 border-strokedark h-10 w-10"
-        phx-click="reload_page"
-        type="button"
-      >
-        <.icon name="hero-arrow-path" class="text-stroke" />
-      </button>
+      <.icon_button icon_name="hero-arrow-path" class="h-10 w-10" phx-click="reload_page" />
       <p class="ml-2">Nothing Here!</p>
     </div>
     """
@@ -28,13 +22,7 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
     ~H"""
     <div>
       <span class="mb-4 flex items-center">
-        <button
-          class="flex justify-center items-center rounded-lg bg-form-input border-2 border-strokedark h-10 w-10"
-          phx-click="reload_page"
-          type="button"
-        >
-          <.icon name="hero-arrow-path" class="text-stroke" />
-        </button>
+        <.icon_button icon_name="hero-arrow-path" class="h-10 w-10" phx-click="reload_page" tooltip="Refresh" />
         <span class="ml-2">Showing <%= length(@records) %> of <%= @total_record_count %></span>
       </span>
       <.table rows={@records} table_class="text-white">
