@@ -126,6 +126,8 @@ EXPOSE ${PORT}
 
 # Only copy the final release from the build stage
 COPY --from=builder /app/_build/${MIX_ENV}/rel/pinchflat ./
+# Update permissions to let the app write the tzdata files
+RUN chmod ugo+rw /app/lib/tzdata-*/priv/*
 
 # NEVER do this if you're running in an environment where you don't trust the user
 # (ie: most environments). This is only acceptable in a self-hosted environment.
