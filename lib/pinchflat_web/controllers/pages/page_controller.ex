@@ -1,10 +1,9 @@
 defmodule PinchflatWeb.Pages.PageController do
-  alias Pinchflat.Media.MediaItem
   use PinchflatWeb, :controller
 
   alias Pinchflat.Repo
   alias Pinchflat.Sources.Source
-  alias Pinchflat.Media.MediaItem
+  alias Pinchflat.Media.MediaQuery
   alias Pinchflat.Profiles.MediaProfile
 
   def home(conn, params) do
@@ -25,7 +24,10 @@ defmodule PinchflatWeb.Pages.PageController do
     |> render(:home,
       media_profile_count: Repo.aggregate(MediaProfile, :count, :id),
       source_count: Repo.aggregate(Source, :count, :id),
-      media_item_count: Repo.aggregate(MediaItem, :count, :id)
+      media_item_count:
+        MediaQuery.new()
+        |> MediaQuery.with_media_downloaded_at()
+        |> Repo.aggregate(:count, :id)
     )
   end
 

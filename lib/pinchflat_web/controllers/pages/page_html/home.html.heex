@@ -17,7 +17,7 @@
   </div>
   <div class="rounded-sm border px-7.5 py-6 shadow-default border-strokedark bg-boxdark">
     <span class="mt-4 flex flex-col items-center justify-center">
-      <span class="text-md font-medium">Media Item(s)</span>
+      <span class="text-md font-medium">Downloaded Media</span>
       <h4 class="text-title-md font-bold text-white">
         <%= @media_item_count %>
       </h4>
@@ -26,22 +26,8 @@
 </div>
 
 <div class="rounded-sm border shadow-default border-strokedark bg-boxdark mt-4 p-5">
-  <div class="max-w-full overflow-x-auto">
-    <span class="text-2xl font-medium mb-4">Download History</span>
-    <section class="mt-6">
-      <%= live_render(@conn, Pinchflat.Pages.HistoryTableLive) %>
-    </section>
-  </div>
+  <span class="text-2xl font-medium mb-4">History</span>
+  <section class="mt-6">
+    <%= live_render(@conn, Pinchflat.Pages.HistoryTableLive) %>
+  </section>
 </div>
-
-<%!-- <div class="rounded-sm border shadow-default border-strokedark bg-boxdark mt-4">
-  <div class="max-w-full overflow-x-auto">
-    <div class="flex flex-col gap-10 min-w-max">
-      <.table rows={[]} table_class="text-black dark:text-white">
-        <:col :let={_source} label="Name">Test</:col>
-      </.table>
-    </div>
-  </div>
-</div> --%>
-
-<span class="text-strokedark">I know this page isn't super useful yet, but give it time :&rpar;</span>

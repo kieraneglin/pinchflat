@@ -24,27 +24,29 @@ defmodule Pinchflat.Pages.HistoryTableLive do
         <.icon_button icon_name="hero-arrow-path" class="h-10 w-10" phx-click="reload_page" tooltip="Refresh" />
         <span class="ml-2">Showing <%= length(@records) %> of <%= @total_record_count %></span>
       </span>
-      <.table rows={@records} table_class="text-white">
-        <:col :let={media_item} label="Title">
-          <.subtle_link href={~p"/sources/#{media_item.source_id}/media/#{media_item}"}>
-            <%= StringUtils.truncate(media_item.title, 35) %>
-          </.subtle_link>
-        </:col>
-        <:col :let={media_item} label="Upload Date">
-          <%= media_item.upload_date %>
-        </:col>
-        <:col :let={media_item} label="Indexed At (UTC)">
-          <%= format_datetime(media_item.inserted_at) %>
-        </:col>
-        <:col :let={media_item} label="Downloaded At (UTC)">
-          <%= format_datetime(media_item.media_downloaded_at) %>
-        </:col>
-        <:col :let={media_item} label="Source">
-          <.subtle_link href={~p"/sources/#{media_item.source_id}"}>
-            <%= StringUtils.truncate(media_item.source.custom_name, 35) %>
-          </.subtle_link>
-        </:col>
-      </.table>
+      <div class="max-w-full overflow-x-auto">
+        <.table rows={@records} table_class="text-white">
+          <:col :let={media_item} label="Title">
+            <.subtle_link href={~p"/sources/#{media_item.source_id}/media/#{media_item}"}>
+              <%= StringUtils.truncate(media_item.title, 35) %>
+            </.subtle_link>
+          </:col>
+          <:col :let={media_item} label="Upload Date">
+            <%= media_item.upload_date %>
+          </:col>
+          <:col :let={media_item} label="Indexed At">
+            <%= format_datetime(media_item.inserted_at) %>
+          </:col>
+          <:col :let={media_item} label="Downloaded At">
+            <%= format_datetime(media_item.media_downloaded_at) %>
+          </:col>
+          <:col :let={media_item} label="Source">
+            <.subtle_link href={~p"/sources/#{media_item.source_id}"}>
+              <%= StringUtils.truncate(media_item.source.custom_name, 35) %>
+            </.subtle_link>
+          </:col>
+        </.table>
+      </div>
       <section class="flex justify-center mt-5">
         <.live_pagination_controls page_number={@page} total_pages={@total_pages} />
       </section>
@@ -95,6 +97,7 @@ defmodule Pinchflat.Pages.HistoryTableLive do
 
   defp generate_base_query do
     MediaQuery.new()
+    |> MediaQuery.where_pending_or_downloaded()
     |> order_by(desc: :id)
   end
 

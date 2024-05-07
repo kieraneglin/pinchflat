@@ -172,6 +172,12 @@ defmodule Pinchflat.Media.MediaQuery do
     |> matching_source_title_regex()
   end
 
+  def where_pending_or_downloaded(query) do
+    query
+    |> where_pending_download()
+    |> or_where([mi], not is_nil(mi.media_downloaded_at))
+  end
+
   defp require_assoc(query, identifier) do
     if has_named_binding?(query, identifier) do
       query
