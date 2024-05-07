@@ -1,16 +1,5 @@
 # Find eligible builder and runner images on Docker Hub. We use Ubuntu/Debian
 # instead of Alpine to avoid DNS resolution issues in production.
-#
-# https://hub.docker.com/r/hexpm/elixir/tags?page=1&name=ubuntu
-# https://hub.docker.com/_/ubuntu?tab=tags
-#
-# This file is based on these images:
-#
-#   - https://hub.docker.com/r/hexpm/elixir/tags - for the build image
-#   - https://hub.docker.com/_/debian?tab=tags&page=1&name=bullseye-20231009-slim - for the release image
-#   - https://pkgs.org/ - resource for finding needed packages
-#   - Ex: hexpm/elixir:1.16.0-erlang-26.2.1-debian-bullseye-20231009-slim
-#
 ARG ELIXIR_VERSION=1.16.2
 ARG OTP_VERSION=26.2.2
 ARG DEBIAN_VERSION=bookworm-20240130-slim
@@ -19,6 +8,9 @@ ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-$
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 
 FROM ${BUILDER_IMAGE} as builder
+
+ARG TARGETPLATFORM
+RUN echo "Building for ${TARGETPLATFORM:?}"
 
 # install build dependencies
 RUN apt-get update -y && \
@@ -35,18 +27,17 @@ RUN apt-get update -y && \
     # Hex and Rebar
     mix local.hex --force && \
     mix local.rebar --force && \
+    # FFmpeg
+    export FFMPEG_DOWNLOAD=$(case ${TARGETPLATFORM:-linux/amd64} in \
+    "linux/amd64")   echo "https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz"   ;; \
+    "linux/arm64")   echo "https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linuxarm64-gpl.tar.xz" ;; \
+    *)               echo ""        ;; esac) && \
+    curl -L ${FFMPEG_DOWNLOAD} --output /tmp/ffmpeg.tar.xz && \
+    tar -xf /tmp/ffmpeg.tar.xz --strip-components=2 --no-anchored -C /usr/local/bin/ "ffmpeg" && \
+    tar -xf /tmp/ffmpeg.tar.xz --strip-components=2 --no-anchored -C /usr/local/bin/ "ffprobe" && \
     # Cleanup
     apt-get clean && \
     rm -f /var/lib/apt/lists/*_*
-
-# TODO: make this pull a different version of ffmpeg based on the architecture
-# TODO: add to local dockerfile
-# TODO: update docs
-# TODO: update actions runner
-RUN export FFMPEG_DOWNLOAD="https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linuxarm64-gpl.tar.xz" && \
-    curl -L ${FFMPEG_DOWNLOAD} --output /tmp/ffmpeg.tar.xz && \
-    tar -xf /tmp/ffmpeg.tar.xz --strip-components=2 --no-anchored -C /usr/local/bin/ "ffmpeg" && \
-    tar -xf /tmp/ffmpeg.tar.xz --strip-components=2 --no-anchored -C /usr/local/bin/ "ffprobe"
 
 # prepare build dir
 WORKDIR /app
@@ -146,11 +137,6 @@ COPY --from=builder /app/_build/${MIX_ENV}/rel/pinchflat ./
 # and processes to interact with. If you want to just run the whole container as
 # root, use --user 0:0 or something.
 RUN passwd -d root
-
-# If using an environment that doesn't automatically reap zombie processes, it is
-# advised to add an init process such as tini via `apt-get install`
-# above and adding an entrypoint. See https://github.com/krallin/tini for details
-# ENTRYPOINT ["/tini", "--"]
 
 HEALTHCHECK --interval=120s --start-period=10s \
   CMD curl --fail http://localhost:${PORT}/healthcheck || exit 1
