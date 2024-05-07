@@ -68,6 +68,7 @@ defmodule Pinchflat.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:oban, "~> 2.16"},
       {:nimble_parsec, "~> 1.4"},
+      {:timex, "~> 3.0"},
       {:mox, "~> 1.0", only: :test},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:credo_naming, "~> 2.1", only: [:dev, :test], runtime: false},

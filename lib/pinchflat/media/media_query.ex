@@ -21,6 +21,8 @@ defmodule Pinchflat.Media.MediaQuery do
   # Suffixes:
   # - _for - the arg passed is an association record
 
+  # NOTE: that dyanmic query approach kinda rocked - should refactor in future
+
   def new do
     MediaItem
   end

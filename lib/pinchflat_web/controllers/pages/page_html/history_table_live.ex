@@ -5,6 +5,7 @@ defmodule Pinchflat.Pages.HistoryTableLive do
   alias Pinchflat.Repo
   alias Pinchflat.Media.MediaQuery
   alias Pinchflat.Utils.NumberUtils
+  alias PinchflatWeb.CustomComponents.TextComponents
 
   @limit 10
 
@@ -104,6 +105,6 @@ defmodule Pinchflat.Pages.HistoryTableLive do
   defp format_datetime(nil), do: ""
 
   defp format_datetime(datetime) do
-    Calendar.strftime(datetime, "%Y-%m-%d %H:%M")
+    TextComponents.datetime_in_zone(%{datetime: datetime, format: "%Y-%m-%d %H:%M"})
   end
 end
