@@ -21,6 +21,8 @@ defmodule Pinchflat.Media.MediaQuery do
   # Suffixes:
   # - _for - the arg passed is an association record
 
+  # NOTE: that dyanmic query approach kinda rocked - should refactor in future
+
   def new do
     MediaItem
   end
@@ -170,6 +172,12 @@ defmodule Pinchflat.Media.MediaQuery do
     |> with_upload_date_after_source_cutoff()
     |> with_format_matching_profile_preference()
     |> matching_source_title_regex()
+  end
+
+  def where_pending_or_downloaded(query) do
+    query
+    |> where_pending_download()
+    |> or_where([mi], not is_nil(mi.media_downloaded_at))
   end
 
   defp require_assoc(query, identifier) do

@@ -63,7 +63,8 @@ if config_env() == :prod do
     extras_directory: extras_path,
     tmpfile_directory: Path.join([System.tmp_dir!(), "pinchflat", "data"]),
     dns_cluster_query: System.get_env("DNS_CLUSTER_QUERY"),
-    expose_feed_endpoints: expose_feed_endpoints
+    expose_feed_endpoints: expose_feed_endpoints,
+    timezone: System.get_env("TIMEZONE") || System.get_env("TZ") || "UTC"
 
   config :pinchflat, Pinchflat.Repo,
     database: db_path,

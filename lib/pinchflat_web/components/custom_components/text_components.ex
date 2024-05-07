@@ -78,4 +78,17 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
     <span><%= @text %></span>
     """
   end
+
+  @doc """
+  Renders a UTC datetime in the specified format and timezone
+  """
+  attr :datetime, :any, required: true
+  attr :format, :string, default: "%Y-%m-%d %H:%M:%S"
+  attr :timezone, :string, default: Application.compile_env(:pinchflat, :timezone)
+
+  def datetime_in_zone(assigns) do
+    ~H"""
+    <time><%= Calendar.strftime(Timex.Timezone.convert(@datetime, @timezone), @format) %></time>
+    """
+  end
 end

@@ -91,6 +91,9 @@ version: '3'
 services:
   pinchflat:
     image: keglin/pinchflat:latest
+    environment:
+      # Set the timezone to your local timezone
+      - TZ=America/New_York
     ports:
       - '8945:8945'
     volumes:
@@ -110,7 +113,9 @@ services:
 ```bash
 # Be sure to replace /host/path/to/config and /host/path/to/downloads below with
 # the paths to the directories you created in step 1
+# Be sure to replace America/New_York with your local timezone
 docker run \
+  -e TZ=America/New_York \
   -p 8945:8945 \
   -v /host/path/to/config:/config \
   -v /host/path/to/downloads:/downloads \

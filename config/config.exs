@@ -25,7 +25,8 @@ config :pinchflat,
   basic_auth_username: "",
   basic_auth_password: "",
   expose_feed_endpoints: false,
-  file_watcher_poll_interval: 1000
+  file_watcher_poll_interval: 1000,
+  timezone: "UTC"
 
 config :pinchflat, Pinchflat.Repo,
   journal_mode: :wal,
