@@ -84,9 +84,12 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
   """
   attr :datetime, :any, required: true
   attr :format, :string, default: "%Y-%m-%d %H:%M:%S"
-  attr :timezone, :string, default: Application.compile_env(:pinchflat, :timezone)
+  attr :timezone, :string, default: nil
 
   def datetime_in_zone(assigns) do
+    timezone = assigns.timezone || Application.get_env(:pinchflat, :timezone)
+    assigns = Map.put(assigns, :timezone, timezone)
+
     ~H"""
     <time><%= Calendar.strftime(Timex.Timezone.convert(@datetime, @timezone), @format) %></time>
     """
