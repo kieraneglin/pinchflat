@@ -23,5 +23,25 @@
       </h4>
     </span>
   </div>
-  <span class="text-strokedark">I know this page isn't super useful yet, but give it time :&rpar;</span>
 </div>
+
+<div class="rounded-sm border shadow-default border-strokedark bg-boxdark mt-4 p-5">
+  <div class="max-w-full overflow-x-auto">
+    <span class="text-2xl font-medium mb-4">Download History</span>
+    <section class="mt-6">
+      <%= live_render(@conn, Pinchflat.Pages.HistoryTableLive) %>
+    </section>
+  </div>
+</div>
+
+<%!-- <div class="rounded-sm border shadow-default border-strokedark bg-boxdark mt-4">
+  <div class="max-w-full overflow-x-auto">
+    <div class="flex flex-col gap-10 min-w-max">
+      <.table rows={[]} table_class="text-black dark:text-white">
+        <:col :let={_source} label="Name">Test</:col>
+      </.table>
+    </div>
+  </div>
+</div> --%>
+
+<span class="text-strokedark">I know this page isn't super useful yet, but give it time :&rpar;</span>
