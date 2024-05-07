@@ -104,6 +104,6 @@ defmodule Pinchflat.Pages.HistoryTableLive do
   defp format_datetime(nil), do: ""
 
   defp format_datetime(datetime) do
-    Calendar.strftime(datetime, "%Y-%m-%d %I:%M %p")
+    Calendar.strftime(datetime, "%Y-%m-%d %H:%M")
   end
 end
