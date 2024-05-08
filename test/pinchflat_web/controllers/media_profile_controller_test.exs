@@ -1,7 +1,6 @@
 defmodule PinchflatWeb.MediaProfileControllerTest do
   use PinchflatWeb.ConnCase
 
-  import Mox
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
   import Pinchflat.ProfilesFixtures
@@ -15,8 +14,6 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
     output_path_template: "new_output_template.{{ ext }}"
   }
   @invalid_attrs %{name: nil, output_path_template: nil}
-
-  setup :verify_on_exit!
 
   setup do
     Settings.set(onboarding: false)
@@ -41,7 +38,7 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
       Settings.set(onboarding: true)
       conn = get(conn, ~p"/media_profiles/new")
 
-      refute html_response(conn, 200) =~ "MENU"
+      refute html_response(conn, 200) =~ "<span>MENU</span>"
     end
   end
 

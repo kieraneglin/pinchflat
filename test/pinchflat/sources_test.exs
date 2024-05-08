@@ -1,6 +1,6 @@
 defmodule Pinchflat.SourcesTest do
   use Pinchflat.DataCase
-  import Mox
+
   import Pinchflat.TasksFixtures
   import Pinchflat.MediaFixtures
   import Pinchflat.ProfilesFixtures
@@ -17,8 +17,6 @@ defmodule Pinchflat.SourcesTest do
   alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
 
   @invalid_source_attrs %{name: nil, collection_id: nil}
-
-  setup :verify_on_exit!
 
   describe "schema" do
     test "source_metadata is deleted when the source is deleted" do

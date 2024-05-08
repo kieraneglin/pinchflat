@@ -15,6 +15,7 @@ defmodule Pinchflat.DataCase do
   """
 
   use ExUnit.CaseTemplate
+  alias Pinchflat.TestingHelperMethods
 
   using do
     quote do
@@ -22,16 +23,21 @@ defmodule Pinchflat.DataCase do
 
       use Oban.Testing, repo: Repo
 
+      import Mox
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
       import Pinchflat.DataCase
       import Pinchflat.TestingHelperMethods
+
+      setup :verify_on_exit!
     end
   end
 
   setup tags do
+    TestingHelperMethods.create_platform_directories()
     Pinchflat.DataCase.setup_sandbox(tags)
+
     :ok
   end
 

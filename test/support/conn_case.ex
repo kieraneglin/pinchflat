@@ -17,6 +17,8 @@ defmodule PinchflatWeb.ConnCase do
 
   use ExUnit.CaseTemplate
 
+  alias Pinchflat.TestingHelperMethods
+
   using do
     quote do
       # The default endpoint for testing
@@ -27,14 +29,19 @@ defmodule PinchflatWeb.ConnCase do
       use Oban.Testing, repo: Repo
 
       # Import conveniences for testing with connections
+
+      import Mox
       import Plug.Conn
       import Phoenix.ConnTest
       import PinchflatWeb.ConnCase
       import Pinchflat.TestingHelperMethods
+
+      setup :verify_on_exit!
     end
   end
 
   setup tags do
+    TestingHelperMethods.create_platform_directories()
     Pinchflat.DataCase.setup_sandbox(tags)
 
     conn = Phoenix.ConnTest.build_conn()

@@ -1,13 +1,11 @@
 defmodule Pinchflat.YtDlp.MediaTest do
   use Pinchflat.DataCase
-  import Mox
+
   import Pinchflat.MediaFixtures
 
   alias Pinchflat.YtDlp.Media
 
   @media_url "https://www.youtube.com/watch?v=TiZPUDkDYbk"
-
-  setup :verify_on_exit!
 
   describe "download/2" do
     test "it calls the backend runner with the expected arguments" do

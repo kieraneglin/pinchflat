@@ -1,6 +1,5 @@
 defmodule PinchflatWeb.SourceControllerTest do
   use PinchflatWeb.ConnCase
-  import Mox
 
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
@@ -31,8 +30,6 @@ defmodule PinchflatWeb.SourceControllerTest do
       }
     }
   end
-
-  setup :verify_on_exit!
 
   describe "index" do
     test "lists all sources", %{conn: conn} do

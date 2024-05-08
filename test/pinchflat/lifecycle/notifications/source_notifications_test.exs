@@ -1,15 +1,12 @@
 defmodule Pinchflat.Lifecycle.Notifications.SourceNotificationsTest do
   use Pinchflat.DataCase
 
-  import Mox
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
 
   alias Pinchflat.Lifecycle.Notifications.SourceNotifications
 
   @apprise_servers ["server_1", "server_2"]
-
-  setup :verify_on_exit!
 
   describe "wrap_new_media_notification/3" do
     test "sends a notification when the pending count changes" do

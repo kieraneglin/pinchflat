@@ -34,8 +34,10 @@ defmodule PinchflatWeb.Sources.MediaItemTableLiveTest do
 
   describe "media_state" do
     test "shows pending media when pending", %{conn: conn, source: source} do
-      downloaded_media_item = media_item_fixture(source_id: source.id)
-      pending_media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
+      downloaded_media_item = media_item_fixture(source_id: source.id, title: "DL-#{Enum.random(0..9999)}")
+
+      pending_media_item =
+        media_item_fixture(source_id: source.id, media_filepath: nil, title: "P-#{Enum.random(0..9999)}")
 
       {:ok, _view, html} = live_isolated(conn, MediaItemTableLive, session: create_session(source, "pending"))
 

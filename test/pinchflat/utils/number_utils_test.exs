@@ -1,5 +1,5 @@
 defmodule Pinchflat.Utils.NumberUtilsTest do
-  use ExUnit.Case, async: false
+  use Pinchflat.DataCase
 
   alias Pinchflat.Utils.NumberUtils
 

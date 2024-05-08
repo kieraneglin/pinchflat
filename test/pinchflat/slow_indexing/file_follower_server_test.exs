@@ -1,5 +1,5 @@
 defmodule Pinchflat.SlowIndexing.FileFollowerServerTest do
-  use ExUnit.Case, async: false
+  use Pinchflat.DataCase
 
   alias alias Pinchflat.Utils.FilesystemUtils
   alias Pinchflat.SlowIndexing.FileFollowerServer

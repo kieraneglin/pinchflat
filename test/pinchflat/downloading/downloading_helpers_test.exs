@@ -1,7 +1,6 @@
 defmodule Pinchflat.Downloading.DownloadingHelpersTest do
   use Pinchflat.DataCase
 
-  import Mox
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
   import Pinchflat.ProfilesFixtures
@@ -9,8 +8,6 @@ defmodule Pinchflat.Downloading.DownloadingHelpersTest do
   alias Pinchflat.Tasks
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.Downloading.MediaDownloadWorker
-
-  setup :verify_on_exit!
 
   describe "enqueue_pending_download_tasks/1" do
     test "it enqueues a job for each pending media item" do

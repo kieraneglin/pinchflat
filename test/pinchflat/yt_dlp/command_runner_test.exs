@@ -1,5 +1,5 @@
 defmodule Pinchflat.YtDlp.CommandRunnerTest do
-  use ExUnit.Case, async: false
+  use Pinchflat.DataCase
 
   alias Pinchflat.Utils.FilesystemUtils
 

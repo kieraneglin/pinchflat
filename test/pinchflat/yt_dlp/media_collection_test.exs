@@ -1,14 +1,12 @@
 defmodule Pinchflat.YtDlp.MediaCollectionTest do
   use Pinchflat.DataCase
-  import Mox
+
   import Pinchflat.SourcesFixtures
 
   alias Pinchflat.YtDlp.Media
   alias Pinchflat.YtDlp.MediaCollection
 
   @channel_url "https://www.youtube.com/c/PinchflatTestChannel"
-
-  setup :verify_on_exit!
 
   describe "get_media_attributes_for_collection/2" do
     test "returns a list of video attributes with no blank elements" do

@@ -1,13 +1,10 @@
 defmodule PinchflatWeb.MediaItemControllerTest do
   use PinchflatWeb.ConnCase
 
-  import Mox
   import Pinchflat.MediaFixtures
 
   alias Pinchflat.Repo
   alias Pinchflat.Downloading.MediaDownloadWorker
-
-  setup :verify_on_exit!
 
   describe "show media" do
     setup [:create_media_item]

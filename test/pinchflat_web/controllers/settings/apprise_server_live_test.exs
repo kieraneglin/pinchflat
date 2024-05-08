@@ -1,12 +1,9 @@
 defmodule PinchflatWeb.Settings.AppriseServerLiveTest do
   use PinchflatWeb.ConnCase
 
-  import Mox
   import Phoenix.LiveViewTest
 
   alias Pinchflat.Settings.AppriseServerLive
-
-  setup :verify_on_exit!
 
   describe "initial rendering" do
     test "renders the input", %{conn: conn} do
