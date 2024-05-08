@@ -1,14 +1,11 @@
 defmodule Pinchflat.FastIndexing.FastIndexingWorkerTest do
   use Pinchflat.DataCase
 
-  import Mox
   import Pinchflat.SourcesFixtures
 
   alias Pinchflat.Settings
   alias Pinchflat.Sources.Source
   alias Pinchflat.FastIndexing.FastIndexingWorker
-
-  setup :verify_on_exit!
 
   describe "kickoff_with_task/2" do
     test "starts the worker" do

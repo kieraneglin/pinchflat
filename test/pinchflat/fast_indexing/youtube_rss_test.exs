@@ -1,11 +1,9 @@
 defmodule Pinchflat.FastIndexing.YoutubeRssTest do
   use Pinchflat.DataCase
-  import Mox
+
   import Pinchflat.SourcesFixtures
 
   alias Pinchflat.FastIndexing.YoutubeRss
-
-  setup :verify_on_exit!
 
   setup do
     source = source_fixture()

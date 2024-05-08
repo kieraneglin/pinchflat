@@ -1,14 +1,11 @@
 defmodule Pinchflat.Downloading.MediaRetentionWorkerTest do
   use Pinchflat.DataCase
 
-  import Mox
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
 
   alias Pinchflat.Media
   alias Pinchflat.Downloading.MediaRetentionWorker
-
-  setup :verify_on_exit!
 
   describe "perform/1" do
     setup do

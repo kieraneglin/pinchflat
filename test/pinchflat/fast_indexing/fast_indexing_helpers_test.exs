@@ -1,7 +1,6 @@
 defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
   use Pinchflat.DataCase
 
-  import Mox
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
   import Pinchflat.ProfilesFixtures
@@ -10,8 +9,6 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Downloading.MediaDownloadWorker
   alias Pinchflat.FastIndexing.FastIndexingHelpers
-
-  setup :verify_on_exit!
 
   describe "kickoff_download_tasks_from_youtube_rss_feed/1" do
     setup do

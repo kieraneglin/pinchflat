@@ -23,17 +23,20 @@ defmodule Pinchflat.DataCase do
 
       use Oban.Testing, repo: Repo
 
+      import Mox
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
       import Pinchflat.DataCase
       import Pinchflat.TestingHelperMethods
+
+      setup :verify_on_exit!
     end
   end
 
   setup tags do
-    Pinchflat.DataCase.setup_sandbox(tags)
     TestingHelperMethods.create_platform_directories()
+    Pinchflat.DataCase.setup_sandbox(tags)
 
     :ok
   end

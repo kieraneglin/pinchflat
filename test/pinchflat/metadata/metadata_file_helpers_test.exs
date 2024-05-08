@@ -1,6 +1,6 @@
 defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
   use Pinchflat.DataCase
-  import Mox
+
   import Pinchflat.MediaFixtures
 
   alias Pinchflat.Metadata.MetadataFileHelpers, as: Helpers
@@ -10,8 +10,6 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
 
     {:ok, %{media_item: media_item}}
   end
-
-  setup :verify_on_exit!
 
   describe "compress_and_store_metadata_for/2" do
     test "returns the filepath", %{media_item: media_item} do

@@ -1,7 +1,6 @@
 defmodule PinchflatWeb.MediaProfileControllerTest do
   use PinchflatWeb.ConnCase
 
-  import Mox
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
   import Pinchflat.ProfilesFixtures
@@ -15,8 +14,6 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
     output_path_template: "new_output_template.{{ ext }}"
   }
   @invalid_attrs %{name: nil, output_path_template: nil}
-
-  setup :verify_on_exit!
 
   setup do
     Settings.set(onboarding: false)

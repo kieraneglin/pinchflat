@@ -1,13 +1,11 @@
 defmodule Pinchflat.Downloading.MediaDownloaderTest do
   use Pinchflat.DataCase
-  import Mox
+
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
   import Pinchflat.ProfilesFixtures
 
   alias Pinchflat.Downloading.MediaDownloader
-
-  setup :verify_on_exit!
 
   setup do
     media_item =

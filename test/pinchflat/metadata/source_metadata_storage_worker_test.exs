@@ -1,6 +1,6 @@
 defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
   use Pinchflat.DataCase
-  import Mox
+
   import Pinchflat.SourcesFixtures
   import Pinchflat.ProfilesFixtures
 
@@ -10,8 +10,6 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
 
   @source_details_ot "%(.{channel,channel_id,playlist_id,playlist_title,filename})j"
   @metadata_ot "playlist:%()j"
-
-  setup :verify_on_exit!
 
   describe "kickoff_with_task/1" do
     test "enqueues a new worker for the source" do

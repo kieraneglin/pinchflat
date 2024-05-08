@@ -1,7 +1,6 @@
 defmodule Pinchflat.ProfilesTest do
   use Pinchflat.DataCase
 
-  import Mox
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
   import Pinchflat.ProfilesFixtures
@@ -10,8 +9,6 @@ defmodule Pinchflat.ProfilesTest do
   alias Pinchflat.Profiles.MediaProfile
 
   @invalid_attrs %{name: nil, output_path_template: nil}
-
-  setup :verify_on_exit!
 
   describe "schema" do
     test "can be JSON encoded without error" do

@@ -1,7 +1,6 @@
 defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorkerTest do
   use Pinchflat.DataCase
 
-  import Mox
   import Pinchflat.TasksFixtures
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
@@ -12,8 +11,6 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorkerTest do
   alias Pinchflat.FastIndexing.FastIndexingWorker
   alias Pinchflat.Downloading.MediaDownloadWorker
   alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
-
-  setup :verify_on_exit!
 
   describe "kickoff_with_task/3" do
     setup do

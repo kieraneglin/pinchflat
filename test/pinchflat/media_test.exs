@@ -1,7 +1,6 @@
 defmodule Pinchflat.MediaTest do
   use Pinchflat.DataCase
 
-  import Mox
   import Pinchflat.TasksFixtures
   import Pinchflat.MediaFixtures
   import Pinchflat.ProfilesFixtures
@@ -12,8 +11,6 @@ defmodule Pinchflat.MediaTest do
   alias Pinchflat.Metadata.MetadataFileHelpers
 
   alias Pinchflat.YtDlp.Media, as: YtDlpMedia
-
-  setup :verify_on_exit!
 
   @invalid_attrs %{title: nil, media_id: nil, media_filepath: nil}
 

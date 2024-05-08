@@ -1,7 +1,6 @@
 defmodule Pinchflat.Boot.PreJobStartupTasksTest do
   use Pinchflat.DataCase
 
-  import Mox
   import Pinchflat.JobFixtures
 
   alias Pinchflat.Settings

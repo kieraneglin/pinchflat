@@ -1,15 +1,12 @@
 defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
   use Pinchflat.DataCase
 
-  import Mox
   import Pinchflat.MediaFixtures
 
   alias Pinchflat.Media
   alias Pinchflat.Sources
   alias Pinchflat.Utils.FilesystemUtils
   alias Pinchflat.Downloading.MediaDownloadWorker
-
-  setup :verify_on_exit!
 
   setup do
     stub(UserScriptRunnerMock, :run, fn _event_type, _data -> :ok end)
