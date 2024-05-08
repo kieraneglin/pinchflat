@@ -116,7 +116,7 @@ ENV LC_ALL en_US.UTF-8
 WORKDIR "/app"
 
 # Set up data volumes
-RUN mkdir /config /downloads
+RUN mkdir /config /downloads /etc/elixir_tzdata_data && chmod ugo+rw /etc/elixir_tzdata_data
 
 # set runner ENV
 ENV MIX_ENV="prod"
@@ -126,8 +126,6 @@ EXPOSE ${PORT}
 
 # Only copy the final release from the build stage
 COPY --from=builder /app/_build/${MIX_ENV}/rel/pinchflat ./
-# Update permissions to let the app write the tzdata files
-RUN chmod ugo+rw /app/lib/tzdata-*/priv/*
 
 # NEVER do this if you're running in an environment where you don't trust the user
 # (ie: most environments). This is only acceptable in a self-hosted environment.
