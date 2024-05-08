@@ -1,5 +1,5 @@
 defmodule Pinchflat.Lifecycle.Notifications.CommandRunnerTest do
-  use ExUnit.Case, async: false
+  use Pinchflat.DataCase
 
   alias Pinchflat.Lifecycle.Notifications.CommandRunner, as: Runner
 

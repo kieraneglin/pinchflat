@@ -1,5 +1,5 @@
 defmodule Pinchflat.Downloading.OutputPath.ParserTest do
-  use ExUnit.Case, async: false
+  use Pinchflat.DataCase
 
   alias Pinchflat.Downloading.OutputPath.Parser
 
