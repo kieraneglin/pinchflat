@@ -15,11 +15,12 @@ defmodule Pinchflat.Lifecycle.UserScripts.CommandRunnerTest do
     test "runs the provided lifecycle file if present" do
       # We *love* indirectly testing side effects
       tmp_dir = Application.get_env(:pinchflat, :tmpfile_directory)
-      File.write(filepath(), "#!/bin/bash\ntouch #{tmp_dir}/test_file\n")
+      filename = "#{tmp_dir}/test_file-#{Enum.random(1..1000)}"
+      File.write(filepath(), "#!/bin/bash\ntouch #{filename}\n")
 
-      refute File.exists?("#{tmp_dir}/test_file")
+      refute File.exists?(filename)
       assert :ok = Runner.run(:media_downloaded, %{})
-      assert File.exists?("#{tmp_dir}/test_file")
+      assert File.exists?(filename)
     end
 
     test "passes the event name to the script" do

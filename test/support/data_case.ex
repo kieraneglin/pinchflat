@@ -15,6 +15,7 @@ defmodule Pinchflat.DataCase do
   """
 
   use ExUnit.CaseTemplate
+  alias Pinchflat.TestingHelperMethods
 
   using do
     quote do
@@ -32,6 +33,8 @@ defmodule Pinchflat.DataCase do
 
   setup tags do
     Pinchflat.DataCase.setup_sandbox(tags)
+    TestingHelperMethods.create_platform_directories()
+
     :ok
   end
 

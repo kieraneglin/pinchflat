@@ -41,7 +41,7 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
       Settings.set(onboarding: true)
       conn = get(conn, ~p"/media_profiles/new")
 
-      refute html_response(conn, 200) =~ "MENU"
+      refute html_response(conn, 200) =~ "<span>MENU</span>"
     end
   end
 

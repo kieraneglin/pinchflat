@@ -54,4 +54,11 @@ defmodule Pinchflat.TestingHelperMethods do
     |> render_metadata()
     |> Phoenix.json_library().decode!()
   end
+
+  def create_platform_directories do
+    File.mkdir_p!(Application.get_env(:pinchflat, :media_directory))
+    File.mkdir_p!(Application.get_env(:pinchflat, :metadata_directory))
+    File.mkdir_p!(Application.get_env(:pinchflat, :extras_directory))
+    File.mkdir_p!(Application.get_env(:pinchflat, :tmpfile_directory))
+  end
 end
