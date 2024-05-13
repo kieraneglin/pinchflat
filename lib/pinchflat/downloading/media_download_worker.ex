@@ -44,6 +44,8 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"id" => media_item_id} = args}) do
     should_force = Map.get(args, "force", false)
+    # TODO: rename to `upgrade_quality?` or similar to disambiguate from the other redownload method
+    # that doesn't `force_overwrites`
     is_redownload = Map.get(args, "redownload?", false)
 
     media_item =

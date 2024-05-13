@@ -12,6 +12,15 @@ defmodule Pinchflat.Media.MediaQuery do
 
   alias Pinchflat.Media.MediaItem
 
+  # TODO: test
+  defmacro __using__(_opts) do
+    quote do
+      import Ecto.Query, warn: false
+
+      alias unquote(__MODULE__)
+    end
+  end
+
   # Prefixes:
   # - for_* - belonging to a certain record
   # - join_* - for joining on a certain record
