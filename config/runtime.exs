@@ -66,6 +66,8 @@ if config_env() == :prod do
     expose_feed_endpoints: expose_feed_endpoints,
     timezone: System.get_env("TIMEZONE") || System.get_env("TZ") || "UTC"
 
+  config :tzdata, :data_dir, System.get_env("TZ_DATA_DIR", "/etc/elixir_tzdata_data")
+
   config :pinchflat, Pinchflat.Repo,
     database: db_path,
     journal_mode: journal_mode
