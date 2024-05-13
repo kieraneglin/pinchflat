@@ -65,6 +65,13 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
       assert :force_overwrites in res
       assert {:parse_metadata, "%(upload_date>%Y-%m-%d)s:(?P<meta_date>.+)"} in res
     end
+
+    test "includes override options if specified", %{media_item: media_item} do
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item, overwrite_behaviour: :no_force_overwrites)
+
+      refute :force_overwrites in res
+      assert :no_force_overwrites in res
+    end
   end
 
   describe "build/1 when testing subtitle options" do

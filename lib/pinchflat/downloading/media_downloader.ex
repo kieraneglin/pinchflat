@@ -29,11 +29,11 @@ defmodule Pinchflat.Downloading.MediaDownloader do
 
   Returns {:ok, %MediaItem{}} | {:error, any, ...any}
   """
-  def download_for_media_item(%MediaItem{} = media_item) do
+  def download_for_media_item(%MediaItem{} = media_item, override_opts \\ []) do
     output_filepath = FilesystemUtils.generate_metadata_tmpfile(:json)
     media_with_preloads = Repo.preload(media_item, [:metadata, source: :media_profile])
 
-    case download_with_options(media_item.original_url, media_with_preloads, output_filepath) do
+    case download_with_options(media_item.original_url, media_with_preloads, output_filepath, override_opts) do
       {:ok, parsed_json} ->
         update_media_item_from_parsed_json(media_with_preloads, parsed_json)
 
@@ -103,8 +103,8 @@ defmodule Pinchflat.Downloading.MediaDownloader do
     end
   end
 
-  defp download_with_options(url, item_with_preloads, output_filepath) do
-    {:ok, options} = DownloadOptionBuilder.build(item_with_preloads)
+  defp download_with_options(url, item_with_preloads, output_filepath, override_opts) do
+    {:ok, options} = DownloadOptionBuilder.build(item_with_preloads, override_opts)
 
     YtDlpMedia.download(url, options, output_filepath: output_filepath)
   end

@@ -65,6 +65,21 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
     end
   end
 
+  describe "download_for_media_item/3 when testing override options" do
+    test "includes override opts if specified", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot, _addl ->
+        refute :force_overwrites in opts
+        assert :no_force_overwrites in opts
+
+        {:ok, render_metadata(:media_metadata)}
+      end)
+
+      override_opts = [overwrite_behaviour: :no_force_overwrites]
+
+      assert {:ok, _} = MediaDownloader.download_for_media_item(media_item, override_opts)
+    end
+  end
+
   describe "download_for_media_item/3 when testing retries" do
     test "returns a recovered tuple on recoverable errors", %{media_item: media_item} do
       message = "Unable to communicate with SponsorBlock"

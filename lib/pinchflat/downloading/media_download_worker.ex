@@ -33,6 +33,12 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
   Does not download media if its source is set to not download media
   (unless forced).
 
+  Options:
+    - `force`: force download even if the source is set to not download media. Fully
+      re-downloads media, including the video
+    - `redownload?`: re-downloads media, including the video. Does not force download
+      if the source is set to not download media
+
   Returns :ok | {:ok, %MediaItem{}} | {:error, any, ...any}
   """
   @impl Oban.Worker
@@ -47,7 +53,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
 
     # If the source or media item is set to not download media, perform a no-op unless forced
     if (media_item.source.download_media && !media_item.prevent_download) || should_force do
-      download_media_and_schedule_jobs(media_item, is_redownload)
+      download_media_and_schedule_jobs(media_item, is_redownload, should_force)
     else
       :ok
     end
@@ -56,8 +62,11 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
     Ecto.StaleEntryError -> Logger.info("#{__MODULE__} discarded: media item #{media_item_id} stale")
   end
 
-  defp download_media_and_schedule_jobs(media_item, is_redownload) do
-    case MediaDownloader.download_for_media_item(media_item) do
+  defp download_media_and_schedule_jobs(media_item, is_redownload, should_force) do
+    overwrite_behaviour = if should_force || is_redownload, do: :force_overwrites, else: :no_force_overwrites
+    override_opts = [overwrite_behaviour: overwrite_behaviour]
+
+    case MediaDownloader.download_for_media_item(media_item, override_opts) do
       {:ok, downloaded_media_item} ->
         {:ok, updated_media_item} =
           Media.update_media_item(downloaded_media_item, %{

@@ -136,15 +136,6 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
       perform_job(MediaDownloadWorker, %{id: media_item.id})
     end
 
-    test "downloads anyway if forced", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> :ok end)
-
-      Sources.update_source(media_item.source, %{download_media: false})
-      Media.update_media_item(media_item, %{prevent_download: true})
-
-      perform_job(MediaDownloadWorker, %{id: media_item.id, force: true})
-    end
-
     test "it saves the file's size to the database", %{media_item: media_item} do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
         metadata = render_parsed_metadata(:media_metadata)
@@ -159,18 +150,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
       assert media_item.media_size_bytes > 0
     end
 
-    test "saves redownloaded_at if this is for a redownload", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
-        {:ok, render_metadata(:media_metadata)}
-      end)
-
-      perform_job(MediaDownloadWorker, %{id: media_item.id, redownload?: true})
-      media_item = Repo.reload(media_item)
-
-      assert media_item.media_redownloaded_at != nil
-    end
-
-    test "doesn't save redownloaded_at if this is not for a redownload", %{media_item: media_item} do
+    test "does not set redownloaded_at by default", %{media_item: media_item} do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
         {:ok, render_metadata(:media_metadata)}
       end)
@@ -197,6 +177,63 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
 
     test "does not blow up if the record doesn't exist" do
       assert :ok = perform_job(MediaDownloadWorker, %{id: 0})
+    end
+
+    test "sets the no_force_overwrites runner option", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot, _addl ->
+        assert :no_force_overwrites in opts
+        refute :force_overwrites in opts
+
+        {:ok, render_metadata(:media_metadata)}
+      end)
+
+      perform_job(MediaDownloadWorker, %{id: media_item.id})
+    end
+  end
+
+  describe "perform/1 when testing forced downloads" do
+    test "ignores 'prevent_download' if forced", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> :ok end)
+
+      Sources.update_source(media_item.source, %{download_media: false})
+      Media.update_media_item(media_item, %{prevent_download: true})
+
+      perform_job(MediaDownloadWorker, %{id: media_item.id, force: true})
+    end
+
+    test "sets force_overwrites runner option", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot, _addl ->
+        assert :force_overwrites in opts
+        refute :no_force_overwrites in opts
+
+        {:ok, render_metadata(:media_metadata)}
+      end)
+
+      perform_job(MediaDownloadWorker, %{id: media_item.id, force: true})
+    end
+  end
+
+  describe "perform/1 when testing re-downloads" do
+    test "sets redownloaded_at on the media_item", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+        {:ok, render_metadata(:media_metadata)}
+      end)
+
+      perform_job(MediaDownloadWorker, %{id: media_item.id, redownload?: true})
+      media_item = Repo.reload(media_item)
+
+      assert media_item.media_redownloaded_at != nil
+    end
+
+    test "sets force_overwrites runner option", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot, _addl ->
+        assert :force_overwrites in opts
+        refute :no_force_overwrites in opts
+
+        {:ok, render_metadata(:media_metadata)}
+      end)
+
+      perform_job(MediaDownloadWorker, %{id: media_item.id, force: true})
     end
   end
 end
