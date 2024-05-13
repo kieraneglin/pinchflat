@@ -1,9 +1,9 @@
 defmodule PinchflatWeb.Pages.PageController do
   use PinchflatWeb, :controller
+  use Pinchflat.Media.MediaQuery
 
   alias Pinchflat.Repo
   alias Pinchflat.Sources.Source
-  alias Pinchflat.Media.MediaQuery
   alias Pinchflat.Profiles.MediaProfile
 
   def home(conn, params) do

@@ -7,12 +7,13 @@ defmodule Pinchflat.Downloading.DownloadingHelpers do
 
   require Logger
 
+  use Pinchflat.Media.MediaQuery
+
   alias Pinchflat.Repo
   alias Pinchflat.Media
   alias Pinchflat.Tasks
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.Media.MediaQuery
   alias Pinchflat.Downloading.MediaDownloadWorker
 
   @doc """

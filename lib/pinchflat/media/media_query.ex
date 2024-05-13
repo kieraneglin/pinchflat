@@ -12,7 +12,6 @@ defmodule Pinchflat.Media.MediaQuery do
 
   alias Pinchflat.Media.MediaItem
 
-  # TODO: test
   defmacro __using__(_opts) do
     quote do
       import Ecto.Query, warn: false

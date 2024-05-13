@@ -4,8 +4,9 @@ defmodule Pinchflat.Podcasts.PodcastHelpers do
   or its media items
   """
 
+  use Pinchflat.Media.MediaQuery
+
   alias Pinchflat.Repo
-  alias Pinchflat.Media.MediaQuery
   alias Pinchflat.Metadata.MediaMetadata
   alias Pinchflat.Metadata.SourceMetadata
 

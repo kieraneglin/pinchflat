@@ -5,8 +5,9 @@ defmodule Pinchflat.Lifecycle.Notifications.SourceNotifications do
 
   require Logger
 
+  use Pinchflat.Media.MediaQuery
+
   alias Pinchflat.Repo
-  alias Pinchflat.Media.MediaQuery
 
   @doc """
   Wraps a function that may change the number of pending  or downloaded

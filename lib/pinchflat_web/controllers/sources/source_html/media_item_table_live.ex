@@ -1,10 +1,9 @@
 defmodule Pinchflat.Sources.MediaItemTableLive do
   use PinchflatWeb, :live_view
-  import Ecto.Query, warn: false
+  use Pinchflat.Media.MediaQuery
 
   alias Pinchflat.Repo
   alias Pinchflat.Sources
-  alias Pinchflat.Media.MediaQuery
   alias Pinchflat.Utils.NumberUtils
 
   @limit 10

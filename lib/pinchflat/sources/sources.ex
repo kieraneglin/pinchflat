@@ -4,12 +4,12 @@ defmodule Pinchflat.Sources do
   """
 
   import Ecto.Query, warn: false
-  alias Pinchflat.Repo
+  use Pinchflat.Media.MediaQuery
 
+  alias Pinchflat.Repo
   alias Pinchflat.Media
   alias Pinchflat.Tasks
   alias Pinchflat.Sources.Source
-  alias Pinchflat.Media.MediaQuery
   alias Pinchflat.Profiles.MediaProfile
   alias Pinchflat.YtDlp.MediaCollection
   alias Pinchflat.Metadata.SourceMetadata

@@ -1,10 +1,10 @@
 defmodule PinchflatWeb.Podcasts.PodcastController do
   use PinchflatWeb, :controller
+  use Pinchflat.Media.MediaQuery
 
   alias Pinchflat.Repo
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.Media.MediaQuery
   alias Pinchflat.Podcasts.RssFeedBuilder
   alias Pinchflat.Podcasts.PodcastHelpers
 
