@@ -7,8 +7,6 @@ import Config
 # before starting your production server.
 config :pinchflat, PinchflatWeb.Endpoint, cache_static_manifest: "priv/static/cache_manifest.json"
 
-config :tzdata, :data_dir, "/etc/elixir_tzdata_data"
-
 # Configures Swoosh API Client
 config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: Pinchflat.Finch
 
