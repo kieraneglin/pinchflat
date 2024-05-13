@@ -166,20 +166,38 @@ defmodule PinchflatWeb.SourceControllerTest do
     end
   end
 
-  describe "force_download" do
+  describe "force_download_pending" do
     test "enqueues pending download tasks", %{conn: conn} do
       source = source_fixture()
       _media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil})
 
       assert [] = all_enqueued(worker: MediaDownloadWorker)
-      post(conn, ~p"/sources/#{source.id}/force_download")
+      post(conn, ~p"/sources/#{source.id}/force_download_pending")
       assert [_] = all_enqueued(worker: MediaDownloadWorker)
     end
 
     test "redirects to the source page", %{conn: conn} do
       source = source_fixture()
 
-      conn = post(conn, ~p"/sources/#{source.id}/force_download")
+      conn = post(conn, ~p"/sources/#{source.id}/force_download_pending")
+      assert redirected_to(conn) == ~p"/sources/#{source.id}"
+    end
+  end
+
+  describe "force_redownload" do
+    test "enqueues re-download tasks", %{conn: conn} do
+      source = source_fixture()
+      _media_item = media_item_fixture(source_id: source.id, media_downloaded_at: now())
+
+      assert [] = all_enqueued(worker: MediaDownloadWorker)
+      post(conn, ~p"/sources/#{source.id}/force_redownload")
+      assert [_] = all_enqueued(worker: MediaDownloadWorker)
+    end
+
+    test "redirects to the source page", %{conn: conn} do
+      source = source_fixture()
+
+      conn = post(conn, ~p"/sources/#{source.id}/force_redownload")
       assert redirected_to(conn) == ~p"/sources/#{source.id}"
     end
   end

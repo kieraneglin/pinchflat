@@ -27,21 +27,20 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
 
   def table(assigns) do
     ~H"""
-    <table class={["w-full table-auto", @table_class]}>
+    <table class={["w-full table-auto bg-boxdark", @table_class]}>
       <thead>
-        <tr class="bg-gray-2 text-left dark:bg-meta-4">
-          <th :for={col <- @col} class="px-4 py-4 font-medium text-black dark:text-white xl:pl-11">
+        <tr class="text-left bg-meta-4">
+          <th :for={col <- @col} class="px-4 py-4 font-medium text-white xl:pl-11">
             <%= col[:label] %>
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr :for={{row, i} <- Enum.with_index(@rows)}>
+        <tr :for={row <- @rows} class="border-b border-boxdark hover:border-strokedark">
           <td
             :for={col <- @col}
             class={[
-              "px-4 py-5 pl-9 dark:border-strokedark xl:pl-11",
-              i + 1 > length(@rows) && "border-b border-[#eee] dark:border-π",
+              "px-4 py-5 pl-9 xl:pl-11",
               col[:class]
             ]}
           >

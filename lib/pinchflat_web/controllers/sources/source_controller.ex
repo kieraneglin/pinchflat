@@ -104,12 +104,21 @@ defmodule PinchflatWeb.Sources.SourceController do
     |> redirect(to: ~p"/sources")
   end
 
-  def force_download(conn, %{"source_id" => id}) do
+  def force_download_pending(conn, %{"source_id" => id}) do
     wrap_forced_action(
       conn,
       id,
       "Forcing download of pending media items.",
       &DownloadingHelpers.enqueue_pending_download_tasks/1
+    )
+  end
+
+  def force_redownload(conn, %{"source_id" => id}) do
+    wrap_forced_action(
+      conn,
+      id,
+      "Forcing re-download of downloaded media items.",
+      &DownloadingHelpers.kickoff_redownload_for_existing_media/1
     )
   end
 
