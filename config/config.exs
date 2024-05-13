@@ -54,7 +54,7 @@ config :pinchflat, Oban,
     {Oban.Plugins.Cron,
      crontab: [
        {"0 1 * * *", Pinchflat.Downloading.MediaRetentionWorker},
-       {"0 2 * * *", Pinchflat.Downloading.MediaRedownloadWorker}
+       {"0 2 * * *", Pinchflat.Downloading.MediaQualityUpgradeWorker}
      ]}
   ],
   # TODO: consider making this an env var or something?

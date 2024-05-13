@@ -15,11 +15,11 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
 
   Returns {:ok, [Keyword.t()]}
   """
-  def build(%MediaItem{} = media_item_with_preloads) do
+  def build(%MediaItem{} = media_item_with_preloads, override_opts \\ []) do
     media_profile = media_item_with_preloads.source.media_profile
 
     built_options =
-      default_options() ++
+      default_options(override_opts) ++
         subtitle_options(media_profile) ++
         thumbnail_options(media_item_with_preloads) ++
         metadata_options(media_profile) ++
@@ -50,11 +50,12 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
     build_output_path_for(%MediaItem{source: source_with_preloads})
   end
 
-  defp default_options do
+  defp default_options(override_opts) do
+    overwrite_behaviour = Keyword.get(override_opts, :overwrite_behaviour, :force_overwrites)
+
     [
       :no_progress,
-      # Add force-overwrites to make sure redownloading works
-      :force_overwrites,
+      overwrite_behaviour,
       # This makes the date metadata conform to what jellyfin expects
       parse_metadata: "%(upload_date>%Y-%m-%d)s:(?P<meta_date>.+)"
     ]

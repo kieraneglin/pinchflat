@@ -7,10 +7,11 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
 
   require Logger
 
+  use Pinchflat.Media.MediaQuery
+
   alias Pinchflat.Repo
   alias Pinchflat.Media
   alias Pinchflat.Sources.Source
-  alias Pinchflat.Media.MediaQuery
   alias Pinchflat.FastIndexing.YoutubeRss
   alias Pinchflat.Downloading.DownloadingHelpers
 

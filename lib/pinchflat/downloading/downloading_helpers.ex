@@ -7,6 +7,8 @@ defmodule Pinchflat.Downloading.DownloadingHelpers do
 
   require Logger
 
+  use Pinchflat.Media.MediaQuery
+
   alias Pinchflat.Repo
   alias Pinchflat.Media
   alias Pinchflat.Tasks
@@ -63,5 +65,31 @@ defmodule Pinchflat.Downloading.DownloadingHelpers do
     else
       {:error, :should_not_download}
     end
+  end
+
+  @doc """
+  For a given source, enqueues download jobs for all media items _that have already been downloaded_.
+
+  This is useful for when a source's download settings have changed and you want to run through all
+  existing media and retry the download. For instance, if the source didn't originally download thumbnails
+  and you've changed the source to download them, you can use this to download all the thumbnails for
+  existing media items.
+
+  NOTE: does not delete existing files whatsoever. Does not overwrite the existing media file if it exists
+  at the location it expects. Will cause a full redownload of everything if the output template has changed
+
+  NOTE: unrelated to the MediaQualityUpgradeWorker, which is for redownloading media items for quality upgrades
+  or improved sponsorblock segments
+
+  Returns [{:ok, %Task{}} | {:error, any()}]
+  """
+  def kickoff_redownload_for_existing_media(%Source{} = source) do
+    MediaQuery.new()
+    |> MediaQuery.for_source(source)
+    |> MediaQuery.with_media_downloaded_at()
+    |> MediaQuery.where_download_not_prevented()
+    |> MediaQuery.where_not_culled()
+    |> Repo.all()
+    |> Enum.map(&MediaDownloadWorker.kickoff_with_task/1)
   end
 end

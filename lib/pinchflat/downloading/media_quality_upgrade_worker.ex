@@ -1,4 +1,4 @@
-defmodule Pinchflat.Downloading.MediaRedownloadWorker do
+defmodule Pinchflat.Downloading.MediaQualityUpgradeWorker do
   @moduledoc false
 
   use Oban.Worker,
@@ -12,7 +12,9 @@ defmodule Pinchflat.Downloading.MediaRedownloadWorker do
   alias Pinchflat.Downloading.MediaDownloadWorker
 
   @doc """
-  Redownloads media items that are eligible for redownload.
+  Redownloads media items that are eligible for redownload for the purpose
+  of upgrading the quality of the media or improving things like sponsorblock
+  segments.
 
   This worker is scheduled to run daily via the Oban Cron plugin
   and it should run _after_ the retention worker.
@@ -25,7 +27,7 @@ defmodule Pinchflat.Downloading.MediaRedownloadWorker do
     Logger.info("Redownloading #{length(redownloadable_media)} media items")
 
     Enum.each(redownloadable_media, fn media_item ->
-      MediaDownloadWorker.kickoff_with_task(media_item, %{redownload?: true})
+      MediaDownloadWorker.kickoff_with_task(media_item, %{quality_upgrade?: true})
     end)
   end
 end

@@ -31,11 +31,20 @@
   </:option>
   <:option :if={@source.download_media}>
     <.link
-      href={~p"/sources/#{@source}/force_download"}
+      href={~p"/sources/#{@source}/force_download_pending"}
       method="post"
       data-confirm="Are you sure you want to force a download of all *pending* media items? This isn't normally needed."
     >
-      Force Download
+      Download Pending
+    </.link>
+  </:option>
+  <:option :if={@source.download_media}>
+    <.link
+      href={~p"/sources/#{@source}/force_redownload"}
+      method="post"
+      data-confirm="Are you sure you want to re-download all currently downloaded media items? This isn't normally needed and won't change anything if the files already exist."
+    >
+      Redownload Existing
     </.link>
   </:option>
   <:option>

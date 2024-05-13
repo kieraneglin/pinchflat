@@ -4,12 +4,12 @@ defmodule Pinchflat.Media do
   """
 
   import Ecto.Query, warn: false
+  use Pinchflat.Media.MediaQuery
 
   alias Pinchflat.Repo
   alias Pinchflat.Tasks
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
-  alias Pinchflat.Media.MediaQuery
   alias Pinchflat.Utils.FilesystemUtils
   alias Pinchflat.Metadata.MediaMetadata
 

@@ -110,4 +110,32 @@ defmodule Pinchflat.Downloading.DownloadingHelpersTest do
       refute_enqueued(worker: MediaDownloadWorker)
     end
   end
+
+  describe "kickoff_redownload_for_existing_media/1" do
+    test "enqueues a download job for each downloaded media item" do
+      source = source_fixture()
+      media_item = media_item_fixture(source_id: source.id, media_downloaded_at: now())
+
+      assert [{:ok, _}] = DownloadingHelpers.kickoff_redownload_for_existing_media(source)
+
+      assert_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
+    end
+
+    test "doesn't enqueue jobs for media that should be ignored" do
+      source = source_fixture()
+      other_source = source_fixture()
+      _not_downloaded = media_item_fixture(source_id: source.id, media_downloaded_at: nil)
+      _other_source = media_item_fixture(source_id: other_source.id, media_downloaded_at: now())
+
+      _download_prevented =
+        media_item_fixture(source_id: source.id, media_downloaded_at: now(), prevent_download: true)
+
+      _culled =
+        media_item_fixture(source_id: source.id, media_downloaded_at: now(), culled_at: now())
+
+      assert [] = DownloadingHelpers.kickoff_redownload_for_existing_media(source)
+
+      refute_enqueued(worker: MediaDownloadWorker)
+    end
+  end
 end
