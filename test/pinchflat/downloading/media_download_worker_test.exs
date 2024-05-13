@@ -108,7 +108,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
       end)
 
       Oban.Testing.with_testing_mode(:inline, fn ->
-        {:ok, job} = Oban.insert(MediaDownloadWorker.new(%{id: media_item.id, redownload?: true}))
+        {:ok, job} = Oban.insert(MediaDownloadWorker.new(%{id: media_item.id, quality_upgrade?: true}))
 
         assert job.state == "completed"
       end)
@@ -219,7 +219,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
         {:ok, render_metadata(:media_metadata)}
       end)
 
-      perform_job(MediaDownloadWorker, %{id: media_item.id, redownload?: true})
+      perform_job(MediaDownloadWorker, %{id: media_item.id, quality_upgrade?: true})
       media_item = Repo.reload(media_item)
 
       assert media_item.media_redownloaded_at != nil

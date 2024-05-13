@@ -1,4 +1,4 @@
-defmodule Pinchflat.Downloading.MediaRedownloadWorkerTest do
+defmodule Pinchflat.Downloading.MediaQualityUpgradeWorkerTest do
   use Pinchflat.DataCase
 
   import Pinchflat.MediaFixtures
@@ -6,7 +6,7 @@ defmodule Pinchflat.Downloading.MediaRedownloadWorkerTest do
   import Pinchflat.ProfilesFixtures
 
   alias Pinchflat.Downloading.MediaDownloadWorker
-  alias Pinchflat.Downloading.MediaRedownloadWorker
+  alias Pinchflat.Downloading.MediaQualityUpgradeWorker
 
   describe "perform/1" do
     test "kicks off a task for redownloadable media items" do
@@ -20,9 +20,9 @@ defmodule Pinchflat.Downloading.MediaRedownloadWorkerTest do
           media_downloaded_at: now_minus(5, :days)
         })
 
-      perform_job(MediaRedownloadWorker, %{})
+      perform_job(MediaQualityUpgradeWorker, %{})
 
-      assert [_] = all_enqueued(worker: MediaDownloadWorker, args: %{id: media_item.id, redownload?: true})
+      assert [_] = all_enqueued(worker: MediaDownloadWorker, args: %{id: media_item.id, quality_upgrade?: true})
     end
 
     test "does not kickoff a task for non-redownloadable media items" do
@@ -36,7 +36,7 @@ defmodule Pinchflat.Downloading.MediaRedownloadWorkerTest do
           media_downloaded_at: now_minus(1, :day)
         })
 
-      perform_job(MediaRedownloadWorker, %{})
+      perform_job(MediaQualityUpgradeWorker, %{})
 
       assert [] = all_enqueued(worker: MediaDownloadWorker)
     end

@@ -36,7 +36,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
   Options:
     - `force`: force download even if the source is set to not download media. Fully
       re-downloads media, including the video
-    - `redownload?`: re-downloads media, including the video. Does not force download
+    - `quality_upgrade?`: re-downloads media, including the video. Does not force download
       if the source is set to not download media
 
   Returns :ok | {:ok, %MediaItem{}} | {:error, any, ...any}
@@ -44,9 +44,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"id" => media_item_id} = args}) do
     should_force = Map.get(args, "force", false)
-    # TODO: rename to `upgrade_quality?` or similar to disambiguate from the other redownload method
-    # that doesn't `force_overwrites`
-    is_redownload = Map.get(args, "redownload?", false)
+    is_quality_upgrade = Map.get(args, "quality_upgrade?", false)
 
     media_item =
       media_item_id
@@ -55,7 +53,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
 
     # If the source or media item is set to not download media, perform a no-op unless forced
     if (media_item.source.download_media && !media_item.prevent_download) || should_force do
-      download_media_and_schedule_jobs(media_item, is_redownload, should_force)
+      download_media_and_schedule_jobs(media_item, is_quality_upgrade, should_force)
     else
       :ok
     end
@@ -64,8 +62,8 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
     Ecto.StaleEntryError -> Logger.info("#{__MODULE__} discarded: media item #{media_item_id} stale")
   end
 
-  defp download_media_and_schedule_jobs(media_item, is_redownload, should_force) do
-    overwrite_behaviour = if should_force || is_redownload, do: :force_overwrites, else: :no_force_overwrites
+  defp download_media_and_schedule_jobs(media_item, is_quality_upgrade, should_force) do
+    overwrite_behaviour = if should_force || is_quality_upgrade, do: :force_overwrites, else: :no_force_overwrites
     override_opts = [overwrite_behaviour: overwrite_behaviour]
 
     case MediaDownloader.download_for_media_item(media_item, override_opts) do
@@ -73,7 +71,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
         {:ok, updated_media_item} =
           Media.update_media_item(downloaded_media_item, %{
             media_size_bytes: compute_media_filesize(downloaded_media_item),
-            media_redownloaded_at: get_redownloaded_at(is_redownload)
+            media_redownloaded_at: get_redownloaded_at(is_quality_upgrade)
           })
 
         :ok = run_user_script(updated_media_item)

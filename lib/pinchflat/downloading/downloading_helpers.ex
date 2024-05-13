@@ -74,8 +74,11 @@ defmodule Pinchflat.Downloading.DownloadingHelpers do
   and you've changed the source to download them, you can use this to download all the thumbnails for
   existing media items.
 
-  NOTE: does not delete existing files whatsoever. Will cause a full redownload of everything if the
-  output template has changed.
+  NOTE: does not delete existing files whatsoever. Does not overwrite the existing media file if it exists
+  at the location it expects. Will cause a full redownload of everything if the output template has changed
+
+  NOTE: unrelated to the MediaQualityUpgradeWorker, which is for redownloading media items for quality upgrades
+  or improved sponsorblock segments
 
   Returns [{:ok, %Task{}} | {:error, any()}]
   """
