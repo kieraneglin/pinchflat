@@ -40,9 +40,7 @@ jobs:
             ghcr.io/${{ github.repository }}
           # All non-release actions will be tagged as `dev` (ie: push, workflow_dispatch)
           tags: |
-            type=semver,pattern={{version}},prefix=v
-            type=semver,pattern={{major}}.{{minor}},prefix=v
-            type=semver,pattern={{major}},prefix=v
+            type=ref,event=tag
             type=raw,value=dev,enable=${{ github.event_name != 'release' }}
           flavor: |
             latest=auto
