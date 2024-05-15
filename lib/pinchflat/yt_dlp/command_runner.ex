@@ -28,9 +28,9 @@ defmodule Pinchflat.YtDlp.CommandRunner do
 
     output_filepath = generate_output_filepath(addl_opts)
     print_to_file_opts = [{:print_to_file, output_template}, output_filepath]
-    user_configured_opts = cookie_file_options() ++ global_options()
+    user_configured_opts = cookie_file_options()
     # These must stay in exactly this order, hence why I'm giving it its own variable.
-    all_opts = command_opts ++ print_to_file_opts ++ user_configured_opts
+    all_opts = command_opts ++ print_to_file_opts ++ user_configured_opts ++ global_options()
     formatted_command_opts = [url] ++ CliUtils.parse_options(all_opts)
 
     case CliUtils.wrap_cmd(command, formatted_command_opts, stderr_to_stdout: true) do
@@ -71,7 +71,7 @@ defmodule Pinchflat.YtDlp.CommandRunner do
   end
 
   defp global_options do
-    [:windows_filenames]
+    [:windows_filenames, :quiet]
   end
 
   defp cookie_file_options do

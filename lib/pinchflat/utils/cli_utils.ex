@@ -28,17 +28,10 @@ defmodule Pinchflat.Utils.CliUtils do
 
     Logger.info("[command_wrapper]: #{command} called with: #{logging_arg_override}")
 
-    case System.cmd(wrapper_command, actual_command, passthrough_opts) do
-      {output, 0 = status} ->
-        Logger.debug("[command_wrapper]: #{command} called with: #{logging_arg_override} returned: #{status}")
+    {output, status} = System.cmd(wrapper_command, actual_command, passthrough_opts)
+    log_cmd_result(command, logging_arg_override, status, output)
 
-        {output, status}
-
-      {output, status} ->
-        Logger.error("[command_wrapper]: #{command} called with: #{logging_arg_override} returned: #{status}")
-
-        {output, status}
-    end
+    {output, status}
   end
 
   @doc """
@@ -80,5 +73,12 @@ defmodule Pinchflat.Utils.CliUtils do
 
   defp parse_option(arg, acc) when is_binary(arg) do
     acc ++ [arg]
+  end
+
+  defp log_cmd_result(command, logging_arg_override, status, output) do
+    log_message = "[command_wrapper]: #{command} called with: #{logging_arg_override} exited: #{status} with: #{output}"
+    log_level = if status == 0, do: :debug, else: :error
+
+    Logger.log(log_level, log_message)
   end
 end
