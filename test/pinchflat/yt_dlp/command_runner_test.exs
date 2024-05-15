@@ -87,6 +87,12 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
 
       assert String.contains?(output, "--windows-filenames")
     end
+
+    test "runs quietly" do
+      assert {:ok, output} = Runner.run(@media_url, [], "")
+
+      assert String.contains?(output, "--quiet")
+    end
   end
 
   describe "version/0" do

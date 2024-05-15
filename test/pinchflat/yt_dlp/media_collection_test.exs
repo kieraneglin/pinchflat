@@ -20,7 +20,7 @@ defmodule Pinchflat.YtDlp.MediaCollectionTest do
 
     test "it passes the expected default args" do
       expect(YtDlpRunnerMock, :run, fn _url, opts, ot, _addl_opts ->
-        assert opts == [:simulate, :skip_download, :ignore_no_formats_error]
+        assert opts == [:simulate, :skip_download, :ignore_no_formats_error, :no_warnings]
         assert ot == Media.indexing_output_template()
 
         {:ok, ""}
