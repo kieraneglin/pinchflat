@@ -18,4 +18,14 @@ defmodule PinchflatWeb.Settings.SettingHTML do
 
     ~s(Server endpoint for Apprise notifications when new media is found. See <a href="#{url}" class="#{classes}" target="_blank">Apprise docs</a> for more information)
   end
+
+  def diagnostic_info_string do
+    """
+    App Version: #{Application.spec(:pinchflat)[:vsn]}
+    yt-dlp Version: #{Settings.get!(:yt_dlp_version)}
+    Apprise Version: #{Settings.get!(:apprise_version)}
+    System Architecture: #{to_string(:erlang.system_info(:system_architecture))}
+    Timezone: #{Application.get_env(:pinchflat, :timezone)}
+    """
+  end
 end

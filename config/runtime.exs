@@ -53,7 +53,7 @@ if config_env() == :prod do
   # For testing alternate journal modes (see issue #137)
   journal_mode = String.to_existing_atom(System.get_env("JOURNAL_MODE", "wal"))
 
-  config :logger, level: String.to_existing_atom(System.get_env("LOG_LEVEL", "info"))
+  config :logger, level: String.to_existing_atom(System.get_env("LOG_LEVEL", "debug"))
 
   config :pinchflat,
     yt_dlp_executable: System.find_executable("yt-dlp"),
@@ -64,7 +64,8 @@ if config_env() == :prod do
     tmpfile_directory: Path.join([System.tmp_dir!(), "pinchflat", "data"]),
     dns_cluster_query: System.get_env("DNS_CLUSTER_QUERY"),
     expose_feed_endpoints: expose_feed_endpoints,
-    timezone: System.get_env("TIMEZONE") || System.get_env("TZ") || "UTC"
+    timezone: System.get_env("TIMEZONE") || System.get_env("TZ") || "UTC",
+    log_path: log_path
 
   config :tzdata, :data_dir, System.get_env("TZ_DATA_DIR", "/etc/elixir_tzdata_data")
 

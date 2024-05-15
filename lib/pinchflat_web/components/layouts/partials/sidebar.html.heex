@@ -26,7 +26,14 @@
             <.sidebar_item icon="hero-home" text="Home" href={~p"/"} />
             <.sidebar_item icon="hero-tv" text="Sources" href={~p"/sources"} />
             <.sidebar_item icon="hero-adjustments-vertical" text="Media Profiles" href={~p"/media_profiles"} />
-            <.sidebar_item icon="hero-cog-6-tooth" text="Settings" href={~p"/settings"} />
+            <.sidebar_submenu
+              icon="hero-cog-6-tooth"
+              text="Config"
+              current_path={Phoenix.Controller.current_path(@conn)}
+            >
+              <:submenu text="Settings" href={~p"/settings"} />
+              <:submenu text="App Info" href={~p"/app_info"} />
+            </.sidebar_submenu>
           </ul>
         </div>
       </nav>

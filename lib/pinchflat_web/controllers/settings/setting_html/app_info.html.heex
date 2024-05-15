@@ -1,0 +1,26 @@
+<div class="mb-6 flex gap-3 flex-row items-center justify-between">
+  <div class="flex gap-3 items-center">
+    <h2 class="text-title-md2 font-bold text-white ml-4">
+      App Info
+    </h2>
+  </div>
+</div>
+<div class="rounded-sm border border-stroke bg-white px-5 py-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5">
+  <div class="max-w-full">
+    <.button color="bg-primary" rounding="rounded-lg" x-data="{ copied: false }" x-on:click={~s"
+        copyWithCallbacks(
+          `#{diagnostic_info_string()}`, 
+          () => copied = true, 
+          () => copied = false
+        )
+      "}>
+      Copy Diagnotic Info
+      <span x-show="copied" x-transition.duration.150ms><.icon name="hero-check" class="ml-2 h-4 w-4" /></span>
+    </.button>
+    <.link href={~p"/download_logs"}>
+      <.button color="bg-primary" rounding="rounded-lg" class="ml-4">
+        Download Logs
+      </.button>
+    </.link>
+  </div>
+</div>
