@@ -29,7 +29,6 @@ defmodule Pinchflat.Lifecycle.Notifications.CommandRunner do
     parsed_opts = CliUtils.parse_options(default_opts ++ command_opts)
 
     {output, exit_code} = CliUtils.wrap_cmd(backend_executable(), parsed_opts ++ endpoints)
-    Logger.info("[apprise] response: #{output}")
 
     case exit_code do
       0 -> {:ok, String.trim(output)}

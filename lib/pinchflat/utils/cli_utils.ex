@@ -28,7 +28,17 @@ defmodule Pinchflat.Utils.CliUtils do
 
     Logger.info("[command_wrapper]: #{command} called with: #{logging_arg_override}")
 
-    System.cmd(wrapper_command, actual_command, passthrough_opts)
+    case System.cmd(wrapper_command, actual_command, passthrough_opts) do
+      {output, 0 = status} ->
+        Logger.debug("[command_wrapper]: #{command} called with: #{logging_arg_override} returned: #{status}")
+
+        {output, status}
+
+      {output, status} ->
+        Logger.error("[command_wrapper]: #{command} called with: #{logging_arg_override} returned: #{status}")
+
+        {output, status}
+    end
   end
 
   @doc """
