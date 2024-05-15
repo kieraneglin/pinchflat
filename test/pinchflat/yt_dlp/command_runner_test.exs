@@ -93,6 +93,12 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
 
       assert String.contains?(output, "--quiet")
     end
+
+    test "sets the cache directory" do
+      assert {:ok, output} = Runner.run(@media_url, [], "")
+
+      assert String.contains?(output, "--cache-dir /tmp/test/tmpfiles/yt-dlp-cache")
+    end
   end
 
   describe "version/0" do
