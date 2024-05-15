@@ -24,11 +24,12 @@ defmodule Pinchflat.Podcasts.PodcastHelpers do
   Returns: [%MediaItem{}]
   """
   def persisted_media_items_for(source, opts \\ []) do
-    limit = Keyword.get(opts, :limit, 500)
+    limit = Keyword.get(opts, :limit, 1_000)
 
     MediaQuery.new()
     |> MediaQuery.for_source(source)
     |> MediaQuery.with_media_filepath()
+    |> order_by(desc: :upload_date)
     |> Repo.maybe_limit(limit)
     |> Repo.all()
     |> Enum.filter(fn media_item -> File.exists?(media_item.media_filepath) end)
