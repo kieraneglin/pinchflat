@@ -16,12 +16,12 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
   Only MediaItems that have been persisted will be included in the feed.
 
   ## Options:
-    - `:limit` - The maximum number of media items to include in the feed. Defaults to 300.
+    - `:limit` - The maximum number of media items to include in the feed. Defaults to 2,000.
 
   Returns an XML document as a string.
   """
   def build(source, opts \\ []) do
-    limit = Keyword.get(opts, :limit, 300)
+    limit = Keyword.get(opts, :limit, 2_000)
     url_base = Keyword.get(opts, :url_base, PinchflatWeb.Endpoint.url())
 
     media_items = PodcastHelpers.persisted_media_items_for(source, limit: limit)

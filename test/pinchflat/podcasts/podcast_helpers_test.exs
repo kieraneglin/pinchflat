@@ -22,6 +22,16 @@ defmodule Pinchflat.Podcasts.PodcastHelpersTest do
 
       assert [] = PodcastHelpers.persisted_media_items_for(source, limit: 0)
     end
+
+    test "orders by upload date where newest is first" do
+      source = source_fixture()
+
+      oldest = media_item_with_attachments(%{source_id: source.id, upload_date: now_minus(2, :day)})
+      current = media_item_with_attachments(%{source_id: source.id, upload_date: now()})
+      older = media_item_with_attachments(%{source_id: source.id, upload_date: now_minus(1, :days)})
+
+      assert [^current, ^older, ^oldest] = PodcastHelpers.persisted_media_items_for(source)
+    end
   end
 
   describe "select_cover_image/2" do
