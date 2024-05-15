@@ -53,7 +53,7 @@ if config_env() == :prod do
   # For testing alternate journal modes (see issue #137)
   journal_mode = String.to_existing_atom(System.get_env("JOURNAL_MODE", "wal"))
 
-  config :logger, level: String.to_existing_atom(System.get_env("LOG_LEVEL", "info"))
+  config :logger, level: String.to_existing_atom(System.get_env("LOG_LEVEL", "debug"))
 
   config :pinchflat,
     yt_dlp_executable: System.find_executable("yt-dlp"),
