@@ -71,7 +71,11 @@ defmodule Pinchflat.YtDlp.CommandRunner do
   end
 
   defp global_options do
-    [:windows_filenames, :quiet]
+    [
+      :windows_filenames,
+      :quiet,
+      cache_dir: Path.join(Application.get_env(:pinchflat, :tmpfile_directory), "yt-dlp-cache")
+    ]
   end
 
   defp cookie_file_options do
