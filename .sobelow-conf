@@ -16,7 +16,8 @@
       "Config.HTTPS",
       "Config.CSP",
       "XSS.ContentType",
-      "Traversal.SendFile"
+      "Traversal.SendFile",
+      "Traversal.SendDownload"
     ],
   ignore_files: [],
   version: false
