@@ -40,9 +40,13 @@ defmodule Pinchflat.Pages.JobTableLive do
   end
 
   def mount(_params, _session, socket) do
-    tasks = get_tasks()
+    PinchflatWeb.Endpoint.subscribe("tasks:job_table_live")
 
-    {:ok, assign(socket, tasks: tasks)}
+    {:ok, assign(socket, tasks: get_tasks())}
+  end
+
+  def handle_info(%{topic: "tasks:job_table_live", event: "reload"}, socket) do
+    {:noreply, assign(socket, tasks: get_tasks())}
   end
 
   defp get_tasks do
