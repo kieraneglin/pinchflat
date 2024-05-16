@@ -28,7 +28,9 @@ defmodule Pinchflat.Tasks.TasksQuery do
   end
 
   def join_job(query) do
-    join(query, :inner, [t], j in assoc(t, :job))
+    query
+    |> join(:left, [t], j in assoc(t, :job))
+    |> preload([t, j], job: j)
   end
 
   def in_state(states) when is_list(states) do
@@ -37,7 +39,7 @@ defmodule Pinchflat.Tasks.TasksQuery do
 
   def in_state(state), do: in_state([state])
 
-  def has_worker(worker_name) do
-    dynamic([t, j], fragment("? LIKE ?", j.worker, ^"%.#{worker_name}"))
+  def has_tag(tag) do
+    dynamic([t, j], ^tag in j.tags)
   end
 end

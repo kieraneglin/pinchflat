@@ -3,7 +3,7 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
 
   use Oban.Worker,
     queue: :remote_metadata,
-    tags: ["media_source", "source_metadata", "remote_metadata"],
+    tags: ["media_source", "source_metadata", "remote_metadata", "show_in_dashboard"],
     max_attempts: 3
 
   require Logger

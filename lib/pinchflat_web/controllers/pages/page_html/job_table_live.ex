@@ -3,13 +3,13 @@ defmodule Pinchflat.Pages.JobTableLive do
   use Pinchflat.Tasks.TasksQuery
 
   alias Pinchflat.Repo
-  # alias Pinchflat.Utils.NumberUtils
+  alias Pinchflat.Tasks.Task
   alias PinchflatWeb.CustomComponents.TextComponents
 
   def render(%{tasks: []} = assigns) do
     ~H"""
     <div class="mb-4 flex items-center">
-      <p class="ml-2">Nothing Here!</p>
+      <p>Nothing here!</p>
     </div>
     """
   end
@@ -19,8 +19,19 @@ defmodule Pinchflat.Pages.JobTableLive do
     <div>
       <div class="max-w-full overflow-x-auto">
         <.table rows={@tasks} table_class="text-white">
-          <:col :let={task} label="Job ID">
-            <%= task.job_id %>
+          <:col :let={task} label="Task">
+            <%= worker_to_task_name(task.job.worker) %>
+          </:col>
+          <:col :let={task} label="Subject">
+            <.subtle_link href={task_to_link(task)}>
+              <%= StringUtils.truncate(task_to_record_name(task), 35) %>
+            </.subtle_link>
+          </:col>
+          <:col :let={task} label="Attempt No.">
+            <%= task.job.attempt %>
+          </:col>
+          <:col :let={task} label="Started At">
+            <%= format_datetime(task.job.attempted_at) %>
           </:col>
         </.table>
       </div>
@@ -37,9 +48,42 @@ defmodule Pinchflat.Pages.JobTableLive do
   defp get_tasks do
     TasksQuery.new()
     |> TasksQuery.join_job()
-    |> where(^TasksQuery.in_state("completed"))
-    |> limit(5)
+    |> where(^TasksQuery.in_state(["executing", "completed"]))
+    |> where(^TasksQuery.has_tag("show_in_dashboard"))
     |> Repo.all()
+    |> Repo.preload([:media_item, :source])
+  end
+
+  defp worker_to_task_name(worker) do
+    final_module_part =
+      worker
+      |> String.split(".")
+      |> Enum.at(-1)
+
+    map_worker_to_task_name(final_module_part)
+  end
+
+  defp map_worker_to_task_name("FastIndexingWorker"), do: "Fast Indexing Source"
+  defp map_worker_to_task_name("MediaDownloadWorker"), do: "Download Media"
+  defp map_worker_to_task_name("MediaCollectionIndexingWorker"), do: "Indexing Source"
+  defp map_worker_to_task_name("MediaQualityUpgradeWorker"), do: "Upgrade Media Quality"
+  defp map_worker_to_task_name("SourceMetadataStorageWorker"), do: "Fetch Source Metadata"
+  defp map_worker_to_task_name(other), do: other <> " (Report to Devs)"
+
+  defp task_to_record_name(%Task{} = task) do
+    case task do
+      %Task{source: source} when source != nil -> source.custom_name
+      %Task{media_item: mi} when mi != nil -> mi.title
+      _ -> "Unknown Record"
+    end
+  end
+
+  defp task_to_link(%Task{} = task) do
+    case task do
+      %Task{source: source} when source != nil -> ~p"/sources/#{source.id}"
+      %Task{media_item: mi} when mi != nil -> ~p"/sources/#{mi.source_id}/media/#{mi}"
+      _ -> "#"
+    end
   end
 
   defp format_datetime(nil), do: ""
