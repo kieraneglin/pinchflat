@@ -13,6 +13,19 @@ defmodule Pinchflat.Boot.PreJobStartupTasksTest do
     :ok
   end
 
+  describe "ensure_tmpfile_directory" do
+    test "creates the tmpfile directory if it doesn't exist" do
+      tmpfile_dir = Application.get_env(:pinchflat, :tmpfile_directory)
+      File.rm_rf!(tmpfile_dir)
+
+      refute File.exists?(tmpfile_dir)
+
+      PreJobStartupTasks.init(%{})
+
+      assert File.exists?(tmpfile_dir)
+    end
+  end
+
   describe "reset_executing_jobs" do
     test "resets executing jobs" do
       job = job_fixture()
@@ -78,6 +91,7 @@ defmodule Pinchflat.Boot.PreJobStartupTasksTest do
 
   describe "apply_default_settings" do
     test "sets yt_dlp version" do
+      File.rm_rf!(Application.get_env(:pinchflat, :tmpfile_directory))
       Settings.set(yt_dlp_version: nil)
 
       refute Settings.get!(:yt_dlp_version)
@@ -88,6 +102,7 @@ defmodule Pinchflat.Boot.PreJobStartupTasksTest do
     end
 
     test "sets apprise version" do
+      File.rm_rf!(Application.get_env(:pinchflat, :tmpfile_directory))
       Settings.set(apprise_version: nil)
 
       refute Settings.get!(:apprise_version)
