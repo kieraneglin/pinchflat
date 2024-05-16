@@ -24,11 +24,12 @@ defmodule Pinchflat.Utils.CliUtils do
   def wrap_cmd(command, args, passthrough_opts \\ [], opts \\ []) do
     wrapper_command = Path.join(:code.priv_dir(:pinchflat), "cmd_wrapper.sh")
     actual_command = [command] ++ args
+    command_opts = set_command_opts() ++ passthrough_opts
     logging_arg_override = Keyword.get(opts, :logging_arg_override, Enum.join(args, " "))
 
     Logger.info("[command_wrapper]: #{command} called with: #{logging_arg_override}")
 
-    {output, status} = System.cmd(wrapper_command, actual_command, passthrough_opts)
+    {output, status} = System.cmd(wrapper_command, actual_command, command_opts)
     log_cmd_result(command, logging_arg_override, status, output)
 
     {output, status}
@@ -80,5 +81,14 @@ defmodule Pinchflat.Utils.CliUtils do
     log_level = if status == 0, do: :debug, else: :error
 
     Logger.log(log_level, log_message)
+  end
+
+  defp set_command_opts do
+    # This resolves an issue where yt-dlp would attempt to write to a read-only directory
+    # if you scanned a new video with `--windows-filenames` enabled. Hopefully can be removed
+    # in the future.
+    [
+      cd: Application.get_env(:pinchflat, :tmpfile_directory)
+    ]
   end
 end
