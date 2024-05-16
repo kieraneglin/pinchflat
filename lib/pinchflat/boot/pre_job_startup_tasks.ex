@@ -31,12 +31,21 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
   """
   @impl true
   def init(state) do
+    ensure_tmpfile_directory()
     reset_executing_jobs()
     create_blank_yt_dlp_files()
     create_blank_user_script_file()
     apply_default_settings()
 
     {:ok, state}
+  end
+
+  defp ensure_tmpfile_directory do
+    tmpfile_dir = Application.get_env(:pinchflat, :tmpfile_directory)
+
+    if !File.exists?(tmpfile_dir) do
+      File.mkdir_p!(tmpfile_dir)
+    end
   end
 
   # If a node cannot gracefully shut down, the currently executing jobs get stuck

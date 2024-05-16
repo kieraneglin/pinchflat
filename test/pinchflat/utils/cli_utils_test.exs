@@ -7,6 +7,10 @@ defmodule Pinchflat.Utils.CliUtilsTest do
     test "delegates to System.cmd/3" do
       assert {"output\n", 0} = CliUtils.wrap_cmd("echo", ["output"])
     end
+
+    test "sets the current directory to the tmp dir" do
+      assert {"/tmp/test/tmpfiles\n", 0} = CliUtils.wrap_cmd("pwd", [])
+    end
   end
 
   describe "parse_options/1" do
