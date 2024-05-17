@@ -6,7 +6,7 @@ defmodule Pinchflat.Pages.HistoryTableLive do
   alias Pinchflat.Utils.NumberUtils
   alias PinchflatWeb.CustomComponents.TextComponents
 
-  @limit 10
+  @limit 5
 
   def render(%{records: []} = assigns) do
     ~H"""

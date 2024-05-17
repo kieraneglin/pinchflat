@@ -4,7 +4,7 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorker do
   use Oban.Worker,
     queue: :media_collection_indexing,
     unique: [period: :infinity, states: [:available, :scheduled, :retryable]],
-    tags: ["media_source", "media_collection_indexing"]
+    tags: ["media_source", "media_collection_indexing", "show_in_dashboard"]
 
   require Logger
 
