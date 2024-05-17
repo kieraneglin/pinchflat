@@ -20,16 +20,14 @@ defmodule PinchflatWeb.Pages.PageController do
   end
 
   defp render_home_page(conn) do
-    # TODO: revert
     conn
     |> render(:home,
-      media_profile_count: 1 || Repo.aggregate(MediaProfile, :count, :id),
-      source_count: 1 || Repo.aggregate(Source, :count, :id),
+      media_profile_count: Repo.aggregate(MediaProfile, :count, :id),
+      source_count: Repo.aggregate(Source, :count, :id),
       media_item_count:
-        1 ||
-          MediaQuery.new()
-          |> MediaQuery.with_media_downloaded_at()
-          |> Repo.aggregate(:count, :id)
+        MediaQuery.new()
+        |> MediaQuery.with_media_downloaded_at()
+        |> Repo.aggregate(:count, :id)
     )
   end
 

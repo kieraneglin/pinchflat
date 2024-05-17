@@ -19,6 +19,11 @@ defmodule PinchflatWeb.Telemetry do
     Supervisor.init(children, strategy: :one_for_one)
   end
 
+  @doc false
+  def job_state_change_broadcast(_event, _measure, _meta, _config) do
+    PinchflatWeb.Endpoint.broadcast("job:state", "change", nil)
+  end
+
   def metrics do
     [
       # Phoenix Metrics

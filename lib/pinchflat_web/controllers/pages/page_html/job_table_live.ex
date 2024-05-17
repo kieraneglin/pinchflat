@@ -9,51 +9,50 @@ defmodule Pinchflat.Pages.JobTableLive do
   def render(%{tasks: []} = assigns) do
     ~H"""
     <div class="mb-4 flex items-center">
-      <p>Nothing here!</p>
+      <p>Nothing Here!</p>
     </div>
     """
   end
 
   def render(assigns) do
     ~H"""
-    <div>
-      <div class="max-w-full overflow-x-auto">
-        <.table rows={@tasks} table_class="text-white">
-          <:col :let={task} label="Task">
-            <%= worker_to_task_name(task.job.worker) %>
-          </:col>
-          <:col :let={task} label="Subject">
-            <.subtle_link href={task_to_link(task)}>
-              <%= StringUtils.truncate(task_to_record_name(task), 35) %>
-            </.subtle_link>
-          </:col>
-          <:col :let={task} label="Attempt No.">
-            <%= task.job.attempt %>
-          </:col>
-          <:col :let={task} label="Started At">
-            <%= format_datetime(task.job.attempted_at) %>
-          </:col>
-        </.table>
-      </div>
+    <div class="max-w-full overflow-x-auto">
+      <.table rows={@tasks} table_class="text-white">
+        <:col :let={task} label="Task">
+          <%= worker_to_task_name(task.job.worker) %>
+        </:col>
+        <:col :let={task} label="Subject">
+          <.subtle_link href={task_to_link(task)}>
+            <%= StringUtils.truncate(task_to_record_name(task), 35) %>
+          </.subtle_link>
+        </:col>
+        <:col :let={task} label="Attempt No.">
+          <%= task.job.attempt %>
+        </:col>
+        <:col :let={task} label="Started At">
+          <%= format_datetime(task.job.attempted_at) %>
+        </:col>
+      </.table>
     </div>
     """
   end
 
   def mount(_params, _session, socket) do
-    PinchflatWeb.Endpoint.subscribe("tasks:job_table_live")
+    PinchflatWeb.Endpoint.subscribe("job:state")
 
     {:ok, assign(socket, tasks: get_tasks())}
   end
 
-  def handle_info(%{topic: "tasks:job_table_live", event: "reload"}, socket) do
+  def handle_info(%{topic: "job:state", event: "change"}, socket) do
     {:noreply, assign(socket, tasks: get_tasks())}
   end
 
   defp get_tasks do
     TasksQuery.new()
     |> TasksQuery.join_job()
-    |> where(^TasksQuery.in_state(["executing", "completed"]))
+    |> where(^TasksQuery.in_state("executing"))
     |> where(^TasksQuery.has_tag("show_in_dashboard"))
+    |> order_by([t, j], desc: j.attempted_at)
     |> Repo.all()
     |> Repo.preload([:media_item, :source])
   end
@@ -68,10 +67,10 @@ defmodule Pinchflat.Pages.JobTableLive do
   end
 
   defp map_worker_to_task_name("FastIndexingWorker"), do: "Fast Indexing Source"
-  defp map_worker_to_task_name("MediaDownloadWorker"), do: "Download Media"
+  defp map_worker_to_task_name("MediaDownloadWorker"), do: "Downloading Media"
   defp map_worker_to_task_name("MediaCollectionIndexingWorker"), do: "Indexing Source"
-  defp map_worker_to_task_name("MediaQualityUpgradeWorker"), do: "Upgrade Media Quality"
-  defp map_worker_to_task_name("SourceMetadataStorageWorker"), do: "Fetch Source Metadata"
+  defp map_worker_to_task_name("MediaQualityUpgradeWorker"), do: "Upgrading Media Quality"
+  defp map_worker_to_task_name("SourceMetadataStorageWorker"), do: "Fetching Source Metadata"
   defp map_worker_to_task_name(other), do: other <> " (Report to Devs)"
 
   defp task_to_record_name(%Task{} = task) do

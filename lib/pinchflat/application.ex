@@ -24,7 +24,7 @@ defmodule Pinchflat.Application do
       PinchflatWeb.Endpoint
     ]
 
-    :ok = Oban.Telemetry.attach_default_logger()
+    attach_oban_telemetry()
     Logger.add_handlers(:pinchflat)
 
     # See https://hexdocs.pm/elixir/Supervisor.html
@@ -39,5 +39,12 @@ defmodule Pinchflat.Application do
   def config_change(changed, _new, removed) do
     PinchflatWeb.Endpoint.config_change(changed, removed)
     :ok
+  end
+
+  defp attach_oban_telemetry do
+    events = [[:oban, :job, :start], [:oban, :job, :stop], [:oban, :job, :exception]]
+
+    :ok = Oban.Telemetry.attach_default_logger()
+    :telemetry.attach_many("job-telemetry-broadcast", events, &PinchflatWeb.Telemetry.job_state_change_broadcast/4, [])
   end
 end
