@@ -17,7 +17,7 @@ defmodule Pinchflat.MediaFixtures do
       attrs
       |> Enum.into(%{
         media_id: media_id,
-        title: Faker.Commerce.product_name(),
+        title: Faker.Commerce.product_name() <> " #{media_id}",
         original_url: "https://www.youtube.com/watch?v=#{media_id}",
         livestream: false,
         short_form_content: false,

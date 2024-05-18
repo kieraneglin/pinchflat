@@ -26,8 +26,7 @@ defmodule PinchflatWeb.Podcasts.PodcastController do
     # if the source doesn't have any usable images
     media_items =
       MediaQuery.new()
-      |> MediaQuery.for_source(source)
-      |> MediaQuery.with_media_filepath()
+      |> where(^dynamic(^MediaQuery.for_source(source) and ^MediaQuery.downloaded()))
       |> Repo.maybe_limit(1)
       |> Repo.all()
 

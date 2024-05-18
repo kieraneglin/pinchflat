@@ -1,11 +1,9 @@
 defmodule PinchflatWeb.MediaProfiles.MediaProfileController do
   use PinchflatWeb, :controller
-
-  import Ecto.Query, warn: false
+  use Pinchflat.Sources.SourcesQuery
 
   alias Pinchflat.Repo
   alias Pinchflat.Profiles
-  alias Pinchflat.Sources.SourcesQuery
   alias Pinchflat.Profiles.MediaProfile
 
   def index(conn, _params) do
@@ -43,7 +41,7 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileController do
 
     sources =
       SourcesQuery.new()
-      |> SourcesQuery.for_media_profile(media_profile)
+      |> where(^SourcesQuery.for_media_profile(media_profile))
       |> order_by(asc: :custom_name)
       |> Repo.all()
 

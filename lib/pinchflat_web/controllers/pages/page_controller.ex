@@ -26,7 +26,7 @@ defmodule PinchflatWeb.Pages.PageController do
       source_count: Repo.aggregate(Source, :count, :id),
       media_item_count:
         MediaQuery.new()
-        |> MediaQuery.with_media_downloaded_at()
+        |> where(^MediaQuery.downloaded())
         |> Repo.aggregate(:count, :id)
     )
   end

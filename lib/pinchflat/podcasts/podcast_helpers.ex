@@ -27,8 +27,7 @@ defmodule Pinchflat.Podcasts.PodcastHelpers do
     limit = Keyword.get(opts, :limit, 1_000)
 
     MediaQuery.new()
-    |> MediaQuery.for_source(source)
-    |> MediaQuery.with_media_filepath()
+    |> where(^dynamic(^MediaQuery.for_source(source) and ^MediaQuery.downloaded()))
     |> order_by(desc: :upload_date)
     |> Repo.maybe_limit(limit)
     |> Repo.all()

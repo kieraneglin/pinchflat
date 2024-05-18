@@ -86,15 +86,14 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
 
   defp generate_base_query(source, "pending") do
     MediaQuery.new()
-    |> MediaQuery.for_source(source)
-    |> MediaQuery.where_pending_download()
+    |> MediaQuery.require_assoc(:media_profile)
+    |> where(^dynamic(^MediaQuery.for_source(source) and ^MediaQuery.pending()))
     |> order_by(desc: :id)
   end
 
   defp generate_base_query(source, "downloaded") do
     MediaQuery.new()
-    |> MediaQuery.for_source(source)
-    |> MediaQuery.with_media_filepath()
+    |> where(^dynamic(^MediaQuery.for_source(source) and ^MediaQuery.downloaded()))
     |> order_by(desc: :id)
   end
 end

@@ -114,7 +114,7 @@ defmodule Pinchflat.Downloading.DownloadingHelpersTest do
   describe "kickoff_redownload_for_existing_media/1" do
     test "enqueues a download job for each downloaded media item" do
       source = source_fixture()
-      media_item = media_item_fixture(source_id: source.id, media_downloaded_at: now())
+      media_item = media_item_fixture(source_id: source.id, media_filepath: "some/filepath.mp4")
 
       assert [{:ok, _}] = DownloadingHelpers.kickoff_redownload_for_existing_media(source)
 
@@ -124,14 +124,14 @@ defmodule Pinchflat.Downloading.DownloadingHelpersTest do
     test "doesn't enqueue jobs for media that should be ignored" do
       source = source_fixture()
       other_source = source_fixture()
-      _not_downloaded = media_item_fixture(source_id: source.id, media_downloaded_at: nil)
-      _other_source = media_item_fixture(source_id: other_source.id, media_downloaded_at: now())
+      _not_downloaded = media_item_fixture(source_id: source.id, media_filepath: nil)
+      _other_source = media_item_fixture(source_id: other_source.id, media_filepath: "some/filepath.mp4")
 
       _download_prevented =
-        media_item_fixture(source_id: source.id, media_downloaded_at: now(), prevent_download: true)
+        media_item_fixture(source_id: source.id, media_filepath: "some/filepath.mp4", prevent_download: true)
 
       _culled =
-        media_item_fixture(source_id: source.id, media_downloaded_at: now(), culled_at: now())
+        media_item_fixture(source_id: source.id, media_filepath: "some/filepath.mp4", culled_at: now())
 
       assert [] = DownloadingHelpers.kickoff_redownload_for_existing_media(source)
 

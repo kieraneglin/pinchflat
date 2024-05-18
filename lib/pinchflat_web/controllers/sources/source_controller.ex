@@ -25,7 +25,7 @@ defmodule PinchflatWeb.Sources.SourceController do
             subquery(
               from m in MediaItem,
                 where: m.source_id == parent_as(:source).id,
-                where: ^MediaQuery.downloaded?(),
+                where: ^MediaQuery.downloaded(),
                 select: count(m.id)
             ),
           pending_count:
@@ -33,7 +33,7 @@ defmodule PinchflatWeb.Sources.SourceController do
               from m in MediaItem,
                 join: s in assoc(m, :source),
                 where: m.source_id == parent_as(:source).id,
-                where: ^MediaQuery.pending?(),
+                where: ^MediaQuery.pending(),
                 select: count(m.id)
             )
         }

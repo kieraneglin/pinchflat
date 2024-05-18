@@ -142,8 +142,7 @@ defmodule Pinchflat.Media.MediaItem do
 
     current_max =
       MediaQuery.new()
-      |> MediaQuery.for_source(source_id)
-      |> MediaQuery.where_uploaded_on_date(changes.upload_date)
+      |> where(^dynamic([mi], mi.upload_date == ^changes.upload_date and ^MediaQuery.for_source(source)))
       |> Repo.aggregate(aggregator, :upload_date_index)
 
     case current_max do
