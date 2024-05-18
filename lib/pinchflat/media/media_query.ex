@@ -38,6 +38,77 @@ defmodule Pinchflat.Media.MediaQuery do
     MediaItem
   end
 
+  # Queries below this line are dynamic query methods (which I want to move to)
+
+  def for_source(source_id) when is_integer(source_id) do
+    dynamic([mi], mi.source_id == ^source_id)
+  end
+
+  def for_source(source) do
+    dynamic([mi], mi.source_id == ^source.id)
+  end
+
+  def downloaded? do
+    dynamic([mi], not is_nil(mi.media_downloaded_at))
+  end
+
+  def download_not_prevented do
+    dynamic([mi], mi.prevent_download == false)
+  end
+
+  def no_media_filepath do
+    dynamic([mi], is_nil(mi.media_filepath))
+  end
+
+  def upload_date_after_source_cutoff do
+    dynamic([mi, source], is_nil(source.download_cutoff_date) or mi.upload_date >= source.download_cutoff_date)
+  end
+
+  def format_matching_profile_preference do
+    dynamic(
+      [mi, source, media_profile],
+      fragment("""
+        CASE
+          WHEN shorts_behaviour = 'only' AND livestream_behaviour = 'only' THEN
+            livestream = true OR short_form_content = true
+          WHEN shorts_behaviour = 'only' THEN
+            short_form_content = true
+          WHEN livestream_behaviour = 'only' THEN
+            livestream = true
+          WHEN shorts_behaviour = 'exclude' AND livestream_behaviour = 'exclude' THEN
+            short_form_content = false AND livestream = false
+          WHEN shorts_behaviour = 'exclude' THEN
+            short_form_content = false
+          WHEN livestream_behaviour = 'exclude' THEN
+            livestream = false
+          ELSE
+            true
+        END
+      """)
+    )
+  end
+
+  def matches_source_title_regex do
+    dynamic(
+      [mi, source],
+      is_nil(source.title_filter_regex) or fragment("regexp_like(?, ?)", mi.title, source.title_filter_regex)
+    )
+  end
+
+  # TODO: figure out how to do something like `require_assoc` here
+  def pending? do
+    dynamic(
+      [mi],
+      ^download_not_prevented() and
+        ^no_media_filepath() and
+        ^upload_date_after_source_cutoff() and
+        ^format_matching_profile_preference() and
+        ^matches_source_title_regex()
+    )
+  end
+
+  # Queries below this line are the "legacy" query methods (which I want to move from)
+
   def for_source(query, source_id) when is_integer(source_id) do
     where(query, [mi], mi.source_id == ^source_id)
   end

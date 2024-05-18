@@ -73,8 +73,9 @@ defmodule Pinchflat.Media do
   """
   def list_pending_media_items_for(%Source{} = source) do
     MediaQuery.new()
-    |> MediaQuery.for_source(source)
-    |> MediaQuery.where_pending_download()
+    |> join(:inner, [m], s in assoc(m, :source))
+    |> join(:inner, [m, s], mp in assoc(s, :media_profile))
+    |> where([m, s, mp], ^dynamic(^MediaQuery.for_source(source) and ^MediaQuery.pending?()))
     |> Repo.all()
   end
 
