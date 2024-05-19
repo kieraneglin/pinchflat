@@ -30,9 +30,8 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
             <%= StringUtils.truncate(media_item.title, 50) %>
           </.subtle_link>
         </:col>
-        <:col :let={media_item} label="" class="flex place-content-evenly">
-          <.icon_link href={~p"/sources/#{@source.id}/media/#{media_item.id}"} icon="hero-eye" class="mx-1" />
-          <.icon_link href={~p"/sources/#{@source.id}/media/#{media_item.id}/edit"} icon="hero-pencil-square" class="mx-1" />
+        <:col :let={media_item} label="" class="flex justify-end">
+          <.icon_link href={~p"/sources/#{@source.id}/media/#{media_item.id}/edit"} icon="hero-pencil-square" class="mr-4" />
         </:col>
       </.table>
       <section class="flex justify-center mt-5">

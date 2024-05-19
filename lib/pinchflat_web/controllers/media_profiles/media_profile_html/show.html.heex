@@ -40,9 +40,8 @@
           <:col :let={source} label="Should Download?">
             <.icon name={if source.download_media, do: "hero-check", else: "hero-x-mark"} />
           </:col>
-          <:col :let={source} label="" class="flex place-content-evenly">
-            <.icon_link href={~p"/sources/#{source.id}"} icon="hero-eye" class="mx-1" />
-            <.icon_link href={~p"/sources/#{source.id}/edit"} icon="hero-pencil-square" class="mx-1" />
+          <:col :let={source} label="" class="flex justify-end">
+            <.icon_link href={~p"/sources/#{source.id}/edit"} icon="hero-pencil-square" class="mr-4" />
           </:col>
         </.table>
       </:tab>
