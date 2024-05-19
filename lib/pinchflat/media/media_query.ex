@@ -27,8 +27,6 @@ defmodule Pinchflat.Media.MediaQuery do
     MediaItem
   end
 
-  # Queries below this line are dynamic query methods (which I want to move to)
-
   def for_source(source_id) when is_integer(source_id), do: dynamic([mi], mi.source_id == ^source_id)
   def for_source(source), do: dynamic([mi], mi.source_id == ^source.id)
 
