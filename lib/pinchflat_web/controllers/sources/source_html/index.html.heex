@@ -19,8 +19,8 @@
           </.subtle_link>
         </:col>
         <:col :let={source} label="Type"><%= source.collection_type %></:col>
-        <:col :let={source} label="Downloaded"><%= source.downloaded_count %></:col>
         <:col :let={source} label="Pending"><%= source.pending_count %></:col>
+        <:col :let={source} label="Downloaded"><%= source.downloaded_count %></:col>
         <:col :let={source} label="Retention">
           <%= if source.retention_period_days && source.retention_period_days > 0 do %>
             <%= source.retention_period_days %> day(s)

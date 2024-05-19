@@ -23,7 +23,7 @@
         <.actions_dropdown source={@source} conn={@conn} />
       </:tab_append>
 
-      <:tab title="Source">
+      <:tab title="Source" id="source">
         <div class="flex flex-col gap-10 text-white">
           <h3 class="font-bold text-xl mt-6">Raw Attributes</h3>
           <section>
@@ -36,21 +36,21 @@
           <.list_items_from_map map={Map.from_struct(@source)} />
         </div>
       </:tab>
-      <:tab title="Pending Media">
+      <:tab title="Pending Media" id="pending">
         <%= live_render(
           @conn,
           Pinchflat.Sources.MediaItemTableLive,
           session: %{"source_id" => @source.id, "media_state" => "pending"}
         ) %>
       </:tab>
-      <:tab title="Downloaded Media">
+      <:tab title="Downloaded Media" id="downloaded">
         <%= live_render(
           @conn,
           Pinchflat.Sources.MediaItemTableLive,
           session: %{"source_id" => @source.id, "media_state" => "downloaded"}
         ) %>
       </:tab>
-      <:tab title="Pending Tasks">
+      <:tab title="Pending Tasks" id="tasks">
         <%= if match?([_|_], @pending_tasks) do %>
           <.table rows={@pending_tasks} table_class="text-black dark:text-white">
             <:col :let={task} label="Worker">

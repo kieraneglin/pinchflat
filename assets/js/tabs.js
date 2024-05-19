@@ -1,20 +1,20 @@
-window.setTabIndex = (index) => {
-  window.location.hash = `tab-${index}`
+window.setTabByName = (tabName) => {
+  window.location.hash = `tab-${tabName}`
 
-  return index
+  return tabName
 }
 
 // The conditionals and currIndex stuff ensures that
 // the tab index is always set to 0 if the hash is empty
 // AND other hash values are ignored
-window.getTabIndex = (currIndex) => {
+window.getTabFromHash = (currentTabName, defaultTabName) => {
   if (window.location.hash === '' || window.location.hash === '#') {
-    return 0
+    return defaultTabName
   }
 
   if (window.location.hash.startsWith('#tab-')) {
-    return parseInt(window.location.hash.replace('#tab-', ''))
+    return window.location.hash.replace('#tab-', '')
   }
 
-  return currIndex
+  return currentTabName
 }
