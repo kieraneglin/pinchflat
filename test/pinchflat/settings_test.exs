@@ -77,7 +77,9 @@ defmodule Pinchflat.SettingsTest do
 
       assert %Ecto.Changeset{} = Settings.change_setting(setting, %{onboarding: true})
     end
+  end
 
+  describe "change_setting/2 when testing codec preferences" do
     test "converts (video|audio)_codec_preference_string to an array" do
       setting = Settings.record()
 
@@ -91,33 +93,49 @@ defmodule Pinchflat.SettingsTest do
       assert ["avc", "vp9"] = changeset.changes.video_codec_preference
       assert ["aac", "opus"] = changeset.changes.audio_codec_preference
     end
-  end
 
-  test "removes whitespace from (video|audio)_codec_preference" do
-    setting = Settings.record()
+    test "removes whitespace from (video|audio)_codec_preference" do
+      setting = Settings.record()
 
-    new_setting = %{
-      video_codec_preference_string: "  avc  > >  vp9  ",
-      audio_codec_preference_string: "aac> opus "
-    }
+      new_setting = %{
+        video_codec_preference_string: "  avc  > >  vp9  ",
+        audio_codec_preference_string: "aac> opus "
+      }
 
-    changeset = Settings.change_setting(setting, new_setting)
+      changeset = Settings.change_setting(setting, new_setting)
 
-    assert ["avc", "vp9"] = changeset.changes.video_codec_preference
-    assert ["aac", "opus"] = changeset.changes.audio_codec_preference
-  end
+      assert ["avc", "vp9"] = changeset.changes.video_codec_preference
+      assert ["aac", "opus"] = changeset.changes.audio_codec_preference
+    end
 
-  test "downcases (video|audio)_codec_preference" do
-    setting = Settings.record()
+    test "downcases (video|audio)_codec_preference" do
+      setting = Settings.record()
 
-    new_setting = %{
-      video_codec_preference_string: "AVC>VP9",
-      audio_codec_preference_string: "AAC>OPUS"
-    }
+      new_setting = %{
+        video_codec_preference_string: "AVC>VP9",
+        audio_codec_preference_string: "AAC>OPUS"
+      }
 
-    changeset = Settings.change_setting(setting, new_setting)
+      changeset = Settings.change_setting(setting, new_setting)
 
-    assert ["avc", "vp9"] = changeset.changes.video_codec_preference
-    assert ["aac", "opus"] = changeset.changes.audio_codec_preference
+      assert ["avc", "vp9"] = changeset.changes.video_codec_preference
+      assert ["aac", "opus"] = changeset.changes.audio_codec_preference
+    end
+
+    test "an empty value will remove the codec settings" do
+      Settings.set(video_codec_preference: ["avc", "vp9"])
+      Settings.set(audio_codec_preference: ["aac", "opus"])
+      setting = Settings.record()
+
+      new_setting = %{
+        video_codec_preference_string: "",
+        audio_codec_preference_string: ""
+      }
+
+      changeset = Settings.change_setting(setting, new_setting)
+
+      assert [] = changeset.changes.video_codec_preference
+      assert [] = changeset.changes.audio_codec_preference
+    end
   end
 end

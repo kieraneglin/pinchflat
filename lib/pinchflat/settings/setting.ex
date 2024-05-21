@@ -13,7 +13,10 @@ defmodule Pinchflat.Settings.Setting do
     :apprise_version,
     :apprise_server,
     :video_codec_preference,
-    :audio_codec_preference,
+    :audio_codec_preference
+  ]
+
+  @virtual_fields [
     :video_codec_preference_string,
     :audio_codec_preference_string
   ]
@@ -32,14 +35,15 @@ defmodule Pinchflat.Settings.Setting do
 
     field :video_codec_preference, {:array, :string}, default: []
     field :audio_codec_preference, {:array, :string}, default: []
-    field :video_codec_preference_string, :string, virtual: true
-    field :audio_codec_preference_string, :string, virtual: true
+    field :video_codec_preference_string, :string, default: nil, virtual: true
+    field :audio_codec_preference_string, :string, default: nil, virtual: true
   end
 
   @doc false
   def changeset(setting, attrs) do
     setting
     |> cast(attrs, @allowed_fields)
+    |> cast(attrs, @virtual_fields, empty_values: [])
     |> convert_codec_preference_strings()
     |> validate_required(@required_fields)
   end
