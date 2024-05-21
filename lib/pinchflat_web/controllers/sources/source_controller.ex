@@ -1,25 +1,44 @@
 defmodule PinchflatWeb.Sources.SourceController do
   use PinchflatWeb, :controller
-
-  import Ecto.Query, warn: false
+  use Pinchflat.Media.MediaQuery
 
   alias Pinchflat.Repo
   alias Pinchflat.Tasks
   alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
+  alias Pinchflat.Media.MediaItem
   alias Pinchflat.Profiles.MediaProfile
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.SlowIndexing.SlowIndexingHelpers
   alias Pinchflat.Metadata.SourceMetadataStorageWorker
 
   def index(conn, _params) do
-    sources =
-      Source
-      |> order_by(asc: :custom_name)
-      |> Repo.all()
-      |> Repo.preload(:media_profile)
+    source_query =
+      from s in Source,
+        as: :source,
+        inner_join: mp in assoc(s, :media_profile),
+        preload: [media_profile: mp],
+        order_by: [asc: s.custom_name],
+        select: map(s, ^Source.__schema__(:fields)),
+        select_merge: %{
+          downloaded_count:
+            subquery(
+              from m in MediaItem,
+                where: m.source_id == parent_as(:source).id,
+                where: ^MediaQuery.downloaded(),
+                select: count(m.id)
+            ),
+          pending_count:
+            subquery(
+              from m in MediaItem,
+                join: s in assoc(m, :source),
+                where: m.source_id == parent_as(:source).id,
+                where: ^MediaQuery.pending(),
+                select: count(m.id)
+            )
+        }
 
-    render(conn, :index, sources: sources)
+    render(conn, :index, sources: Repo.all(source_query))
   end
 
   def new(conn, _params) do

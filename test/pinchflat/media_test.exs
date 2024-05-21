@@ -405,7 +405,9 @@ defmodule Pinchflat.MediaTest do
   describe "list_pending_media_items_for/1" do
     test "it returns pending without a filepath for a given source" do
       source = source_fixture()
+      other_source = source_fixture()
       media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil})
+      _other_media_item = media_item_fixture(%{source_id: other_source.id, media_filepath: nil})
 
       assert Media.list_pending_media_items_for(source) == [media_item]
     end

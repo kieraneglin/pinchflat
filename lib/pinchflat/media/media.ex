@@ -32,9 +32,8 @@ defmodule Pinchflat.Media do
   """
   def list_cullable_media_items do
     MediaQuery.new()
-    |> MediaQuery.with_media_filepath()
-    |> MediaQuery.where_past_retention_period()
-    |> MediaQuery.where_culling_not_prevented()
+    |> MediaQuery.require_assoc(:source)
+    |> where(^MediaQuery.cullable())
     |> Repo.all()
   end
 
@@ -54,18 +53,14 @@ defmodule Pinchflat.Media do
   """
   def list_redownloadable_media_items do
     MediaQuery.new()
-    |> MediaQuery.with_media_downloaded_at()
-    |> MediaQuery.where_download_not_prevented()
-    |> MediaQuery.where_not_culled()
-    |> MediaQuery.where_media_not_redownloaded()
-    |> MediaQuery.where_past_redownload_delay()
+    |> MediaQuery.require_assoc(:media_profile)
+    |> where(^MediaQuery.redownloadable())
     |> Repo.all()
   end
 
   @doc """
   Returns a list of pending media_items for a given source, where
-  pending means the `media_filepath` is `nil` AND the media_item
-  matches satisfies `MediaQuery.where_pending_download`. You
+  pending means the media_item satisfies `MediaQuery.pending`. You
   should really check out that function if you need to know more
   because it has a lot going on.
 
@@ -73,15 +68,14 @@ defmodule Pinchflat.Media do
   """
   def list_pending_media_items_for(%Source{} = source) do
     MediaQuery.new()
-    |> MediaQuery.for_source(source)
-    |> MediaQuery.where_pending_download()
+    |> MediaQuery.require_assoc(:media_profile)
+    |> where(^dynamic(^MediaQuery.for_source(source) and ^MediaQuery.pending()))
     |> Repo.all()
   end
 
   @doc """
   For a given media_item, tells you if it is pending download. This is defined as
-  the media_item having a `media_filepath` of `nil` and matching the format selection
-  rules of the parent media_profile.
+  the media_item satisfying `MediaQuery.pending` which you should really check out.
 
   Intentionally does not take the `download_media` setting of the source into account.
 
@@ -91,8 +85,8 @@ defmodule Pinchflat.Media do
     media_item = Repo.preload(media_item, source: :media_profile)
 
     MediaQuery.new()
-    |> MediaQuery.with_id(media_item.id)
-    |> MediaQuery.where_pending_download()
+    |> MediaQuery.require_assoc(:media_profile)
+    |> where(^dynamic([m, s, mp], m.id == ^media_item.id and ^MediaQuery.pending()))
     |> Repo.exists?()
   end
 

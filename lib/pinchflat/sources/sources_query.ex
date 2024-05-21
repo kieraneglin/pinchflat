@@ -12,20 +12,26 @@ defmodule Pinchflat.Sources.SourcesQuery do
 
   alias Pinchflat.Sources.Source
 
-  # Prefixes:
-  # - for_* - belonging to a certain record
-  # - join_* - for joining on a certain record
-  # - with_* - for filtering based on full, concrete attributes
-  # - matching_* - for filtering based on partial attributes (e.g. LIKE, regex, full-text search)
-  #
-  # Suffixes:
-  # - _for - the arg passed is an association record
+  # This allows the module to be aliased and query methods to be used
+  # all in one go
+  # usage: use Pinchflat.Sources.SourcesQuery
+  defmacro __using__(_opts) do
+    quote do
+      import Ecto.Query, warn: false
+
+      alias unquote(__MODULE__)
+    end
+  end
 
   def new do
     Source
   end
 
-  def for_media_profile(query, media_profile) do
-    where(query, [s], s.media_profile_id == ^media_profile.id)
+  def for_media_profile(media_profile_id) when is_integer(media_profile_id) do
+    dynamic([s], s.media_profile_id == ^media_profile_id)
+  end
+
+  def for_media_profile(media_profile) do
+    dynamic([s], s.media_profile_id == ^media_profile.id)
   end
 end

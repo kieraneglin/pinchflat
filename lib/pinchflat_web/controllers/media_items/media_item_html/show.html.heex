@@ -23,7 +23,7 @@
         <.actions_dropdown media_item={@media_item} />
       </:tab_append>
 
-      <:tab title="Media">
+      <:tab title="Media" id="media">
         <div class="flex flex-col gap-10 dark:text-white">
           <%= if media_file_exists?(@media_item) do %>
             <section class="grid grid-cols-1 xl:grid-cols-2 xl:gap-6 mt-6">
@@ -52,7 +52,7 @@
           </section>
         </div>
       </:tab>
-      <:tab title="Tasks">
+      <:tab title="Tasks" id="tasks">
         <%= if match?([_|_], @media_item.tasks) do %>
           <.table rows={@media_item.tasks} table_class="text-black dark:text-white">
             <:col :let={task} label="Worker">

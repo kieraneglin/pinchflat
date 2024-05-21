@@ -23,13 +23,13 @@
         <.actions_dropdown media_profile={@media_profile} />
       </:tab_append>
 
-      <:tab title="Media Profile">
+      <:tab title="Media Profile" id="media-profile">
         <div class="flex flex-col gap-10 text-white">
           <h3 class="font-bold text-xl mt-6">Raw Attributes</h3>
           <.list_items_from_map map={Map.from_struct(@media_profile)} />
         </div>
       </:tab>
-      <:tab title="Sources">
+      <:tab title="Sources" id="sources">
         <.table rows={@sources} table_class="text-black dark:text-white">
           <:col :let={source} label="Name">
             <.subtle_link href={~p"/sources/#{source.id}"}>
@@ -40,9 +40,8 @@
           <:col :let={source} label="Should Download?">
             <.icon name={if source.download_media, do: "hero-check", else: "hero-x-mark"} />
           </:col>
-          <:col :let={source} label="" class="flex place-content-evenly">
-            <.icon_link href={~p"/sources/#{source.id}"} icon="hero-eye" class="mx-1" />
-            <.icon_link href={~p"/sources/#{source.id}/edit"} icon="hero-pencil-square" class="mx-1" />
+          <:col :let={source} label="" class="flex justify-end">
+            <.icon_link href={~p"/sources/#{source.id}/edit"} icon="hero-pencil-square" class="mr-4" />
           </:col>
         </.table>
       </:tab>

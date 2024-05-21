@@ -6,25 +6,32 @@ defmodule PinchflatWeb.CustomComponents.TabComponents do
   Takes a list of tabs and renders them in a tabbed layout.
   """
   slot :tab, required: true do
+    attr :id, :string, required: true
     attr :title, :string, required: true
   end
 
   slot :tab_append, required: false
 
   def tabbed_layout(assigns) do
+    assigns = Map.put(assigns, :first_tab_id, hd(assigns.tab).id)
+
     ~H"""
     <div
-      x-data="{ openTab: getTabIndex(0), activeClasses: 'text-meta-5 border-meta-5', inactiveClasses: 'border-transparent' }"
-      @hashchange.window="openTab = getTabIndex(openTab)"
+      x-data={"{
+        openTab: getTabFromHash('#{@first_tab_id}', '#{@first_tab_id}'),
+        activeClasses: 'text-meta-5 border-meta-5',
+        inactiveClasses: 'border-transparent'
+      }"}
+      @hashchange.window={"openTab = getTabFromHash(openTab, '#{@first_tab_id}')"}
       class="w-full"
     >
       <header class="flex flex-col md:flex-row md:justify-between border-b border-strokedark">
         <div class="flex flex-wrap gap-5 sm:gap-10">
           <a
-            :for={{tab, idx} <- Enum.with_index(@tab)}
+            :for={tab <- @tab}
             href="#"
-            @click.prevent={"openTab = setTabIndex(#{idx})"}
-            x-bind:class={"openTab === #{idx} ? activeClasses : inactiveClasses"}
+            @click.prevent={"openTab = setTabByName('#{tab.id}')"}
+            x-bind:class={"openTab === '#{tab.id}' ? activeClasses : inactiveClasses"}
             class="border-b-2 py-4 w-full sm:w-fit text-sm font-medium hover:text-meta-5 md:text-base"
           >
             <span class="text-xl"><%= tab.title %></span>
@@ -35,7 +42,7 @@ defmodule PinchflatWeb.CustomComponents.TabComponents do
         </div>
       </header>
       <div class="mt-4 min-h-60">
-        <div :for={{tab, idx} <- Enum.with_index(@tab)} x-show={"openTab === #{idx}"} class="font-medium leading-relaxed">
+        <div :for={tab <- @tab} x-show={"openTab === '#{tab.id}'"} class="font-medium leading-relaxed">
           <%= render_slot(tab) %>
         </div>
       </div>

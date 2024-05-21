@@ -30,9 +30,8 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
             <%= StringUtils.truncate(media_item.title, 50) %>
           </.subtle_link>
         </:col>
-        <:col :let={media_item} label="" class="flex place-content-evenly">
-          <.icon_link href={~p"/sources/#{@source.id}/media/#{media_item.id}"} icon="hero-eye" class="mx-1" />
-          <.icon_link href={~p"/sources/#{@source.id}/media/#{media_item.id}/edit"} icon="hero-pencil-square" class="mx-1" />
+        <:col :let={media_item} label="" class="flex justify-end">
+          <.icon_link href={~p"/sources/#{@source.id}/media/#{media_item.id}/edit"} icon="hero-pencil-square" class="mr-4" />
         </:col>
       </.table>
       <section class="flex justify-center mt-5">
@@ -86,15 +85,14 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
 
   defp generate_base_query(source, "pending") do
     MediaQuery.new()
-    |> MediaQuery.for_source(source)
-    |> MediaQuery.where_pending_download()
+    |> MediaQuery.require_assoc(:media_profile)
+    |> where(^dynamic(^MediaQuery.for_source(source) and ^MediaQuery.pending()))
     |> order_by(desc: :id)
   end
 
   defp generate_base_query(source, "downloaded") do
     MediaQuery.new()
-    |> MediaQuery.for_source(source)
-    |> MediaQuery.with_media_filepath()
+    |> where(^dynamic(^MediaQuery.for_source(source) and ^MediaQuery.downloaded()))
     |> order_by(desc: :id)
   end
 end

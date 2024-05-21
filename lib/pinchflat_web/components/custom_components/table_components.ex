@@ -36,7 +36,7 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
         </tr>
       </thead>
       <tbody>
-        <tr :for={row <- @rows} class="border-b border-boxdark hover:border-strokedark">
+        <tr :for={row <- @rows} class="hover:bg-strokedark">
           <td
             :for={col <- @col}
             class={[

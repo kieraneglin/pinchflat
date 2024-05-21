@@ -63,15 +63,14 @@ defmodule Pinchflat.Lifecycle.Notifications.SourceNotifications do
 
   defp pending_media_item_count(source) do
     MediaQuery.new()
-    |> MediaQuery.for_source(source)
-    |> MediaQuery.where_pending_download()
+    |> MediaQuery.require_assoc(:media_profile)
+    |> where(^dynamic(^MediaQuery.for_source(source) and ^MediaQuery.pending()))
     |> Repo.aggregate(:count)
   end
 
   defp downloaded_media_item_count(source) do
     MediaQuery.new()
-    |> MediaQuery.for_source(source)
-    |> MediaQuery.with_media_filepath()
+    |> where(^dynamic(^MediaQuery.for_source(source) and ^MediaQuery.downloaded()))
     |> Repo.aggregate(:count)
   end
 

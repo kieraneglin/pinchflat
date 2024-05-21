@@ -85,10 +85,16 @@ defmodule Pinchflat.Downloading.DownloadingHelpers do
   """
   def kickoff_redownload_for_existing_media(%Source{} = source) do
     MediaQuery.new()
-    |> MediaQuery.for_source(source)
-    |> MediaQuery.with_media_downloaded_at()
-    |> MediaQuery.where_download_not_prevented()
-    |> MediaQuery.where_not_culled()
+    |> MediaQuery.require_assoc(:media_profile)
+    |> where(
+      ^dynamic(
+        [m, s, mp],
+        ^MediaQuery.for_source(source) and
+          ^MediaQuery.downloaded() and
+          not (^MediaQuery.download_prevented()) and
+          not (^MediaQuery.culled())
+      )
+    )
     |> Repo.all()
     |> Enum.map(&MediaDownloadWorker.kickoff_with_task/1)
   end

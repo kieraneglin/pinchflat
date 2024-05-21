@@ -49,8 +49,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
 
   defp list_media_items_by_media_id_for(source, media_ids) do
     MediaQuery.new()
-    |> MediaQuery.for_source(source)
-    |> MediaQuery.with_media_ids(media_ids)
+    |> where(^dynamic([mi], ^MediaQuery.for_source(source) and mi.media_id in ^media_ids))
     |> Repo.all()
   end
 
