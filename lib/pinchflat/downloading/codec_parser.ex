@@ -1,5 +1,35 @@
 defmodule Pinchflat.Downloading.CodecParser do
-  # TODO: test
+  @moduledoc """
+  Functions for generating yt-dlp codec strings
+  """
+
+  alias Pinchflat.Settings
+
+  @doc """
+  Generate a video codec string based on the value of the video_codec_preference setting.
+
+  Returns binary()
+  """
+  def generate_vcodec_string_from_settings do
+    generate_vcodec_string(Settings.get!(:video_codec_preference))
+  end
+
+  @doc """
+  Generate an audio codec string based on the value of the audio_codec_preference setting.
+
+  Returns binary()
+  """
+  def generate_acodec_string_from_settings do
+    generate_acodec_string(Settings.get!(:audio_codec_preference))
+  end
+
+  @doc """
+  Generate a video codec string from a list of video codecs.
+
+  If the list is nil or empty, the default video codec is AVC.
+
+  Returns binary()
+  """
   def generate_vcodec_string(nil), do: "bestvideo[vcodec~='^avc']/bestvideo"
   def generate_vcodec_string([]), do: generate_vcodec_string(nil)
 
@@ -8,12 +38,18 @@ defmodule Pinchflat.Downloading.CodecParser do
     |> Enum.map(&video_codec_map()[&1])
     |> Enum.reject(&is_nil/1)
     |> Enum.map(&"bestvideo[vcodec~='^#{&1}']")
-    |> Enum.concat(["bestvideo", "best"])
+    |> Enum.concat(["bestvideo"])
     |> Enum.join("/")
   end
 
-  # TODO: test
-  def generate_acodec_string(nil), do: "bestaudio[acodec~='^mp4a']/bestaudio[acodec~='^mp3']/bestaudio"
+  @doc """
+  Generate an audio codec string from a list of audio codecs.
+
+  If the list is nil or empty, the default audio codec is MP4A.
+
+  Returns binary()
+  """
+  def generate_acodec_string(nil), do: "bestaudio[acodec~='^mp4a']/bestaudio"
   def generate_acodec_string([]), do: generate_acodec_string(nil)
 
   def generate_acodec_string(audio_codecs) do
@@ -21,7 +57,7 @@ defmodule Pinchflat.Downloading.CodecParser do
     |> Enum.map(&audio_codec_map()[&1])
     |> Enum.reject(&is_nil/1)
     |> Enum.map(&"bestaudio[acodec~='^#{&1}']")
-    |> Enum.concat(["bestaudio", "best"])
+    |> Enum.concat(["bestaudio"])
     |> Enum.join("/")
   end
 
@@ -35,15 +71,10 @@ defmodule Pinchflat.Downloading.CodecParser do
 
   defp audio_codec_map do
     %{
-      "flac" => "flac",
-      "alac" => "alac",
-      "wav" => "wav",
-      "aiff" => "aiff",
       "aac" => "aac",
       "mp4a" => "mp4a",
       "mp3" => "mp3",
-      "opus" => "opus",
-      "vorbis" => "vorbis"
+      "opus" => "opus"
     }
   end
 end

@@ -44,7 +44,6 @@ defmodule Pinchflat.Settings.Setting do
     |> validate_required(@required_fields)
   end
 
-  # TODO: test
   defp convert_codec_preference_strings(changeset) do
     fields = [
       video_codec_preference_string: :video_codec_preference,

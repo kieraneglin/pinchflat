@@ -15,11 +15,10 @@ defmodule PinchflatWeb.MediaItems.MediaItemHTML do
     !!media_item.media_filepath and File.exists?(media_item.media_filepath)
   end
 
-  # TODO: update for new format types
   def media_type(media_item) do
     case Path.extname(media_item.media_filepath) do
       ext when ext in [".mp4", ".webm", ".mkv"] -> :video
-      ext when ext in [".mp3", ".m4a"] -> :audio
+      ext when ext in [".mp3", ".m4a", ".opus"] -> :audio
       _ -> :unknown
     end
   end
