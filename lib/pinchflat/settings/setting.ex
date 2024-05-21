@@ -11,7 +11,9 @@ defmodule Pinchflat.Settings.Setting do
     :pro_enabled,
     :yt_dlp_version,
     :apprise_version,
-    :apprise_server
+    :apprise_server,
+    :video_codec_preference,
+    :audio_codec_preference
   ]
 
   @required_fields ~w(
@@ -25,6 +27,11 @@ defmodule Pinchflat.Settings.Setting do
     field :yt_dlp_version, :string
     field :apprise_version, :string
     field :apprise_server, :string
+
+    field :video_codec_preference, {:array, :string}, default: []
+    field :audio_codec_preference, {:array, :string}, default: []
+    field :video_codec_preference_string, :string, virtual: true
+    field :audio_codec_preference_string, :string, virtual: true
   end
 
   @doc false
