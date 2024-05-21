@@ -23,6 +23,7 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
 
   def friendly_resolution_options do
     [
+      {"8k", "4320p"},
       {"4k", "2160p"},
       {"1080p", "1080p"},
       {"720p", "720p"},
