@@ -12,6 +12,7 @@ defmodule PinchflatWeb.Settings.SettingController do
 
   def update(conn, %{"setting" => setting_params}) do
     setting = Settings.record()
+    IO.inspect(setting_params)
 
     case Settings.update_setting(setting, setting_params) do
       {:ok, _} ->

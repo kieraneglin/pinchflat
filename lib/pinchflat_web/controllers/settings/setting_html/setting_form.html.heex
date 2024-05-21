@@ -15,5 +15,34 @@
     ) %>
   </section>
 
+  <section class="mt-10">
+    <h3 class="text-2xl text-black dark:text-white">
+      Advanced Options
+    </h3>
+
+    <%!-- TODO: add codec docs --%>
+    <.input
+      id="video_codec_preference_string"
+      name="setting[video_codec_preference_string]"
+      value={Enum.join(f[:video_codec_preference].value, ">")}
+      placeholder="avc>vp9>av01"
+      type="text"
+      label="Video Codec Preference"
+      help="Order of preference for video codecs. Separate with >. See below for available codecs TODO"
+      inputclass="font-mono text-sm mr-4"
+    />
+
+    <.input
+      id="audio_codec_preference_string"
+      name="setting[audio_codec_preference_string]"
+      value={Enum.join(f[:audio_codec_preference].value, ">")}
+      placeholder="mp4a>opus>aac"
+      type="text"
+      label="Audio Codec Preference"
+      help="Order of preference for audio codecs. Separate with >. See below for available codecs TODO"
+      inputclass="font-mono text-sm mr-4"
+    />
+  </section>
+
   <.button class="mt-10 mb-4 sm:mb-8 w-full sm:w-auto" rounding="rounded-lg">Save Settings</.button>
 </.simple_form>
