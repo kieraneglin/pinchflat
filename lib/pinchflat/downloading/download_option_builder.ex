@@ -6,6 +6,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
   alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
+  alias Pinchflat.Downloading.CodecParser
   alias Pinchflat.Downloading.OutputPathBuilder
 
   alias Pinchflat.Utils.FilesystemUtils, as: FSUtils
@@ -120,23 +121,32 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
     end)
   end
 
+  # TODO: test
   defp quality_options(media_profile) do
+    vcodec_string = CodecParser.generate_vcodec_string(["vp9", "av01"])
+    acodec_string = CodecParser.generate_acodec_string(["opus", "aac", "mp4a"])
+
     video_codec_option = fn res ->
-      [format_sort: "res:#{res},+codec:avc:m4a", remux_video: "mp4"]
+      [
+        format_sort: "res:#{res}",
+        # Since Plex doesn't support reading metadata from MKV
+        remux_video: "mp4",
+        format: "((#{vcodec_string})+(#{acodec_string}))/best"
+      ]
     end
 
-    audio_format_precedence = [
-      "bestaudio[ext=m4a]",
-      "bestaudio[ext=mp3]",
-      "bestaudio",
-      "best[ext=m4a]",
-      "best[ext=mp3]",
-      "best"
-    ]
+    # audio_format_precedence = [
+    #   "bestaudio[ext=m4a]",
+    #   "bestaudio[ext=mp3]",
+    #   "bestaudio",
+    #   "best[ext=m4a]",
+    #   "best[ext=mp3]",
+    #   "best"
+    # ]
 
     case media_profile.preferred_resolution do
       # Also be aware that :audio disabled all embedding options for subtitles
-      :audio -> [:extract_audio, format: Enum.join(audio_format_precedence, "/")]
+      :audio -> [:extract_audio, format: "#{acodec_string}/best"]
       :"360p" -> video_codec_option.("360")
       :"480p" -> video_codec_option.("480")
       :"720p" -> video_codec_option.("720")
