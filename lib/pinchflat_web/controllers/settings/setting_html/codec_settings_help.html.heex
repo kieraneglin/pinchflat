@@ -1,0 +1,17 @@
+<aside>
+  <h2 class="text-xl font-bold mb-2">Codec Preferences</h2>
+  <section class="ml-2 md:ml-4 mb-2 max-w-prose">
+    <section>
+      Available video codecs:
+      <ul class="list-disc ml-8">
+        <li :for={{codec, _} <- CodecParser.video_codec_map()}><%= codec %></li>
+      </ul>
+    </section>
+    <section class="mt-4">
+      Available audio codecs:
+      <ul class="list-disc ml-8">
+        <li :for={{codec, _} <- CodecParser.audio_codec_map()}><%= codec %></li>
+      </ul>
+    </section>
+  </section>
+</aside>

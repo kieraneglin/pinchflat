@@ -6,6 +6,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
 
   alias Pinchflat.Sources
   alias Pinchflat.Profiles
+  alias Pinchflat.Settings
   alias Pinchflat.Utils.FilesystemUtils
   alias Pinchflat.Downloading.DownloadOptionBuilder
 
@@ -244,7 +245,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
   end
 
   describe "build/1 when testing quality options" do
-    test "it includes quality options" do
+    test "includes quality options" do
       resolutions = ["360", "480", "720", "1080", "2160", "4320"]
 
       Enum.each(resolutions, fn resolution ->
@@ -255,20 +256,34 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
         media_item = Repo.preload(media_item_fixture(source_id: source.id), source: :media_profile)
 
         assert {:ok, res} = DownloadOptionBuilder.build(media_item)
-        assert {:format_sort, "res:#{resolution},+codec:avc:m4a"} in res
+        assert {:format_sort, "res:#{resolution}"} in res
+
+        assert {:format, "((bestvideo[vcodec~='^avc']/bestvideo)+(bestaudio[acodec~='^mp4a']/bestaudio))/best"} in res
+
         assert {:remux_video, "mp4"} in res
       end)
     end
 
-    test "it includes quality options for audio only", %{media_item: media_item} do
+    test "includes quality options for audio only", %{media_item: media_item} do
       media_item = update_media_profile_attribute(media_item, %{preferred_resolution: :audio})
 
       assert {:ok, res} = DownloadOptionBuilder.build(media_item)
 
       assert :extract_audio in res
-      assert {:format, "bestaudio[ext=m4a]/bestaudio[ext=mp3]/bestaudio/best[ext=m4a]/best[ext=mp3]/best"} in res
+      assert {:format, "bestaudio[acodec~='^mp4a']/bestaudio/best"} in res
 
       refute {:remux_video, "mp4"} in res
+    end
+
+    test "includes custom quality options if specified", %{media_item: media_item} do
+      Settings.set(video_codec_preference: ["av01"])
+      Settings.set(audio_codec_preference: ["aac"])
+
+      media_item = update_media_profile_attribute(media_item, %{preferred_resolution: :"1080p"})
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+
+      assert {:format, "((bestvideo[vcodec~='^av01']/bestvideo)+(bestaudio[acodec~='^aac']/bestaudio))/best"} in res
     end
   end
 

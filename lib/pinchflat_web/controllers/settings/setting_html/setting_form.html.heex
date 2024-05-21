@@ -1,18 +1,67 @@
-<.simple_form :let={f} for={@changeset} action={@action}>
+<.simple_form
+  :let={f}
+  for={@changeset}
+  action={@action}
+  x-data="{ advancedMode: !!JSON.parse(localStorage.getItem('advancedMode')) }"
+  x-init="$watch('advancedMode', value => localStorage.setItem('advancedMode', JSON.stringify(value)))"
+>
   <.error :if={@changeset.action}>
     Oops, something went wrong! Please check the errors below.
   </.error>
 
-  <h3 class="mt-2 md:mt-8 text-2xl text-black dark:text-white">
-    Notification Settings
-  </h3>
-
   <section>
+    <section class="flex justify-between items-center mt-4">
+      <h3 class="text-2xl text-black dark:text-white">
+        Notification Settings
+      </h3>
+      <span class="cursor-pointer hover:underline" x-on:click="advancedMode = !advancedMode">
+        Editing Mode: <span x-text="advancedMode ? 'Advanced' : 'Basic'"></span>
+      </span>
+    </section>
+
     <%= live_render(
       @conn,
       Pinchflat.Settings.AppriseServerLive,
       session: %{"value" => f[:apprise_server].value}
     ) %>
+  </section>
+
+  <section class="mt-10" x-show="advancedMode">
+    <section>
+      <h3 class="text-2xl text-black dark:text-white">
+        Codec Options
+      </h3>
+
+      <p class="text-sm mt-2 max-w-prose">
+        The best available codec will be used if your preferred codecs are not found
+      </p>
+
+      <.input
+        id="video_codec_preference_string"
+        name="setting[video_codec_preference_string]"
+        value={Enum.join(f[:video_codec_preference].value, ">")}
+        placeholder="avc>vp9>av01"
+        type="text"
+        label="Video Codec Preference"
+        help="Order of preference for video codecs. Separate with >. Will be remuxed into an MP4 container. See below for available codecs"
+        inputclass="font-mono text-sm mr-4"
+      />
+
+      <.input
+        id="audio_codec_preference_string"
+        name="setting[audio_codec_preference_string]"
+        value={Enum.join(f[:audio_codec_preference].value, ">")}
+        placeholder="mp4a>opus>aac"
+        type="text"
+        label="Audio Codec Preference"
+        help="Order of preference for audio codecs. Separate with >. See below for available codecs"
+        inputclass="font-mono text-sm mr-4"
+      />
+    </section>
+
+    <div class="rounded-sm dark:bg-meta-4 p-4 md:p-6 mt-5">
+      <.codec_settings_help />
+    </div>
   </section>
 
   <.button class="mt-10 mb-4 sm:mb-8 w-full sm:w-auto" rounding="rounded-lg">Save Settings</.button>

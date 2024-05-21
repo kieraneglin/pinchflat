@@ -18,7 +18,7 @@ defmodule PinchflatWeb.MediaItems.MediaItemHTML do
   def media_type(media_item) do
     case Path.extname(media_item.media_filepath) do
       ext when ext in [".mp4", ".webm", ".mkv"] -> :video
-      ext when ext in [".mp3", ".m4a"] -> :audio
+      ext when ext in [".mp3", ".m4a", ".opus"] -> :audio
       _ -> :unknown
     end
   end
