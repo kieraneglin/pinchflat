@@ -142,6 +142,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
       :"720p" -> video_codec_option.("720")
       :"1080p" -> video_codec_option.("1080")
       :"2160p" -> video_codec_option.("2160")
+      :"4320p" -> video_codec_option.("4320")
     end
   end
 

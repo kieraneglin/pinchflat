@@ -245,7 +245,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
 
   describe "build/1 when testing quality options" do
     test "it includes quality options" do
-      resolutions = ["360", "480", "720", "1080", "2160"]
+      resolutions = ["360", "480", "720", "1080", "2160", "4320"]
 
       Enum.each(resolutions, fn resolution ->
         resolution_atom = String.to_existing_atom(resolution <> "p")

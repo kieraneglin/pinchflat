@@ -63,7 +63,7 @@ defmodule Pinchflat.Profiles.MediaProfile do
     # See `build_format_clauses` in the Media context for more.
     field :shorts_behaviour, Ecto.Enum, values: ~w(include exclude only)a, default: :include
     field :livestream_behaviour, Ecto.Enum, values: ~w(include exclude only)a, default: :include
-    field :preferred_resolution, Ecto.Enum, values: ~w(2160p 1080p 720p 480p 360p audio)a, default: :"1080p"
+    field :preferred_resolution, Ecto.Enum, values: ~w(4320p 2160p 1080p 720p 480p 360p audio)a, default: :"1080p"
 
     has_many :sources, Source
 
