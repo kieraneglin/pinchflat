@@ -1,6 +1,8 @@
 defmodule PinchflatWeb.Settings.SettingHTML do
   use PinchflatWeb, :html
 
+  alias Pinchflat.Downloading.CodecParser
+
   embed_templates "setting_html/*"
 
   @doc """

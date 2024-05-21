@@ -106,4 +106,18 @@ defmodule Pinchflat.SettingsTest do
     assert ["avc", "vp9"] = changeset.changes.video_codec_preference
     assert ["aac", "opus"] = changeset.changes.audio_codec_preference
   end
+
+  test "downcases (video|audio)_codec_preference" do
+    setting = Settings.record()
+
+    new_setting = %{
+      video_codec_preference_string: "AVC>VP9",
+      audio_codec_preference_string: "AAC>OPUS"
+    }
+
+    changeset = Settings.change_setting(setting, new_setting)
+
+    assert ["avc", "vp9"] = changeset.changes.video_codec_preference
+    assert ["aac", "opus"] = changeset.changes.audio_codec_preference
+  end
 end

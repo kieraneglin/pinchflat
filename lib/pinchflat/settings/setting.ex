@@ -61,6 +61,7 @@ defmodule Pinchflat.Settings.Setting do
             |> String.split(">")
             |> Enum.map(&String.trim/1)
             |> Enum.reject(&(String.trim(&1) == ""))
+            |> Enum.map(&String.downcase/1)
 
           put_change(changeset, actual_field, new_value)
       end

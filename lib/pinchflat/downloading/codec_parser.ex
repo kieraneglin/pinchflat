@@ -61,7 +61,8 @@ defmodule Pinchflat.Downloading.CodecParser do
     |> Enum.join("/")
   end
 
-  defp video_codec_map do
+  @doc false
+  def video_codec_map do
     %{
       "av01" => "av01",
       "avc" => "avc",
@@ -69,7 +70,8 @@ defmodule Pinchflat.Downloading.CodecParser do
     }
   end
 
-  defp audio_codec_map do
+  @doc false
+  def audio_codec_map do
     %{
       "aac" => "aac",
       "mp4a" => "mp4a",
