@@ -31,6 +31,7 @@
   - [Unraid](#unraid)
   - [Portainer](#portainer)
   - [Docker](#docker)
+  - [Environment Variables](#environment-variables)
 - [Username and Password (authentication)](https://github.com/kieraneglin/pinchflat/wiki/Username-and-Password)
 - [Frequently asked questions](https://github.com/kieraneglin/pinchflat/wiki/Frequently-Asked-Questions)
 - [Documentation](https://github.com/kieraneglin/pinchflat/wiki)
