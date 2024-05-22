@@ -68,7 +68,7 @@ defmodule PinchflatWeb.Layouts do
         </span>
       </span>
 
-      <ul x-bind:class="selected ? 'block' :'hidden'">
+      <ul x-cloak x-show="selected">
         <li :for={menu <- @submenu} class="text-bodydark2">
           <.sidebar_link icon={menu[:icon]} text={menu[:text]} href={menu[:href]} target={menu[:target]} class="pl-10" />
         </li>
