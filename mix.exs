@@ -93,7 +93,15 @@ defmodule Pinchflat.MixProject do
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["tailwind default", "esbuild default"],
-      "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"]
+      "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"],
+      "ecto.migrate": [
+        "ecto.migrate",
+        "cmd yarn run sqleton -o priv/repo/erd.png priv/repo/pinchflat_dev.db"
+      ],
+      "ecto.rollback": [
+        "ecto.rollback",
+        "cmd yarn run sqleton -o priv/repo/erd.png priv/repo/pinchflat_dev.db"
+      ]
     ]
   end
 end
