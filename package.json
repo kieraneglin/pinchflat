@@ -4,5 +4,8 @@
     "prettier": "3.2.4",
     "sqleton": "https://github.com/kieraneglin/sqleton#ke/add-index-support"
   },
+  "scripts": {
+    "create-erd": "sqleton -o priv/repo/erd.png priv/repo/pinchflat_dev.db"
+  },
   "private": true
 }

@@ -96,11 +96,11 @@ defmodule Pinchflat.MixProject do
       "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"],
       "ecto.migrate": [
         "ecto.migrate",
-        "cmd yarn run sqleton -o priv/repo/erd.png priv/repo/pinchflat_dev.db"
+        ~s(cmd [ -z "$MIX_ENV" ] && yarn run create-erd || echo "No ERD generated")
       ],
       "ecto.rollback": [
         "ecto.rollback",
-        "cmd yarn run sqleton -o priv/repo/erd.png priv/repo/pinchflat_dev.db"
+        ~s(cmd [ -z "$MIX_ENV" ] && yarn run create-erd || echo "No ERD generated")
       ]
     ]
   end
