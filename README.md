@@ -141,6 +141,18 @@ As pointed out in [#137](https://github.com/kieraneglin/pinchflat/issues/137), S
 
 If you change this setting and it works well for you, please leave a comment on [#137](https://github.com/kieraneglin/pinchflat/issues/137)! Doubly so if it does _not_ work well.
 
+### Environment variables
+
+| Name                  | Required? | Default                   | Notes                                                                                          |
+| --------------------- | --------- | ------------------------- | ---------------------------------------------------------------------------------------------- |
+| TZ                    | No        | `UTC`                     | Must follow IANA TZ format                                                                     |
+| LOG_LEVEL             | No        | `debug`                   | Can be set to `info`                                                                           |
+| BASIC_AUTH_USERNAME   | No        |                           | See [authentication docs](https://github.com/kieraneglin/pinchflat/wiki/Username-and-Password) |
+| BASIC_AUTH_PASSWORD   | No        |                           | See [authentication docs](https://github.com/kieraneglin/pinchflat/wiki/Username-and-Password) |
+| EXPOSE_FEED_ENDPOINTS | No        |                           | See [RSS feed docs](https://github.com/kieraneglin/pinchflat/wiki/Podcast-RSS-Feeds)           |
+| JOURNAL_MODE          | No        | `wal`                     | Set to `delete` if your config directory is stored on a network share (not recommended)        |
+| TZ_DATA_DIR           | No        | `/etc/elixir_tzdata_data` | The container path where the timezone database is stored                                       |
+
 ## EFF donations
 
 Prior to 2024-05-10, a portion of all donations were given to the [Electronic Frontier Foundation](https://www.eff.org/). Now, the app doesn't accept donations that go to me personally and instead directs you straight to the EFF. [Here](https://github.com/kieraneglin/pinchflat/issues/234) are some people that have generously donated.
