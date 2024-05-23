@@ -47,6 +47,7 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
     source = Sources.get_source!(session["source_id"])
     base_query = generate_base_query(source, media_state)
     pagination_attrs = fetch_pagination_attributes(base_query, page)
+    PinchflatWeb.Endpoint.subscribe("media_table")
 
     {:ok, assign(socket, Map.merge(pagination_attrs, %{base_query: base_query, source: source}))}
   end
@@ -59,7 +60,13 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
     {:noreply, assign(socket, new_assigns)}
   end
 
-  def handle_event("reload_page", _params, %{assigns: assigns} = socket) do
+  def handle_event("reload_page", _params, socket) do
+    PinchflatWeb.Endpoint.broadcast("media_table", "reload", nil)
+
+    {:noreply, socket}
+  end
+
+  def handle_info(%{topic: "media_table", event: "reload"}, %{assigns: assigns} = socket) do
     new_assigns = fetch_pagination_attributes(assigns.base_query, assigns.page)
 
     {:noreply, assign(socket, new_assigns)}
@@ -93,6 +100,18 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
   defp generate_base_query(source, "downloaded") do
     MediaQuery.new()
     |> where(^dynamic(^MediaQuery.for_source(source) and ^MediaQuery.downloaded()))
+    |> order_by(desc: :id)
+  end
+
+  defp generate_base_query(source, "other") do
+    MediaQuery.new()
+    |> MediaQuery.require_assoc(:media_profile)
+    |> where(
+      ^dynamic(
+        ^MediaQuery.for_source(source) and
+          (not (^MediaQuery.downloaded()) and not (^MediaQuery.pending()))
+      )
+    )
     |> order_by(desc: :id)
   end
 end

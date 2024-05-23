@@ -4,6 +4,7 @@ defmodule PinchflatWeb.Sources.MediaItemTableLiveTest do
   import Phoenix.LiveViewTest
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
+  import Pinchflat.ProfilesFixtures
 
   alias Pinchflat.Sources.MediaItemTableLive
 
@@ -34,10 +35,8 @@ defmodule PinchflatWeb.Sources.MediaItemTableLiveTest do
 
   describe "media_state" do
     test "shows pending media when pending", %{conn: conn, source: source} do
-      downloaded_media_item = media_item_fixture(source_id: source.id, title: "DL-#{Enum.random(0..9999)}")
-
-      pending_media_item =
-        media_item_fixture(source_id: source.id, media_filepath: nil, title: "P-#{Enum.random(0..9999)}")
+      downloaded_media_item = media_item_fixture(source_id: source.id)
+      pending_media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
 
       {:ok, _view, html} = live_isolated(conn, MediaItemTableLive, session: create_session(source, "pending"))
 
@@ -52,6 +51,21 @@ defmodule PinchflatWeb.Sources.MediaItemTableLiveTest do
       {:ok, _view, html} = live_isolated(conn, MediaItemTableLive, session: create_session(source, "downloaded"))
 
       assert html =~ downloaded_media_item.title
+      refute html =~ pending_media_item.title
+    end
+
+    test "shows records that aren't pending or downloaded when other", %{conn: conn} do
+      media_profile = media_profile_fixture(shorts_behaviour: :exclude)
+      source = source_fixture(media_profile_id: media_profile.id)
+
+      downloaded_media_item = media_item_fixture(source_id: source.id)
+      pending_media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
+      other_media_item = media_item_fixture(source_id: source.id, media_filepath: nil, short_form_content: true)
+
+      {:ok, _view, html} = live_isolated(conn, MediaItemTableLive, session: create_session(source, "other"))
+
+      assert html =~ other_media_item.title
+      refute html =~ downloaded_media_item.title
       refute html =~ pending_media_item.title
     end
   end

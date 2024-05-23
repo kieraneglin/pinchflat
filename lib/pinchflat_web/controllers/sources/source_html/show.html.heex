@@ -36,21 +36,28 @@
           <.list_items_from_map map={Map.from_struct(@source)} />
         </div>
       </:tab>
-      <:tab title="Pending Media" id="pending">
+      <:tab title="Pending" id="pending">
         <%= live_render(
           @conn,
           Pinchflat.Sources.MediaItemTableLive,
           session: %{"source_id" => @source.id, "media_state" => "pending"}
         ) %>
       </:tab>
-      <:tab title="Downloaded Media" id="downloaded">
+      <:tab title="Downloaded" id="downloaded">
         <%= live_render(
           @conn,
           Pinchflat.Sources.MediaItemTableLive,
           session: %{"source_id" => @source.id, "media_state" => "downloaded"}
         ) %>
       </:tab>
-      <:tab title="Pending Tasks" id="tasks">
+      <:tab title="Other" id="other">
+        <%= live_render(
+          @conn,
+          Pinchflat.Sources.MediaItemTableLive,
+          session: %{"source_id" => @source.id, "media_state" => "other"}
+        ) %>
+      </:tab>
+      <:tab title="Tasks" id="tasks">
         <%= if match?([_|_], @pending_tasks) do %>
           <.table rows={@pending_tasks} table_class="text-black dark:text-white">
             <:col :let={task} label="Worker">
