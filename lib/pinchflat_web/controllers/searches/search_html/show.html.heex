@@ -10,18 +10,12 @@
       <%= if match?([_|_], @search_results) do %>
         <.table rows={@search_results} table_class="text-black dark:text-white">
           <:col :let={result} label="Title">
-            <%= result.title %>
+            <.subtle_link href={~p"/sources/#{result.source_id}/media/#{result.id}"}>
+              <%= StringUtils.truncate(result.title, 35) %>
+            </.subtle_link>
           </:col>
           <:col :let={result} label="Excerpt">
             <.highlight_search_terms text={result.matching_search_term} />
-          </:col>
-          <:col :let={result} label="" class="flex place-content-evenly">
-            <.link
-              href={~p"/sources/#{result.source_id}/media/#{result.id}"}
-              class="hover:text-secondary duration-200 ease-in-out mx-0.5"
-            >
-              <.icon name="hero-eye" />
-            </.link>
           </:col>
         </.table>
       <% else %>

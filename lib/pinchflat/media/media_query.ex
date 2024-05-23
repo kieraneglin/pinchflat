@@ -130,7 +130,8 @@ defmodule Pinchflat.Media.MediaQuery do
   def matches_search_term(term) do
     escaped_term = clean_search_term(term)
 
-    case String.trim(escaped_term) do
+    # Matching on `term` instead of `escaped_term` because the latter can mangle empty strings
+    case String.trim(term) do
       "" -> dynamic([mi], true)
       _ -> dynamic([mi], fragment("media_items_search_index MATCH ?", ^escaped_term))
     end
@@ -190,6 +191,9 @@ defmodule Pinchflat.Media.MediaQuery do
   #   - Wraps any word in quotes (must happen after the double quote replacement)
   #
   # This allows for works with apostrophes and quotes to be searched for correctly
+  defp clean_search_term(nil), do: ""
+  defp clean_search_term(""), do: ""
+
   defp clean_search_term(term) do
     term
     |> String.trim()
