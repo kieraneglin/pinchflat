@@ -3,10 +3,10 @@ defmodule Pinchflat.Repo.Migrations.ChangeMediaItemsSearchIndexTokenizer do
 
   def up do
     # These all need to run as part of separate `execute` blocks. Do NOT ask me why.
-    execute "DROP TRIGGER media_items_search_index_insert;"
-    execute "DROP TRIGGER media_items_search_index_update;"
-    execute "DROP TRIGGER media_items_search_index_delete;"
-    execute "DROP TABLE media_items_search_index;"
+    execute "DROP TRIGGER IF EXISTS media_items_search_index_insert;"
+    execute "DROP TRIGGER IF EXISTS media_items_search_index_update;"
+    execute "DROP TRIGGER IF EXISTS media_items_search_index_delete;"
+    execute "DROP TABLE IF EXISTS media_items_search_index;"
 
     execute """
       CREATE VIRTUAL TABLE media_items_search_index USING fts5(

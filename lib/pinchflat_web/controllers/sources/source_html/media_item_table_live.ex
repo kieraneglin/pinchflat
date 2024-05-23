@@ -72,7 +72,7 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
     media_state = session["media_state"]
     source = Sources.get_source!(session["source_id"])
     base_query = generate_base_query(source, media_state)
-    pagination_attrs = fetch_pagination_attributes(base_query, page, "friendly")
+    pagination_attrs = fetch_pagination_attributes(base_query, page, nil)
 
     new_assigns =
       Map.merge(
