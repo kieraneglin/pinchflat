@@ -74,6 +74,8 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
     {:noreply, assign(socket, new_assigns)}
   end
 
+  # This, along with the handle_info below, is a pattern to reload _all_
+  # tables on page rather than just the one that triggered the reload.
   def handle_event("reload_page", _params, socket) do
     PinchflatWeb.Endpoint.broadcast("media_table", "reload", nil)
 
