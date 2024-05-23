@@ -780,9 +780,10 @@ sprintf-js@^1.1.3:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.1.3.tgz#4914b903a2f8b685d17fdf78a70e917e872e444a"
   integrity sha512-Oo+0REFV59/rz3gfJNKQiBlwfHaSESl1pcGyABQsnnIfWOFt6JNj5gCog2U6MLZ//IGYD+nA8nI+mTShREReaA==
 
-"sqleton@https://github.com/kieraneglin/sqleton#ke/add-index-support":
-  version "2.1.0"
-  resolved "https://github.com/kieraneglin/sqleton#b066b39fd9f7caff7cc86d1d7d37088e74ae44f2"
+sqleton@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/sqleton/-/sqleton-2.2.0.tgz#d265b625c43ec552b5d3275c25b85dfec240d910"
+  integrity sha512-pfjBQRmrRNi4DEiX5X1akyLIG9z6UiG7Hi+5vwB/dG1ksgJ8yuL5na+3HI5nZqaWBJf91L340x55ZLdake9/yg==
   dependencies:
     sqlite3 "^5.1.4"
     yargs "^17.2.1"
