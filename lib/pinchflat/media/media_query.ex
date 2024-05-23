@@ -125,12 +125,28 @@ defmodule Pinchflat.Media.MediaQuery do
     )
   end
 
+  def matches_search_term(nil), do: dynamic([mi], true)
+
+  def matches_search_term(term) do
+    escaped_term = clean_search_term(term)
+
+    # Matching on `term` instead of `escaped_term` because the latter can mangle empty strings
+    case String.trim(term) do
+      "" -> dynamic([mi], true)
+      _ -> dynamic([mi], fragment("media_items_search_index MATCH ?", ^escaped_term))
+    end
+  end
+
   def require_assoc(query, identifier) do
     if has_named_binding?(query, identifier) do
       query
     else
       do_require_assoc(query, identifier)
     end
+  end
+
+  defp do_require_assoc(query, :media_items_search_index) do
+    from(mi in query, join: s in assoc(mi, :media_items_search_index), as: :media_items_search_index)
   end
 
   defp do_require_assoc(query, :source) do
@@ -148,9 +164,11 @@ defmodule Pinchflat.Media.MediaQuery do
   def matching_search_term(query, nil), do: query
 
   def matching_search_term(query, term) do
+    escaped_term = clean_search_term(term)
+
     from(mi in query,
       join: mi_search_index in assoc(mi, :media_items_search_index),
-      where: fragment("media_items_search_index MATCH ?", ^term),
+      where: fragment("media_items_search_index MATCH ?", ^escaped_term),
       select_merge: %{
         matching_search_term:
           fragment("""
@@ -161,5 +179,27 @@ defmodule Pinchflat.Media.MediaQuery do
       },
       order_by: [desc: fragment("rank")]
     )
+  end
+
+  # SQLite's FTS5 is very picky about what it will accept as a search term.
+  # To that end, we need to clean up the search term before passing it to the
+  # MATCH clause.
+  # This method:
+  #   - Trims leading and trailing whitespace
+  #   - Collapses multiple spaces into a single space
+  #   - Removes quote characters
+  #   - Wraps any word in quotes (must happen after the double quote replacement)
+  #
+  # This allows for works with apostrophes and quotes to be searched for correctly
+  defp clean_search_term(nil), do: ""
+  defp clean_search_term(""), do: ""
+
+  defp clean_search_term(term) do
+    term
+    |> String.trim()
+    |> String.replace(~r/\s+/, " ")
+    |> String.split(~r/\s+/)
+    |> Enum.map(fn str -> String.replace(str, ~s("), "") end)
+    |> Enum.map_join(" ", fn str -> ~s("#{str}") end)
   end
 end

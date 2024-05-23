@@ -727,6 +727,17 @@ defmodule Pinchflat.MediaTest do
     test "returns an empty list when the search term is nil" do
       assert [] = Media.search(nil)
     end
+
+    test "doesn't blow up if there's an apostrophe or quotes in the search term" do
+      assert [] = Media.search("don't expl'ode")
+      assert [] = Media.search(~s(dont expl"o"de))
+      assert [] = Media.search(~s(dont explo"de))
+    end
+
+    test "doesn't blow up if there is a trailing operand" do
+      assert [] = Media.search("foo OR")
+      assert [] = Media.search("foo AND")
+    end
   end
 
   describe "get_media_item!/1" do
