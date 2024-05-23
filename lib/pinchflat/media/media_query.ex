@@ -125,12 +125,25 @@ defmodule Pinchflat.Media.MediaQuery do
     )
   end
 
+  def matches_search_term(nil), do: dynamic([mi], true)
+
+  def matches_search_term(term) do
+    case String.trim(term) do
+      "" -> dynamic([mi], true)
+      term -> dynamic([mi], fragment("media_items_search_index MATCH ?", ^term))
+    end
+  end
+
   def require_assoc(query, identifier) do
     if has_named_binding?(query, identifier) do
       query
     else
       do_require_assoc(query, identifier)
     end
+  end
+
+  defp do_require_assoc(query, :media_items_search_index) do
+    from(mi in query, join: s in assoc(mi, :media_items_search_index), as: :media_items_search_index)
   end
 
   defp do_require_assoc(query, :source) do
