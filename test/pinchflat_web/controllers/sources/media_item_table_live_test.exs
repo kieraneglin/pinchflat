@@ -68,6 +68,14 @@ defmodule PinchflatWeb.Sources.MediaItemTableLiveTest do
       refute html =~ downloaded_media_item.title
       refute html =~ pending_media_item.title
     end
+
+    test "shows 'Manually Ignored' column when other", %{conn: conn, source: source} do
+      _media_item = media_item_fixture(source_id: source.id, prevent_download: true, media_filepath: nil)
+
+      {:ok, _view, html} = live_isolated(conn, MediaItemTableLive, session: create_session(source, "other"))
+
+      assert html =~ "Manually Ignored?"
+    end
   end
 
   defp create_session(source, media_state \\ "pending") do

@@ -30,6 +30,9 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
             <%= StringUtils.truncate(media_item.title, 50) %>
           </.subtle_link>
         </:col>
+        <:col :let={media_item} :if={@media_state == "other"} label="Manually Ignored?">
+          <.icon name={if media_item.prevent_download, do: "hero-check", else: "hero-x-mark"} />
+        </:col>
         <:col :let={media_item} label="" class="flex justify-end">
           <.icon_link href={~p"/sources/#{@source.id}/media/#{media_item.id}/edit"} icon="hero-pencil-square" class="mr-4" />
         </:col>
@@ -42,14 +45,25 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
   end
 
   def mount(_params, session, socket) do
+    PinchflatWeb.Endpoint.subscribe("media_table")
+
     page = 1
     media_state = session["media_state"]
     source = Sources.get_source!(session["source_id"])
     base_query = generate_base_query(source, media_state)
     pagination_attrs = fetch_pagination_attributes(base_query, page)
-    PinchflatWeb.Endpoint.subscribe("media_table")
 
-    {:ok, assign(socket, Map.merge(pagination_attrs, %{base_query: base_query, source: source}))}
+    new_assigns =
+      Map.merge(
+        pagination_attrs,
+        %{
+          base_query: base_query,
+          source: source,
+          media_state: media_state
+        }
+      )
+
+    {:ok, assign(socket, new_assigns)}
   end
 
   def handle_event("page_change", %{"direction" => direction}, %{assigns: assigns} = socket) do
