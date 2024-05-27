@@ -183,7 +183,7 @@
         options={friendly_format_type_options()}
         type="select"
         label="Include Livestreams"
-        help="Excludes media that comes from a past livestream"
+        help="How to handle past livestreams"
         x-init="$watch('selectedPreset', p => p && ($el.value = presets[p]))"
       />
     </section>
