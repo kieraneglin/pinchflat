@@ -85,6 +85,7 @@ defmodule PinchflatWeb.MediaItems.MediaItemController do
           |> put_resp_header("accept-ranges", "bytes")
           |> put_resp_header("content-range", "bytes #{start_pos}-#{end_pos}/#{file_size}")
           |> put_resp_header("content-length", to_string(length))
+          |> put_resp_header("content-disposition", "inline; filename=\"#{media_item.title}\"")
           |> send_file(206, media_item.media_filepath, start_pos, length)
 
         {:error, :invalid_range} ->
@@ -92,8 +93,10 @@ defmodule PinchflatWeb.MediaItems.MediaItemController do
 
           conn
           |> put_resp_content_type(mime_type)
-          |> put_resp_header("content-length", to_string(file_size))
           |> put_resp_header("accept-ranges", "bytes")
+          |> put_resp_header("content-range", "bytes 0-#{file_size - 1}/#{file_size}")
+          |> put_resp_header("content-length", to_string(file_size))
+          |> put_resp_header("content-disposition", "inline; filename=\"#{media_item.title}\"")
           |> send_file(200, media_item.media_filepath)
       end
     else

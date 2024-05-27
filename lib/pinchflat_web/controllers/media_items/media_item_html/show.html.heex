@@ -32,8 +32,16 @@
               </div>
               <aside class="mt-4 xl:mt-0">
                 <div>Uploaded: <%= @media_item.upload_date %></div>
-                <div :if={URI.parse(@media_item.original_url).scheme =~ "http"}>
-                  <.subtle_link href={@media_item.original_url} target="_blank">Open Original</.subtle_link>
+                <div>
+                  <span :if={URI.parse(@media_item.original_url).scheme =~ "http"}>
+                    <.subtle_link href={@media_item.original_url} target="_blank">Open Original</.subtle_link>
+                    <span class="mx-2">or</span>
+                  </span>
+                  <span>
+                    <.subtle_link href={~p"/media/#{@media_item.uuid}/stream"} target="_blank">
+                      Open Local Stream
+                    </.subtle_link>
+                  </span>
                 </div>
                 <div class="mt-4 text-bodydark">
                   <.break_on_newline text={@media_item.description} />

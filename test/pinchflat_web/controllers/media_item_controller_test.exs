@@ -166,6 +166,7 @@ defmodule PinchflatWeb.MediaItemControllerTest do
       assert conn.status == 206
       assert {"content-range", "bytes 0-100/#{filesize}"} in conn.resp_headers
       assert {"content-length", "101"} in conn.resp_headers
+      assert {"content-disposition", "inline; filename=\"#{media_item.title}\""} in conn.resp_headers
     end
 
     test "streams the specified range", %{conn: conn, media_item: media_item} do
@@ -241,6 +242,8 @@ defmodule PinchflatWeb.MediaItemControllerTest do
 
       assert conn.status == 200
       assert {"content-length", to_string(filesize)} in conn.resp_headers
+      assert {"content-range", "bytes 0-#{filesize - 1}/#{filesize}"} in conn.resp_headers
+      assert {"content-disposition", "inline; filename=\"#{media_item.title}\""} in conn.resp_headers
     end
 
     test "streams the entire file", %{conn: conn, media_item: media_item} do
