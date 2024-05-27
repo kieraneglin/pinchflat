@@ -20,14 +20,14 @@ defmodule PinchflatWeb.Pages.PageController do
   end
 
   defp render_home_page(conn) do
+    downloaded_media_items = where(MediaQuery.new(), ^MediaQuery.downloaded())
+
     conn
     |> render(:home,
       media_profile_count: Repo.aggregate(MediaProfile, :count, :id),
       source_count: Repo.aggregate(Source, :count, :id),
-      media_item_count:
-        MediaQuery.new()
-        |> where(^MediaQuery.downloaded())
-        |> Repo.aggregate(:count, :id)
+      media_item_size: Repo.aggregate(downloaded_media_items, :sum, :media_size_bytes),
+      media_item_count: Repo.aggregate(downloaded_media_items, :count, :id)
     )
   end
 

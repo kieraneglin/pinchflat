@@ -1,4 +1,4 @@
-<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+<div class="grid grid-cols-1 gap-4 md:grid-cols-4">
   <div class="rounded-sm border px-7.5 py-6 shadow-default border-strokedark bg-boxdark">
     <a href={~p"/media_profiles"} class="mt-4 flex flex-col items-center justify-center">
       <span class="text-md font-medium">Media Profile(s)</span>
@@ -20,6 +20,14 @@
       <span class="text-md font-medium">Downloaded Media</span>
       <h4 class="text-title-md font-bold text-white">
         <%= @media_item_count %>
+      </h4>
+    </span>
+  </div>
+  <div class="rounded-sm border px-7.5 py-6 shadow-default border-strokedark bg-boxdark">
+    <span class="mt-4 flex flex-col items-center justify-center">
+      <span class="text-md font-medium">Library Size</span>
+      <h4 class="text-title-md font-bold text-white">
+        <%= readable_media_filesize(@media_item_size) %>
       </h4>
     </span>
   </div>
