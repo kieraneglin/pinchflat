@@ -10,7 +10,7 @@ defmodule PinchflatWeb.Router do
     plug :fetch_session
     plug :fetch_live_flash
     plug :put_root_layout, html: {PinchflatWeb.Layouts, :root}
-    plug :protect_from_forgery
+    plug :protect_from_forgery, with: :clear_session
     plug :put_secure_browser_headers
     plug :allow_iframe_embed
   end
