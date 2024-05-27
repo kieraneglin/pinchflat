@@ -72,7 +72,9 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
       end)
 
     Sources.update_source(source, %{last_indexed_at: DateTime.utc_now()})
-    DownloadingHelpers.enqueue_pending_download_tasks(source)
+    # Wait 5s before enqueuing downloads to give the post-indexing user script a chance to run
+    # TODO: test
+    DownloadingHelpers.enqueue_pending_download_tasks(source, kickoff_delay: 5)
 
     result
   end
@@ -125,7 +127,9 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
 
     case Media.create_media_item_from_backend_attrs(source, media_attrs) do
       {:ok, %MediaItem{} = media_item} ->
-        DownloadingHelpers.kickoff_download_if_pending(media_item)
+        # Wait 5s before enqueuing downloads to give the post-indexing user script a chance to run
+        # TODO: test
+        DownloadingHelpers.kickoff_download_if_pending(media_item, kickoff_delay: 5)
 
       {:error, changeset} ->
         changeset

@@ -42,7 +42,9 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
         end
       end)
 
-    DownloadingHelpers.enqueue_pending_download_tasks(source)
+    # Wait 5s before enqueuing downloads to give the post-indexing user script a chance to run
+    # TODO: test
+    DownloadingHelpers.enqueue_pending_download_tasks(source, kickoff_delay: 5)
 
     Enum.filter(maybe_new_media_items, & &1)
   end
