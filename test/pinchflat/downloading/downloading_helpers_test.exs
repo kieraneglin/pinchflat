@@ -6,8 +6,12 @@ defmodule Pinchflat.Downloading.DownloadingHelpersTest do
   import Pinchflat.ProfilesFixtures
 
   alias Pinchflat.Tasks
+  alias Pinchflat.Media.MediaItem
+  alias Pinchflat.Utils.FilesystemUtils
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.Downloading.MediaDownloadWorker
+
+  alias Pinchflat.YtDlp.Media, as: YtDlpMedia
 
   describe "enqueue_pending_download_tasks/1" do
     test "it enqueues a job for each pending media item" do
@@ -17,6 +21,16 @@ defmodule Pinchflat.Downloading.DownloadingHelpersTest do
       assert :ok = DownloadingHelpers.enqueue_pending_download_tasks(source)
 
       assert_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
+    end
+
+    test "it can optionally delay when those jobs are enqueued" do
+      source = source_fixture()
+      _media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
+
+      assert :ok = DownloadingHelpers.enqueue_pending_download_tasks(source, kickoff_delay: 60)
+      [job] = all_enqueued(worker: MediaDownloadWorker)
+
+      assert_in_delta DateTime.diff(job.scheduled_at, now()), 60, 1
     end
 
     test "it does not enqueue a job for media items with a filepath" do
@@ -84,6 +98,13 @@ defmodule Pinchflat.Downloading.DownloadingHelpersTest do
       assert_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
     end
 
+    test "it can optionally delay when those jobs are enqueued", %{media_item: media_item} do
+      assert {:ok, _} = DownloadingHelpers.kickoff_download_if_pending(media_item, kickoff_delay: 60)
+      [job] = all_enqueued(worker: MediaDownloadWorker)
+
+      assert_in_delta DateTime.diff(job.scheduled_at, now()), 60, 1
+    end
+
     test "creates and returns a download task record", %{media_item: media_item} do
       assert {:ok, task} = DownloadingHelpers.kickoff_download_if_pending(media_item)
 
@@ -136,6 +157,69 @@ defmodule Pinchflat.Downloading.DownloadingHelpersTest do
       assert [] = DownloadingHelpers.kickoff_redownload_for_existing_media(source)
 
       refute_enqueued(worker: MediaDownloadWorker)
+    end
+  end
+
+  describe "create_media_item_and_run_script/2" do
+    setup do
+      FilesystemUtils.write_p!(filepath(), "")
+      File.chmod(filepath(), 0o755)
+
+      on_exit(fn -> File.rm(filepath()) end)
+
+      source = source_fixture()
+
+      media_attrs =
+        media_attributes_return_fixture()
+        |> Phoenix.json_library().decode!()
+        |> YtDlpMedia.response_to_struct()
+
+      {:ok, source: source, media_attrs: media_attrs}
+    end
+
+    test "creates a media item for a given source and attributes", %{source: source, media_attrs: media_attrs} do
+      assert {:ok, %MediaItem{} = media_item} = DownloadingHelpers.create_media_item_and_run_script(source, media_attrs)
+
+      assert media_item.source_id == source.id
+      assert media_item.title == media_attrs.title
+      assert media_item.media_id == media_attrs.media_id
+      assert media_item.original_url == media_attrs.original_url
+      assert media_item.description == media_attrs.description
+    end
+
+    test "returns an error if the media item cannot be created", %{source: source, media_attrs: media_attrs} do
+      media_attrs = %YtDlpMedia{media_attrs | media_id: nil}
+
+      assert {:error, %Ecto.Changeset{}} = DownloadingHelpers.create_media_item_and_run_script(source, media_attrs)
+    end
+
+    test "runs a script if the media item is created", %{source: source, media_attrs: media_attrs} do
+      # We *love* indirectly testing side effects
+      tmp_dir = Application.get_env(:pinchflat, :tmpfile_directory)
+      filename = "#{tmp_dir}/test_file-#{Enum.random(1..1000)}"
+      File.write(filepath(), "#!/bin/bash\ntouch #{filename}\n")
+
+      refute File.exists?(filename)
+      assert {:ok, %MediaItem{}} = DownloadingHelpers.create_media_item_and_run_script(source, media_attrs)
+      assert File.exists?(filename)
+    end
+
+    test "does not run a script if the media item already exists", %{source: source, media_attrs: media_attrs} do
+      {:ok, %MediaItem{}} = DownloadingHelpers.create_media_item_and_run_script(source, media_attrs)
+
+      tmp_dir = Application.get_env(:pinchflat, :tmpfile_directory)
+      filename = "#{tmp_dir}/test_file-#{Enum.random(1..1000)}"
+      File.write(filepath(), "#!/bin/bash\ntouch #{filename}\n")
+
+      refute File.exists?(filename)
+      assert {:ok, %MediaItem{}} = DownloadingHelpers.create_media_item_and_run_script(source, media_attrs)
+      refute File.exists?(filename)
+    end
+
+    defp filepath do
+      base_dir = Application.get_env(:pinchflat, :extras_directory)
+
+      Path.join([base_dir, "user-scripts", "lifecycle"])
     end
   end
 end

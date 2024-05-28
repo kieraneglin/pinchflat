@@ -158,6 +158,16 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       assert_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
     end
 
+    test "it enqueues the job with a small delay", %{source: source} do
+      media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
+
+      SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
+
+      [job] = all_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
+
+      assert_in_delta DateTime.diff(job.scheduled_at, now()), 5, 1
+    end
+
     test "it does not attach tasks if the source is set to not download" do
       source = source_fixture(download_media: false)
       media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
@@ -233,6 +243,26 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       refute_enqueued(worker: MediaDownloadWorker)
       SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
       assert_enqueued(worker: MediaDownloadWorker)
+    end
+
+    test "sets a small delay on the download job", %{source: source} do
+      watcher_poll_interval = Application.get_env(:pinchflat, :file_watcher_poll_interval)
+
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl_opts ->
+        filepath = Keyword.get(addl_opts, :output_filepath)
+        File.write(filepath, source_attributes_return_fixture())
+
+        # Need to add a delay to ensure the file watcher has time to read the file
+        :timer.sleep(watcher_poll_interval * 2)
+        # We know we're testing the file watcher since the syncronous call will only
+        # return an empty string (creating no records)
+        {:ok, ""}
+      end)
+
+      SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
+      [job | _] = all_enqueued(worker: MediaDownloadWorker)
+
+      assert_in_delta DateTime.diff(job.scheduled_at, now()), 5, 1
     end
 
     test "does not enqueue downloads if the source is set to not download" do

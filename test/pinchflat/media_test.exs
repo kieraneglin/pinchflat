@@ -835,6 +835,18 @@ defmodule Pinchflat.MediaTest do
       assert media_item_1.id == media_item_2.id
       assert media_item_2.title == different_attrs.title
     end
+
+    test "returns an error if the media item cannot be created" do
+      source = source_fixture()
+
+      media_attrs =
+        media_attributes_return_fixture()
+        |> Phoenix.json_library().decode!()
+        |> Map.put("id", nil)
+        |> YtDlpMedia.response_to_struct()
+
+      assert {:error, %Ecto.Changeset{}} = Media.create_media_item_from_backend_attrs(source, media_attrs)
+    end
   end
 
   describe "update_media_item/2" do
