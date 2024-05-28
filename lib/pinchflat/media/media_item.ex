@@ -69,7 +69,7 @@ defmodule Pinchflat.Media.MediaItem do
     field :short_form_content, :boolean, default: false
     field :media_downloaded_at, :utc_datetime
     field :media_redownloaded_at, :utc_datetime
-    field :upload_date, :date
+    field :uploaded_at, :utc_datetime
     field :upload_date_index, :integer, default: 0
     field :duration_seconds, :integer
 
