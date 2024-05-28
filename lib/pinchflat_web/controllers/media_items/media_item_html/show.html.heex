@@ -31,7 +31,7 @@
                 <.media_preview media_item={@media_item} />
               </div>
               <aside class="mt-4 xl:mt-0">
-                <div>Uploaded: <%= @media_item.upload_date %></div>
+                <div>Uploaded: <%= DateTime.to_date(@media_item.uploaded_at) %></div>
                 <div>
                   <span :if={URI.parse(@media_item.original_url).scheme =~ "http"}>
                     <.subtle_link href={@media_item.original_url} target="_blank">Open Original</.subtle_link>

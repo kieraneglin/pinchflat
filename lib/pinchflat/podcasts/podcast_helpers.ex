@@ -28,7 +28,7 @@ defmodule Pinchflat.Podcasts.PodcastHelpers do
 
     MediaQuery.new()
     |> where(^dynamic(^MediaQuery.for_source(source) and ^MediaQuery.downloaded()))
-    |> order_by(desc: :upload_date)
+    |> order_by(desc: :uploaded_at)
     |> Repo.maybe_limit(limit)
     |> Repo.all()
     |> Enum.filter(fn media_item -> File.exists?(media_item.media_filepath) end)

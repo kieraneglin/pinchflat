@@ -50,7 +50,7 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
           </.subtle_link>
         </:col>
         <:col :let={media_item} label="Upload Date">
-          <%= media_item.uploaded_at %>
+          <%= DateTime.to_date(media_item.uploaded_at) %>
         </:col>
         <:col :let={media_item} :if={@media_state == "other"} label="Manually Ignored?">
           <.icon name={if media_item.prevent_download, do: "hero-check", else: "hero-x-mark"} />
@@ -66,7 +66,6 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
     """
   end
 
-  # TODO: see how uploaded_at looks in the UI (above)
   def mount(_params, session, socket) do
     PinchflatWeb.Endpoint.subscribe("media_table")
 

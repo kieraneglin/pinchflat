@@ -90,7 +90,7 @@ defmodule Pinchflat.YtDlp.Media do
       livestream: !!response["was_live"],
       duration_seconds: response["duration"] && round(response["duration"]),
       short_form_content: response["webpage_url"] && short_form_content?(response),
-      uploaded_at: parse_uploaded_at(response)
+      uploaded_at: response["upload_date"] && parse_uploaded_at(response)
     }
   end
 

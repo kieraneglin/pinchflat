@@ -16,7 +16,7 @@ defmodule Pinchflat.Downloading.MediaQualityUpgradeWorkerTest do
       media_item =
         media_item_fixture(%{
           source_id: source.id,
-          upload_date: now_minus(6, :days),
+          uploaded_at: now_minus(6, :days),
           media_downloaded_at: now_minus(5, :days)
         })
 
@@ -32,7 +32,7 @@ defmodule Pinchflat.Downloading.MediaQualityUpgradeWorkerTest do
       _media_item =
         media_item_fixture(%{
           source_id: source.id,
-          upload_date: now_minus(6, :days),
+          uploaded_at: now_minus(6, :days),
           media_downloaded_at: now_minus(1, :day)
         })
 

@@ -38,7 +38,6 @@ defmodule Pinchflat.Metadata.NfoBuilder do
   end
 
   defp build_for_media_item(metadata) do
-    # TODO: see how this works post-change
     upload_date = MetadataFileHelpers.parse_upload_date(metadata["upload_date"])
     # Cribbed from a combination of the Kodi wiki, ytdl-nfo, and ytdl-sub.
     # WHO NEEDS A FANCY XML PARSER ANYWAY?!
