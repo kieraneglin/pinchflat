@@ -10,7 +10,6 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
   use Pinchflat.Media.MediaQuery
 
   alias Pinchflat.Repo
-  alias Pinchflat.Media
   alias Pinchflat.Sources.Source
   alias Pinchflat.FastIndexing.YoutubeRss
   alias Pinchflat.Downloading.DownloadingHelpers
@@ -43,7 +42,6 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
       end)
 
     # Wait 5s before enqueuing downloads to give the post-indexing user script a chance to run
-    # TODO: test
     DownloadingHelpers.enqueue_pending_download_tasks(source, kickoff_delay: 5)
 
     Enum.filter(maybe_new_media_items, & &1)
@@ -59,8 +57,8 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
     url = "https://www.youtube.com/watch?v=#{media_id}"
 
     case YtDlpMedia.get_media_attributes(url) do
-      {:ok, media_attrs} ->
-        Media.create_media_item_from_backend_attrs(source, media_attrs)
+      {:ok, media_attrs_struct} ->
+        DownloadingHelpers.create_media_item_and_run_script(source, media_attrs_struct)
 
       err ->
         err

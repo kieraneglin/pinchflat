@@ -28,6 +28,16 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
       assert worker.args["id"] == media_item.id
     end
 
+    test "enqueues the worker with a small delay", %{source: source} do
+      expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
+
+      FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+
+      [job | _] = all_enqueued(worker: MediaDownloadWorker)
+
+      assert_in_delta DateTime.diff(job.scheduled_at, now()), 5, 1
+    end
+
     test "does not enqueue a new worker for the source's media IDs we already know about", %{source: source} do
       expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
       media_item_fixture(source_id: source.id, media_id: "test_1")

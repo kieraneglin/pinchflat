@@ -35,6 +35,8 @@ defmodule Pinchflat.Media.MediaQuery do
   def culling_prevented, do: dynamic([mi], mi.prevent_culling == true)
   def culled, do: dynamic([mi], not is_nil(mi.culled_at))
   def redownloaded, do: dynamic([mi], not is_nil(mi.media_redownloaded_at))
+  def media_id(nil), do: dynamic(false)
+  def media_id(media_id), do: dynamic([mi], mi.media_id == ^media_id)
 
   def upload_date_after_source_cutoff do
     dynamic([mi, source], is_nil(source.download_cutoff_date) or mi.upload_date >= source.download_cutoff_date)

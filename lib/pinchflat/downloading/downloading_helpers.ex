@@ -16,9 +16,13 @@ defmodule Pinchflat.Downloading.DownloadingHelpers do
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Downloading.MediaDownloadWorker
 
+  alias Pinchflat.Lifecycle.UserScripts.CommandRunner, as: UserScriptRunner
+
   @doc """
   Starts tasks for downloading media for any of a sources _pending_ media items.
   Jobs are not enqueued if the source is set to not download media. This will return :ok.
+
+  You can optionally set the `kickoff_delay` option to delay when the jobs are enqueued.
 
   NOTE: this starts a download for each media item that is pending,
   not just the ones that were indexed in this job run. This should ensure
@@ -30,8 +34,6 @@ defmodule Pinchflat.Downloading.DownloadingHelpers do
   def enqueue_pending_download_tasks(source, opts \\ [])
 
   def enqueue_pending_download_tasks(%Source{download_media: true} = source, opts) do
-    # TODO: test
-    # TODO: doc
     kickoff_delay = Keyword.get(opts, :kickoff_delay, 0)
 
     source
@@ -59,11 +61,11 @@ defmodule Pinchflat.Downloading.DownloadingHelpers do
   downloaded, based on the source's download settings and whether media is
   considered pending.
 
+  You can optionally set the `kickoff_delay` option to delay when the jobs are enqueued.
+
   Returns {:ok, %Task{}} | {:error, :should_not_download} | {:error, any()}
   """
   def kickoff_download_if_pending(%MediaItem{} = media_item, opts \\ []) do
-    # TODO: test
-    # TODO: doc
     kickoff_delay = Keyword.get(opts, :kickoff_delay, 0)
     media_item = Repo.preload(media_item, :source)
 
@@ -106,5 +108,33 @@ defmodule Pinchflat.Downloading.DownloadingHelpers do
     )
     |> Repo.all()
     |> Enum.map(&MediaDownloadWorker.kickoff_with_task/1)
+  end
+
+  @doc """
+  Creates a media item from the attributes returned by the video backend
+  (read: yt-dlp) and runs the user script with a `media_indexed` event type.
+
+  Only runs the user script if the media item was created successfully and the media item
+  doesn't already exist in the database.
+
+  Returns {:ok, %MediaItem{}} | {:error, any()}
+  """
+  def create_media_item_and_run_script(%Source{} = source, media_attrs_struct) do
+    media_already_exists =
+      MediaQuery.new()
+      |> where(^dynamic(^MediaQuery.for_source(source) and ^MediaQuery.media_id(media_attrs_struct.media_id)))
+      |> Repo.exists?()
+
+    case Media.create_media_item_from_backend_attrs(source, media_attrs_struct) do
+      {:ok, media_item} ->
+        if !media_already_exists do
+          UserScriptRunner.run(:media_indexed, media_item)
+        end
+
+        {:ok, media_item}
+
+      err ->
+        err
+    end
   end
 end

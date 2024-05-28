@@ -8,7 +8,6 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   require Logger
 
   alias Pinchflat.Repo
-  alias Pinchflat.Media
   alias Pinchflat.Tasks
   alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
@@ -39,6 +38,9 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   item belonging to the source. You can't tell me the method name isn't descriptive!
   Returns a list of media items or changesets (if the media item couldn't be created).
 
+  For each new media item, the method will also run a user script with the `media_indexed`
+  event, if the script is present.
+
   Indexing is slow and usually returns a list of all media data at once for record creation.
   To help with this, we use a file follower to watch the file that yt-dlp writes to
   so we can create media items as they come in. This parallelizes the process and adds
@@ -64,8 +66,8 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
     source = Repo.reload!(source)
 
     result =
-      Enum.map(media_attributes, fn media_attrs ->
-        case Media.create_media_item_from_backend_attrs(source, media_attrs) do
+      Enum.map(media_attributes, fn media_attrs_struct ->
+        case DownloadingHelpers.create_media_item_and_run_script(source, media_attrs_struct) do
           {:ok, media_item} -> media_item
           {:error, changeset} -> changeset
         end
@@ -73,7 +75,6 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
 
     Sources.update_source(source, %{last_indexed_at: DateTime.utc_now()})
     # Wait 5s before enqueuing downloads to give the post-indexing user script a chance to run
-    # TODO: test
     DownloadingHelpers.enqueue_pending_download_tasks(source, kickoff_delay: 5)
 
     result
@@ -120,15 +121,14 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
     end)
   end
 
-  defp create_media_item_and_enqueue_download(source, media_attrs) do
+  defp create_media_item_and_enqueue_download(source, media_attrs_struct) do
     # Reload because the source may have been updated during the (long-running) indexing process
     # and important settings like `download_media` may have changed.
     source = Repo.reload!(source)
 
-    case Media.create_media_item_from_backend_attrs(source, media_attrs) do
+    case DownloadingHelpers.create_media_item_and_run_script(source, media_attrs_struct) do
       {:ok, %MediaItem{} = media_item} ->
         # Wait 5s before enqueuing downloads to give the post-indexing user script a chance to run
-        # TODO: test
         DownloadingHelpers.kickoff_download_if_pending(media_item, kickoff_delay: 5)
 
       {:error, changeset} ->

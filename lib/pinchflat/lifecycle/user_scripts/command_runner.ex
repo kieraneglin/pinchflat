@@ -12,6 +12,7 @@ defmodule Pinchflat.Lifecycle.UserScripts.CommandRunner do
   @behaviour UserScriptCommandRunner
 
   @event_types [
+    :media_indexed,
     :media_downloaded,
     :media_deleted
   ]
