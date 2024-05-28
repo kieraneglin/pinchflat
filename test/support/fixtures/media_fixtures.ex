@@ -14,7 +14,9 @@ defmodule Pinchflat.MediaFixtures do
     media_id = Faker.String.base64(12)
 
     # TODO: remove
-    if attrs[:upload_date] || attrs["upload_date"] do
+    attrs2 = Enum.into(attrs, %{})
+
+    if attrs2[:upload_date] || attrs2["upload_date"] do
       raise "upload_date is not allowed in media_item_fixture. Use uploaded_at instead."
     end
 

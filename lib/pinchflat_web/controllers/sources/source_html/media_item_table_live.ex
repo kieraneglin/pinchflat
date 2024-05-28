@@ -50,7 +50,7 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
           </.subtle_link>
         </:col>
         <:col :let={media_item} label="Upload Date">
-          <%= media_item.upload_date %>
+          <%= media_item.uploaded_at %>
         </:col>
         <:col :let={media_item} :if={@media_state == "other"} label="Manually Ignored?">
           <.icon name={if media_item.prevent_download, do: "hero-check", else: "hero-x-mark"} />
@@ -66,6 +66,7 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
     """
   end
 
+  # TODO: see how uploaded_at looks in the UI (above)
   def mount(_params, session, socket) do
     PinchflatWeb.Endpoint.subscribe("media_table")
 
@@ -150,14 +151,14 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
     |> MediaQuery.require_assoc(:media_profile)
     |> MediaQuery.require_assoc(:media_items_search_index)
     |> where(^dynamic(^MediaQuery.for_source(source) and ^MediaQuery.pending()))
-    |> order_by(desc: fragment("rank"), desc: :upload_date)
+    |> order_by(desc: fragment("rank"), desc: :uploaded_at)
   end
 
   defp generate_base_query(source, "downloaded") do
     MediaQuery.new()
     |> MediaQuery.require_assoc(:media_items_search_index)
     |> where(^dynamic(^MediaQuery.for_source(source) and ^MediaQuery.downloaded()))
-    |> order_by(desc: fragment("rank"), desc: :upload_date)
+    |> order_by(desc: fragment("rank"), desc: :uploaded_at)
   end
 
   defp generate_base_query(source, "other") do
@@ -170,7 +171,7 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
           (not (^MediaQuery.downloaded()) and not (^MediaQuery.pending()))
       )
     )
-    |> order_by(desc: fragment("rank"), desc: :upload_date)
+    |> order_by(desc: fragment("rank"), desc: :uploaded_at)
   end
 
   defp filter_base_query(base_query, search_term) do
