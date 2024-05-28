@@ -26,7 +26,7 @@ defmodule Pinchflat.Media.MediaItem do
     :livestream,
     :source_id,
     :short_form_content,
-    :upload_date,
+    :uploaded_at,
     :upload_date_index,
     :duration_seconds,
     # these fields are captured only on download
