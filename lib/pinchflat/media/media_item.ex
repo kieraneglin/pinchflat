@@ -130,8 +130,7 @@ defmodule Pinchflat.Media.MediaItem do
     ~w(__meta__ __struct__ metadata tasks media_items_search_index)a
   end
 
-  # TODO: refactor
-  defp update_upload_date_index(%{changes: changes} = changeset) when is_map_key(changes, :upload_date) do
+  defp update_upload_date_index(%{changes: changes} = changeset) when is_map_key(changes, :uploaded_at) do
     source_id = get_field(changeset, :source_id)
     source = Sources.get_source!(source_id)
     # Channels should count down from 99, playlists should count up from 0
@@ -143,7 +142,7 @@ defmodule Pinchflat.Media.MediaItem do
 
     current_max =
       MediaQuery.new()
-      |> where(^dynamic([mi], mi.upload_date == ^changes.upload_date and ^MediaQuery.for_source(source)))
+      |> where(^dynamic([mi], ^MediaQuery.upload_date_matches(changes.uploaded_at) and ^MediaQuery.for_source(source)))
       |> Repo.aggregate(aggregator, :upload_date_index)
 
     case current_max do
