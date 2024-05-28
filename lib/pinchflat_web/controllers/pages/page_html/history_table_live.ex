@@ -32,7 +32,7 @@ defmodule Pinchflat.Pages.HistoryTableLive do
             </.subtle_link>
           </:col>
           <:col :let={media_item} label="Upload Date">
-            <%= media_item.upload_date %>
+            <%= DateTime.to_date(media_item.uploaded_at) %>
           </:col>
           <:col :let={media_item} label="Indexed At">
             <%= format_datetime(media_item.inserted_at) %>

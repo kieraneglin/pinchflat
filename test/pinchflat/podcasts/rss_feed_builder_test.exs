@@ -117,8 +117,8 @@ defmodule Pinchflat.Podcasts.RssFeedBuilderTest do
       assert String.contains?(item_xml, ~s(<itunes:summary><![CDATA[#{media_item.description}]]></itunes:summary>))
     end
 
-    test "returns pubDate based off the media's upload_date", %{source: source} do
-      media_item_with_attachments(%{source_id: source.id, upload_date: ~D[2020-01-01]})
+    test "returns pubDate based off the media's uploaded_at", %{source: source} do
+      media_item_with_attachments(%{source_id: source.id, uploaded_at: ~U[2020-01-01 00:00:00Z]})
 
       res = RssFeedBuilder.build(source)
       [_before, item_xml, _after] = String.split(res, ~r(</?item>))

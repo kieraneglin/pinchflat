@@ -9637,7 +9637,7 @@
   "uploader_url": "https://www.youtube.com/@PinchflatTestChannel",
   "upload_date": "20210720",
   "availability": "public",
-  "original_url": "ABC123",
+  "original_url": "https://www.youtube.com/watch?v=ABC123",
   "webpage_url_basename": "watch",
   "webpage_url_domain": "youtube.com",
   "extractor": "youtube",

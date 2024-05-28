@@ -88,14 +88,17 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
 
   @doc """
   Parses an upload date from the YYYYMMDD string returned in yt-dlp metadata
-  and returns a Date struct.
+  and returns a DateTime struct, appending a time of 00:00:00Z.
 
-  Returns Date.t()
+  Returns DateTime.t()
   """
   def parse_upload_date(upload_date) do
     <<year::binary-size(4)>> <> <<month::binary-size(2)>> <> <<day::binary-size(2)>> = upload_date
 
-    Date.from_iso8601!("#{year}-#{month}-#{day}")
+    case DateTime.from_iso8601("#{year}-#{month}-#{day}T00:00:00Z") do
+      {:ok, datetime, _} -> datetime
+      _ -> raise "Invalid upload date: #{upload_date}"
+    end
   end
 
   @doc """

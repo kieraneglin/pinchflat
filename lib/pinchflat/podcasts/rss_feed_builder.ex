@@ -7,7 +7,6 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
 
   import Pinchflat.Utils.XmlUtils, only: [safe: 1]
 
-  alias Pinchflat.Utils.DatetimeUtils
   alias Pinchflat.Podcasts.PodcastHelpers
   alias PinchflatWeb.Router.Helpers, as: Routes
 
@@ -83,7 +82,7 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
       <title>#{safe(media_item.title)}</title>
       <link>#{safe(media_item.original_url)}</link>
       <description>#{safe(media_item.description)}</description>
-      <pubDate>#{generate_upload_date(media_item)}</pubDate>
+      <pubDate>#{Calendar.strftime(media_item.uploaded_at, @datetime_format)}</pubDate>
       <itunes:duration>#{media_item.duration_seconds}</itunes:duration>
       <enclosure
         url="#{media_stream_path(url_base, media_item)}"
@@ -131,12 +130,6 @@ defmodule Pinchflat.Podcasts.RssFeedBuilder do
     else
       nil
     end
-  end
-
-  defp generate_upload_date(media_item) do
-    media_item.upload_date
-    |> DatetimeUtils.date_to_datetime()
-    |> Calendar.strftime(@datetime_format)
   end
 
   defp podcast_route(action, params) do

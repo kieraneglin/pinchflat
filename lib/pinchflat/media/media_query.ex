@@ -35,9 +35,14 @@ defmodule Pinchflat.Media.MediaQuery do
   def culling_prevented, do: dynamic([mi], mi.prevent_culling == true)
   def culled, do: dynamic([mi], not is_nil(mi.culled_at))
   def redownloaded, do: dynamic([mi], not is_nil(mi.media_redownloaded_at))
+  def upload_date_matches(other_date), do: dynamic([mi], fragment("date(?) = date(?)", mi.uploaded_at, ^other_date))
 
   def upload_date_after_source_cutoff do
-    dynamic([mi, source], is_nil(source.download_cutoff_date) or mi.upload_date >= source.download_cutoff_date)
+    dynamic(
+      [mi, source],
+      is_nil(source.download_cutoff_date) or
+        fragment("date(?) >= ?", mi.uploaded_at, source.download_cutoff_date)
+    )
   end
 
   def format_matching_profile_preference do
@@ -84,12 +89,12 @@ defmodule Pinchflat.Media.MediaQuery do
   def past_redownload_delay do
     dynamic(
       [mi, source, media_profile],
-      # Returns media items where the upload_date is at least redownload_delay_days ago AND
+      # Returns media items where the uploaded_at is at least redownload_delay_days ago AND
       # downloaded_at minus the redownload_delay_days is before the upload date
       fragment("""
         IFNULL(redownload_delay_days, 0) > 0 AND
-        DATETIME('now', '-' || redownload_delay_days || ' day') > upload_date AND
-        DATETIME(media_downloaded_at, '-' || redownload_delay_days || ' day') < upload_date
+        DATETIME('now', '-' || redownload_delay_days || ' day') > uploaded_at AND
+        DATETIME(media_downloaded_at, '-' || redownload_delay_days || ' day') < uploaded_at
       """)
     )
   end

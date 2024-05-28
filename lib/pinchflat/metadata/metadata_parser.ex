@@ -8,6 +8,8 @@ defmodule Pinchflat.Metadata.MetadataParser do
   and not have it, ya know?
   """
 
+  alias Pinchflat.YtDlp.Media, as: YtDlpMedia
+
   @doc """
   Parses the given JSON response from yt-dlp and returns a map of
   the needful media_item attributes, along with anything needed for
@@ -24,15 +26,12 @@ defmodule Pinchflat.Metadata.MetadataParser do
   end
 
   defp parse_media_metadata(metadata) do
-    %{
-      media_id: metadata["id"],
-      title: metadata["title"],
-      original_url: metadata["original_url"],
-      description: metadata["description"],
-      media_filepath: metadata["filepath"],
-      livestream: !!metadata["was_live"],
-      duration_seconds: metadata["duration"] && round(metadata["duration"])
-    }
+    Map.merge(
+      Map.from_struct(YtDlpMedia.response_to_struct(metadata)),
+      %{
+        media_filepath: metadata["filepath"]
+      }
+    )
   end
 
   defp parse_subtitle_metadata(metadata) do

@@ -41,9 +41,10 @@ defmodule Pinchflat.Media do
   Returns a list of media_items that are redownloadable based on the redownload delay
   of the media_profile their source belongs to.
 
-  The logic is that a media_item is past_redownload_delay if the media_item's
-  upload_date is at least redownload_delay_days ago AND
-  `media_downloaded_at` - `redownload_delay_days` is before the media_item's `upload_date`.
+  The logic is that a media_item is past_redownload_delay if the media_item's uploaded_at is
+  at least redownload_delay_days ago AND `media_downloaded_at` - `redownload_delay_days`
+  is before the media_item's `uploaded_at`.
+
   This logic grabs media that we've recently downloaded AND is recently uploaded, but
   doesn't grab media that we've recently downloaded and was uploaded a long time ago.
   This also makes things work as expected when downloading media from a source for the
@@ -135,7 +136,7 @@ defmodule Pinchflat.Media do
 
   Unlike `create_media_item`, this will attempt an update if the media_item
   already exists. This is so that future indexing can pick up attributes that
-  we may not have asked for in the past (eg: upload_date)
+  we may not have asked for in the past (eg: uploaded_at)
 
   Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}
   """
