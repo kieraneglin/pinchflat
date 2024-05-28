@@ -145,7 +145,7 @@ defmodule Pinchflat.MediaTest do
       media_item =
         media_item_fixture(%{
           source_id: source.id,
-          upload_date: now_minus(6, :days),
+          uploaded_at: now_minus(6, :days),
           media_downloaded_at: now_minus(5, :days)
         })
 
@@ -156,7 +156,7 @@ defmodule Pinchflat.MediaTest do
       media_item =
         media_item_fixture(%{
           source_id: source.id,
-          upload_date: now_minus(20, :days),
+          uploaded_at: now_minus(20, :days),
           media_downloaded_at: now_minus(19, :days)
         })
 
@@ -167,7 +167,7 @@ defmodule Pinchflat.MediaTest do
       _media_item =
         media_item_fixture(%{
           source_id: source.id,
-          upload_date: now_minus(5, :days),
+          uploaded_at: now_minus(5, :days),
           media_downloaded_at: nil
         })
 
@@ -178,7 +178,7 @@ defmodule Pinchflat.MediaTest do
       _media_item =
         media_item_fixture(%{
           source_id: source.id,
-          upload_date: now_minus(5, :days),
+          uploaded_at: now_minus(5, :days),
           media_downloaded_at: now(),
           prevent_download: true
         })
@@ -190,7 +190,7 @@ defmodule Pinchflat.MediaTest do
       _media_item =
         media_item_fixture(%{
           source_id: source.id,
-          upload_date: now_minus(5, :days),
+          uploaded_at: now_minus(5, :days),
           media_downloaded_at: now(),
           culled_at: now()
         })
@@ -202,7 +202,7 @@ defmodule Pinchflat.MediaTest do
       _media_item =
         media_item_fixture(%{
           source_id: source.id,
-          upload_date: now_minus(3, :days),
+          uploaded_at: now_minus(3, :days),
           media_downloaded_at: now_minus(3, :days)
         })
 
@@ -213,7 +213,7 @@ defmodule Pinchflat.MediaTest do
       _media_item =
         media_item_fixture(%{
           source_id: source.id,
-          upload_date: now_minus(5, :days),
+          uploaded_at: now_minus(5, :days),
           media_downloaded_at: now(),
           media_redownloaded_at: now()
         })
@@ -221,12 +221,12 @@ defmodule Pinchflat.MediaTest do
       assert Media.list_redownloadable_media_items() == []
     end
 
-    test "does not return media items that were first downloaded well after the upload_date", %{source: source} do
+    test "does not return media items that were first downloaded well after the uploaded_at", %{source: source} do
       _media_item =
         media_item_fixture(%{
           source_id: source.id,
           media_downloaded_at: now(),
-          upload_date: now_minus(20, :days)
+          uploaded_at: now_minus(20, :days)
         })
 
       assert Media.list_redownloadable_media_items() == []
@@ -237,7 +237,7 @@ defmodule Pinchflat.MediaTest do
         media_item_fixture(%{
           source_id: source.id,
           media_downloaded_at: now(),
-          upload_date: now_minus(2, :days)
+          uploaded_at: now_minus(2, :days)
         })
 
       assert Media.list_redownloadable_media_items() == []
@@ -250,7 +250,7 @@ defmodule Pinchflat.MediaTest do
       _media_item =
         media_item_fixture(%{
           source_id: source.id,
-          upload_date: now_minus(6, :days),
+          uploaded_at: now_minus(6, :days),
           media_downloaded_at: now_minus(5, :days)
         })
 
@@ -408,9 +408,9 @@ defmodule Pinchflat.MediaTest do
       source = source_fixture(%{download_cutoff_date: now_minus(1, :day)})
 
       _old_media_item =
-        media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now_minus(2, :days)})
+        media_item_fixture(%{source_id: source.id, media_filepath: nil, uploaded_at: now_minus(2, :days)})
 
-      new_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now()})
+      new_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, uploaded_at: now()})
 
       assert Media.list_pending_media_items_for(source) == [new_media_item]
     end
@@ -419,9 +419,9 @@ defmodule Pinchflat.MediaTest do
       source = source_fixture(%{download_cutoff_date: nil})
 
       old_media_item =
-        media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now_minus(2, :days)})
+        media_item_fixture(%{source_id: source.id, media_filepath: nil, uploaded_at: now_minus(2, :days)})
 
-      new_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now()})
+      new_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, uploaded_at: now()})
 
       assert Media.list_pending_media_items_for(source) == [old_media_item, new_media_item]
     end
@@ -486,21 +486,21 @@ defmodule Pinchflat.MediaTest do
 
     test "returns true if there is a cutoff date before the media's upload date" do
       source = source_fixture(%{download_cutoff_date: now_minus(2, :days)})
-      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now_minus(1, :day)})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, uploaded_at: now_minus(1, :day)})
 
       assert Media.pending_download?(media_item)
     end
 
     test "returns false if there is a cutoff date after the media's upload date" do
       source = source_fixture(%{download_cutoff_date: now_minus(1, :day)})
-      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now_minus(2, :days)})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, uploaded_at: now_minus(2, :days)})
 
       refute Media.pending_download?(media_item)
     end
 
     test "returns true if there is no cutoff date" do
       source = source_fixture(%{download_cutoff_date: nil})
-      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, upload_date: now_minus(1, :day)})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, uploaded_at: now_minus(1, :day)})
 
       assert Media.pending_download?(media_item)
     end
@@ -611,7 +611,7 @@ defmodule Pinchflat.MediaTest do
         media_filepath: "/video/#{Faker.File.file_name(:video)}",
         source_id: source_fixture().id,
         original_url: "https://www.youtube.com/channel/#{Faker.String.base64(12)}",
-        upload_date: Date.utc_today()
+        uploaded_at: now()
       }
 
       assert {:ok, %MediaItem{} = media_item} = Media.create_media_item(valid_attrs)
@@ -628,7 +628,7 @@ defmodule Pinchflat.MediaTest do
         media_filepath: "/video/#{Faker.File.file_name(:video)}",
         source_id: source_fixture().id,
         original_url: "https://www.youtube.com/channel/#{Faker.String.base64(12)}",
-        upload_date: Date.utc_today()
+        uploaded_at: now()
       }
 
       assert {:ok, %MediaItem{} = media_item} = Media.create_media_item(valid_attrs)
@@ -643,7 +643,7 @@ defmodule Pinchflat.MediaTest do
         media_filepath: "/video/#{Faker.File.file_name(:video)}",
         source_id: source_fixture().id,
         original_url: "https://www.youtube.com/channel/#{Faker.String.base64(12)}",
-        upload_date: Date.utc_today(),
+        uploaded_at: now(),
         uuid: "some-uuid"
       }
 
@@ -1006,7 +1006,7 @@ defmodule Pinchflat.MediaTest do
       media_item_new = media_item_fixture(%{source_id: source.id, uploaded_at: now()})
       media_item_old = media_item_fixture(%{source_id: source.id, uploaded_at: now_minus(1, :day)})
 
-      {:ok, updated_media_item} = Media.update_media_item(media_item_old, %{upload_date: now()})
+      {:ok, updated_media_item} = Media.update_media_item(media_item_old, %{uploaded_at: now()})
 
       assert media_item_new.upload_date_index == 0
       assert updated_media_item.upload_date_index == 1
@@ -1029,7 +1029,7 @@ defmodule Pinchflat.MediaTest do
       media_item_one = media_item_fixture(%{source_id: source.id, uploaded_at: now()})
       _media_item_two = media_item_fixture(%{source_id: source.id, uploaded_at: now()})
 
-      {:ok, updated_media_item} = Media.update_media_item(media_item_one, %{upload_date: now(), title: "New title"})
+      {:ok, updated_media_item} = Media.update_media_item(media_item_one, %{uploaded_at: now(), title: "New title"})
 
       assert updated_media_item.upload_date_index == 0
     end
