@@ -10,7 +10,7 @@ defmodule Pinchflat.YtDlp.Media do
     :original_url,
     :livestream,
     :short_form_content,
-    :upload_date,
+    :uploaded_at,
     :duration_seconds
   ]
 
@@ -21,7 +21,7 @@ defmodule Pinchflat.YtDlp.Media do
     :original_url,
     :livestream,
     :short_form_content,
-    :upload_date,
+    :uploaded_at,
     :duration_seconds
   ]
 
@@ -72,7 +72,7 @@ defmodule Pinchflat.YtDlp.Media do
   Returns the output template for yt-dlp's indexing command.
   """
   def indexing_output_template do
-    "%(.{id,title,was_live,webpage_url,description,aspect_ratio,duration,upload_date})j"
+    "%(.{id,title,was_live,webpage_url,description,aspect_ratio,duration,upload_date,timestamp})j"
   end
 
   @doc """
@@ -90,7 +90,7 @@ defmodule Pinchflat.YtDlp.Media do
       livestream: !!response["was_live"],
       duration_seconds: response["duration"] && round(response["duration"]),
       short_form_content: response["webpage_url"] && short_form_content?(response),
-      upload_date: response["upload_date"] && MetadataFileHelpers.parse_upload_date(response["upload_date"])
+      uploaded_at: parse_uploaded_at(response)
     }
   end
 
@@ -109,6 +109,18 @@ defmodule Pinchflat.YtDlp.Media do
       response["duration"] <= 60 && response["aspect_ratio"] < 0.8
     end
   end
+
+  defp parse_uploaded_at(%{"timestamp" => ts} = response) when is_number(ts) do
+    case DateTime.from_unix(ts) do
+      {:ok, datetime} -> datetime
+      _ -> MetadataFileHelpers.parse_upload_date(response["upload_date"])
+    end
+  end
+
+  # This field is needed before inserting into the database, but absence
+  # of this field should fail at insert-time rather than here
+  defp parse_uploaded_at(%{"upload_date" => nil}), do: nil
+  defp parse_uploaded_at(response), do: MetadataFileHelpers.parse_upload_date(response["upload_date"])
 
   defp backend_runner do
     # This approach lets us mock the command for testing

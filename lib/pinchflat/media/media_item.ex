@@ -51,7 +51,7 @@ defmodule Pinchflat.Media.MediaItem do
     livestream
     media_id
     source_id
-    upload_date
+    uploaded_at
     short_form_content
   )a
 
@@ -130,6 +130,7 @@ defmodule Pinchflat.Media.MediaItem do
     ~w(__meta__ __struct__ metadata tasks media_items_search_index)a
   end
 
+  # TODO: refactor
   defp update_upload_date_index(%{changes: changes} = changeset) when is_map_key(changes, :upload_date) do
     source_id = get_field(changeset, :source_id)
     source = Sources.get_source!(source_id)

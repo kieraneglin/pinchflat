@@ -79,7 +79,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
   describe "indexing_output_template/0" do
     test "contains all the greatest hits" do
-      assert "%(.{id,title,was_live,webpage_url,description,aspect_ratio,duration,upload_date})j" ==
+      assert "%(.{id,title,was_live,webpage_url,description,aspect_ratio,duration,upload_date,timestamp})j" ==
                Media.indexing_output_template()
     end
   end
@@ -94,7 +94,8 @@ defmodule Pinchflat.YtDlp.MediaTest do
         "was_live" => false,
         "aspect_ratio" => 1.0,
         "duration" => 60,
-        "upload_date" => "20210101"
+        "upload_date" => "20210101",
+        "timestamp" => 1_600_000_000
       }
 
       assert %Media{
@@ -104,7 +105,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
                original_url: "https://www.youtube.com/watch?v=TiZPUDkDYbk",
                livestream: false,
                short_form_content: false,
-               upload_date: Date.from_iso8601!("2021-01-01"),
+               uploaded_at: ~U[2020-09-13 12:26:40Z],
                duration_seconds: 60
              } == Media.response_to_struct(response)
     end
@@ -146,34 +147,11 @@ defmodule Pinchflat.YtDlp.MediaTest do
       response = %{
         "webpage_url" => nil,
         "aspect_ratio" => nil,
-        "duration" => nil
-      }
-
-      assert %Media{short_form_content: nil} = Media.response_to_struct(response)
-    end
-
-    test "parses the upload date" do
-      response = %{
-        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
-        "aspect_ratio" => 1.0,
-        "duration" => 61,
+        "duration" => nil,
         "upload_date" => "20210101"
       }
 
-      expected_date = Date.from_iso8601!("2021-01-01")
-
-      assert %Media{upload_date: ^expected_date} = Media.response_to_struct(response)
-    end
-
-    test "doesn't blow up if upload date is missing" do
-      response = %{
-        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
-        "aspect_ratio" => 1.0,
-        "duration" => 61,
-        "upload_date" => nil
-      }
-
-      assert %Media{upload_date: nil} = Media.response_to_struct(response)
+      assert %Media{short_form_content: nil} = Media.response_to_struct(response)
     end
 
     test "parses the duration" do
@@ -207,6 +185,60 @@ defmodule Pinchflat.YtDlp.MediaTest do
       }
 
       assert %Media{livestream: false} = Media.response_to_struct(response)
+    end
+  end
+
+  describe "response_to_struct/1 when testing uploaded_at" do
+    test "parses the upload date from the timestamp if present" do
+      response = %{
+        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "aspect_ratio" => 1.0,
+        "duration" => 61,
+        "upload_date" => "20210101",
+        "timestamp" => 1_600_000_000
+      }
+
+      expected_date = ~U[2020-09-13 12:26:40Z]
+
+      assert %Media{uploaded_at: ^expected_date} = Media.response_to_struct(response)
+    end
+
+    test "parses the upload date from the uploaded_at if timestamp is present but nil" do
+      response = %{
+        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "aspect_ratio" => 1.0,
+        "duration" => 61,
+        "upload_date" => "20210101",
+        "timestamp" => nil
+      }
+
+      expected_date = ~U[2021-01-01 00:00:00Z]
+
+      assert %Media{uploaded_at: ^expected_date} = Media.response_to_struct(response)
+    end
+
+    test "parses the upload date from the uploaded_at if timestamp absent" do
+      response = %{
+        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "aspect_ratio" => 1.0,
+        "duration" => 61,
+        "upload_date" => "20210101"
+      }
+
+      expected_date = ~U[2021-01-01 00:00:00Z]
+
+      assert %Media{uploaded_at: ^expected_date} = Media.response_to_struct(response)
+    end
+
+    test "doesn't blow up if upload date is missing" do
+      response = %{
+        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "aspect_ratio" => 1.0,
+        "duration" => 61,
+        "upload_date" => nil
+      }
+
+      assert %Media{uploaded_at: nil} = Media.response_to_struct(response)
     end
   end
 end
