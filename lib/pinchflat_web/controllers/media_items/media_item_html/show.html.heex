@@ -43,7 +43,7 @@
                     </.subtle_link>
                   </span>
                 </div>
-                <div class="mt-4 text-bodydark">
+                <div :if={@media_item.description} class="mt-4 text-bodydark">
                   <.break_on_newline text={@media_item.description} />
                 </div>
               </aside>

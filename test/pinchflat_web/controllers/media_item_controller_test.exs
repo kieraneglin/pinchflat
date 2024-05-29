@@ -14,6 +14,13 @@ defmodule PinchflatWeb.MediaItemControllerTest do
 
       assert html_response(conn, 200) =~ "#{media_item.title}"
     end
+
+    test "renders the page when the media item has no description", %{conn: conn} do
+      media_item = media_item_with_attachments(%{description: nil})
+      conn = get(conn, ~p"/sources/#{media_item.source_id}/media/#{media_item}")
+
+      assert html_response(conn, 200) =~ "#{media_item.title}"
+    end
   end
 
   describe "edit media" do
