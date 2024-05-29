@@ -2,7 +2,8 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
   @moduledoc false
   use Phoenix.Component
 
-  alias PinchflatWeb.CoreComponents
+  import PinchflatWeb.CoreComponents
+  import PinchflatWeb.CustomComponents.TextComponents
 
   @doc """
   Renders a table component with the given rows and columns.
@@ -76,11 +77,13 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
             phx-click={@page_number != 1 && "page_change"}
             phx-value-direction="dec"
           >
-            <CoreComponents.icon name="hero-chevron-left" />
+            <.icon name="hero-chevron-left" />
           </span>
         </li>
         <li>
-          <span class="mx-2">Page <%= @page_number %> of <%= @total_pages %></span>
+          <span class="mx-2">
+            Page <.localized_number number={@page_number} /> of <.localized_number number={@total_pages} />
+          </span>
         </li>
         <li>
           <span
@@ -92,7 +95,7 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
             phx-click={@page_number != @total_pages && "page_change"}
             phx-value-direction="inc"
           >
-            <CoreComponents.icon name="hero-chevron-right" />
+            <.icon name="hero-chevron-right" />
           </span>
         </li>
       </ul>

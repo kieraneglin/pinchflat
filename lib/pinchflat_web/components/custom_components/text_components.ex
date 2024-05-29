@@ -94,4 +94,28 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
     <time><%= Calendar.strftime(Timex.Timezone.convert(@datetime, @timezone), @format) %></time>
     """
   end
+
+  @doc """
+  Renders a localized number using the Intl.NumberFormat API, falling back to the raw number if needed
+  """
+  attr :number, :any, required: true
+
+  def localized_number(assigns) do
+    ~H"""
+    <span x-data x-text={"Intl.NumberFormat().format(#{@number})"}><%= @number %></span>
+    """
+  end
+
+  @doc """
+  Renders a word with a suffix if the count is not 1
+  """
+  attr :word, :string, required: true
+  attr :count, :integer, required: true
+  attr :suffix, :string, default: "s"
+
+  def pluralize(assigns) do
+    ~H"""
+    <%= @word %><%= if @count == 1, do: "", else: @suffix %>
+    """
+  end
 end

@@ -22,7 +22,9 @@ defmodule Pinchflat.Pages.HistoryTableLive do
     <div>
       <span class="mb-4 flex items-center">
         <.icon_button icon_name="hero-arrow-path" class="h-10 w-10" phx-click="reload_page" tooltip="Refresh" />
-        <span class="ml-2">Showing <%= length(@records) %> of <%= @total_record_count %></span>
+        <span class="ml-2">
+          Showing <.localized_number number={length(@records)} /> of <.localized_number number={@total_record_count} />
+        </span>
       </span>
       <div class="max-w-full overflow-x-auto">
         <.table rows={@records} table_class="text-white">

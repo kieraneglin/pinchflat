@@ -19,11 +19,12 @@
           </.subtle_link>
         </:col>
         <:col :let={source} label="Type"><%= source.collection_type %></:col>
-        <:col :let={source} label="Pending"><%= source.pending_count %></:col>
-        <:col :let={source} label="Downloaded"><%= source.downloaded_count %></:col>
+        <:col :let={source} label="Pending"><.localized_number number={source.pending_count} /></:col>
+        <:col :let={source} label="Downloaded"><.localized_number number={source.downloaded_count} /></:col>
         <:col :let={source} label="Retention">
           <%= if source.retention_period_days && source.retention_period_days > 0 do %>
-            <%= source.retention_period_days %> day(s)
+            <.localized_number number={source.retention_period_days} />
+            <.pluralize count={source.retention_period_days} word="day" />
           <% else %>
             <span class="text-lg">∞</span>
           <% end %>
