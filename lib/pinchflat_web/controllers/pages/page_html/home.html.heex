@@ -1,6 +1,6 @@
 <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
-  <div class="rounded-sm border px-7.5 py-6 shadow-default border-strokedark bg-boxdark">
-    <a href={~p"/media_profiles"} class="mt-4 flex flex-col items-center justify-center">
+  <div class="flex flex-col justify-center rounded-sm border px-7.5 py-6 shadow-default border-strokedark bg-boxdark">
+    <a href={~p"/media_profiles"} class="flex flex-col items-center py-2">
       <span class="text-md font-medium">
         Media <.pluralize count={@media_profile_count} word="Profile" />
       </span>
@@ -9,8 +9,8 @@
       </h4>
     </a>
   </div>
-  <div class="rounded-sm border px-7.5 py-6 shadow-default border-strokedark bg-boxdark">
-    <a href={~p"/sources"} class="mt-4 flex flex-col items-center justify-center">
+  <div class="flex flex-col justify-center rounded-sm border px-7.5 py-6 shadow-default border-strokedark bg-boxdark">
+    <a href={~p"/sources"} class="flex flex-col items-center py-2">
       <span class="text-md font-medium">
         <.pluralize count={@source_count} word="Source" />
       </span>
@@ -19,8 +19,8 @@
       </h4>
     </a>
   </div>
-  <div class="rounded-sm border px-7.5 py-6 shadow-default border-strokedark bg-boxdark">
-    <span class="mt-4 flex flex-col items-center justify-center">
+  <div class="flex flex-col justify-center rounded-sm border px-7.5 py-6 shadow-default border-strokedark bg-boxdark">
+    <span class="flex flex-col items-center py-2">
       <span class="text-md font-medium">
         <.pluralize count={@media_item_count} word="Download" />
       </span>
@@ -29,8 +29,8 @@
       </h4>
     </span>
   </div>
-  <div class="rounded-sm border px-7.5 py-6 shadow-default border-strokedark bg-boxdark">
-    <span class="mt-4 flex flex-col items-center justify-center">
+  <div class="flex flex-col justify-center rounded-sm border px-7.5 py-6 shadow-default border-strokedark bg-boxdark">
+    <span class="flex flex-col items-center py-2">
       <span class="text-md font-medium">Library Size</span>
       <h4 class="text-title-md font-bold text-white">
         <.readable_media_filesize media_filesize={@media_item_size} />
