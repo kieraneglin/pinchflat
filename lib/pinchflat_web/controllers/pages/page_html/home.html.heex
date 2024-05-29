@@ -2,7 +2,7 @@
   <div class="rounded-sm border px-7.5 py-6 shadow-default border-strokedark bg-boxdark">
     <a href={~p"/media_profiles"} class="mt-4 flex flex-col items-center justify-center">
       <span class="text-md font-medium">
-        Media <%= if @media_profile_count == 1, do: "Profile", else: "Profiles" %>
+        Media <.pluralize count={@media_profile_count} word="Profile" />
       </span>
       <h4 class="text-title-md font-bold text-white">
         <.localized_number number={@media_profile_count} />
@@ -12,7 +12,7 @@
   <div class="rounded-sm border px-7.5 py-6 shadow-default border-strokedark bg-boxdark">
     <a href={~p"/sources"} class="mt-4 flex flex-col items-center justify-center">
       <span class="text-md font-medium">
-        <%= if @source_count == 1, do: "Source", else: "Sources" %>
+        <.pluralize count={@source_count} word="Source" />
       </span>
       <h4 class="text-title-md font-bold text-white">
         <.localized_number number={@source_count} />
@@ -22,7 +22,7 @@
   <div class="rounded-sm border px-7.5 py-6 shadow-default border-strokedark bg-boxdark">
     <span class="mt-4 flex flex-col items-center justify-center">
       <span class="text-md font-medium">
-        <%= if @media_item_count == 1, do: "Download", else: "Downloads" %>
+        <.pluralize count={@media_item_count} word="Download" />
       </span>
       <h4 class="text-title-md font-bold text-white">
         <.localized_number number={@media_item_count} />

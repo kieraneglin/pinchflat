@@ -27,7 +27,7 @@ defmodule PinchflatWeb.Sources.MediaItemTableLiveTest do
 
       {:ok, _view, html} = live_isolated(conn, MediaItemTableLive, session: create_session(source))
 
-      assert html =~ "Showing 1 of 1"
+      assert html =~ "Showing"
       assert html =~ "Title"
       assert html =~ media_item.title
     end

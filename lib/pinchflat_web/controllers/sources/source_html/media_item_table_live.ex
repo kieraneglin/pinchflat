@@ -23,7 +23,9 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
       <header class="flex justify-between items-center mb-4">
         <span class="flex items-center">
           <.icon_button icon_name="hero-arrow-path" class="h-10 w-10" phx-click="reload_page" tooltip="Refresh" />
-          <span class="ml-2">Showing <%= length(@records) %> of <%= @filtered_record_count %></span>
+          <span class="ml-2">
+            Showing <.localized_number number={length(@records)} /> of <.localized_number number={@filtered_record_count} />
+          </span>
         </span>
         <div class="bg-meta-4 rounded-md">
           <div class="relative">
@@ -49,11 +51,11 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
             <%= StringUtils.truncate(media_item.title, 50) %>
           </.subtle_link>
         </:col>
-        <:col :let={media_item} label="Upload Date">
-          <%= DateTime.to_date(media_item.uploaded_at) %>
-        </:col>
         <:col :let={media_item} :if={@media_state == "other"} label="Manually Ignored?">
           <.icon name={if media_item.prevent_download, do: "hero-check", else: "hero-x-mark"} />
+        </:col>
+        <:col :let={media_item} label="Upload Date">
+          <%= DateTime.to_date(media_item.uploaded_at) %>
         </:col>
         <:col :let={media_item} label="" class="flex justify-end">
           <.icon_link href={~p"/sources/#{@source.id}/media/#{media_item.id}/edit"} icon="hero-pencil-square" class="mr-4" />
