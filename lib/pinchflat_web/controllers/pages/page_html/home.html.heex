@@ -1,25 +1,31 @@
 <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
   <div class="rounded-sm border px-7.5 py-6 shadow-default border-strokedark bg-boxdark">
     <a href={~p"/media_profiles"} class="mt-4 flex flex-col items-center justify-center">
-      <span class="text-md font-medium">Media Profile(s)</span>
+      <span class="text-md font-medium">
+        Media <%= if @media_profile_count == 1, do: "Profile", else: "Profiles" %>
+      </span>
       <h4 class="text-title-md font-bold text-white">
-        <%= @media_profile_count %>
+        <.localized_number number={@media_profile_count} />
       </h4>
     </a>
   </div>
   <div class="rounded-sm border px-7.5 py-6 shadow-default border-strokedark bg-boxdark">
     <a href={~p"/sources"} class="mt-4 flex flex-col items-center justify-center">
-      <span class="text-md font-medium">Source(s)</span>
+      <span class="text-md font-medium">
+        <%= if @source_count == 1, do: "Source", else: "Sources" %>
+      </span>
       <h4 class="text-title-md font-bold text-white">
-        <%= @source_count %>
+        <.localized_number number={@source_count} />
       </h4>
     </a>
   </div>
   <div class="rounded-sm border px-7.5 py-6 shadow-default border-strokedark bg-boxdark">
     <span class="mt-4 flex flex-col items-center justify-center">
-      <span class="text-md font-medium">Downloaded Media</span>
+      <span class="text-md font-medium">
+        <%= if @media_item_count == 1, do: "Download", else: "Downloads" %>
+      </span>
       <h4 class="text-title-md font-bold text-white">
-        <%= @media_item_count %>
+        <.localized_number number={@media_item_count} />
       </h4>
     </span>
   </div>
@@ -27,7 +33,7 @@
     <span class="mt-4 flex flex-col items-center justify-center">
       <span class="text-md font-medium">Library Size</span>
       <h4 class="text-title-md font-bold text-white">
-        <%= readable_media_filesize(@media_item_size) %>
+        <.readable_media_filesize media_filesize={@media_item_size} />
       </h4>
     </span>
   </div>

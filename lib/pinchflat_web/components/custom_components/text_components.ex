@@ -94,4 +94,12 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
     <time><%= Calendar.strftime(Timex.Timezone.convert(@datetime, @timezone), @format) %></time>
     """
   end
+
+  attr :number, :any, required: true
+
+  def localized_number(assigns) do
+    ~H"""
+    <span x-text={"Intl.NumberFormat().format(#{@number})"}><%= @number %></span>
+    """
+  end
 end
