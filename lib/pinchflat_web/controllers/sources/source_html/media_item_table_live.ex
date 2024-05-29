@@ -117,14 +117,40 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
     {:noreply, assign(socket, new_assigns)}
   end
 
+  defp fetch_pagination_attributes(base_query, page, ""), do: fetch_pagination_attributes(base_query, page, nil)
+
+  defp fetch_pagination_attributes(base_query, page, nil) do
+    total_record_count = Repo.aggregate(base_query, :count, :id)
+    total_pages = max(ceil(total_record_count / @limit), 1)
+    page = NumberUtils.clamp(page, 1, total_pages)
+
+    records =
+      fetch_records(base_query, page)
+      |> order_by(desc: :uploaded_at)
+      |> Repo.all()
+
+    %{
+      page: page,
+      total_pages: total_pages,
+      records: records,
+      search_term: nil,
+      total_record_count: total_record_count,
+      filtered_record_count: total_record_count
+    }
+  end
+
   defp fetch_pagination_attributes(base_query, page, search_term) do
-    filtered_base_query = filter_base_query(base_query, search_term)
+    filtered_base_query = filtered_base_query(base_query, search_term)
 
     total_record_count = Repo.aggregate(base_query, :count, :id)
     filtered_record_count = Repo.aggregate(filtered_base_query, :count, :id)
     total_pages = max(ceil(filtered_record_count / @limit), 1)
     page = NumberUtils.clamp(page, 1, total_pages)
-    records = fetch_records(filtered_base_query, page)
+
+    records =
+      fetch_records(filtered_base_query, page)
+      |> order_by(desc: fragment("rank"), desc: :uploaded_at)
+      |> Repo.all()
 
     %{
       page: page,
@@ -142,39 +168,41 @@ defmodule Pinchflat.Sources.MediaItemTableLive do
     base_query
     |> limit(^@limit)
     |> offset(^offset)
-    |> Repo.all()
   end
 
   defp generate_base_query(source, "pending") do
     MediaQuery.new()
+    |> select(^select_fields())
     |> MediaQuery.require_assoc(:media_profile)
-    |> MediaQuery.require_assoc(:media_items_search_index)
     |> where(^dynamic(^MediaQuery.for_source(source) and ^MediaQuery.pending()))
-    |> order_by(desc: fragment("rank"), desc: :uploaded_at)
   end
 
   defp generate_base_query(source, "downloaded") do
     MediaQuery.new()
-    |> MediaQuery.require_assoc(:media_items_search_index)
+    |> select(^select_fields())
     |> where(^dynamic(^MediaQuery.for_source(source) and ^MediaQuery.downloaded()))
-    |> order_by(desc: fragment("rank"), desc: :uploaded_at)
   end
 
   defp generate_base_query(source, "other") do
     MediaQuery.new()
+    |> select(^select_fields())
     |> MediaQuery.require_assoc(:media_profile)
-    |> MediaQuery.require_assoc(:media_items_search_index)
     |> where(
       ^dynamic(
         ^MediaQuery.for_source(source) and
           (not (^MediaQuery.downloaded()) and not (^MediaQuery.pending()))
       )
     )
-    |> order_by(desc: fragment("rank"), desc: :uploaded_at)
   end
 
-  defp filter_base_query(base_query, search_term) do
+  defp filtered_base_query(base_query, search_term) do
     base_query
+    |> MediaQuery.require_assoc(:media_items_search_index)
     |> where(^MediaQuery.matches_search_term(search_term))
+  end
+
+  # Selecting only what we need GREATLY speeds up queries on large tables
+  defp select_fields do
+    [:id, :title, :uploaded_at, :prevent_download]
   end
 end
