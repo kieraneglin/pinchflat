@@ -29,7 +29,7 @@ window.Alpine = Alpine
 Alpine.start()
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute('content')
-let liveSocket = new LiveSocket('/live', Socket, {
+let liveSocket = new LiveSocket(document.body.dataset.socketPath, Socket, {
   params: { _csrf_token: csrfToken },
   dom: {
     onBeforeElUpdated(from, to) {

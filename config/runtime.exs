@@ -46,12 +46,12 @@ if config_env() == :prod do
   log_path = System.get_env("LOG_PATH", Path.join([config_path, "logs", "pinchflat.log"]))
   metadata_path = System.get_env("METADATA_PATH", Path.join([config_path, "metadata"]))
   extras_path = System.get_env("EXTRAS_PATH", Path.join([config_path, "extras"]))
-
   # For running PF as a podcast host on self-hosted environments
   expose_feed_endpoints = String.length(System.get_env("EXPOSE_FEED_ENDPOINTS", "")) > 0
-
   # For testing alternate journal modes (see issue #137)
   journal_mode = String.to_existing_atom(System.get_env("JOURNAL_MODE", "wal"))
+  # For running PF in a subdirectory via a reverse proxy
+  base_route_path = System.get_env("BASE_ROUTE_PATH", "/")
 
   config :logger, level: String.to_existing_atom(System.get_env("LOG_LEVEL", "debug"))
 
@@ -65,7 +65,8 @@ if config_env() == :prod do
     dns_cluster_query: System.get_env("DNS_CLUSTER_QUERY"),
     expose_feed_endpoints: expose_feed_endpoints,
     timezone: System.get_env("TIMEZONE") || System.get_env("TZ") || "UTC",
-    log_path: log_path
+    log_path: log_path,
+    base_route_path: base_route_path
 
   config :tzdata, :data_dir, System.get_env("TZ_DATA_DIR", "/etc/elixir_tzdata_data")
 
@@ -108,6 +109,7 @@ if config_env() == :prod do
       ip: {0, 0, 0, 0},
       port: String.to_integer(System.get_env("PORT") || "4000")
     ],
+    url: [path: base_route_path],
     secret_key_base: secret_key_base
 
   config :pinchflat, :logger, [
