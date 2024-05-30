@@ -91,7 +91,7 @@ Docker Compose file:
 version: '3'
 services:
   pinchflat:
-    image: keglin/pinchflat:latest
+    image: ghcr.io/kieraneglin/pinchflat:latest
     environment:
       # Set the timezone to your local timezone
       - TZ=America/New_York
