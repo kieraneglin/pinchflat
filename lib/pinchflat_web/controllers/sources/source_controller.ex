@@ -8,6 +8,7 @@ defmodule PinchflatWeb.Sources.SourceController do
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Profiles.MediaProfile
+  alias Pinchflat.Sources.SourceDeletionWorker
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.SlowIndexing.SlowIndexingHelpers
   alias Pinchflat.Metadata.SourceMetadataStorageWorker
@@ -109,17 +110,13 @@ defmodule PinchflatWeb.Sources.SourceController do
   def delete(conn, %{"id" => id} = params) do
     delete_files = Map.get(params, "delete_files", false)
     source = Sources.get_source!(id)
-    {:ok, _source} = Sources.delete_source(source, delete_files: delete_files)
-
-    flash_message =
-      if delete_files do
-        "Source and files deleted successfully."
-      else
-        "Source deleted successfully. Files were not deleted."
-      end
+    SourceDeletionWorker.kickoff(source, %{delete_files: delete_files})
 
     conn
-    |> put_flash(:info, flash_message)
+    |> put_flash(
+      :info,
+      "Started deletion job in background. May take a while to complete depending on the number of media items."
+    )
     |> redirect(to: ~p"/sources")
   end
 
