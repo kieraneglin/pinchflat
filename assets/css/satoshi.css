@@ -32,7 +32,8 @@
 @font-face {
   font-family: 'Satoshi';
   src: url('../fonts/satoshi/Satoshi-LightItalic.woff2'),
-    url('../fonts/satoshi/Satoshi-LightItalic.woff'), url('../fonts/satoshi/Satoshi-LightItalic.ttf');
+    url('../fonts/satoshi/Satoshi-LightItalic.woff'),
+    url('../fonts/satoshi/Satoshi-LightItalic.ttf');
   font-weight: 300;
   font-display: swap;
   font-style: italic;
@@ -68,7 +69,8 @@
 @font-face {
   font-family: 'Satoshi';
   src: url('../fonts/satoshi/Satoshi-MediumItalic.woff2'),
-    url('../fonts/satoshi/Satoshi-MediumItalic.woff'), url('../fonts/satoshi/Satoshi-MediumItalic.ttf');
+    url('../fonts/satoshi/Satoshi-MediumItalic.woff'),
+    url('../fonts/satoshi/Satoshi-MediumItalic.ttf');
   font-weight: 500;
   font-display: swap;
   font-style: italic;
@@ -85,8 +87,8 @@
 
 @font-face {
   font-family: 'Satoshi';
-  src: url('../fonts/satoshi/Satoshi-BoldItalic.woff2'), url('../fonts/satoshi/Satoshi-BoldItalic.woff'),
-    url('../fonts/satoshi/Satoshi-BoldItalic.ttf');
+  src: url('../fonts/satoshi/Satoshi-BoldItalic.woff2'),
+    url('../fonts/satoshi/Satoshi-BoldItalic.woff'), url('../fonts/satoshi/Satoshi-BoldItalic.ttf');
   font-weight: 700;
   font-display: swap;
   font-style: italic;
@@ -95,7 +97,8 @@
 @font-face {
   font-family: 'Satoshi';
   src: url('../fonts/satoshi/Satoshi-BlackItalic.woff2'),
-    url('../fonts/satoshi/Satoshi-BlackItalic.woff'), url('../fonts/satoshi/Satoshi-BlackItalic.ttf');
+    url('../fonts/satoshi/Satoshi-BlackItalic.woff'),
+    url('../fonts/satoshi/Satoshi-BlackItalic.ttf');
   font-weight: 900;
   font-display: swap;
   font-style: italic;
