@@ -8,8 +8,8 @@ defmodule Pinchflat.Repo.Migrations.RefactorCodecPreferences do
     end
 
     alter table(:settings) do
-      add :video_codec_preference, :string, default: "avc"
-      add :audio_codec_preference, :string, default: "m4a"
+      add :video_codec_preference, :string, default: "avc", null: false
+      add :audio_codec_preference, :string, default: "m4a", null: false
     end
   end
 end

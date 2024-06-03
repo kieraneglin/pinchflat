@@ -19,6 +19,8 @@ defmodule Pinchflat.Settings.Setting do
   @required_fields ~w(
     onboarding
     pro_enabled
+    video_codec_preference
+    audio_codec_preference
   )a
 
   schema "settings" do
@@ -28,8 +30,8 @@ defmodule Pinchflat.Settings.Setting do
     field :apprise_version, :string
     field :apprise_server, :string
 
-    field :video_codec_preference, :string, default: "avc"
-    field :audio_codec_preference, :string, default: "m4a"
+    field :video_codec_preference, :string
+    field :audio_codec_preference, :string
   end
 
   @doc false
