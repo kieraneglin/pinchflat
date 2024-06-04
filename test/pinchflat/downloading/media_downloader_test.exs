@@ -14,9 +14,8 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
         [:metadata, source: :media_profile]
       )
 
-    stub(HTTPClientMock, :get, fn _url, _headers, _opts ->
-      {:ok, ""}
-    end)
+    stub(HTTPClientMock, :get, fn _url, _headers, _opts -> {:ok, ""} end)
+    stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, ""} end)
 
     {:ok, %{media_item: media_item}}
   end
@@ -44,7 +43,7 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
       assert {:ok, updated_media_item} = MediaDownloader.download_for_media_item(media_item)
 
       assert updated_media_item.metadata.metadata_filepath =~ "media_items/#{media_item.id}/metadata.json.gz"
-      assert updated_media_item.metadata.thumbnail_filepath =~ "media_items/#{media_item.id}/maxresdefault.jpg"
+      assert updated_media_item.metadata.thumbnail_filepath =~ "media_items/#{media_item.id}/thumbnail.jpg"
     end
 
     test "non-recoverable errors are passed through", %{media_item: media_item} do
