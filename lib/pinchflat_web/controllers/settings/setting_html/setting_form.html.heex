@@ -26,7 +26,24 @@
     ) %>
   </section>
 
-  <section class="mt-10" x-show="advancedMode">
+  <section class="mt-8">
+    <section>
+      <h3 class="text-2xl text-black dark:text-white">
+        Indexing Settings
+      </h3>
+
+      <.input
+        field={f[:youtube_api_key]}
+        placeholder="ABC123"
+        type="text"
+        label="YouTube API Key"
+        help="API key for YouTube Data API v3. Required for the improved fast indexing"
+        inputclass="font-mono text-sm mr-4"
+      />
+    </section>
+  </section>
+
+  <section class="mt-8" x-show="advancedMode">
     <section>
       <h3 class="text-2xl text-black dark:text-white">
         Codec Options
