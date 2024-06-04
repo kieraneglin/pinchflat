@@ -1,17 +1,31 @@
 defmodule Pinchflat.FastIndexing.YoutubeRss do
   @moduledoc """
-  Methods for interacting with YouTube RSS feeds
+  Methods for interacting with YouTube RSS feeds for fast indexing
   """
 
   require Logger
 
   alias Pinchflat.Sources.Source
+  alias Pinchflat.FastIndexing.YoutubeBehaviour
+
+  @behaviour YoutubeBehaviour
+
+  @doc """
+  Determines if the YouTube RSS feed is enabled for fast indexing. Used to satisfy
+  the `YoutubeBehaviour` behaviour.
+
+  Returns true
+  """
+  # TODO: test
+  @impl YoutubeBehaviour
+  def enabled?(), do: true
 
   @doc """
   Fetches the recent media IDs from a YouTube RSS feed for a given source.
 
   Returns {:ok, [binary()]} | {:error, binary()}
   """
+  @impl YoutubeBehaviour
   def get_recent_media_ids(%Source{} = source) do
     Logger.debug("Fetching recent media IDs from YouTube RSS feed for source: #{source.collection_id}")
 

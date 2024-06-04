@@ -13,12 +13,13 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
   alias Pinchflat.Media
   alias Pinchflat.Sources.Source
   alias Pinchflat.FastIndexing.YoutubeRss
+  alias Pinchflat.FastIndexing.YoutubeApi
   alias Pinchflat.Downloading.DownloadingHelpers
 
   alias Pinchflat.YtDlp.Media, as: YtDlpMedia
 
   @doc """
-  Fetches new media IDs from a source's YouTube RSS feed, indexes them, and kicks off downloading
+  Fetches new media IDs for a source from YT's API or RSS, indexes them, and kicks off downloading
   tasks for any pending media items. See comments in `FastIndexingWorker` for more info on the
   order of operations and how this fits into the indexing process.
 
@@ -26,7 +27,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
   downloaded_.
   """
   def kickoff_download_tasks_from_youtube_rss_feed(%Source{} = source) do
-    {:ok, media_ids} = YoutubeRss.get_recent_media_ids(source)
+    {:ok, media_ids} = get_recent_media_ids(source)
     existing_media_items = list_media_items_by_media_id_for(source, media_ids)
     new_media_ids = media_ids -- Enum.map(existing_media_items, & &1.media_id)
 
@@ -45,6 +46,18 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
     DownloadingHelpers.enqueue_pending_download_tasks(source)
 
     Enum.filter(maybe_new_media_items, & &1)
+  end
+
+  # If possible, use the YouTube API to fetch media IDs. If that fails, fall back to the RSS feed.
+  # If the YouTube API isn't set up, just use the RSS feed.
+  defp get_recent_media_ids(source) do
+    # TODO: test
+    with true <- YoutubeApi.enabled?(),
+         {:ok, media_ids} <- YoutubeApi.get_recent_media_ids(source) do
+      {:ok, media_ids}
+    else
+      _ -> YoutubeRss.get_recent_media_ids(source)
+    end
   end
 
   defp list_media_items_by_media_id_for(source, media_ids) do

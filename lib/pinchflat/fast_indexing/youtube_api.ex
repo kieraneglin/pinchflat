@@ -1,15 +1,33 @@
 defmodule Pinchflat.FastIndexing.YoutubeApi do
   @moduledoc """
-  TODO
+  Methods for interacting with the YouTube API for fast indexing
   """
 
   require Logger
 
   alias Pinchflat.Sources.Source
   alias Pinchflat.Utils.FunctionUtils
+  alias Pinchflat.FastIndexing.YoutubeBehaviour
+
+  @behaviour YoutubeBehaviour
+
+  @doc """
+  Determines if the YouTube API is enabled for fast indexing
+
+  Returns boolean()
+  """
+  # TODO: test
+  # TODO: update this to use a user setting
+  @impl YoutubeBehaviour
+  def enabled?(), do: true
 
   # TODO: test
-  # TODO: make this a behaviour
+  @doc """
+  Fetches the recent media IDs from the YouTube API for a given source.
+
+  Returns {:ok, [binary()]} | {:error, binary()}
+  """
+  @impl YoutubeBehaviour
   def get_recent_media_ids(%Source{} = source) do
     api_response =
       source
@@ -39,6 +57,7 @@ defmodule Pinchflat.FastIndexing.YoutubeApi do
         Phoenix.json_library().decode(response)
 
       {:error, reason} ->
+        Logger.error("Failed to fetch YouTube API: #{inspect(reason)}")
         {:error, reason}
     end
   end
@@ -52,6 +71,7 @@ defmodule Pinchflat.FastIndexing.YoutubeApi do
       |> Map.get("videoId", nil)
     end)
     |> Enum.reject(&is_nil/1)
+    |> Enum.uniq()
     |> FunctionUtils.wrap_ok()
   end
 
