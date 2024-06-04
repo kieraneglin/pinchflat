@@ -16,7 +16,6 @@ defmodule Pinchflat.FastIndexing.YoutubeRss do
 
   Returns true
   """
-  # TODO: test
   @impl YoutubeBehaviour
   def enabled?(), do: true
 

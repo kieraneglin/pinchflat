@@ -11,6 +11,12 @@ defmodule Pinchflat.FastIndexing.YoutubeRssTest do
     {:ok, source: source}
   end
 
+  describe "enabled?/0" do
+    test "returns true" do
+      assert YoutubeRss.enabled?()
+    end
+  end
+
   describe "get_recent_media_ids/1" do
     test "calls the expected URL for channel sources" do
       source = source_fixture(collection_type: :channel, collection_id: "channel_id")
