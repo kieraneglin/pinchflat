@@ -12,3 +12,5 @@ services:
       - ./docker-run.dev.sh
     stdin_open: true
     tty: true
+    env_file:
+      - .env

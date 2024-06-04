@@ -12,7 +12,7 @@ defmodule Pinchflat.FastIndexing.YoutubeRss do
 
   Returns {:ok, [binary()]} | {:error, binary()}
   """
-  def get_recent_media_ids_from_rss(%Source{} = source) do
+  def get_recent_media_ids(%Source{} = source) do
     Logger.debug("Fetching recent media IDs from YouTube RSS feed for source: #{source.collection_id}")
 
     case http_client().get(rss_url_for_source(source)) do

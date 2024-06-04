@@ -11,7 +11,7 @@ defmodule Pinchflat.FastIndexing.YoutubeRssTest do
     {:ok, source: source}
   end
 
-  describe "get_recent_media_ids_from_rss/1" do
+  describe "get_recent_media_ids/1" do
     test "calls the expected URL for channel sources" do
       source = source_fixture(collection_type: :channel, collection_id: "channel_id")
 
@@ -21,7 +21,7 @@ defmodule Pinchflat.FastIndexing.YoutubeRssTest do
         {:ok, ""}
       end)
 
-      assert {:ok, _} = YoutubeRss.get_recent_media_ids_from_rss(source)
+      assert {:ok, _} = YoutubeRss.get_recent_media_ids(source)
     end
 
     test "calls the expected URL for playlist sources" do
@@ -33,13 +33,13 @@ defmodule Pinchflat.FastIndexing.YoutubeRssTest do
         {:ok, ""}
       end)
 
-      assert {:ok, _} = YoutubeRss.get_recent_media_ids_from_rss(source)
+      assert {:ok, _} = YoutubeRss.get_recent_media_ids(source)
     end
 
     test "returns an error if the HTTP request fails", %{source: source} do
       expect(HTTPClientMock, :get, fn _url -> {:error, ""} end)
 
-      assert {:error, "Failed to fetch RSS feed"} = YoutubeRss.get_recent_media_ids_from_rss(source)
+      assert {:error, "Failed to fetch RSS feed"} = YoutubeRss.get_recent_media_ids(source)
     end
 
     test "returns the media IDs from the RSS feed", %{source: source} do
@@ -47,7 +47,7 @@ defmodule Pinchflat.FastIndexing.YoutubeRssTest do
         {:ok, "<yt:videoId>test_1</yt:videoId><yt:videoId>test_2</yt:videoId>"}
       end)
 
-      assert {:ok, ["test_1", "test_2"]} = YoutubeRss.get_recent_media_ids_from_rss(source)
+      assert {:ok, ["test_1", "test_2"]} = YoutubeRss.get_recent_media_ids(source)
     end
 
     test "strips whitespace from media IDs", %{source: source} do
@@ -55,7 +55,7 @@ defmodule Pinchflat.FastIndexing.YoutubeRssTest do
         {:ok, "<yt:videoId> test_1 </yt:videoId><yt:videoId> test_2 </yt:videoId>"}
       end)
 
-      assert {:ok, ["test_1", "test_2"]} = YoutubeRss.get_recent_media_ids_from_rss(source)
+      assert {:ok, ["test_1", "test_2"]} = YoutubeRss.get_recent_media_ids(source)
     end
 
     test "removes empty media IDs", %{source: source} do
@@ -63,7 +63,7 @@ defmodule Pinchflat.FastIndexing.YoutubeRssTest do
         {:ok, "<yt:videoId>test_1</yt:videoId><yt:videoId></yt:videoId>"}
       end)
 
-      assert {:ok, ["test_1"]} = YoutubeRss.get_recent_media_ids_from_rss(source)
+      assert {:ok, ["test_1"]} = YoutubeRss.get_recent_media_ids(source)
     end
 
     test "removes duplicate media IDs", %{source: source} do
@@ -71,7 +71,7 @@ defmodule Pinchflat.FastIndexing.YoutubeRssTest do
         {:ok, "<yt:videoId>test_1</yt:videoId><yt:videoId>test_1</yt:videoId>"}
       end)
 
-      assert {:ok, ["test_1"]} = YoutubeRss.get_recent_media_ids_from_rss(source)
+      assert {:ok, ["test_1"]} = YoutubeRss.get_recent_media_ids(source)
     end
   end
 end

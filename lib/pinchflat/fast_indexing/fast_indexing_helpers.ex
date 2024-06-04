@@ -26,7 +26,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
   downloaded_.
   """
   def kickoff_download_tasks_from_youtube_rss_feed(%Source{} = source) do
-    {:ok, media_ids} = YoutubeRss.get_recent_media_ids_from_rss(source)
+    {:ok, media_ids} = YoutubeRss.get_recent_media_ids(source)
     existing_media_items = list_media_items_by_media_id_for(source, media_ids)
     new_media_ids = media_ids -- Enum.map(existing_media_items, & &1.media_id)
 
