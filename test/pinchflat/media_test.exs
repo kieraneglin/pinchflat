@@ -740,14 +740,13 @@ defmodule Pinchflat.MediaTest do
     end
 
     test "does delete the media item's metadata files" do
-      stub(HTTPClientMock, :get, fn _url, _headers, _opts -> {:ok, ""} end)
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, ""} end)
       media_item = Repo.preload(media_item_with_attachments(), :metadata)
 
       update_attrs = %{
         metadata: %{
           metadata_filepath: MetadataFileHelpers.compress_and_store_metadata_for(media_item, %{}),
-          thumbnail_filepath:
-            MetadataFileHelpers.download_and_store_thumbnail_for(media_item, render_parsed_metadata(:media_metadata))
+          thumbnail_filepath: MetadataFileHelpers.download_and_store_thumbnail_for(media_item)
         }
       }
 
@@ -773,14 +772,13 @@ defmodule Pinchflat.MediaTest do
     end
 
     test "deletes the media item's metadata files" do
-      stub(HTTPClientMock, :get, fn _url, _headers, _opts -> {:ok, ""} end)
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, ""} end)
       media_item = Repo.preload(media_item_with_attachments(), :metadata)
 
       update_attrs = %{
         metadata: %{
           metadata_filepath: MetadataFileHelpers.compress_and_store_metadata_for(media_item, %{}),
-          thumbnail_filepath:
-            MetadataFileHelpers.download_and_store_thumbnail_for(media_item, render_parsed_metadata(:media_metadata))
+          thumbnail_filepath: MetadataFileHelpers.download_and_store_thumbnail_for(media_item)
         }
       }
 
@@ -860,14 +858,13 @@ defmodule Pinchflat.MediaTest do
     end
 
     test "does not delete the media item's metadata files" do
-      stub(HTTPClientMock, :get, fn _url, _headers, _opts -> {:ok, ""} end)
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, ""} end)
       media_item = Repo.preload(media_item_with_attachments(), :metadata)
 
       update_attrs = %{
         metadata: %{
           metadata_filepath: MetadataFileHelpers.compress_and_store_metadata_for(media_item, %{}),
-          thumbnail_filepath:
-            MetadataFileHelpers.download_and_store_thumbnail_for(media_item, render_parsed_metadata(:media_metadata))
+          thumbnail_filepath: MetadataFileHelpers.download_and_store_thumbnail_for(media_item)
         }
       }
 

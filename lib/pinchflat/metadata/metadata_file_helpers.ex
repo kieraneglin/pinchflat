@@ -11,6 +11,8 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
 
   alias Pinchflat.Utils.FilesystemUtils
 
+  alias Pinchflat.YtDlp.Media, as: YtDlpMedia
+
   @doc """
   Returns the directory where metadata for a database record should be stored.
 
@@ -54,35 +56,19 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
 
   @doc """
   Downloads and stores a thumbnail for a media item, returning the filepath.
-  Chooses the highest quality thumbnail available (preferring jpg). Returns
-  nil if no thumbnails are available.
+  Chooses the highest quality thumbnail available and converts it to a JPG
+
+  Returns nil if no thumbnail is available or if yt-dlp encounters an error
 
   Returns binary() | nil
   """
-  def download_and_store_thumbnail_for(database_record, metadata_map) do
-    thumbnails =
-      (metadata_map["thumbnails"] || [])
-      # Give it a low preference if the `preference` key doesn't exist
-      |> Enum.map(&Map.put_new(&1, "preference", -1000))
-      # Give it a low preference if image isn't a jpg
-      |> Enum.map(fn t ->
-        preference_weight = if String.ends_with?(t["url"], ".jpg"), do: t["preference"], else: t["preference"] - 1000
+  def download_and_store_thumbnail_for(database_record) do
+    yt_dlp_filepath = generate_filepath_for(database_record, "thumbnail.%(ext)s")
+    real_filepath = generate_filepath_for(database_record, "thumbnail.jpg")
 
-        Map.put(t, "preference", preference_weight)
-      end)
-
-    case Enum.sort_by(thumbnails, & &1["preference"], :desc) do
-      [thumbnail_map | _] ->
-        thumbnail_url = thumbnail_map["url"]
-        filepath = generate_filepath_for(database_record, Path.basename(thumbnail_url))
-        thumbnail_blob = fetch_thumbnail_from_url(thumbnail_url)
-
-        :ok = FilesystemUtils.write_p!(filepath, thumbnail_blob)
-
-        filepath
-
-      _ ->
-        nil
+    case YtDlpMedia.download_thumbnail(database_record.original_url, output: yt_dlp_filepath) do
+      {:ok, _} -> real_filepath
+      _ -> nil
     end
   end
 
@@ -136,13 +122,6 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
     else
       {:error, :indeterminable}
     end
-  end
-
-  defp fetch_thumbnail_from_url(url) do
-    http_client = Application.get_env(:pinchflat, :http_client, Pinchflat.HTTP.HTTPClient)
-    {:ok, body} = http_client.get(url, [], body_format: :binary)
-
-    body
   end
 
   defp generate_filepath_for(database_record, filename) do

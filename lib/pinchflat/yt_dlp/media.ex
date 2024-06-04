@@ -47,6 +47,20 @@ defmodule Pinchflat.YtDlp.Media do
   end
 
   @doc """
+  Downloads a thumbnail for a single piece of media. Usually used for
+  downloading thumbnails for internal use
+
+  Returns {:ok, ""} | {:error, any, ...}.
+  """
+  def download_thumbnail(url, command_opts \\ []) do
+    opts = [:no_simulate, :skip_download, :write_thumbnail, convert_thumbnail: "jpg"] ++ command_opts
+
+    # NOTE: it doesn't seem like this command actually returns anything in `after_move` since
+    # we aren't downloading the main media file
+    backend_runner().run(url, opts, "after_move:%()j")
+  end
+
+  @doc """
   Returns a map representing the media at the given URL.
 
   Returns {:ok, [map()]} | {:error, any, ...}.

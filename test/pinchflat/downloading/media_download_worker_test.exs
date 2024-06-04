@@ -9,6 +9,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
   alias Pinchflat.Downloading.MediaDownloadWorker
 
   setup do
+    stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, ""} end)
     stub(UserScriptRunnerMock, :run, fn _event_type, _data -> :ok end)
     stub(HTTPClientMock, :get, fn _url, _headers, _opts -> {:ok, ""} end)
 
