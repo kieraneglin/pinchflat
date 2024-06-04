@@ -51,7 +51,6 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
   # If possible, use the YouTube API to fetch media IDs. If that fails, fall back to the RSS feed.
   # If the YouTube API isn't set up, just use the RSS feed.
   defp get_recent_media_ids(source) do
-    # TODO: test
     with true <- YoutubeApi.enabled?(),
          {:ok, media_ids} <- YoutubeApi.get_recent_media_ids(source) do
       {:ok, media_ids}

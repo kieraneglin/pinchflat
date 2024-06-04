@@ -5,6 +5,7 @@ defmodule Pinchflat.FastIndexing.YoutubeApi do
 
   require Logger
 
+  alias Pinchflat.Settings
   alias Pinchflat.Sources.Source
   alias Pinchflat.Utils.FunctionUtils
   alias Pinchflat.FastIndexing.YoutubeBehaviour
@@ -12,16 +13,14 @@ defmodule Pinchflat.FastIndexing.YoutubeApi do
   @behaviour YoutubeBehaviour
 
   @doc """
-  Determines if the YouTube API is enabled for fast indexing
+  Determines if the YouTube API is enabled for fast indexing by checking
+  if the user has an API key set
 
   Returns boolean()
   """
-  # TODO: test
-  # TODO: update this to use a user setting
   @impl YoutubeBehaviour
-  def enabled?(), do: true
+  def enabled?(), do: is_binary(api_key())
 
-  # TODO: test
   @doc """
   Fetches the recent media IDs from the YouTube API for a given source.
 
@@ -75,9 +74,8 @@ defmodule Pinchflat.FastIndexing.YoutubeApi do
     |> FunctionUtils.wrap_ok()
   end
 
-  # TODO: replace this with a user setting
   defp api_key do
-    System.get_env("YOUTUBE_API_KEY")
+    Settings.get!(:youtube_api_key)
   end
 
   defp http_client do
