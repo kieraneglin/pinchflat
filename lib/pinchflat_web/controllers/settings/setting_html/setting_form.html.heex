@@ -37,24 +37,20 @@
       </p>
 
       <.input
-        id="video_codec_preference_string"
-        name="setting[video_codec_preference_string]"
-        value={Enum.join(f[:video_codec_preference].value, ">")}
-        placeholder="avc>vp9>av01"
+        field={f[:video_codec_preference]}
+        placeholder="avc"
         type="text"
         label="Video Codec Preference"
-        help="Order of preference for video codecs. Separate with >. Will be remuxed into an MP4 container. See below for available codecs"
+        help="Video codec preference. Will be remuxed into an MP4 container. See below for more details"
         inputclass="font-mono text-sm mr-4"
       />
 
       <.input
-        id="audio_codec_preference_string"
-        name="setting[audio_codec_preference_string]"
-        value={Enum.join(f[:audio_codec_preference].value, ">")}
-        placeholder="mp4a>opus>aac"
+        field={f[:audio_codec_preference]}
+        placeholder="m4a"
         type="text"
         label="Audio Codec Preference"
-        help="Order of preference for audio codecs. Separate with >. See below for available codecs"
+        help="Audio codec preference. See below for more details"
         inputclass="font-mono text-sm mr-4"
       />
     </section>
