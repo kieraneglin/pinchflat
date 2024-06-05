@@ -78,12 +78,12 @@ defmodule Pinchflat.FastIndexing.YoutubeApi do
     Settings.get!(:youtube_api_key)
   end
 
-  defp api_base do
-    "https://youtube.googleapis.com/youtube/v3/playlistItems"
-  end
-
   defp construct_api_endpoint(playlist_id) do
-    "#{api_base()}?part=contentDetails&maxResults=50&playlistId=#{playlist_id}&key=#{api_key()}"
+    api_base = "https://youtube.googleapis.com/youtube/v3/playlistItems"
+    property_type = "contentDetails"
+    max_results = 50
+
+    "#{api_base}?part=#{property_type}&maxResults=#{max_results}&playlistId=#{playlist_id}&key=#{api_key()}"
   end
 
   defp http_client do
