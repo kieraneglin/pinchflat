@@ -48,10 +48,10 @@ defmodule Pinchflat.FastIndexing.YoutubeApi do
   defp do_api_request(playlist_id) do
     Logger.debug("Fetching recent media IDs from YouTube API for playlist: #{playlist_id}")
 
-    api_base = "https://youtube.googleapis.com/youtube/v3/playlistItems"
-    request_url = "#{api_base}?part=contentDetails&maxResults=50&playlistId=#{playlist_id}&key=#{api_key()}"
-
-    case http_client().get(request_url, accept: "application/json") do
+    playlist_id
+    |> construct_api_endpoint()
+    |> http_client().get(accept: "application/json")
+    |> case do
       {:ok, response} ->
         Phoenix.json_library().decode(response)
 
@@ -76,6 +76,14 @@ defmodule Pinchflat.FastIndexing.YoutubeApi do
 
   defp api_key do
     Settings.get!(:youtube_api_key)
+  end
+
+  defp api_base do
+    "https://youtube.googleapis.com/youtube/v3/playlistItems"
+  end
+
+  defp construct_api_endpoint(playlist_id) do
+    "#{api_base()}?part=contentDetails&maxResults=50&playlistId=#{playlist_id}&key=#{api_key()}"
   end
 
   defp http_client do
