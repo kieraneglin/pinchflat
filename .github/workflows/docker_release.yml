@@ -11,6 +11,12 @@ on:
         options:
           - 'linux/amd64'
           - 'linux/amd64,linux/arm64'
+      docker_tags:
+        type: string
+        description: 'Docker Tags'
+        required: true
+        default: 'dev'
+
   push:
     branches:
       - master
@@ -41,7 +47,8 @@ jobs:
           # All non-release actions will be tagged as `dev` (ie: push, workflow_dispatch)
           tags: |
             type=ref,event=tag
-            type=raw,value=dev,enable=${{ github.event_name != 'release' }}
+            type=raw,value=dev,enable=${{ github.event_name != 'release' && github.event_name != 'workflow_dispatch' }}
+            type=raw,value=${{ inputs.docker_tags }},enable=${{ github.event_name == 'workflow_dispatch' }}
           flavor: |
             latest=auto
 
