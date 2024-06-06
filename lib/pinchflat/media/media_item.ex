@@ -130,7 +130,31 @@ defmodule Pinchflat.Media.MediaItem do
     ~w(__meta__ __struct__ metadata tasks media_items_search_index)a
   end
 
+  # Run it on new records no matter what. The method we delegate to
+  # will handle the case where `uploaded_at` is `nil`
+  defp update_upload_date_index(%{data: %{id: nil}} = changeset) do
+    do_update_upload_date_index(changeset)
+  end
+
+  # For the update case, we only want to recalculate if the day itself has changed.
+  # For instance, this is useful in the migration from `upload_date` to `uploaded_at`
   defp update_upload_date_index(%{changes: changes} = changeset) when is_map_key(changes, :uploaded_at) do
+    old_uploaded_at = changeset.data.uploaded_at
+    new_uploaded_at = get_change(changeset, :uploaded_at)
+    upload_dates_match = DateTime.to_date(old_uploaded_at) == DateTime.to_date(new_uploaded_at)
+
+    if upload_dates_match do
+      changeset
+    else
+      do_update_upload_date_index(changeset)
+    end
+  end
+
+  # If the record is persisted and the `uploaded_at` field is not being changed,
+  # we don't need to recalculate the index.
+  defp update_upload_date_index(changeset), do: changeset
+
+  defp do_update_upload_date_index(%{changes: changes} = changeset) when is_map_key(changes, :uploaded_at) do
     source_id = get_field(changeset, :source_id)
     source = Sources.get_source!(source_id)
     # Channels should count down from 99, playlists should count up from 0
@@ -151,7 +175,7 @@ defmodule Pinchflat.Media.MediaItem do
     end
   end
 
-  defp update_upload_date_index(changeset), do: changeset
+  defp do_update_upload_date_index(changeset), do: changeset
 
   defimpl Jason.Encoder, for: MediaItem do
     def encode(value, opts) do
