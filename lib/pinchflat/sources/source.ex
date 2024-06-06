@@ -115,6 +115,7 @@ defmodule Pinchflat.Sources.Source do
     |> validate_number(:retention_period_days, greater_than_or_equal_to: 0)
     # Ensures it ends with `.{{ ext }}` or `.%(ext)s` or similar (with a little wiggle room)
     |> validate_format(:output_path_template_override, MediaProfile.ext_regex(), message: "must end with .{{ ext }}")
+    |> validate_format(:original_url, youtube_channel_or_playlist_regex(), message: "must be a channel or playlist URL")
     |> cast_assoc(:metadata, with: &SourceMetadata.changeset/2, required: false)
     |> unique_constraint([:collection_id, :media_profile_id, :title_filter_regex], error_key: :original_url)
   end
@@ -139,6 +140,13 @@ defmodule Pinchflat.Sources.Source do
   @doc false
   def json_exluded_fields do
     ~w(__meta__ __struct__ metadata tasks media_items)a
+  end
+
+  def youtube_channel_or_playlist_regex do
+    # Validate that the original URL is not a video URL
+    # Also matches if the string does NOT contain youtube.com or youtu.be. This preserves my tenuous support
+    # for non-youtube sources.
+    ~r<^(?:(?!youtube\.com/(watch|shorts|embed)|youtu\.be).)*$>
   end
 
   defimpl Jason.Encoder, for: Source do

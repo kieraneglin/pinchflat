@@ -659,6 +659,61 @@ defmodule Pinchflat.SourcesTest do
     end
   end
 
+  describe "change_source/3 when testing original_url validation" do
+    test "succeeds when an original URL is valid" do
+      source = source_fixture()
+
+      valid_urls = [
+        "https://www.youtube.com/channel/UCkRfArvrzheW2E7b6SVT7vQ",
+        "https://www.youtube.com/channel/UCkRfArvrzheW2E7b6SVT7vQ/videos",
+        "https://www.youtube.com/@youtubecreators/featured",
+        "https://www.youtube.com/@youtubecreators",
+        "https://www.youtube.com/c/YouTubeCreators",
+        "https://www.youtube.com/user/YouTubeCreators",
+        "https://www.youtube.com/YouTubeCreators",
+        "https://www.youtube.com/playlist?list=PLpjK416fmKwRtq-9-O_NbZlkW0k6zu2Wn",
+        "https://www.youtube.com/playlist?list=UUkRfArvrzheW2E7b6SVT7vQ"
+      ]
+
+      Enum.each(valid_urls, fn url ->
+        assert %{errors: []} = Sources.change_source(source, %{original_url: url})
+      end)
+    end
+
+    test "fails when an original URL points to a video" do
+      source = source_fixture()
+
+      invalid_urls = [
+        "https://www.youtube.com/watch?v=72maj9FLQZI",
+        "https://youtu.be/72maj9FLQZI",
+        "https://www.youtube.com/watch?v=1FwGFhMAmBo&list=PLpjK416fmKwRtq-9-O_NbZlkW0k6zu2Wn",
+        "https://www.youtube.com/shorts/Dq0eH-ZhQTU",
+        "https://www.youtube.com/embed/X64LHlfx4qg"
+      ]
+
+      Enum.each(invalid_urls, fn url ->
+        assert %{errors: [_]} = Sources.change_source(source, %{original_url: url})
+      end)
+    end
+
+    test "passes when a non-youtube link is provided" do
+      source = source_fixture()
+
+      valid_urls = [
+        "https://www.example.com",
+        "https://www.example.com/playlist",
+        "https://www.example.com/channel",
+        "https://www.example.com/user",
+        "https://www.example.com/watch?v=72maj9FLQZI",
+        "https://www.example.com/embed/X64LHlfx4qg"
+      ]
+
+      Enum.each(valid_urls, fn url ->
+        assert %{errors: []} = Sources.change_source(source, %{original_url: url})
+      end)
+    end
+  end
+
   defp playlist_mock(_url, _opts, _ot) do
     {
       :ok,
