@@ -967,6 +967,18 @@ defmodule Pinchflat.MediaTest do
 
       assert updated_media_item.upload_date_index == 99
     end
+
+    test "upload_date_index doesn't increment if the a video's upload_date is changed to the same day" do
+      source = source_fixture(%{collection_type: :channel})
+
+      media_item_one = media_item_fixture(%{source_id: source.id, uploaded_at: now()})
+      _media_item_two = media_item_fixture(%{source_id: source.id, uploaded_at: now()})
+
+      {:ok, updated_media_item} =
+        Media.update_media_item(media_item_one, %{uploaded_at: now_plus(1, :minute), title: "New title"})
+
+      assert updated_media_item.upload_date_index == 99
+    end
   end
 
   describe "change_media_item/1 when testing upload_date_index and source is a playlist" do
@@ -1027,6 +1039,18 @@ defmodule Pinchflat.MediaTest do
       _media_item_two = media_item_fixture(%{source_id: source.id, uploaded_at: now()})
 
       {:ok, updated_media_item} = Media.update_media_item(media_item_one, %{uploaded_at: now(), title: "New title"})
+
+      assert updated_media_item.upload_date_index == 0
+    end
+
+    test "upload_date_index doesn't increment if the a video's upload_date is changed to the same day" do
+      source = source_fixture(%{collection_type: :playlist})
+
+      media_item_one = media_item_fixture(%{source_id: source.id, uploaded_at: now()})
+      _media_item_two = media_item_fixture(%{source_id: source.id, uploaded_at: now()})
+
+      {:ok, updated_media_item} =
+        Media.update_media_item(media_item_one, %{uploaded_at: now_plus(1, :minute), title: "New title"})
 
       assert updated_media_item.upload_date_index == 0
     end
