@@ -49,7 +49,7 @@
         label="Index Frequency"
         x-bind:disabled="fastIndexingEnabled == true"
         x-init="$watch('fastIndexingEnabled', v => v && ($el.value = 30 * 24 * 60))"
-        help="Indexing is the process of checking for media to download. Sets the time between one index of this source finishing and the next one starting"
+        help="Indexing is the process of checking for media to download. For best results, set this to the longest delay you can tolerate for this source"
       />
 
       <div phx-click={show_modal("upgrade-modal")}>
@@ -58,7 +58,7 @@
           type="toggle"
           label="Use Fast Indexing"
           label_suffix="(pro)"
-          help="Experimental. Overrides 'Index Frequency'. Recommended for large channels that upload frequently. Does not work with private playlists. See below for more info"
+          help="Not recommended for playlists. Overrides 'Index Frequency'. See below for more details (seriously, there's a TL;DR that's worth reading)"
           x-init="
           // `enabled` is the data attribute that the toggle uses internally
           fastIndexingEnabled = enabled
