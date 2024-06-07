@@ -25,7 +25,7 @@ defmodule Pinchflat.SourcesFixtures do
             collection_type: "channel",
             custom_name: "Cool and good internal name!",
             description: "This is a description",
-            original_url: "https://www.youtube.com/channel/#{Faker.String.base64(12)}",
+            original_url: "https://www.youtube.com/@#{Faker.String.base64(12)}",
             media_profile_id: ProfilesFixtures.media_profile_fixture().id,
             index_frequency_minutes: 60
           }
