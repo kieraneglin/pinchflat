@@ -65,7 +65,7 @@ config :pinchflat, Oban,
     media_indexing: 2,
     media_collection_indexing: 2,
     media_fetching: 2,
-    local_metadata: 8,
+    local_data: 8,
     remote_metadata: 4
   ]
 
