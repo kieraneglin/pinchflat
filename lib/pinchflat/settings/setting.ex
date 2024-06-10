@@ -13,7 +13,8 @@ defmodule Pinchflat.Settings.Setting do
     :apprise_version,
     :apprise_server,
     :video_codec_preference,
-    :audio_codec_preference
+    :audio_codec_preference,
+    :youtube_api_key
   ]
 
   @required_fields ~w(
@@ -29,6 +30,7 @@ defmodule Pinchflat.Settings.Setting do
     field :yt_dlp_version, :string
     field :apprise_version, :string
     field :apprise_server, :string
+    field :youtube_api_key, :string
 
     field :video_codec_preference, :string
     field :audio_codec_preference, :string

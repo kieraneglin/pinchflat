@@ -15,7 +15,7 @@
         Notification Settings
       </h3>
       <span class="cursor-pointer hover:underline" x-on:click="advancedMode = !advancedMode">
-        Editing Mode: <span x-text="advancedMode ? 'Advanced' : 'Basic'"></span>
+        Editing Mode: <span x-text="advancedMode ? 'Advanced' : 'Standard'"></span>
       </span>
     </section>
 
@@ -26,7 +26,25 @@
     ) %>
   </section>
 
-  <section class="mt-10" x-show="advancedMode">
+  <section class="mt-8">
+    <section>
+      <h3 class="text-2xl text-black dark:text-white">
+        Indexing Settings
+      </h3>
+
+      <.input
+        field={f[:youtube_api_key]}
+        placeholder="ABC123"
+        type="text"
+        label="YouTube API Key"
+        help={youtube_api_help()}
+        html_help={true}
+        inputclass="font-mono text-sm mr-4"
+      />
+    </section>
+  </section>
+
+  <section class="mt-8" x-show="advancedMode">
     <section>
       <h3 class="text-2xl text-black dark:text-white">
         Codec Options

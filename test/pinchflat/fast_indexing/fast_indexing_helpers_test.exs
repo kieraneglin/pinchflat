@@ -6,19 +6,20 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
   import Pinchflat.ProfilesFixtures
 
   alias Pinchflat.Tasks
+  alias Pinchflat.Settings
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Downloading.MediaDownloadWorker
   alias Pinchflat.FastIndexing.FastIndexingHelpers
 
+  setup do
+    stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+      {:ok, media_attributes_return_fixture()}
+    end)
+
+    {:ok, [source: source_fixture()]}
+  end
+
   describe "kickoff_download_tasks_from_youtube_rss_feed/1" do
-    setup do
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
-        {:ok, media_attributes_return_fixture()}
-      end)
-
-      {:ok, [source: source_fixture()]}
-    end
-
     test "enqueues a new worker for each new media_id in the source's RSS feed", %{source: source} do
       expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
 
@@ -105,6 +106,51 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
       end)
 
       assert [] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+    end
+  end
+
+  describe "kickoff_download_tasks_from_youtube_rss_feed/1 when testing backends" do
+    test "uses the YouTube API if it is enabled", %{source: source} do
+      expect(HTTPClientMock, :get, fn url, _headers ->
+        assert url =~ "https://youtube.googleapis.com/youtube/v3/playlistItems"
+
+        {:ok, "{}"}
+      end)
+
+      Settings.set(youtube_api_key: "test_key")
+
+      assert [] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+    end
+
+    test "the YouTube API creates records as expected", %{source: source} do
+      expect(HTTPClientMock, :get, fn _url, _headers ->
+        {:ok, ~s({ "items": [ {"contentDetails": {"videoId": "test_1"}} ] })}
+      end)
+
+      Settings.set(youtube_api_key: "test_key")
+
+      assert [%MediaItem{}] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+    end
+
+    test "RSS is used as a backup if the API fails", %{source: source} do
+      expect(HTTPClientMock, :get, fn _url, _headers -> {:error, ""} end)
+      expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
+
+      Settings.set(youtube_api_key: "test_key")
+
+      assert [%MediaItem{}] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+    end
+
+    test "RSS is used if the API is not enabled", %{source: source} do
+      expect(HTTPClientMock, :get, fn url ->
+        assert url =~ "https://www.youtube.com/feeds/videos.xml"
+
+        {:ok, "<yt:videoId>test_1</yt:videoId>"}
+      end)
+
+      Settings.set(youtube_api_key: nil)
+
+      assert [%MediaItem{}] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
     end
   end
 end
