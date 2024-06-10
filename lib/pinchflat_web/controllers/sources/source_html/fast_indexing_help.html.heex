@@ -9,10 +9,18 @@
       to scan the entire source on your specified frequency, but it's very slow for large sources. This is the most accurate way to find uploaded media with the tradeoff being that pairing a large source that's indexed frequently will result in you spending most of your time indexing. Only so many indexing operations can be running at the same time so this can impact your other source's ability to index.
     </p>
     <p class="mt-2">
-      Fast indexing takes a different approach. It still does an initial scan the slow way but after that it uses a secondary mechanism (either RSS or YouTube's API) to frequently check for new videos. This has the potential to be hundreds of times faster, but it can miss videos if the uploader un-privates an old video or uploads dozens of videos in the space of a few minutes. It works well for most channels but it's not perfect.
+      Fast indexing takes a different approach. It still does an initial scan the slow way but after that it uses a secondary mechanism (either RSS or YouTube's API) to frequently check for new videos. This has the potential to be hundreds of times faster, but it can miss videos if the uploader un-privates an old video or uploads dozens of videos in the space of a few minutes.
     </p>
     <p class="mt-2">
-      RSS is used by default but if you want the most reliable fast indexing, you should enable the YouTube API. TODO LINK Here is some documentation on how to get your API key which you can add in your TODO LINK settings.
+      RSS is used by default but you should enable the YouTube API if you want the best version of fast indexing. This isn't needed for most users but it provides the fastest and most reliable media updates.
+      <.inline_link href="https://github.com/kieraneglin/pinchflat/wiki/Generating-a-YouTube-API-key">
+        Here is some documentation
+      </.inline_link>
+      on how to get your API key which you can add in the
+      <.inline_link href={~p"/settings"}>
+        settings
+      </.inline_link>
+      page.
     </p>
     <p class="mt-2">
       To make up for this limitation, a normal index is still run monthly to catch any videos that were missed by fast indexing. Fast indexing overrides the normal index frequency.
@@ -20,9 +28,21 @@
     <p class="mt-4">
       <h4 class="font-bold text-xl">TL;DR</h4>
 
+      <strong class="mt-2 inline-block">In general:</strong>
       <ul class="list-disc list-inside ml-2 md:ml-5">
-        <li>Uses RSS by default</li>
-        <li>For best results, generate a YouTube API key and add it in the settings page (TODO LINK)</li>
+        <li>
+          Uses RSS by default which is fine for most users
+        </li>
+        <li>
+          <.inline_link href="https://github.com/kieraneglin/pinchflat/wiki/Generating-a-YouTube-API-key">
+            Create a YouTube API key
+          </.inline_link>
+          and add it in your
+          <.inline_link href={~p"/settings"}>
+            settings
+          </.inline_link>
+          for the fastest possible media updates
+        </li>
       </ul>
 
       <strong class="mt-2 inline-block">Fast indexing is great if any of these apply:</strong>
