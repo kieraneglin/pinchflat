@@ -87,6 +87,9 @@ defmodule Pinchflat.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
+      format: "format --dot-formatter=tooling/.formatter.exs",
+      check: "check --config=tooling/.check.exs",
+      credo: "credo --config-file=tooling/.credo.exs",
       setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
