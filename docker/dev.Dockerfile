@@ -53,9 +53,6 @@ ENV LC_ALL en_US.UTF-8
 WORKDIR /app
 COPY . ./
 
-# Needs permissions to be updated AFTER the copy step
-RUN chmod +x ./docker-run.dev.sh
-
 # Install Elixir deps
 # RUN mix archive.install github hexpm/hex branch latest
 RUN mix deps.get

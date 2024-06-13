@@ -1,15 +1,13 @@
-version: '3'
 services:
   phx:
     build:
       context: .
-      dockerfile: dev.Dockerfile
+      dockerfile: ./docker/dev.Dockerfile
     volumes:
       - '.:/app'
     ports:
       - '4008:4008'
-    command:
-      - ./docker-run.dev.sh
+    command: bash -c "chmod +x docker/docker-run.dev.sh && docker/docker-run.dev.sh"
     stdin_open: true
     tty: true
     env_file:
