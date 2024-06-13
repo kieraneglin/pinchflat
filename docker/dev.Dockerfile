@@ -54,7 +54,7 @@ WORKDIR /app
 COPY . ./
 
 # Needs permissions to be updated AFTER the copy step
-RUN chmod +x ./docker-run.dev.sh
+RUN chmod +x ./docker/docker-run.dev.sh
 
 # Install Elixir deps
 # RUN mix archive.install github hexpm/hex branch latest

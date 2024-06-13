@@ -108,7 +108,7 @@ services:
 2. Prepare the docker image in one of the two ways below:
    - **From GHCR:** `docker pull ghcr.io/kieraneglin/pinchflat:latest`
      - NOTE: also available on Docker Hub at `keglin/pinchflat:latest`
-   - **Building locally:** `docker build . --file selfhosted.Dockerfile -t ghcr.io/kieraneglin/pinchflat:latest`
+   - **Building locally:** `docker build . --file docker/selfhosted.Dockerfile -t ghcr.io/kieraneglin/pinchflat:latest`
 3. Run the container:
 
 ```bash
