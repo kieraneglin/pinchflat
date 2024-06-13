@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     if: "! contains(toJSON(github.event.commits.*.message), '[skip ci]')"
     env:
-      COMPOSE_FILE: ./docker/docker-compose.ci.yml
+      COMPOSE_FILE: ./docker-compose.ci.yml
 
     steps:
       - name: Checkout code
