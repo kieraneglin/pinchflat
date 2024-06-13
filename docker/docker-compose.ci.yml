@@ -1,8 +1,8 @@
 services:
   phx:
     build:
-      context: .
-      dockerfile: ./docker/dev.Dockerfile
+      context: ../
+      dockerfile: ./dev.Dockerfile
     environment:
       - MIX_ENV=test
     volumes:
