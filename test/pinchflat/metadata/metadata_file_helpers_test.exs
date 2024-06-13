@@ -32,7 +32,7 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
       metadata_map = %{"foo" => "bar"}
 
       filepath = Helpers.compress_and_store_metadata_for(media_item, metadata_map)
-      {:ok, json} = File.open(filepath, [:read, :compressed], &IO.read(&1, :all))
+      {:ok, json} = File.open(filepath, [:read, :compressed], &IO.read(&1, :eof))
 
       assert json == Phoenix.json_library().encode!(metadata_map)
     end

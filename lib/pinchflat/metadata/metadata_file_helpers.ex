@@ -49,7 +49,7 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
   Returns {:ok, map()} | {:error, any}
   """
   def read_compressed_metadata(filepath) do
-    {:ok, json} = File.open(filepath, [:read, :compressed], &IO.read(&1, :all))
+    {:ok, json} = File.open(filepath, [:read, :compressed], &IO.read(&1, :eof))
 
     Phoenix.json_library().decode(json)
   end
