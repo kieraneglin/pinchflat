@@ -71,8 +71,8 @@ If it doesn't work for your use case, please make a feature request! You can als
 
 ## Screenshots
 
-<img src="priv/static/images/app-form-screenshot.png" alt="Pinchflat screenshot" width="700" />
-<img src="priv/static/images/app-screenshot.png" alt="Pinchflat screenshot" width="700" />
+<img src="priv/static/images/app-form-screenshot.jpg" alt="Pinchflat screenshot" width="700" />
+<img src="priv/static/images/app-screenshot.jpg" alt="Pinchflat screenshot" width="700" />
 
 ## Installation
 
