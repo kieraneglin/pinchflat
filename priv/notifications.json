@@ -1,0 +1,9 @@
+[
+  {
+    "id": "36cd0f0c-89bf-4284-bf1c-0bc5b39e6dfe",
+    "title": "`yt-dlp` recommends disabling YouTube Cookie auth",
+    "body": "`yt-dlp` has discovered an increased rate of IP bans for users who use YouTube Cookie auth. It is recommended to remove the contents of `/config/extras/cookies.txt`.",
+    "severity": "alert",
+    "notification_date": "2024-06-17"
+  }
+]
