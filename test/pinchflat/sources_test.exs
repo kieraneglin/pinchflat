@@ -675,7 +675,9 @@ defmodule Pinchflat.SourcesTest do
     test "fails when an invalid regex is provided" do
       source = source_fixture()
 
-      assert %{errors: [_]} = Sources.change_source(source, %{title_filter_regex: "*FOO"})
+      changeset = Sources.change_source(source, %{title_filter_regex: "*FOO"})
+
+      assert "is invalid" in errors_on(changeset).title_filter_regex
     end
   end
 
