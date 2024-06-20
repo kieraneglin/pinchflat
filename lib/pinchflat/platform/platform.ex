@@ -25,8 +25,13 @@ defmodule Pinchflat.Platform do
   def create_app_notification(attrs \\ %{}) do
     %AppNotification{}
     |> AppNotification.changeset(attrs)
+    |> IO.inspect()
     |> Repo.insert()
   end
+
+  # def mark_all_as_read do
+  #   Repo.update_all(AppNotification, set: [read_at: DateTime.utc_now()])
+  # end
 
   @doc """
   Returns `%Ecto.Changeset{}`
