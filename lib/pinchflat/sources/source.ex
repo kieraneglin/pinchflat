@@ -112,6 +112,7 @@ defmodule Pinchflat.Sources.Source do
     |> dynamic_default(:custom_name, fn cs -> get_field(cs, :collection_name) end)
     |> dynamic_default(:uuid, fn _ -> Ecto.UUID.generate() end)
     |> validate_required(required_fields)
+    |> validate_title_regex()
     |> validate_number(:retention_period_days, greater_than_or_equal_to: 0)
     # Ensures it ends with `.{{ ext }}` or `.%(ext)s` or similar (with a little wiggle room)
     |> validate_format(:output_path_template_override, MediaProfile.ext_regex(), message: "must end with .{{ ext }}")
@@ -148,6 +149,15 @@ defmodule Pinchflat.Sources.Source do
     # for non-youtube sources.
     ~r<^(?:(?!youtube\.com/(watch|shorts|embed)|youtu\.be).)*$>
   end
+
+  defp validate_title_regex(%{changes: %{title_filter_regex: regex}} = changeset) when is_binary(regex) do
+    case Ecto.Adapters.SQL.query(Repo, "SELECT regexp_like('', ?)", [regex]) do
+      {:ok, _} -> changeset
+      _ -> add_error(changeset, :title_filter_regex, "is invalid")
+    end
+  end
+
+  defp validate_title_regex(changeset), do: changeset
 
   defimpl Jason.Encoder, for: Source do
     def encode(value, opts) do
