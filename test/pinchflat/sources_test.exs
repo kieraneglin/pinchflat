@@ -659,6 +659,26 @@ defmodule Pinchflat.SourcesTest do
     end
   end
 
+  describe "change_source/3 when testing regex validation" do
+    test "succeeds when a valid regex is provided" do
+      source = source_fixture()
+
+      assert %{errors: []} = Sources.change_source(source, %{title_filter_regex: "(?i)^How to Bike$"})
+    end
+
+    test "succeeds when a regex is set back to nil" do
+      source = source_fixture(%{title_filter_regex: "(?i)^How to Bike$"})
+
+      assert %{errors: []} = Sources.change_source(source, %{title_filter_regex: nil})
+    end
+
+    test "fails when an invalid regex is provided" do
+      source = source_fixture()
+
+      assert %{errors: [_]} = Sources.change_source(source, %{title_filter_regex: "*FOO"})
+    end
+  end
+
   describe "change_source/3 when testing original_url validation" do
     test "succeeds when an original URL is valid" do
       source = source_fixture()
