@@ -644,7 +644,13 @@ defmodule PinchflatWeb.CoreComponents do
       <li :for={{k, v} <- @iterable_attributes} class="mb-2 w-2/3">
         <strong><%= k %>:</strong>
         <code class="inline-block text-sm font-mono text-gray p-0.5 mx-0.5">
-          <%= v %>
+          <%= if is_binary(v) and String.starts_with?(v, "http") do %>
+            <.link class="underline decoration-bodydark decoration-1 hover:decoration-white" href={v} target="_blank">
+              <%= v %>
+            </.link>
+          <% else %>
+            <%= v %>
+          <% end %>
         </code>
       </li>
     </ul>
