@@ -27,6 +27,11 @@
     </span>
   </:option>
   <:option>
+    <.link href={~p"/sources/new?template_id=#{@source}"} method="get">
+      Use as Template
+    </.link>
+  </:option>
+  <:option>
     <div class="h-px w-full bg-bodydark2"></div>
   </:option>
   <:option :if={@source.download_media}>
