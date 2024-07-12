@@ -27,13 +27,21 @@ defmodule Pinchflat.Metadata.SourceImageParser do
 
   defp select_useful_images(images) do
     labelled_images =
-      Enum.reduce(images, [], fn image_map, acc ->
+      Enum.reduce(images, %{}, fn image_map, acc ->
         case image_map do
           %{"id" => "avatar_uncropped"} ->
-            acc ++ [{:poster, :poster_filepath, image_map["filepath"]}]
+            Map.put(acc, :poster, %{
+              attribute_name: :poster_filepath,
+              final_filename: "poster",
+              current_filepath: image_map["filepath"]
+            })
 
           %{"id" => "banner_uncropped"} ->
-            acc ++ [{:fanart, :fanart_filepath, image_map["filepath"]}]
+            Map.put(acc, :fanart, %{
+              attribute_name: :fanart_filepath,
+              final_filename: "fanart",
+              current_filepath: image_map["filepath"]
+            })
 
           _ ->
             acc
@@ -41,8 +49,13 @@ defmodule Pinchflat.Metadata.SourceImageParser do
       end)
 
     labelled_images
-    |> Enum.concat([{:banner, :banner_filepath, determine_best_banner(images)}])
-    |> Enum.filter(fn {_, _, tmp_filepath} -> tmp_filepath end)
+    # |> add_fallback_poster()
+    |> Map.put(:banner, %{
+      attribute_name: :banner_filepath,
+      final_filename: "banner",
+      current_filepath: determine_best_banner(images)
+    })
+    |> Enum.filter(fn {_key, attrs} -> attrs.current_filepath end)
   end
 
   defp determine_best_banner(images) do
@@ -58,12 +71,14 @@ defmodule Pinchflat.Metadata.SourceImageParser do
     Map.get(best_candidate || %{}, "filepath")
   end
 
-  defp move_image({filename, source_attr_name, tmp_filepath}, base_directory) do
-    extension = Path.extname(tmp_filepath)
-    final_filepath = Path.join([base_directory, "#{filename}#{extension}"])
+  defp move_image({_key, attrs}, base_directory) do
+    extension = Path.extname(attrs.current_filepath)
+    final_filepath = Path.join([base_directory, "#{attrs.final_filename}#{extension}"])
 
-    FilesystemUtils.cp_p!(tmp_filepath, final_filepath)
+    FilesystemUtils.cp_p!(attrs.current_filepath, final_filepath)
 
-    {source_attr_name, final_filepath}
+    {attrs.attribute_name, final_filepath}
   end
+
+  # defp add_fallback_poster()
 end
