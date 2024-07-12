@@ -9,6 +9,7 @@ defmodule PinchflatWeb.Sources.SourceHTML do
   attr :changeset, Ecto.Changeset, required: true
   attr :action, :string, required: true
   attr :media_profiles, :list, required: true
+  attr :method, :string, required: true
 
   def source_form(assigns)
 
