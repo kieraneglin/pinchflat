@@ -2,12 +2,12 @@
 
 set -e
 
-# Ensure the app's deps are installed
+echo "\nInstalling Elixir deps..."
 mix deps.get
 
-# Install JS deps
-echo "\nInstalling JS..."
-cd assets && yarn install
+# Install both project-level and assets-level JS dependencies
+echo "\nInstalling JS deps..."
+yarn install && cd assets && yarn install
 cd ..
 
 # Potentially Set up the database

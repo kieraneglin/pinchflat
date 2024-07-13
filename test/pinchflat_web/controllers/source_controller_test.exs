@@ -50,6 +50,15 @@ defmodule PinchflatWeb.SourceControllerTest do
 
       refute html_response(conn, 200) =~ "MENU"
     end
+
+    test "preloads some attributes when using a template", %{conn: conn} do
+      source = source_fixture(custom_name: "My first source", download_cutoff_date: "2021-01-01")
+
+      conn = get(conn, ~p"/sources/new", %{"template_id" => source.id})
+      assert html_response(conn, 200) =~ "New Source"
+      assert html_response(conn, 200) =~ "2021-01-01"
+      refute html_response(conn, 200) =~ source.custom_name
+    end
   end
 
   describe "create source" do
