@@ -77,7 +77,7 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
 
   defp fetch_source_metadata_and_images(series_directory, source) do
     metadata_directory = MetadataFileHelpers.metadata_directory_for(source)
-    # TODO: test
+
     {:ok, metadata} = fetch_metadata_for_source(source)
     metadata_image_attrs = SourceImageParser.store_source_images(metadata_directory, metadata)
 
@@ -109,7 +109,6 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
   end
 
   defp fetch_metadata_for_source(source) do
-    # TODO: test
     tmp_output_path = "#{tmp_directory()}/#{StringUtils.random_string(16)}/source_image.%(ext)S"
     base_opts = [convert_thumbnails: "jpg", output: tmp_output_path]
 
@@ -117,7 +116,7 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
       if source.collection_type == :channel do
         base_opts ++ [:write_all_thumbnails, playlist_items: 0]
       else
-        base_opts ++ [:write_thumbnails, playlist_items: 1]
+        base_opts ++ [:write_thumbnail, playlist_items: 1]
       end
 
     MediaCollection.get_source_metadata(source.original_url, opts)

@@ -109,9 +109,10 @@ defmodule Pinchflat.YtDlp.MediaCollection do
 
   Returns {:ok, map()} | {:error, any, ...}.
   """
-  def get_source_metadata(source_url, addl_opts \\ []) do
-    # TODO: test
-    # NOTE: don't forget to set `playlist_items` when you're calling this method! See above.
+  def get_source_metadata(source_url, addl_opts \\ [playlist_items: 0]) do
+    # This only validates that the `playlist_items` key is present. It's otherwise unused
+    _playlist_items = Keyword.fetch!(addl_opts, :playlist_items)
+
     opts = [:skip_download] ++ addl_opts
     output_template = "playlist:%()j"
 
