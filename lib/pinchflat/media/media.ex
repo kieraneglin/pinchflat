@@ -142,12 +142,17 @@ defmodule Pinchflat.Media do
   """
   def create_media_item_from_backend_attrs(source, media_attrs_struct) do
     attrs = Map.merge(%{source_id: source.id}, Map.from_struct(media_attrs_struct))
+    # Some fields should only be set on insert and not on update.
+    fields_to_drop_on_update = [:playlist_index]
 
     %MediaItem{}
     |> MediaItem.changeset(attrs)
     |> Repo.insert(
       on_conflict: [
-        set: Map.to_list(attrs)
+        set:
+          attrs
+          |> Map.drop(fields_to_drop_on_update)
+          |> Map.to_list()
       ],
       conflict_target: [:source_id, :media_id]
     )

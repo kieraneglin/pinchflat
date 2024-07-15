@@ -203,6 +203,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
       "source_collection_id" => source.collection_id,
       "source_collection_name" => source.collection_name,
       "source_collection_type" => to_string(source.collection_type),
+      "media_playlist_index" => to_string(media_item_with_preloads.playlist_index),
       "media_upload_date_index" =>
         media_item_with_preloads.upload_date_index
         |> to_string()
