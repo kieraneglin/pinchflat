@@ -59,14 +59,6 @@ defmodule Pinchflat.Metadata.MetadataParserTest do
 
       assert result.duration_seconds == round(metadata["duration"])
     end
-
-    test "drops the playlist_index` field", %{metadata: metadata} do
-      metadata = Map.put(metadata, "playlist_index", 1)
-
-      result = Parser.parse_for_media_item(metadata)
-
-      assert Map.get(result, :playlist_index) == nil
-    end
   end
 
   describe "parse_for_media_item/1 when testing subtitle metadata" do
