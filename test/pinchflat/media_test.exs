@@ -689,7 +689,24 @@ defmodule Pinchflat.MediaTest do
       assert {:ok, %MediaItem{} = media_item_2} = Media.create_media_item_from_backend_attrs(source, different_attrs)
 
       assert media_item_1.id == media_item_2.id
-      assert media_item_2.title == different_attrs.title
+      assert Repo.reload(media_item_2).title == different_attrs.title
+    end
+
+    test "doesn't update fields like playlist_index" do
+      source = source_fixture()
+
+      media_attrs =
+        media_attributes_return_fixture()
+        |> Phoenix.json_library().decode!()
+        |> Map.put("playlist_index", 1)
+        |> YtDlpMedia.response_to_struct()
+
+      different_attrs = %YtDlpMedia{media_attrs | playlist_index: 9999}
+
+      assert {:ok, %MediaItem{} = _media_item_1} = Media.create_media_item_from_backend_attrs(source, media_attrs)
+      assert {:ok, %MediaItem{} = media_item_2} = Media.create_media_item_from_backend_attrs(source, different_attrs)
+
+      assert Repo.reload(media_item_2).playlist_index == media_attrs.playlist_index
     end
   end
 

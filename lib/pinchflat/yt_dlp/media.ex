@@ -11,8 +11,7 @@ defmodule Pinchflat.YtDlp.Media do
     :livestream,
     :short_form_content,
     :uploaded_at,
-    :duration_seconds,
-    :playlist_index
+    :duration_seconds
   ]
 
   defstruct [
@@ -109,7 +108,7 @@ defmodule Pinchflat.YtDlp.Media do
       duration_seconds: response["duration"] && round(response["duration"]),
       short_form_content: response["webpage_url"] && short_form_content?(response),
       uploaded_at: response["upload_date"] && parse_uploaded_at(response),
-      playlist_index: response["playlist_index"]
+      playlist_index: response["playlist_index"] || 0
     }
   end
 
