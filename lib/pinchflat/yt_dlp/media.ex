@@ -11,7 +11,8 @@ defmodule Pinchflat.YtDlp.Media do
     :livestream,
     :short_form_content,
     :uploaded_at,
-    :duration_seconds
+    :duration_seconds,
+    :playlist_index
   ]
 
   defstruct [
@@ -22,7 +23,8 @@ defmodule Pinchflat.YtDlp.Media do
     :livestream,
     :short_form_content,
     :uploaded_at,
-    :duration_seconds
+    :duration_seconds,
+    :playlist_index
   ]
 
   alias __MODULE__
@@ -84,9 +86,11 @@ defmodule Pinchflat.YtDlp.Media do
 
   @doc """
   Returns the output template for yt-dlp's indexing command.
+
+  NOTE: playlist_index is really only useful for playlists that will never change their order.
   """
   def indexing_output_template do
-    "%(.{id,title,was_live,webpage_url,description,aspect_ratio,duration,upload_date,timestamp})j"
+    "%(.{id,title,was_live,webpage_url,description,aspect_ratio,duration,upload_date,timestamp,playlist_index})j"
   end
 
   @doc """
@@ -104,7 +108,8 @@ defmodule Pinchflat.YtDlp.Media do
       livestream: !!response["was_live"],
       duration_seconds: response["duration"] && round(response["duration"]),
       short_form_content: response["webpage_url"] && short_form_content?(response),
-      uploaded_at: response["upload_date"] && parse_uploaded_at(response)
+      uploaded_at: response["upload_date"] && parse_uploaded_at(response),
+      playlist_index: response["playlist_index"] || 0
     }
   end
 

@@ -110,8 +110,10 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
   describe "indexing_output_template/0" do
     test "contains all the greatest hits" do
-      assert "%(.{id,title,was_live,webpage_url,description,aspect_ratio,duration,upload_date,timestamp})j" ==
-               Media.indexing_output_template()
+      attrs = ~w(id title was_live webpage_url description aspect_ratio duration upload_date timestamp playlist_index)a
+      formatted_attrs = "%(.{#{Enum.join(attrs, ",")}})j"
+
+      assert formatted_attrs == Media.indexing_output_template()
     end
   end
 
@@ -126,7 +128,8 @@ defmodule Pinchflat.YtDlp.MediaTest do
         "aspect_ratio" => 1.0,
         "duration" => 60,
         "upload_date" => "20210101",
-        "timestamp" => 1_600_000_000
+        "timestamp" => 1_600_000_000,
+        "playlist_index" => 1
       }
 
       assert %Media{
@@ -137,7 +140,8 @@ defmodule Pinchflat.YtDlp.MediaTest do
                livestream: false,
                short_form_content: false,
                uploaded_at: ~U[2020-09-13 12:26:40Z],
-               duration_seconds: 60
+               duration_seconds: 60,
+               playlist_index: 1
              } == Media.response_to_struct(response)
     end
 
