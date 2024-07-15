@@ -68,7 +68,9 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
       season_from_date: "alias for upload_year",
       season_episode_from_date: "the upload date formatted as sYYYYeMMDD",
       season_episode_index_from_date:
-        "the upload date formatted as sYYYYeMMDDII where II is an index to prevent date collisions"
+        "the upload date formatted as sYYYYeMMDDII where II is an index to prevent date collisions",
+      media_playlist_index:
+        "the place of the media item in the playlist. Do not use with channels. May not work if the playlist is updated"
     }
   end
 
