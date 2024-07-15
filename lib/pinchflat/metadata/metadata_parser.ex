@@ -32,6 +32,8 @@ defmodule Pinchflat.Metadata.MetadataParser do
         media_filepath: metadata["filepath"]
       }
     )
+    # This should only ever be written during indexing and this whole module gets run during download
+    |> Map.drop([:playlist_index])
   end
 
   defp parse_subtitle_metadata(metadata) do

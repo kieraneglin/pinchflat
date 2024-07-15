@@ -18,6 +18,8 @@ defmodule Pinchflat.Media.MediaItem do
   alias Pinchflat.Media.MediaItemsSearchIndex
 
   @allowed_fields [
+    # these fields are only captured on index
+    :playlist_index,
     # these fields are captured on indexing (and again on download)
     :title,
     :media_id,
@@ -72,6 +74,7 @@ defmodule Pinchflat.Media.MediaItem do
     field :uploaded_at, :utc_datetime
     field :upload_date_index, :integer, default: 0
     field :duration_seconds, :integer
+    field :playlist_index, :integer, default: 0
 
     field :media_filepath, :string
     field :media_size_bytes, :integer

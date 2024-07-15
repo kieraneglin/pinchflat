@@ -65,7 +65,7 @@ defmodule Pinchflat.YtDlp.Media do
   @doc """
   Returns a map representing the media at the given URL.
 
-  Returns {:ok, [map()]} | {:error, any, ...}.
+  Returns {:ok, %Media{}} | {:error, any, ...}.
   """
   def get_media_attributes(url) do
     runner = Application.get_env(:pinchflat, :yt_dlp_runner)
@@ -109,7 +109,7 @@ defmodule Pinchflat.YtDlp.Media do
       duration_seconds: response["duration"] && round(response["duration"]),
       short_form_content: response["webpage_url"] && short_form_content?(response),
       uploaded_at: response["upload_date"] && parse_uploaded_at(response),
-      playlist_index: response["playlist_index"] || 0
+      playlist_index: response["playlist_index"]
     }
   end
 

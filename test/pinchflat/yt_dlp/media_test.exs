@@ -221,6 +221,17 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
       assert %Media{livestream: false} = Media.response_to_struct(response)
     end
+
+    test "doesn't blow up if playlist_index is missing" do
+      response = %{
+        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "aspect_ratio" => 1.0,
+        "duration" => nil,
+        "upload_date" => "20210101"
+      }
+
+      assert %Media{playlist_index: 0} = Media.response_to_struct(response)
+    end
   end
 
   describe "response_to_struct/1 when testing uploaded_at" do
