@@ -143,7 +143,9 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
 
           {:ok, source_details_return_fixture(%{filename: filename})}
 
-        _url, _opts, ot when ot == @metadata_ot ->
+        _url, opts, ot when ot == @metadata_ot ->
+          assert {:convert_thumbnails, "jpg"} in opts
+
           {:ok, render_metadata(:channel_source_metadata)}
       end)
 
@@ -162,6 +164,42 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
       assert File.exists?(source.banner_filepath)
 
       Sources.delete_source(source, delete_files: true)
+    end
+
+    test "calls one set of yt-dlp metadata opts for channels" do
+      stub(YtDlpRunnerMock, :run, fn
+        _url, _opts, ot when ot == @source_details_ot ->
+          {:ok, source_details_return_fixture()}
+
+        _url, opts, ot when ot == @metadata_ot ->
+          assert {:playlist_items, 0} in opts
+          assert :write_all_thumbnails in opts
+
+          {:ok, render_metadata(:channel_source_metadata)}
+      end)
+
+      profile = media_profile_fixture(%{download_source_images: true})
+      source = source_fixture(media_profile_id: profile.id, collection_type: :channel)
+
+      perform_job(SourceMetadataStorageWorker, %{id: source.id})
+    end
+
+    test "calls another set of yt-dlp metadata opts for playlists" do
+      stub(YtDlpRunnerMock, :run, fn
+        _url, _opts, ot when ot == @source_details_ot ->
+          {:ok, source_details_return_fixture()}
+
+        _url, opts, ot when ot == @metadata_ot ->
+          assert {:playlist_items, 1} in opts
+          assert :write_thumbnail in opts
+
+          {:ok, render_metadata(:channel_source_metadata)}
+      end)
+
+      profile = media_profile_fixture(%{download_source_images: true})
+      source = source_fixture(media_profile_id: profile.id, collection_type: :playlist)
+
+      perform_job(SourceMetadataStorageWorker, %{id: source.id})
     end
 
     test "does not store source images if the profile is not set to" do
