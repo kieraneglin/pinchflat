@@ -203,11 +203,8 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
       "source_collection_id" => source.collection_id,
       "source_collection_name" => source.collection_name,
       "source_collection_type" => to_string(source.collection_type),
-      "media_playlist_index" => to_string(media_item_with_preloads.playlist_index),
-      "media_upload_date_index" =>
-        media_item_with_preloads.upload_date_index
-        |> to_string()
-        |> String.pad_leading(2, "0")
+      "media_playlist_index" => pad_int(media_item_with_preloads.playlist_index),
+      "media_upload_date_index" => pad_int(media_item_with_preloads.upload_date_index)
     }
   end
 
@@ -222,6 +219,12 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
     |> List.insert_at(-3, "-thumb")
     |> Enum.join()
     |> build_output_path(media_item_with_preloads)
+  end
+
+  defp pad_int(integer, count \\ 2, padding \\ "0") do
+    integer
+    |> to_string()
+    |> String.pad_leading(count, padding)
   end
 
   defp base_directory do
