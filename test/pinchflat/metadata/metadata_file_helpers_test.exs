@@ -11,6 +11,16 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
     {:ok, %{media_item: media_item}}
   end
 
+  describe "metadata_directory_for/1" do
+    test "returns the metadata directory for the given record", %{media_item: media_item} do
+      base_metadata_directory = Application.get_env(:pinchflat, :metadata_directory)
+
+      metadata_directory = Helpers.metadata_directory_for(media_item)
+
+      assert metadata_directory == Path.join([base_metadata_directory, "media_items", "#{media_item.id}"])
+    end
+  end
+
   describe "compress_and_store_metadata_for/2" do
     test "returns the filepath", %{media_item: media_item} do
       metadata_map = %{"foo" => "bar"}
@@ -142,13 +152,20 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
     end
   end
 
-  describe "metadata_directory_for/1" do
-    test "returns the metadata directory for the given record", %{media_item: media_item} do
-      base_metadata_directory = Application.get_env(:pinchflat, :metadata_directory)
+  describe "season_and_episode_from_media_filepath/1" do
+    test "returns a season and episode if one can be determined" do
+      assert {:ok, {"1", "2"}} = Helpers.season_and_episode_from_media_filepath("/foo/s1e2 - test.mp4")
+      assert {:ok, {"1", "2"}} = Helpers.season_and_episode_from_media_filepath("/foo/S1E2 - test.mp4")
+      assert {:ok, {"001", "002"}} = Helpers.season_and_episode_from_media_filepath("/foo/s001e002 - test.mp4")
+      assert {:ok, {"1", "2"}} = Helpers.season_and_episode_from_media_filepath("/foo/s1e2bar - test.mp4")
+      assert {:ok, {"1", "2"}} = Helpers.season_and_episode_from_media_filepath("/foo/bar s1e2 - test.mp4")
+    end
 
-      metadata_directory = Helpers.metadata_directory_for(media_item)
-
-      assert metadata_directory == Path.join([base_metadata_directory, "media_items", "#{media_item.id}"])
+    test "returns an error if a season and episode can't be determined" do
+      assert {:error, :indeterminable} = Helpers.season_and_episode_from_media_filepath("/foo/test.mp4")
+      assert {:error, :indeterminable} = Helpers.season_and_episode_from_media_filepath("/foo/s1 - test.mp4")
+      assert {:error, :indeterminable} = Helpers.season_and_episode_from_media_filepath("/foo/s1e - test.mp4")
+      assert {:error, :indeterminable} = Helpers.season_and_episode_from_media_filepath("/foo/s1etest.mp4")
     end
   end
 end
