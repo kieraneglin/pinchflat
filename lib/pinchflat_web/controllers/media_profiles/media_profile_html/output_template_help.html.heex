@@ -1,7 +1,7 @@
 <%!-- The heex HTML formatter is really struggling with this file - I apologize in advance --%>
 <aside>
   <h2 class="text-xl font-bold mb-2">Output Template Syntax</h2>
-  <section class="ml-2 md:ml-4 mb-4 max-w-prose">
+  <section class="ml-2 md:ml-4 mb-4 max-w-prose overflow-auto">
     <p>When generating an output template, you have 3 options for syntax:</p>
     <ul class="list-disc list-inside ml-2 md:ml-5">
       <li>
@@ -46,7 +46,7 @@
   </section>
 
   <h2 class="text-xl font-bold mb-2">Template Options</h2>
-  <section class="ml-2 md:ml-4 mb-4">
+  <section class="ml-2 md:ml-4 mb-4 overflow-auto">
     <p class="max-w-prose">
       Any single-word <code class="text-sm">yt-dlp</code>
       option
@@ -56,16 +56,23 @@
       can be used with the curly braced liquid-style syntax.
       This is just a list of the most common options as well as some custom aliases
     </p>
-    <h3 class="text-lg font-bold mb-2">Custom Aliases</h3>
-    <ul class="list-disc list-inside ml-2 md:ml-5">
-      <li :for={{k, v} <- custom_output_template_options()}>
+    <h3 class="text-lg font-bold my-2">Media Center Custom Aliases</h3>
+    <ul class="list-disc list-inside mb-4 ml-2 md:ml-5 max-w-prose">
+      <li :for={{k, v} <- media_center_custom_output_template_options()} class="mt-1">
         <.inline_code>{{ <%= k %> }}</.inline_code>
-        <span :if={v}>- <%= v %></span>
+        <span :if={v}>- <%= raw(v) %></span>
+      </li>
+    </ul>
+    <h3 class="text-lg font-bold mb-2">Other Custom Aliases</h3>
+    <ul class="list-disc list-inside mb-4 ml-2 md:ml-5 max-w-prose">
+      <li :for={{k, v} <- other_custom_output_template_options()} class="mt-1">
+        <.inline_code>{{ <%= k %> }}</.inline_code>
+        <span :if={v}>- <%= raw(v) %></span>
       </li>
     </ul>
     <h3 class="text-lg font-bold mb-2">Common Options</h3>
     <ul class="list-disc list-inside ml-2 md:ml-5">
-      <li :for={opt <- common_output_template_options()}>
+      <li :for={opt <- common_output_template_options()} class="mt-1">
         <.inline_code>{{ <%= opt %> }}</.inline_code>
       </li>
     </ul>
