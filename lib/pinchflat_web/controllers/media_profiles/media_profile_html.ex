@@ -59,7 +59,9 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
       season_by_year__episode_by_date_and_index:
         "same as the above but it handles dates better. <strong>This is the recommended option</strong>",
       static_season__episode_by_index:
-        "<code>Season 1/s01eXX</code> where <code>XX</code> is the video's position in the playlist. Only recommended for playlists (not channels) that don't change"
+        "<code>Season 1/s01eXX</code> where <code>XX</code> is the video's position in the playlist. Only recommended for playlists (not channels) that don't change",
+      static_season__episode_by_date:
+        "<code>Season 1/s01eYYMMDD</code>. Recommended for playlists that might change or where order isn't important"
     }
   end
 

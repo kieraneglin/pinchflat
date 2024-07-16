@@ -56,6 +56,7 @@ defmodule Pinchflat.Downloading.OutputPathBuilder do
       "season_episode_index_from_date" => "s%(upload_date>%Y)Se%(upload_date>%m%d)S{{ media_upload_date_index }}",
       "artist_name" => "%(artist,creator,uploader,uploader_id)S",
       "static_season__episode_by_index" => "Season 1/s01e{{ media_playlist_index }}",
+      "static_season__episode_by_date" => "Season 1/s01e%(upload_date>%y%m%d)S",
       "season_by_year__episode_by_date" => "Season %(upload_date>%Y)S/s%(upload_date>%Y)Se%(upload_date>%m%d)S",
       "season_by_year__episode_by_date_and_index" =>
         "Season %(upload_date>%Y)S/s%(upload_date>%Y)Se%(upload_date>%m%d)S{{ media_upload_date_index }}"
