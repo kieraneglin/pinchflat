@@ -124,6 +124,21 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
     end
   end
 
+  @doc """
+  Attempts to determine the season and episode number from a media filepath.
+
+  Returns {:ok, {binary(), binary()}} | {:error, :indeterminable}
+  """
+  def season_and_episode_from_media_filepath(media_filepath) do
+    # matches s + 1 or more digits + e + 1 or more digits (case-insensitive)
+    season_episode_regex = ~r/s(\d+)e(\d+)/i
+
+    case Regex.scan(season_episode_regex, media_filepath) do
+      [[_, season, episode] | _] -> {:ok, {season, episode}}
+      _ -> {:error, :indeterminable}
+    end
+  end
+
   defp generate_filepath_for(database_record, filename) do
     Path.join([
       metadata_directory_for(database_record),
