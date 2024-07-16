@@ -53,12 +53,22 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
     ]
   end
 
-  def custom_output_template_options do
+  def media_center_custom_output_template_options do
+    %{
+      season_by_year__episode_by_date: "<code>Season YYYY/sYYYYeMMDD</code>",
+      season_by_year__episode_by_date_and_index:
+        "same as the above but it handles dates better. <strong>This is the recommended option</strong>",
+      static_season__episode_by_index:
+        "<code>Season 1/s01eXX</code> where <code>XX</code> is the video's position in the playlist. Only recommended for playlists (not channels) that don't change"
+    }
+  end
+
+  def other_custom_output_template_options do
     %{
       upload_day: nil,
       upload_month: nil,
       upload_year: nil,
-      upload_yyyy_mm_dd: "the upload date in the format YYYY-MM-DD",
+      upload_yyyy_mm_dd: "the upload date in the format <code>YYYY-MM-DD</code>",
       source_custom_name: "the name of the sources that use this profile",
       source_collection_id: "the YouTube ID of the sources that use this profile",
       source_collection_name:
@@ -66,9 +76,9 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
       source_collection_type: "the collection type of the sources using this profile. Either 'channel' or 'playlist'",
       artist_name: "the name of the artist with fallbacks to other uploader fields",
       season_from_date: "alias for upload_year",
-      season_episode_from_date: "the upload date formatted as sYYYYeMMDD",
+      season_episode_from_date: "the upload date formatted as <code>sYYYYeMMDD</code>",
       season_episode_index_from_date:
-        "the upload date formatted as sYYYYeMMDDII where II is an index to prevent date collisions",
+        "the upload date formatted as <code>sYYYYeMMDDII</code> where <code>II</code> is an index to prevent date collisions",
       media_playlist_index:
         "the place of the media item in the playlist. Do not use with channels. May not work if the playlist is updated"
     }
@@ -79,7 +89,6 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
       id
       ext
       title
-      fulltitle
       uploader
       channel
       upload_date
@@ -101,7 +110,7 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
   end
 
   defp media_center_output_template do
-    "/shows/{{ source_custom_name }}/Season {{ season_from_date }}/{{ season_episode_index_from_date }} - {{ title }}.{{ ext }}"
+    "/shows/{{ source_custom_name }}/{{ season_by_year__episode_by_date_and_index }} - {{ title }}.{{ ext }}"
   end
 
   defp audio_output_template do
