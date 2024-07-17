@@ -51,3 +51,6 @@ jobs:
 
       - name: Run code checks
         run: docker compose exec -T phx mix check --no-fix --no-retry
+
+      - name: Shut down Docker containers
+        run: docker compose down
