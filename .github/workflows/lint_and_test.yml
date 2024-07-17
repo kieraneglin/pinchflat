@@ -16,6 +16,7 @@ jobs:
     if: "! contains(toJSON(github.event.commits.*.message), '[skip ci]')"
     env:
       COMPOSE_FILE: ./docker-compose.ci.yml
+      MIX_ENV: test
 
     steps:
       - name: Checkout code
@@ -24,14 +25,13 @@ jobs:
       - name: Pull prebuilt images
         run: docker compose pull
 
-      - name: Setup Docker layer caching
-        uses: jpribyl/action-docker-layer-caching@v0.1.1
-        continue-on-error: true
+      - name: Build docker image
+        uses: docker/build-push-action@v5
         with:
-          key: ci-docker-cache-{hash}
-          restore-keys: |
-            ci-docker-cache-
-            layer-ci-docker-cache-
+          context: .
+          file: ./docker/dev.Dockerfile
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Build and Run Docker image
         run: docker compose up --detach
@@ -47,7 +47,8 @@ jobs:
 
       - name: Create and Migrate database
         run: |
-          docker compose exec -T phx mix ecto.create && mix ecto.migrate
+          docker compose exec -T phx mix ecto.create
+          docker compose exec -T mix ecto.migrate
 
       - name: Run code checks
         run: docker compose exec -T phx mix check --no-fix --no-retry
