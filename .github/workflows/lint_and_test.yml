@@ -37,7 +37,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Build and Run Docker image
+      - name: Run Docker image
         run: docker compose up --detach
 
       # NOTE: All exec commands use the -T flag to compensate for
@@ -56,6 +56,3 @@ jobs:
 
       - name: Run code checks
         run: docker compose exec -T phx mix check --no-fix --no-retry
-
-      - name: Shut down Docker containers
-        run: docker compose down

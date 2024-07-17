@@ -45,9 +45,9 @@ RUN export PIPX_HOME=/opt/pipx && \
 
 # Set the locale
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 
 # Create app directory and copy the Elixir projects into it.
 WORKDIR /app
@@ -57,7 +57,6 @@ COPY . ./
 # RUN mix archive.install github hexpm/hex branch latest
 RUN MIX_ENV=dev mix deps.get && MIX_ENV=dev mix deps.compile
 RUN MIX_ENV=test mix deps.get && MIX_ENV=test mix deps.compile
-RUN rm -rf deps/*/.fetch
 # Gives us iex shell history
 ENV ERL_AFLAGS="-kernel shell_history enabled"
 
