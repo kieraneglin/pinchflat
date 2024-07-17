@@ -51,8 +51,8 @@ jobs:
 
       - name: Create and Migrate database
         run: |
-          docker compose exec -T phx mix ecto.create --no-compile
-          docker compose exec -T phx mix ecto.migrate --no-compile
+          docker compose exec -T phx mix ecto.create
+          docker compose exec -T phx mix ecto.migrate
 
       - name: Run code checks
         run: docker compose exec -T phx mix check --no-fix --no-retry
