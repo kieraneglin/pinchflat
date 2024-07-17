@@ -50,8 +50,8 @@ jobs:
 
       - name: Create and Migrate database
         run: |
-          docker compose exec -T phx mix ecto.create
-          docker compose exec -T phx mix ecto.migrate
+          docker compose exec -T phx MIX_ENV=test mix ecto.create
+          docker compose exec -T phx MIX_ENV=test mix ecto.migrate
 
       - name: Run code checks
         run: docker compose exec -T phx mix check --no-fix --no-retry
