@@ -74,6 +74,9 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
         {{:download_auto_subs, true}, %{download_subs: true}} ->
           acc ++ [:write_auto_subs]
 
+        {{:download_auto_subs, true}, %{embed_subs: true}} ->
+          acc ++ [:write_auto_subs]
+
         {{:embed_subs, true}, %{preferred_resolution: pr}} when pr != :audio ->
           acc ++ [:embed_subs]
 
