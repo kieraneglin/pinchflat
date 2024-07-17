@@ -7,6 +7,8 @@ services:
       - MIX_ENV=test
     volumes:
       - '.:/app'
+      - '/app/deps'
+      - '/app/_build'
     ports:
       - '4008:4008'
     command: tail -F /dev/null
