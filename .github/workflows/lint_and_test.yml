@@ -43,7 +43,7 @@ jobs:
       # See https://github.com/actions/runner/issues/241 and https://github.com/docker/compose/issues/8537
       - name: Install Elixir and JS deps
         run: |
-          docker compose exec -T phx phx mix deps.get && yarn install && cd assets && yarn install && cd ..
+          docker compose exec -T phx mix deps.get && yarn install && cd assets && yarn install && cd ..
 
       - name: Create and Migrate database
         run: |
