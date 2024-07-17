@@ -49,6 +49,11 @@ jobs:
         run: |
           docker compose exec -T phx mix deps.get && yarn install && cd assets && yarn install && cd ..
 
+      - name: Create and Migrate database
+        run: |
+          docker compose exec -T phx mix ecto.create --no-compile
+          docker compose exec -T phx mix ecto.migrate --no-compile
+
       - name: Run code checks
         run: docker compose exec -T phx mix check --no-fix --no-retry
 
