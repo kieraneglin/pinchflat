@@ -27,19 +27,16 @@ RUN export FFMPEG_DOWNLOAD=$(case ${TARGETPLATFORM:-linux/amd64} in \
 RUN curl -sL https://deb.nodesource.com/setup_20.x -o nodesource_setup.sh && \
   bash nodesource_setup.sh && \
   apt-get install -y nodejs && \
-  npm install -g yarn
-
-# Install baseline Elixir packages
-RUN mix local.hex --force && \
-  mix local.rebar --force
-
-# Download and update YT-DLP
-RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && \
+  npm install -g yarn && \
+  # Install baseline Elixir packages
+  mix local.hex --force && \
+  mix local.rebar --force && \
+  # Download and update YT-DLP
+  curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && \
   chmod a+rx /usr/local/bin/yt-dlp && \
-  yt-dlp -U
-
-# Install Apprise
-RUN export PIPX_HOME=/opt/pipx && \
+  yt-dlp -U && \
+  # Install Apprise
+  export PIPX_HOME=/opt/pipx && \
   export PIPX_BIN_DIR=/usr/local/bin && \
   pipx install apprise
 
