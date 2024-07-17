@@ -93,15 +93,23 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
     end
 
     test "includes :write_auto_subs option when specified", %{media_item: media_item} do
-      media_item = update_media_profile_attribute(media_item, %{download_subs: true, download_auto_subs: true})
+      media_item_1 = update_media_profile_attribute(media_item, %{download_subs: true, download_auto_subs: true})
+      media_item_2 = update_media_profile_attribute(media_item, %{embed_subs: true, download_auto_subs: true})
 
-      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+      assert {:ok, res_1} = DownloadOptionBuilder.build(media_item_1)
+      assert {:ok, res_2} = DownloadOptionBuilder.build(media_item_2)
 
-      assert :write_auto_subs in res
+      assert :write_auto_subs in res_1
+      assert :write_auto_subs in res_2
     end
 
-    test "doesn't include :write_auto_subs option when download_subs is false", %{media_item: media_item} do
-      media_item = update_media_profile_attribute(media_item, %{download_subs: false, download_auto_subs: true})
+    test "doesn't include :write_auto_subs option when download_subs and embed_subs is false", %{media_item: media_item} do
+      media_item =
+        update_media_profile_attribute(media_item, %{
+          download_subs: false,
+          embed_subs: false,
+          download_auto_subs: true
+        })
 
       assert {:ok, res} = DownloadOptionBuilder.build(media_item)
 

@@ -60,14 +60,14 @@
     <ul class="list-disc list-inside mb-4 ml-2 md:ml-5 max-w-prose">
       <li :for={{k, v} <- media_center_custom_output_template_options()} class="mt-1">
         <.inline_code>{{ <%= k %> }}</.inline_code>
-        <span :if={v}>- <%= raw(v) %></span>
+        <span :if={v}>- <%= html_escape({:safe, v}) %></span>
       </li>
     </ul>
     <h3 class="text-lg font-bold mb-2">Other Custom Aliases</h3>
     <ul class="list-disc list-inside mb-4 ml-2 md:ml-5 max-w-prose">
       <li :for={{k, v} <- other_custom_output_template_options()} class="mt-1">
         <.inline_code>{{ <%= k %> }}</.inline_code>
-        <span :if={v}>- <%= raw(v) %></span>
+        <span :if={v}>- <%= html_escape({:safe, v}) %></span>
       </li>
     </ul>
     <h3 class="text-lg font-bold mb-2">Common Options</h3>
