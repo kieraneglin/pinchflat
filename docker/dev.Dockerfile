@@ -57,6 +57,7 @@ COPY . ./
 # RUN mix archive.install github hexpm/hex branch latest
 RUN MIX_ENV=dev mix deps.get && MIX_ENV=dev mix deps.compile
 RUN MIX_ENV=test mix deps.get && MIX_ENV=test mix deps.compile
+RUN rm -rf deps/*/.fetch
 # Gives us iex shell history
 ENV ERL_AFLAGS="-kernel shell_history enabled"
 
