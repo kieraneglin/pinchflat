@@ -33,6 +33,7 @@ jobs:
         with:
           context: .
           file: ./docker/dev.Dockerfile
+          load: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -47,11 +48,6 @@ jobs:
       - name: Install Elixir and JS deps
         run: |
           docker compose exec -T phx mix deps.get && yarn install && cd assets && yarn install && cd ..
-
-      - name: Create and Migrate database
-        run: |
-          docker compose exec -T phx mix ecto.create
-          docker compose exec -T phx mix ecto.migrate
 
       - name: Run code checks
         run: docker compose exec -T phx mix check --no-fix --no-retry
