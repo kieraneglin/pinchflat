@@ -55,7 +55,8 @@ COPY . ./
 
 # Install Elixir deps
 # RUN mix archive.install github hexpm/hex branch latest
-RUN mix deps.get
+RUN mix deps.get && mix deps.compile
+RUN MIX_ENV=test mix deps.get && MIX_ENV=test mix deps.compile
 # Gives us iex shell history
 ENV ERL_AFLAGS="-kernel shell_history enabled"
 
