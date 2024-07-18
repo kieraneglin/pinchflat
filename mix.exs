@@ -103,7 +103,8 @@ defmodule Pinchflat.MixProject do
       "ecto.rollback": [
         "ecto.rollback",
         ~s(cmd [ -z "$MIX_ENV" ] && yarn run create-erd || echo "No ERD generated")
-      ]
+      ],
+      "version.bump": "cmd ./tooling/version_bump.sh"
     ]
   end
 end
