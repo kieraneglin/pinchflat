@@ -58,9 +58,7 @@ defmodule Pinchflat.Downloading.MediaRetentionWorker do
       |> Repo.all()
 
     Logger.info("Deleting #{length(deletable_media)} media items that are from before the source cutoff")
-    # TODO: I should ensure that `culled_at` is set to nil if the media item
-    # gets re-downloaded. Because in this case the user could just change the cutoff date and re-download
-    # and I don't think it makes sense to still indicate that the media item was culled.
+
     Enum.each(deletable_media, fn media_item ->
       # Note that I'm not setting `prevent_download` on the media_item here.
       # That's because cutoff_date can easily change and it's a valid behavior to re-download older
