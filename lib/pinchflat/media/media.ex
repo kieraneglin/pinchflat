@@ -25,19 +25,6 @@ defmodule Pinchflat.Media do
   end
 
   @doc """
-  Returns a list of media_items that are cullable based on the retention period
-  of the source they belong to.
-
-  Returns [%MediaItem{}, ...]
-  """
-  def list_cullable_media_items do
-    MediaQuery.new()
-    |> MediaQuery.require_assoc(:source)
-    |> where(^MediaQuery.cullable())
-    |> Repo.all()
-  end
-
-  @doc """
   Returns a list of media_items that are upgradeable based on the redownload delay
   of the media_profile their source belongs to. In this context, upgradeable means
   that it's been long enough since upload that the video may be in a higher quality
