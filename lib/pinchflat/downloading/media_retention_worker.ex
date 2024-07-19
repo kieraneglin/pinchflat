@@ -50,7 +50,6 @@ defmodule Pinchflat.Downloading.MediaRetentionWorker do
   end
 
   defp delete_media_items_from_before_cutoff do
-    # TODO: update the source form to explain this new behavior
     deletable_media =
       MediaQuery.new()
       |> MediaQuery.require_assoc(:source)
