@@ -23,10 +23,10 @@ defmodule Pinchflat.Downloading.MediaQualityUpgradeWorker do
   """
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    redownloadable_media = Media.list_redownloadable_media_items()
-    Logger.info("Redownloading #{length(redownloadable_media)} media items")
+    upgradable_media = Media.list_upgradeable_media_items()
+    Logger.info("Redownloading #{length(upgradable_media)} media items")
 
-    Enum.each(redownloadable_media, fn media_item ->
+    Enum.each(upgradable_media, fn media_item ->
       MediaDownloadWorker.kickoff_with_task(media_item, %{quality_upgrade?: true})
     end)
   end

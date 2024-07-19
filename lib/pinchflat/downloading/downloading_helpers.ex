@@ -91,8 +91,7 @@ defmodule Pinchflat.Downloading.DownloadingHelpers do
         [m, s, mp],
         ^MediaQuery.for_source(source) and
           ^MediaQuery.downloaded() and
-          not (^MediaQuery.download_prevented()) and
-          not (^MediaQuery.culled())
+          not (^MediaQuery.download_prevented())
       )
     )
     |> Repo.all()

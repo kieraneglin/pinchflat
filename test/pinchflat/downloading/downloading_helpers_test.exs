@@ -130,9 +130,6 @@ defmodule Pinchflat.Downloading.DownloadingHelpersTest do
       _download_prevented =
         media_item_fixture(source_id: source.id, media_filepath: "some/filepath.mp4", prevent_download: true)
 
-      _culled =
-        media_item_fixture(source_id: source.id, media_filepath: "some/filepath.mp4", culled_at: now())
-
       assert [] = DownloadingHelpers.kickoff_redownload_for_existing_media(source)
 
       refute_enqueued(worker: MediaDownloadWorker)
