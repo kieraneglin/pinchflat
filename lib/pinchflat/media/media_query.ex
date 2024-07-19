@@ -44,14 +44,6 @@ defmodule Pinchflat.Media.MediaQuery do
     )
   end
 
-  # def upload_date_before_source_cutoff do
-  #   dynamic(
-  #     [mi, source],
-  #     not is_nil(source.download_cutoff_date) and
-  #       fragment("date(?) < ?", mi.uploaded_at, source.download_cutoff_date)
-  #   )
-  # end
-
   def format_matching_profile_preference do
     dynamic(
       [mi, source, media_profile],
