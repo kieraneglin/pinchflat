@@ -38,8 +38,10 @@ defmodule Pinchflat.Media do
   end
 
   @doc """
-  Returns a list of media_items that are redownloadable based on the redownload delay
-  of the media_profile their source belongs to.
+  Returns a list of media_items that are upgradeable based on the redownload delay
+  of the media_profile their source belongs to. In this context, upgradeable means
+  that it's been long enough since upload that the video may be in a higher quality
+  or have better sponsorblock segments (or similar).
 
   The logic is that a media_item is past_redownload_delay if the media_item's uploaded_at is
   at least redownload_delay_days ago AND `media_downloaded_at` - `redownload_delay_days`
@@ -52,10 +54,10 @@ defmodule Pinchflat.Media do
 
   Returns [%MediaItem{}, ...]
   """
-  def list_redownloadable_media_items do
+  def list_upgradeable_media_items do
     MediaQuery.new()
     |> MediaQuery.require_assoc(:media_profile)
-    |> where(^MediaQuery.redownloadable())
+    |> where(^MediaQuery.upgradeable())
     |> Repo.all()
   end
 
