@@ -5,7 +5,9 @@
     "sqleton": "^2.2.0"
   },
   "scripts": {
-    "create-erd": "sqleton -o priv/repo/erd.png priv/repo/pinchflat_dev.db"
+    "create-erd": "sqleton -o priv/repo/erd.png priv/repo/pinchflat_dev.db",
+    "lint:check": "prettier . --check --config=tooling/.prettierrc.js --ignore-path=tooling/.prettierignore --ignore-path=.gitignore",
+    "lint:fix": "prettier . --write --config=tooling/.prettierrc.js --ignore-path=tooling/.prettierignore --ignore-path=.gitignore"
   },
   "private": true
 }

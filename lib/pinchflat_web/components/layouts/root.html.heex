@@ -19,6 +19,7 @@
       onboarding: #{Settings.get!(:onboarding)}
     }"}
     class="dark text-bodydark bg-boxdark-2"
+    data-socket-path={Path.join(Application.get_env(:pinchflat, :base_route_path), "/live")}
   >
     <%= @inner_content %>
 

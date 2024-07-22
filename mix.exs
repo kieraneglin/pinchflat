@@ -4,8 +4,8 @@ defmodule Pinchflat.MixProject do
   def project do
     [
       app: :pinchflat,
-      version: "2024.5.24",
-      elixir: "~> 1.16",
+      version: "2024.7.18",
+      elixir: "~> 1.17",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -71,7 +71,7 @@ defmodule Pinchflat.MixProject do
       {:nimble_parsec, "~> 1.4"},
       {:timex, "~> 3.0"},
       {:mox, "~> 1.0", only: :test},
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.7.7", only: [:dev, :test], runtime: false},
       {:credo_naming, "~> 2.1", only: [:dev, :test], runtime: false},
       {:ex_check, "~> 0.14.0", only: [:dev, :test], runtime: false},
       {:faker, "~> 0.17", only: :test},
@@ -87,6 +87,8 @@ defmodule Pinchflat.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
+      check: "check --config=tooling/.check.exs",
+      credo: "credo --config-file=tooling/.credo.exs",
       setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
@@ -101,7 +103,8 @@ defmodule Pinchflat.MixProject do
       "ecto.rollback": [
         "ecto.rollback",
         ~s(cmd [ -z "$MIX_ENV" ] && yarn run create-erd || echo "No ERD generated")
-      ]
+      ],
+      "version.bump": "cmd ./tooling/version_bump.sh"
     ]
   end
 end

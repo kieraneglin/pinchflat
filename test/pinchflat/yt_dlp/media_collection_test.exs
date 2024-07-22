@@ -129,7 +129,7 @@ defmodule Pinchflat.YtDlp.MediaCollectionTest do
 
     test "it passes the expected args to the backend runner" do
       expect(YtDlpRunnerMock, :run, fn @channel_url, opts, ot ->
-        assert opts == [playlist_items: 0]
+        assert opts == [:skip_download, playlist_items: 0]
         assert ot == "playlist:%()j"
 
         {:ok, "{}"}
@@ -152,12 +152,18 @@ defmodule Pinchflat.YtDlp.MediaCollectionTest do
 
     test "allows you to pass additional opts" do
       expect(YtDlpRunnerMock, :run, fn _url, opts, _ot ->
-        assert opts == [playlist_items: 0, real_opt: :yup]
+        assert opts == [:skip_download, playlist_items: 1, real_opt: :yup]
 
         {:ok, "{}"}
       end)
 
-      assert {:ok, _} = MediaCollection.get_source_metadata(@channel_url, real_opt: :yup)
+      assert {:ok, _} = MediaCollection.get_source_metadata(@channel_url, playlist_items: 1, real_opt: :yup)
+    end
+
+    test "blows up if you pass addl opts but don't pass playlist items" do
+      assert_raise KeyError, fn ->
+        MediaCollection.get_source_metadata(@channel_url, real_opt: :yup)
+      end
     end
   end
 end

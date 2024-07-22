@@ -7,8 +7,8 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
   @media_url "https://www.youtube.com/watch?v=TiZPUDkDYbk"
 
-  describe "download/2" do
-    test "it calls the backend runner with the expected arguments" do
+  describe "download/3" do
+    test "calls the backend runner with the expected arguments" do
       expect(YtDlpRunnerMock, :run, fn @media_url, opts, ot, addl ->
         assert [:no_simulate] = opts
         assert "after_move:%()j" = ot
@@ -20,7 +20,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
       assert {:ok, _} = Media.download(@media_url)
     end
 
-    test "it passes along additional options" do
+    test "passes along additional options" do
       expect(YtDlpRunnerMock, :run, fn _url, opts, _ot, addl ->
         assert [:no_simulate, :custom_arg] = opts
         assert [addl_arg: true] = addl
@@ -31,7 +31,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
       assert {:ok, _} = Media.download(@media_url, [:custom_arg], addl_arg: true)
     end
 
-    test "it parses and returns the generated file as JSON" do
+    test "parses and returns the generated file as JSON" do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
         {:ok, render_metadata(:media_metadata)}
       end)
@@ -40,12 +40,43 @@ defmodule Pinchflat.YtDlp.MediaTest do
                Media.download(@media_url)
     end
 
-    test "it returns errors" do
+    test "returns errors" do
       expect(YtDlpRunnerMock, :run, fn _url, _opt, _ot, _addl ->
         {:error, "something"}
       end)
 
       assert {:error, "something"} = Media.download(@media_url)
+    end
+  end
+
+  describe "download_thumbnail/2" do
+    test "calls the backend runner with the expected arguments" do
+      expect(YtDlpRunnerMock, :run, fn @media_url, opts, ot ->
+        assert opts == [:no_simulate, :skip_download, :write_thumbnail, {:convert_thumbnail, "jpg"}]
+        assert ot == "after_move:%()j"
+
+        {:ok, ""}
+      end)
+
+      assert {:ok, _} = Media.download_thumbnail(@media_url)
+    end
+
+    test "passes along additional options" do
+      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot ->
+        assert :custom_arg in opts
+
+        {:ok, "{}"}
+      end)
+
+      assert {:ok, _} = Media.download_thumbnail(@media_url, [:custom_arg])
+    end
+
+    test "returns errors" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opt, _ot ->
+        {:error, "something"}
+      end)
+
+      assert {:error, "something"} = Media.download_thumbnail(@media_url)
     end
   end
 
@@ -79,8 +110,10 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
   describe "indexing_output_template/0" do
     test "contains all the greatest hits" do
-      assert "%(.{id,title,was_live,webpage_url,description,aspect_ratio,duration,upload_date,timestamp})j" ==
-               Media.indexing_output_template()
+      attrs = ~w(id title was_live webpage_url description aspect_ratio duration upload_date timestamp playlist_index)a
+      formatted_attrs = "%(.{#{Enum.join(attrs, ",")}})j"
+
+      assert formatted_attrs == Media.indexing_output_template()
     end
   end
 
@@ -95,7 +128,8 @@ defmodule Pinchflat.YtDlp.MediaTest do
         "aspect_ratio" => 1.0,
         "duration" => 60,
         "upload_date" => "20210101",
-        "timestamp" => 1_600_000_000
+        "timestamp" => 1_600_000_000,
+        "playlist_index" => 1
       }
 
       assert %Media{
@@ -106,7 +140,8 @@ defmodule Pinchflat.YtDlp.MediaTest do
                livestream: false,
                short_form_content: false,
                uploaded_at: ~U[2020-09-13 12:26:40Z],
-               duration_seconds: 60
+               duration_seconds: 60,
+               playlist_index: 1
              } == Media.response_to_struct(response)
     end
 
@@ -185,6 +220,17 @@ defmodule Pinchflat.YtDlp.MediaTest do
       }
 
       assert %Media{livestream: false} = Media.response_to_struct(response)
+    end
+
+    test "doesn't blow up if playlist_index is missing" do
+      response = %{
+        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "aspect_ratio" => 1.0,
+        "duration" => nil,
+        "upload_date" => "20210101"
+      }
+
+      assert %Media{playlist_index: 0} = Media.response_to_struct(response)
     end
   end
 

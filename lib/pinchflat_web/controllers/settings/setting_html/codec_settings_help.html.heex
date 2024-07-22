@@ -1,17 +1,17 @@
 <aside>
-  <h2 class="text-xl font-bold mb-2">Codec Preferences</h2>
+  <h2 class="text-xl font-bold mb-2">Codec Preference</h2>
   <section class="ml-2 md:ml-4 mb-2 max-w-prose">
-    <section>
-      Available video codecs:
-      <ul class="list-disc ml-8">
-        <li :for={{codec, _} <- CodecParser.video_codec_map()}><%= codec %></li>
-      </ul>
-    </section>
-    <section class="mt-4">
-      Available audio codecs:
-      <ul class="list-disc ml-8">
-        <li :for={{codec, _} <- CodecParser.audio_codec_map()}><%= codec %></li>
-      </ul>
-    </section>
+    <p>
+      Some users may want to specify the audio codec that <code class="text-sm">yt-dlp</code>
+      searches for when downloading content. For these users, you can specify one audio and video
+      codec to prefer above all others.
+    </p>
+    <p class="mt-4">
+      NOTE: this is a <em>soft</em>
+      preference. If the codec you specify is not available, <code class="text-sm">yt-dlp</code>
+      will download the next best available codec. This is expected and intended behavior.
+      <.inline_link href="https://github.com/yt-dlp/yt-dlp#sorting-formats">See here</.inline_link>
+      for more information and a list of available codecs.
+    </p>
   </section>
 </aside>

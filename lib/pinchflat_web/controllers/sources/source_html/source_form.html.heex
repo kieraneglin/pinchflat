@@ -2,6 +2,7 @@
   :let={f}
   for={@changeset}
   action={@action}
+  method={@method}
   x-data="{ advancedMode: !!JSON.parse(localStorage.getItem('advancedMode')) }"
   x-init="$watch('advancedMode', value => localStorage.setItem('advancedMode', JSON.stringify(value)))"
 >
@@ -10,14 +11,22 @@
   </.error>
 
   <section x-data="{ mediaProfileId: null }">
-    <section class="flex justify-between items-center mt-8">
+    <section class="flex justify-between items-center mt-4">
       <h3 class=" text-2xl text-black dark:text-white">
         General Options
       </h3>
       <span class="cursor-pointer hover:underline" x-on:click="advancedMode = !advancedMode">
-        Editing Mode: <span x-text="advancedMode ? 'Advanced' : 'Basic'"></span>
+        Editing Mode: <span x-text="advancedMode ? 'Advanced' : 'Standard'"></span>
       </span>
     </section>
+
+    <.input
+      field={f[:original_url]}
+      type="text"
+      label="Source URL"
+      help="URL of a channel or playlist (required)"
+      x-init="$el.focus()"
+    />
 
     <.input
       field={f[:custom_name]}
@@ -25,8 +34,6 @@
       label="Custom Name"
       help="Does not impact indexing or downloading. Will be inferred from the source if left blank"
     />
-
-    <.input field={f[:original_url]} type="text" label="Source URL" help="URL of a channel or playlist (required)" />
 
     <.input
       field={f[:media_profile_id]}
@@ -49,7 +56,7 @@
         label="Index Frequency"
         x-bind:disabled="fastIndexingEnabled == true"
         x-init="$watch('fastIndexingEnabled', v => v && ($el.value = 30 * 24 * 60))"
-        help="Indexing is the process of checking for media to download. Sets the time between one index of this source finishing and the next one starting"
+        help="Indexing is the process of checking for media to download. For best results, set this to the longest delay you can tolerate for this source"
       />
 
       <div phx-click={show_modal("upgrade-modal")}>
@@ -58,7 +65,7 @@
           type="toggle"
           label="Use Fast Indexing"
           label_suffix="(pro)"
-          help="Experimental. Overrides 'Index Frequency'. Recommended for large channels that upload frequently. Does not work with private playlists. See below for more info"
+          help="Not recommended for playlists. Overrides 'Index Frequency'. See below for more details (seriously, there's a TL;DR that's worth reading)"
           x-init="
           // `enabled` is the data attribute that the toggle uses internally
           fastIndexingEnabled = enabled
@@ -87,7 +94,7 @@
       maxlength="10"
       pattern="((?:19|20)[0-9][0-9])-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])"
       title="YYYY-MM-DD"
-      help="Only download media uploaded after this date. Leave blank to download all media. Must be in YYYY-MM-DD format"
+      help="Only download media uploaded after this date. Leave blank to download all media. Must be in YYYY-MM-DD format. Old media may be deleted or downloaded if you change this date"
     />
 
     <.input

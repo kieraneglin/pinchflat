@@ -11,6 +11,8 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
 
   alias Pinchflat.Utils.FilesystemUtils
 
+  alias Pinchflat.YtDlp.Media, as: YtDlpMedia
+
   @doc """
   Returns the directory where metadata for a database record should be stored.
 
@@ -47,42 +49,26 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
   Returns {:ok, map()} | {:error, any}
   """
   def read_compressed_metadata(filepath) do
-    {:ok, json} = File.open(filepath, [:read, :compressed], &IO.read(&1, :all))
+    {:ok, json} = File.open(filepath, [:read, :compressed], &IO.read(&1, :eof))
 
     Phoenix.json_library().decode(json)
   end
 
   @doc """
   Downloads and stores a thumbnail for a media item, returning the filepath.
-  Chooses the highest quality thumbnail available (preferring jpg). Returns
-  nil if no thumbnails are available.
+  Chooses the highest quality thumbnail available and converts it to a JPG
+
+  Returns nil if no thumbnail is available or if yt-dlp encounters an error
 
   Returns binary() | nil
   """
-  def download_and_store_thumbnail_for(database_record, metadata_map) do
-    thumbnails =
-      (metadata_map["thumbnails"] || [])
-      # Give it a low preference if the `preference` key doesn't exist
-      |> Enum.map(&Map.put_new(&1, "preference", -1000))
-      # Give it a low preference if image isn't a jpg
-      |> Enum.map(fn t ->
-        preference_weight = if String.ends_with?(t["url"], ".jpg"), do: t["preference"], else: t["preference"] - 1000
+  def download_and_store_thumbnail_for(database_record) do
+    yt_dlp_filepath = generate_filepath_for(database_record, "thumbnail.%(ext)s")
+    real_filepath = generate_filepath_for(database_record, "thumbnail.jpg")
 
-        Map.put(t, "preference", preference_weight)
-      end)
-
-    case Enum.sort_by(thumbnails, & &1["preference"], :desc) do
-      [thumbnail_map | _] ->
-        thumbnail_url = thumbnail_map["url"]
-        filepath = generate_filepath_for(database_record, Path.basename(thumbnail_url))
-        thumbnail_blob = fetch_thumbnail_from_url(thumbnail_url)
-
-        :ok = FilesystemUtils.write_p!(filepath, thumbnail_blob)
-
-        filepath
-
-      _ ->
-        nil
+    case YtDlpMedia.download_thumbnail(database_record.original_url, output: yt_dlp_filepath) do
+      {:ok, _} -> real_filepath
+      _ -> nil
     end
   end
 
@@ -138,11 +124,19 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
     end
   end
 
-  defp fetch_thumbnail_from_url(url) do
-    http_client = Application.get_env(:pinchflat, :http_client, Pinchflat.HTTP.HTTPClient)
-    {:ok, body} = http_client.get(url, [], body_format: :binary)
+  @doc """
+  Attempts to determine the season and episode number from a media filepath.
 
-    body
+  Returns {:ok, {binary(), binary()}} | {:error, :indeterminable}
+  """
+  def season_and_episode_from_media_filepath(media_filepath) do
+    # matches s + 1 or more digits + e + 1 or more digits (case-insensitive)
+    season_episode_regex = ~r/s(\d+)e(\d+)/i
+
+    case Regex.scan(season_episode_regex, media_filepath) do
+      [[_, season, episode] | _] -> {:ok, {season, episode}}
+      _ -> {:error, :indeterminable}
+    end
   end
 
   defp generate_filepath_for(database_record, filename) do

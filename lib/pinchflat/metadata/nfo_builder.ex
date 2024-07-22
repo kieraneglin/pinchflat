@@ -6,8 +6,8 @@ defmodule Pinchflat.Metadata.NfoBuilder do
 
   import Pinchflat.Utils.XmlUtils, only: [safe: 1]
 
-  alias Pinchflat.Metadata.MetadataFileHelpers
   alias Pinchflat.Utils.FilesystemUtils
+  alias Pinchflat.Metadata.MetadataFileHelpers
 
   @doc """
   Builds an NFO file for a media item (read: single "episode") and
@@ -15,12 +15,12 @@ defmodule Pinchflat.Metadata.NfoBuilder do
 
   Returns the filepath of the NFO file.
   """
-  def build_and_store_for_media_item(filepath, metadata) do
-    nfo = build_for_media_item(metadata)
+  def build_and_store_for_media_item(nfo_filepath, metadata) do
+    nfo = build_for_media_item(nfo_filepath, metadata)
 
-    FilesystemUtils.write_p!(filepath, nfo)
+    FilesystemUtils.write_p!(nfo_filepath, nfo)
 
-    filepath
+    nfo_filepath
   end
 
   @doc """
@@ -37,10 +37,15 @@ defmodule Pinchflat.Metadata.NfoBuilder do
     filepath
   end
 
-  defp build_for_media_item(metadata) do
+  defp build_for_media_item(nfo_filepath, metadata) do
     upload_date = MetadataFileHelpers.parse_upload_date(metadata["upload_date"])
+    # NOTE: the filepath here isn't the path of the media item, it's the path that
+    # the NFO should be saved to. This works because the NFO's path is the same as
+    # the media's path, just with a different extension. If this ever changes I'll
+    # need to pass in the media item's path as well.
+    {season, episode} = determine_season_and_episode_number(nfo_filepath, upload_date)
+
     # Cribbed from a combination of the Kodi wiki, ytdl-nfo, and ytdl-sub.
-    # WHO NEEDS A FANCY XML PARSER ANYWAY?!
     """
     <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
     <episodedetails>
@@ -49,8 +54,8 @@ defmodule Pinchflat.Metadata.NfoBuilder do
       <uniqueid type="youtube" default="true">#{safe(metadata["id"])}</uniqueid>
       <plot>#{safe(metadata["description"])}</plot>
       <aired>#{safe(upload_date)}</aired>
-      <season>#{safe(upload_date.year)}</season>
-      <episode>#{Calendar.strftime(upload_date, "%m%d")}</episode>
+      <season>#{safe(season)}</season>
+      <episode>#{episode}</episode>
       <genre>YouTube</genre>
     </episodedetails>
     """
@@ -66,5 +71,12 @@ defmodule Pinchflat.Metadata.NfoBuilder do
       <genre>YouTube</genre>
     </tvshow>
     """
+  end
+
+  defp determine_season_and_episode_number(filepath, upload_date) do
+    case MetadataFileHelpers.season_and_episode_from_media_filepath(filepath) do
+      {:ok, {season, episode}} -> {season, episode}
+      {:error, _} -> {upload_date.year, Calendar.strftime(upload_date, "%m%d")}
+    end
   end
 end

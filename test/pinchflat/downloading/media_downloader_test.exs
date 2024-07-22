@@ -5,6 +5,7 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
   import Pinchflat.SourcesFixtures
   import Pinchflat.ProfilesFixtures
 
+  alias Pinchflat.Media
   alias Pinchflat.Downloading.MediaDownloader
 
   setup do
@@ -14,9 +15,8 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
         [:metadata, source: :media_profile]
       )
 
-    stub(HTTPClientMock, :get, fn _url, _headers, _opts ->
-      {:ok, ""}
-    end)
+    stub(HTTPClientMock, :get, fn _url, _headers, _opts -> {:ok, ""} end)
+    stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, ""} end)
 
     {:ok, %{media_item: media_item}}
   end
@@ -44,7 +44,7 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
       assert {:ok, updated_media_item} = MediaDownloader.download_for_media_item(media_item)
 
       assert updated_media_item.metadata.metadata_filepath =~ "media_items/#{media_item.id}/metadata.json.gz"
-      assert updated_media_item.metadata.thumbnail_filepath =~ "media_items/#{media_item.id}/maxresdefault.jpg"
+      assert updated_media_item.metadata.thumbnail_filepath =~ "media_items/#{media_item.id}/thumbnail.jpg"
     end
 
     test "non-recoverable errors are passed through", %{media_item: media_item} do
@@ -122,6 +122,12 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
       assert media_item.media_downloaded_at == nil
       assert {:ok, updated_media_item} = MediaDownloader.download_for_media_item(media_item)
       assert DateTime.diff(DateTime.utc_now(), updated_media_item.media_downloaded_at) < 2
+    end
+
+    test "it sets the culled_at to nil", %{media_item: media_item} do
+      Media.update_media_item(media_item, %{culled_at: DateTime.utc_now()})
+      assert {:ok, updated_media_item} = MediaDownloader.download_for_media_item(media_item)
+      assert updated_media_item.culled_at == nil
     end
 
     test "it extracts the title", %{media_item: media_item} do

@@ -50,6 +50,15 @@ defmodule PinchflatWeb.SourceControllerTest do
 
       refute html_response(conn, 200) =~ "MENU"
     end
+
+    test "preloads some attributes when using a template", %{conn: conn} do
+      source = source_fixture(custom_name: "My first source", download_cutoff_date: "2021-01-01")
+
+      conn = get(conn, ~p"/sources/new", %{"template_id" => source.id})
+      assert html_response(conn, 200) =~ "New Source"
+      assert html_response(conn, 200) =~ "2021-01-01"
+      refute html_response(conn, 200) =~ source.custom_name
+    end
   end
 
   describe "create source" do
@@ -142,6 +151,16 @@ defmodule PinchflatWeb.SourceControllerTest do
     test "does not delete the files", %{conn: conn, source: source, media_item: media_item} do
       delete(conn, ~p"/sources/#{source}")
       assert File.exists?(media_item.media_filepath)
+    end
+  end
+
+  describe "delete source when deleting the records and files" do
+    setup [:create_source]
+
+    setup do
+      stub(UserScriptRunnerMock, :run, fn _event_type, _data -> {:ok, "", 0} end)
+
+      :ok
     end
 
     test "deletes chosen source and media_items", %{conn: conn, source: source, media_item: media_item} do

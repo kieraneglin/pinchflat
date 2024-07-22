@@ -112,9 +112,11 @@ defmodule Pinchflat.Sources.Source do
     |> dynamic_default(:custom_name, fn cs -> get_field(cs, :collection_name) end)
     |> dynamic_default(:uuid, fn _ -> Ecto.UUID.generate() end)
     |> validate_required(required_fields)
+    |> validate_title_regex()
     |> validate_number(:retention_period_days, greater_than_or_equal_to: 0)
     # Ensures it ends with `.{{ ext }}` or `.%(ext)s` or similar (with a little wiggle room)
     |> validate_format(:output_path_template_override, MediaProfile.ext_regex(), message: "must end with .{{ ext }}")
+    |> validate_format(:original_url, youtube_channel_or_playlist_regex(), message: "must be a channel or playlist URL")
     |> cast_assoc(:metadata, with: &SourceMetadata.changeset/2, required: false)
     |> unique_constraint([:collection_id, :media_profile_id, :title_filter_regex], error_key: :original_url)
   end
@@ -128,7 +130,7 @@ defmodule Pinchflat.Sources.Source do
   @doc false
   def fast_index_frequency do
     # minutes
-    15
+    10
   end
 
   @doc false
@@ -140,6 +142,22 @@ defmodule Pinchflat.Sources.Source do
   def json_exluded_fields do
     ~w(__meta__ __struct__ metadata tasks media_items)a
   end
+
+  def youtube_channel_or_playlist_regex do
+    # Validate that the original URL is not a video URL
+    # Also matches if the string does NOT contain youtube.com or youtu.be. This preserves my tenuous support
+    # for non-youtube sources.
+    ~r<^(?:(?!youtube\.com/(watch|shorts|embed)|youtu\.be).)*$>
+  end
+
+  defp validate_title_regex(%{changes: %{title_filter_regex: regex}} = changeset) when is_binary(regex) do
+    case Ecto.Adapters.SQL.query(Repo, "SELECT regexp_like('', ?)", [regex]) do
+      {:ok, _} -> changeset
+      _ -> add_error(changeset, :title_filter_regex, "is invalid")
+    end
+  end
+
+  defp validate_title_regex(changeset), do: changeset
 
   defimpl Jason.Encoder, for: Source do
     def encode(value, opts) do

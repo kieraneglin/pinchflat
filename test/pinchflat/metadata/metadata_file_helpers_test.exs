@@ -11,6 +11,16 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
     {:ok, %{media_item: media_item}}
   end
 
+  describe "metadata_directory_for/1" do
+    test "returns the metadata directory for the given record", %{media_item: media_item} do
+      base_metadata_directory = Application.get_env(:pinchflat, :metadata_directory)
+
+      metadata_directory = Helpers.metadata_directory_for(media_item)
+
+      assert metadata_directory == Path.join([base_metadata_directory, "media_items", "#{media_item.id}"])
+    end
+  end
+
   describe "compress_and_store_metadata_for/2" do
     test "returns the filepath", %{media_item: media_item} do
       metadata_map = %{"foo" => "bar"}
@@ -32,7 +42,7 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
       metadata_map = %{"foo" => "bar"}
 
       filepath = Helpers.compress_and_store_metadata_for(media_item, metadata_map)
-      {:ok, json} = File.open(filepath, [:read, :compressed], &IO.read(&1, :all))
+      {:ok, json} = File.open(filepath, [:read, :compressed], &IO.read(&1, :eof))
 
       assert json == Phoenix.json_library().encode!(metadata_map)
     end
@@ -50,82 +60,37 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
   end
 
   describe "download_and_store_thumbnail_for/2" do
-    setup do
-      # This tests that the HTTP endpoint is being called with every test
-      expect(HTTPClientMock, :get, fn _url, _headers, _opts ->
-        {:ok, "thumbnail data"}
+    test "returns the filepath", %{media_item: media_item} do
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, ""} end)
+
+      filepath = Helpers.download_and_store_thumbnail_for(media_item)
+
+      assert filepath =~ ~r{/media_items/#{media_item.id}/thumbnail.jpg}
+    end
+
+    test "calls yt-dlp with the expected options", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn url, opts, ot ->
+        assert url == media_item.original_url
+        assert ot == "after_move:%()j"
+
+        assert opts == [
+                 :no_simulate,
+                 :skip_download,
+                 :write_thumbnail,
+                 convert_thumbnail: "jpg",
+                 output: "/tmp/test/metadata/media_items/1/thumbnail.%(ext)s"
+               ]
+
+        {:ok, ""}
       end)
 
-      metadata = render_parsed_metadata(:media_metadata)
-
-      {:ok, %{metadata: metadata}}
+      Helpers.download_and_store_thumbnail_for(media_item)
     end
 
-    test "returns the filepath", %{media_item: media_item, metadata: metadata} do
-      filepath = Helpers.download_and_store_thumbnail_for(media_item, metadata)
+    test "returns nil if yt-dlp fails", %{media_item: media_item} do
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:error, "error"} end)
 
-      assert filepath =~ ~r{/media_items/#{media_item.id}/maxresdefault.jpg}
-    end
-
-    test "creates folder structure based on passed record", %{media_item: media_item, metadata: metadata} do
-      filepath = Helpers.download_and_store_thumbnail_for(media_item, metadata)
-
-      assert File.exists?(Path.dirname(filepath))
-    end
-
-    test "chooses the highest preference jpg thumbnail available", %{media_item: media_item} do
-      metadata = %{
-        "thumbnails" => [
-          %{"url" => "https://i.ytimg.com/vi/ABC123/img_1.jpg", "preference" => -1},
-          %{"url" => "https://i.ytimg.com/vi/ABC123/img_2.jpg", "preference" => 1},
-          %{"url" => "https://i.ytimg.com/vi/ABC123/img_3.jpg", "preference" => -10},
-          %{"url" => "https://i.ytimg.com/vi/ABC123/img_4.webp", "preference" => 10}
-        ]
-      }
-
-      filepath = Helpers.download_and_store_thumbnail_for(media_item, metadata)
-
-      assert filepath =~ ~r{/media_items/#{media_item.id}/img_2.jpg}
-    end
-
-    test "will fall back to a non-jpg if it has to", %{media_item: media_item} do
-      metadata = %{
-        "thumbnails" => [
-          %{"url" => "https://i.ytimg.com/vi/ABC123/img_1.webp", "preference" => -1}
-        ]
-      }
-
-      filepath = Helpers.download_and_store_thumbnail_for(media_item, metadata)
-
-      assert filepath =~ ~r{/media_items/#{media_item.id}/img_1.webp}
-    end
-
-    test "does not require a preference field", %{media_item: media_item} do
-      metadata = %{
-        "thumbnails" => [
-          %{"url" => "https://i.ytimg.com/vi/ABC123/img_1.webp"}
-        ]
-      }
-
-      filepath = Helpers.download_and_store_thumbnail_for(media_item, metadata)
-
-      assert filepath =~ ~r{/media_items/#{media_item.id}/img_1.webp}
-    end
-  end
-
-  describe "download_and_store_thumbnail_for/2 when not downloading thumbnails" do
-    test "returns nil if there are no thumbnails", %{media_item: media_item} do
-      metadata = %{"thumbnails" => []}
-
-      filepath = Helpers.download_and_store_thumbnail_for(media_item, metadata)
-
-      assert filepath == nil
-    end
-
-    test "returns nil if there is no thumbnail field", %{media_item: media_item} do
-      metadata = %{}
-
-      filepath = Helpers.download_and_store_thumbnail_for(media_item, metadata)
+      filepath = Helpers.download_and_store_thumbnail_for(media_item)
 
       assert filepath == nil
     end
@@ -187,13 +152,20 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
     end
   end
 
-  describe "metadata_directory_for/1" do
-    test "returns the metadata directory for the given record", %{media_item: media_item} do
-      base_metadata_directory = Application.get_env(:pinchflat, :metadata_directory)
+  describe "season_and_episode_from_media_filepath/1" do
+    test "returns a season and episode if one can be determined" do
+      assert {:ok, {"1", "2"}} = Helpers.season_and_episode_from_media_filepath("/foo/s1e2 - test.mp4")
+      assert {:ok, {"1", "2"}} = Helpers.season_and_episode_from_media_filepath("/foo/S1E2 - test.mp4")
+      assert {:ok, {"001", "002"}} = Helpers.season_and_episode_from_media_filepath("/foo/s001e002 - test.mp4")
+      assert {:ok, {"1", "2"}} = Helpers.season_and_episode_from_media_filepath("/foo/s1e2bar - test.mp4")
+      assert {:ok, {"1", "2"}} = Helpers.season_and_episode_from_media_filepath("/foo/bar s1e2 - test.mp4")
+    end
 
-      metadata_directory = Helpers.metadata_directory_for(media_item)
-
-      assert metadata_directory == Path.join([base_metadata_directory, "media_items", "#{media_item.id}"])
+    test "returns an error if a season and episode can't be determined" do
+      assert {:error, :indeterminable} = Helpers.season_and_episode_from_media_filepath("/foo/test.mp4")
+      assert {:error, :indeterminable} = Helpers.season_and_episode_from_media_filepath("/foo/s1 - test.mp4")
+      assert {:error, :indeterminable} = Helpers.season_and_episode_from_media_filepath("/foo/s1e - test.mp4")
+      assert {:error, :indeterminable} = Helpers.season_and_episode_from_media_filepath("/foo/s1etest.mp4")
     end
   end
 end

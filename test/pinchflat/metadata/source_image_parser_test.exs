@@ -75,4 +75,51 @@ defmodule Pinchflat.Metadata.SourceImageParserTest do
       assert SourceImageParser.store_source_images(@base_dir, metadata) == %{}
     end
   end
+
+  describe "store_source_images/2 when testing fallbacks" do
+    test "uses the entries list for a fallback poster if needed" do
+      metadata = %{
+        "thumbnails" => [],
+        "entries" => [
+          %{
+            "thumbnails" => [%{"filepath" => "/app/test/support/files/channel_photos/a.0.jpg"}]
+          }
+        ]
+      }
+
+      expected = %{
+        poster_filepath: "#{@base_dir}/poster.jpg"
+      }
+
+      assert SourceImageParser.store_source_images(@base_dir, metadata) == expected
+    end
+
+    test "doesn't blow up if the entries list doesn't have any suitable thumbnails" do
+      metadata = %{
+        "thumbnails" => [],
+        "entries" => [
+          %{"thumbnails" => [%{"id" => "1"}]}
+        ]
+      }
+
+      assert SourceImageParser.store_source_images(@base_dir, metadata) == %{}
+    end
+
+    test "doesn't use the entries list if it's empty" do
+      metadata = %{
+        "thumbnails" => [],
+        "entries" => []
+      }
+
+      assert SourceImageParser.store_source_images(@base_dir, metadata) == %{}
+    end
+
+    test "doesn't use the entries list if it's not present" do
+      metadata = %{
+        "thumbnails" => []
+      }
+
+      assert SourceImageParser.store_source_images(@base_dir, metadata) == %{}
+    end
+  end
 end

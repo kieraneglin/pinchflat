@@ -71,8 +71,8 @@ If it doesn't work for your use case, please make a feature request! You can als
 
 ## Screenshots
 
-<img src="priv/static/images/app-form-screenshot.png" alt="Pinchflat screenshot" width="700" />
-<img src="priv/static/images/app-screenshot.png" alt="Pinchflat screenshot" width="700" />
+<img src="priv/static/images/app-form-screenshot.jpg" alt="Pinchflat screenshot" width="700" />
+<img src="priv/static/images/app-screenshot.jpg" alt="Pinchflat screenshot" width="700" />
 
 ## Installation
 
@@ -91,7 +91,7 @@ Docker Compose file:
 version: '3'
 services:
   pinchflat:
-    image: keglin/pinchflat:latest
+    image: ghcr.io/kieraneglin/pinchflat:latest
     environment:
       # Set the timezone to your local timezone
       - TZ=America/New_York
@@ -108,7 +108,7 @@ services:
 2. Prepare the docker image in one of the two ways below:
    - **From GHCR:** `docker pull ghcr.io/kieraneglin/pinchflat:latest`
      - NOTE: also available on Docker Hub at `keglin/pinchflat:latest`
-   - **Building locally:** `docker build . --file selfhosted.Dockerfile -t ghcr.io/kieraneglin/pinchflat:latest`
+   - **Building locally:** `docker build . --file docker/selfhosted.Dockerfile -t ghcr.io/kieraneglin/pinchflat:latest`
 3. Run the container:
 
 ```bash
@@ -153,6 +153,7 @@ If you change this setting and it works well for you, please leave a comment on 
 | EXPOSE_FEED_ENDPOINTS | No        |                           | See [RSS feed docs](https://github.com/kieraneglin/pinchflat/wiki/Podcast-RSS-Feeds)           |
 | JOURNAL_MODE          | No        | `wal`                     | Set to `delete` if your config directory is stored on a network share (not recommended)        |
 | TZ_DATA_DIR           | No        | `/etc/elixir_tzdata_data` | The container path where the timezone database is stored                                       |
+| BASE_ROUTE_PATH       | No        | `/`                       | The base path for route generation. Useful when running behind certain reverse proxies         |
 
 ## EFF donations
 

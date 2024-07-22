@@ -19,7 +19,7 @@ defmodule Pinchflat.Lifecycle.UserScripts.CommandRunnerTest do
       File.write(filepath(), "#!/bin/bash\ntouch #{filename}\n")
 
       refute File.exists?(filename)
-      assert :ok = Runner.run(:media_downloaded, %{})
+      assert {:ok, _, _} = Runner.run(:media_downloaded, %{})
       assert File.exists?(filename)
     end
 
@@ -27,7 +27,7 @@ defmodule Pinchflat.Lifecycle.UserScripts.CommandRunnerTest do
       tmp_dir = Application.get_env(:pinchflat, :tmpfile_directory)
       File.write(filepath(), "#!/bin/bash\necho $1 > #{tmp_dir}/event_name\n")
 
-      assert :ok = Runner.run(:media_downloaded, %{})
+      assert {:ok, _, _} = Runner.run(:media_downloaded, %{})
       assert File.read!("#{tmp_dir}/event_name") == "media_downloaded\n"
     end
 
@@ -35,26 +35,32 @@ defmodule Pinchflat.Lifecycle.UserScripts.CommandRunnerTest do
       tmp_dir = Application.get_env(:pinchflat, :tmpfile_directory)
       File.write(filepath(), "#!/bin/bash\necho $2 > #{tmp_dir}/encoded_data\n")
 
-      assert :ok = Runner.run(:media_downloaded, %{foo: "bar"})
+      assert {:ok, _, _} = Runner.run(:media_downloaded, %{foo: "bar"})
       assert File.read!("#{tmp_dir}/encoded_data") == "{\"foo\":\"bar\"}\n"
     end
 
     test "does nothing if the lifecycle file is not present" do
       :ok = File.rm(filepath())
 
-      assert :ok = Runner.run(:media_downloaded, %{})
+      assert {:ok, :no_executable} = Runner.run(:media_downloaded, %{})
     end
 
     test "does nothing if the lifecycle file is empty" do
       File.write(filepath(), "")
 
-      assert :ok = Runner.run(:media_downloaded, %{})
+      assert {:ok, :no_executable} = Runner.run(:media_downloaded, %{})
     end
 
     test "returns :ok if the command exits with a non-zero status" do
       File.write(filepath(), "#!/bin/bash\nexit 1\n")
 
-      assert :ok = Runner.run(:media_downloaded, %{})
+      assert {:ok, _, 1} = Runner.run(:media_downloaded, %{})
+    end
+
+    test "returns the output of the command" do
+      File.write(filepath(), "#!/bin/bash\necho 'hello'\n")
+
+      assert {:ok, "hello\n", 0} = Runner.run(:media_downloaded, %{})
     end
 
     test "gets upset if you pass an invalid event type" do

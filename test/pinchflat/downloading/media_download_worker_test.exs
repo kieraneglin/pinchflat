@@ -9,7 +9,8 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
   alias Pinchflat.Downloading.MediaDownloadWorker
 
   setup do
-    stub(UserScriptRunnerMock, :run, fn _event_type, _data -> :ok end)
+    stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, ""} end)
+    stub(UserScriptRunnerMock, :run, fn _event_type, _data -> {:ok, "", 0} end)
     stub(HTTPClientMock, :get, fn _url, _headers, _opts -> {:ok, ""} end)
 
     media_item =
@@ -161,20 +162,6 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
       assert media_item.media_redownloaded_at == nil
     end
 
-    test "calls the user script runner", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
-        {:ok, render_metadata(:media_metadata)}
-      end)
-
-      expect(UserScriptRunnerMock, :run, fn :media_downloaded, data ->
-        assert data.id == media_item.id
-
-        :ok
-      end)
-
-      perform_job(MediaDownloadWorker, %{id: media_item.id})
-    end
-
     test "does not blow up if the record doesn't exist" do
       assert :ok = perform_job(MediaDownloadWorker, %{id: 0})
     end
@@ -234,6 +221,61 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
       end)
 
       perform_job(MediaDownloadWorker, %{id: media_item.id, force: true})
+    end
+  end
+
+  describe "perform/1 when testing user script callbacks" do
+    setup do
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+        {:ok, render_metadata(:media_metadata)}
+      end)
+
+      :ok
+    end
+
+    test "calls the media_pre_download user script runner", %{media_item: media_item} do
+      expect(UserScriptRunnerMock, :run, fn :media_pre_download, data ->
+        assert data.id == media_item.id
+
+        {:ok, "", 0}
+      end)
+
+      expect(UserScriptRunnerMock, :run, fn :media_downloaded, _ -> {:ok, "", 0} end)
+
+      perform_job(MediaDownloadWorker, %{id: media_item.id})
+    end
+
+    test "does not download the media if the pre-download script returns an error", %{media_item: media_item} do
+      expect(UserScriptRunnerMock, :run, fn :media_pre_download, _ -> {:ok, "", 1} end)
+
+      assert :ok = perform_job(MediaDownloadWorker, %{id: media_item.id})
+      media_item = Repo.reload!(media_item)
+
+      refute media_item.media_filepath
+      assert media_item.prevent_download
+    end
+
+    test "downloads media if the pre-download script is not present", %{media_item: media_item} do
+      expect(UserScriptRunnerMock, :run, fn :media_pre_download, _ -> {:ok, :no_executable} end)
+      expect(UserScriptRunnerMock, :run, fn :media_downloaded, _ -> {:ok, :no_executable} end)
+
+      assert :ok = perform_job(MediaDownloadWorker, %{id: media_item.id})
+      media_item = Repo.reload!(media_item)
+
+      assert media_item.media_filepath
+      refute media_item.prevent_download
+    end
+
+    test "calls the media_downloaded user script runner", %{media_item: media_item} do
+      expect(UserScriptRunnerMock, :run, fn :media_pre_download, _ -> {:ok, "", 0} end)
+
+      expect(UserScriptRunnerMock, :run, fn :media_downloaded, data ->
+        assert data.id == media_item.id
+
+        {:ok, "", 0}
+      end)
+
+      perform_job(MediaDownloadWorker, %{id: media_item.id})
     end
   end
 end

@@ -16,7 +16,7 @@
     {:compiler, env: %{"MIX_ENV" => "test"}},
     {:formatter, env: %{"MIX_ENV" => "test"}},
     {:sobelow, "mix sobelow --config"},
-    {:prettier_formatting, "yarn run prettier . --check", fix: "yarn run prettier . --write"},
+    {:prettier_formatting, "yarn run lint:check", fix: "yarn run lint:fix"},
     {:npm_test, false}
 
     ## curated tools may be disabled (e.g. the check for compilation warnings)

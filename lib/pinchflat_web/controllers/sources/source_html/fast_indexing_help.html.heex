@@ -1,21 +1,63 @@
 <aside>
-  <h2 class="text-xl font-bold mb-2">What is fast indexing (experimental)?</h2>
+  <h2 class="text-2xl font-bold mb-2">What is fast indexing?</h2>
   <section class="ml-2 md:ml-4 mb-4 max-w-prose">
     <p>
       Indexing is the act of scanning a channel or playlist (aka: source) for new media.
     </p>
     <p class="mt-2">
       Normal indexing uses <code class="text-sm">yt-dlp</code>
-      to scan the entire source on your specified frequency, but it's very slow for large sources. This is the most accurate way to find uploaded media with the tradeoff being that pairing a large source with a low index frequency will result in you spending most of your time indexing. Only so many indexing operations can be running at the same time, so this can impact your other source's ability to index.
+      to scan the entire source on your specified frequency, but it's very slow for large sources. This is the most accurate way to find uploaded media with the tradeoff being that pairing a large source that's indexed frequently will result in you spending most of your time indexing. Only so many indexing operations can be running at the same time so this can impact your other source's ability to index.
     </p>
     <p class="mt-2">
-      Fast indexing takes a different approach. It still does an initial scan the slow way but after that it uses an RSS feed to frequently check for new videos. This has the potential to be hundreds of times faster, but it can miss videos if the uploader un-privates an old video or uploads dozens of videos in the space of a few minutes. It works well for most channels or playlists but it's not perfect.
+      Fast indexing takes a different approach. It still does an initial scan the slow way but after that it uses a secondary mechanism (either RSS or YouTube's API) to frequently check for new videos. This has the potential to be hundreds of times faster, but it can miss videos if the uploader un-privates an old video or uploads dozens of videos in the space of a few minutes.
+    </p>
+    <p class="mt-2">
+      RSS is used by default but you should enable the YouTube API if you want the best version of fast indexing. This isn't needed for most users but it provides the fastest and most reliable media updates.
+      <.inline_link href="https://github.com/kieraneglin/pinchflat/wiki/Generating-a-YouTube-API-key">
+        Here is some documentation
+      </.inline_link>
+      on how to get your API key which you can add in the
+      <.inline_link href={~p"/settings"}>
+        settings
+      </.inline_link>
+      page.
     </p>
     <p class="mt-2">
       To make up for this limitation, a normal index is still run monthly to catch any videos that were missed by fast indexing. Fast indexing overrides the normal index frequency.
     </p>
-    <p class="mt-2">
-      Fast indexing is experimental so please report any issues on GitHub. It's only recommended for sources with over 200-ish videos and that upload frequently. Not recommended for small or inactive sources.
+    <p class="mt-4">
+      <h4 class="font-bold text-xl">TL;DR</h4>
+
+      <strong class="mt-2 inline-block">In general:</strong>
+      <ul class="list-disc list-inside ml-2 md:ml-5">
+        <li>
+          Uses RSS by default which is fine for most users
+        </li>
+        <li>
+          <.inline_link href="https://github.com/kieraneglin/pinchflat/wiki/Generating-a-YouTube-API-key">
+            Create a YouTube API key
+          </.inline_link>
+          and add it in your
+          <.inline_link href={~p"/settings"}>
+            settings
+          </.inline_link>
+          for the fastest possible media updates
+        </li>
+      </ul>
+
+      <strong class="mt-2 inline-block">Fast indexing is great if any of these apply:</strong>
+      <ul class="list-disc list-inside ml-2 md:ml-5">
+        <li>The source is large channel and uploads frequently</li>
+        <li>You want to download a source's new content as soon as possible</li>
+      </ul>
+
+      <strong class="mt-2 inline-block">Consider <em>not</em> using fast indexing if any of these apply:</strong>
+      <ul class="list-disc list-inside ml-2 md:ml-5">
+        <li>The source is a playlist</li>
+        <li>The source has under 200 videos</li>
+        <li>The source rarely uploads</li>
+        <li>You don't mind if it takes longer for new content to be picked up</li>
+      </ul>
     </p>
   </section>
 </aside>

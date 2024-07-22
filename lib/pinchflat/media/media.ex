@@ -25,21 +25,10 @@ defmodule Pinchflat.Media do
   end
 
   @doc """
-  Returns a list of media_items that are cullable based on the retention period
-  of the source they belong to.
-
-  Returns [%MediaItem{}, ...]
-  """
-  def list_cullable_media_items do
-    MediaQuery.new()
-    |> MediaQuery.require_assoc(:source)
-    |> where(^MediaQuery.cullable())
-    |> Repo.all()
-  end
-
-  @doc """
-  Returns a list of media_items that are redownloadable based on the redownload delay
-  of the media_profile their source belongs to.
+  Returns a list of media_items that are upgradeable based on the redownload delay
+  of the media_profile their source belongs to. In this context, upgradeable means
+  that it's been long enough since upload that the video may be in a higher quality
+  or have better sponsorblock segments (or similar).
 
   The logic is that a media_item is past_redownload_delay if the media_item's uploaded_at is
   at least redownload_delay_days ago AND `media_downloaded_at` - `redownload_delay_days`
@@ -52,10 +41,10 @@ defmodule Pinchflat.Media do
 
   Returns [%MediaItem{}, ...]
   """
-  def list_redownloadable_media_items do
+  def list_upgradeable_media_items do
     MediaQuery.new()
     |> MediaQuery.require_assoc(:media_profile)
-    |> where(^MediaQuery.redownloadable())
+    |> where(^MediaQuery.upgradeable())
     |> Repo.all()
   end
 
@@ -142,12 +131,17 @@ defmodule Pinchflat.Media do
   """
   def create_media_item_from_backend_attrs(source, media_attrs_struct) do
     attrs = Map.merge(%{source_id: source.id}, Map.from_struct(media_attrs_struct))
+    # Some fields should only be set on insert and not on update.
+    fields_to_drop_on_update = [:playlist_index]
 
     %MediaItem{}
     |> MediaItem.changeset(attrs)
     |> Repo.insert(
       on_conflict: [
-        set: Map.to_list(attrs)
+        set:
+          attrs
+          |> Map.drop(fields_to_drop_on_update)
+          |> Map.to_list()
       ],
       conflict_target: [:source_id, :media_id]
     )
@@ -177,7 +171,7 @@ defmodule Pinchflat.Media do
 
     if delete_files do
       {:ok, _} = do_delete_media_files(media_item)
-      :ok = run_user_script(:media_deleted, media_item)
+      run_user_script(:media_deleted, media_item)
     end
 
     # Should delete these no matter what
@@ -200,7 +194,7 @@ defmodule Pinchflat.Media do
 
     Tasks.delete_tasks_for(media_item)
     {:ok, _} = do_delete_media_files(media_item)
-    :ok = run_user_script(:media_deleted, media_item)
+    run_user_script(:media_deleted, media_item)
 
     update_media_item(media_item, Map.merge(filepath_attrs, addl_attrs))
   end

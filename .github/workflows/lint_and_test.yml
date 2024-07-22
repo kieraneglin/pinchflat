@@ -16,24 +16,28 @@ jobs:
     if: "! contains(toJSON(github.event.commits.*.message), '[skip ci]')"
     env:
       COMPOSE_FILE: ./docker-compose.ci.yml
+      MIX_ENV: test
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Pull prebuilt images
         run: docker compose pull
 
-      - name: Setup Docker layer caching
-        uses: jpribyl/action-docker-layer-caching@v0.1.1
-        continue-on-error: true
-        with:
-          key: ci-docker-cache-{hash}
-          restore-keys: |
-            ci-docker-cache-
-            layer-ci-docker-cache-
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Build and Run Docker image
+      - name: Build docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./docker/dev.Dockerfile
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run Docker image
         run: docker compose up --detach
 
       # NOTE: All exec commands use the -T flag to compensate for
@@ -43,8 +47,7 @@ jobs:
       # See https://github.com/actions/runner/issues/241 and https://github.com/docker/compose/issues/8537
       - name: Install Elixir and JS deps
         run: |
-          docker compose exec -T phx yarn install && cd assets && yarn install && cd ..
-          docker compose exec -T phx mix deps.get
+          docker compose exec -T phx mix deps.get && yarn install && cd assets && yarn install && cd ..
 
       - name: Create and Migrate database
         run: |

@@ -99,10 +99,21 @@ defmodule Pinchflat.YtDlp.MediaCollection do
   as a compressed blob for possible future use. That's why it's not getting formatted like
   `get_source_details/1`
 
+  ! IMPORTANT ! - you'll always want to set `playlist_items: int` in `addl_opts.
+  This is great if you want to also return details about the videos in the playlists,
+  but it should be set in all cases to not over-fetch data.
+  For channels you should usually set this to 0 since channels return all the
+  metadata we need without needing to fetch the videos. On the other hand, playlists
+  don't return very useful images so you can set this to 1 to get the first video's
+  images, for instance.
+
   Returns {:ok, map()} | {:error, any, ...}.
   """
-  def get_source_metadata(source_url, addl_opts \\ []) do
-    opts = [playlist_items: 0] ++ addl_opts
+  def get_source_metadata(source_url, addl_opts \\ [playlist_items: 0]) do
+    # This only validates that the `playlist_items` key is present. It's otherwise unused
+    _playlist_items = Keyword.fetch!(addl_opts, :playlist_items)
+
+    opts = [:skip_download] ++ addl_opts
     output_template = "playlist:%()j"
 
     with {:ok, output} <- backend_runner().run(source_url, opts, output_template),

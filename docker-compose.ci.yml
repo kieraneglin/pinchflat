@@ -1,13 +1,15 @@
-version: '3'
 services:
   phx:
     build:
       context: .
-      dockerfile: dev.Dockerfile
+      dockerfile: ./docker/dev.Dockerfile
     environment:
       - MIX_ENV=test
     volumes:
       - '.:/app'
+      # These lines ensure the deps can be saved as build artifacts for caching
+      - '/app/deps'
+      - '/app/_build'
     ports:
       - '4008:4008'
     command: tail -F /dev/null

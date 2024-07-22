@@ -9,12 +9,14 @@ defmodule PinchflatWeb.Sources.SourceHTML do
   attr :changeset, Ecto.Changeset, required: true
   attr :action, :string, required: true
   attr :media_profiles, :list, required: true
+  attr :method, :string, required: true
 
   def source_form(assigns)
 
   def friendly_index_frequencies do
     [
       {"Only once when first created", -1},
+      {"30 minutes", 30},
       {"1 Hour", 60},
       {"3 Hours", 3 * 60},
       {"6 Hours", 6 * 60},

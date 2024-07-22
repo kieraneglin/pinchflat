@@ -79,12 +79,13 @@ defmodule Pinchflat.Downloading.MediaDownloader do
       |> MetadataParser.parse_for_media_item()
       |> Map.merge(%{
         media_downloaded_at: DateTime.utc_now(),
+        culled_at: nil,
         nfo_filepath: determine_nfo_filepath(media_with_preloads, parsed_json),
         metadata: %{
           # IDEA: might be worth kicking off a job for this since thumbnail fetching
           # could fail and I want to handle that in isolation
           metadata_filepath: MetadataFileHelpers.compress_and_store_metadata_for(media_with_preloads, parsed_json),
-          thumbnail_filepath: MetadataFileHelpers.download_and_store_thumbnail_for(media_with_preloads, parsed_json)
+          thumbnail_filepath: MetadataFileHelpers.download_and_store_thumbnail_for(media_with_preloads)
         }
       })
 

@@ -21,9 +21,11 @@ defmodule Pinchflat.HTTP.HTTPClient do
   """
   @impl HTTPBehaviour
   def get(url, headers \\ [], opts \\ []) do
+    headers = parse_headers(headers)
+
     case :httpc.request(:get, {url, headers}, [], opts) do
       {:ok, {{_version, 200, _reason_phrase}, _headers, body}} ->
-        {:ok, body}
+        {:ok, to_string(body)}
 
       {:ok, {{_version, status_code, reason_phrase}, _headers, _body}} ->
         {:error, "HTTP request failed with status code #{status_code}: #{reason_phrase}"}
@@ -31,5 +33,9 @@ defmodule Pinchflat.HTTP.HTTPClient do
       {:error, reason} ->
         {:error, "HTTP request failed: #{reason}"}
     end
+  end
+
+  defp parse_headers(headers) do
+    Enum.map(headers, fn {k, v} -> {to_charlist(k), to_charlist(v)} end)
   end
 end
