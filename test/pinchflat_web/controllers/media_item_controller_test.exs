@@ -56,7 +56,7 @@ defmodule PinchflatWeb.MediaItemControllerTest do
   describe "delete media" do
     setup do
       media_item = media_item_with_attachments()
-      stub(UserScriptRunnerMock, :run, fn _event_type, _data -> :ok end)
+      stub(UserScriptRunnerMock, :run, fn _event_type, _data -> {:ok, "", 0} end)
 
       %{media_item: media_item}
     end

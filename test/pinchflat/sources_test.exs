@@ -617,7 +617,7 @@ defmodule Pinchflat.SourcesTest do
 
   describe "delete_source/2 when deleting files" do
     setup do
-      stub(UserScriptRunnerMock, :run, fn _event_type, _data -> :ok end)
+      stub(UserScriptRunnerMock, :run, fn _event_type, _data -> {:ok, "", 0} end)
 
       :ok
     end

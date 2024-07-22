@@ -171,7 +171,7 @@ defmodule Pinchflat.Media do
 
     if delete_files do
       {:ok, _} = do_delete_media_files(media_item)
-      :ok = run_user_script(:media_deleted, media_item)
+      run_user_script(:media_deleted, media_item)
     end
 
     # Should delete these no matter what
@@ -194,7 +194,7 @@ defmodule Pinchflat.Media do
 
     Tasks.delete_tasks_for(media_item)
     {:ok, _} = do_delete_media_files(media_item)
-    :ok = run_user_script(:media_deleted, media_item)
+    run_user_script(:media_deleted, media_item)
 
     update_media_item(media_item, Map.merge(filepath_attrs, addl_attrs))
   end
