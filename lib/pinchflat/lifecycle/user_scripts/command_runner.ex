@@ -23,13 +23,14 @@ defmodule Pinchflat.Lifecycle.UserScripts.CommandRunner do
 
   This function will succeed in almost all cases, even if the user script command
   failed - this is because I don't want bad scripts to stop the whole process.
-  If something fails, it'll be logged.
+  If something fails, it'll be logged and returned BUT the tuple will always
+  start with {:ok, ...}.
 
   The only things that can cause a true failure are passing in an invalid event
   type or if the passed data cannot be encoded into JSON - both indicative of
   failures in the development process.
 
-  Returns :ok
+  Returns {:ok, :no_executable} | {:ok, output, exit_code}
   """
   @impl UserScriptCommandRunner
   def run(event_type, encodable_data) when event_type in @event_types do
@@ -63,7 +64,7 @@ defmodule Pinchflat.Lifecycle.UserScripts.CommandRunner do
     if FilesystemUtils.exists_and_nonempty?(filepath) do
       {:ok, filepath}
     else
-      Logger.warning("User scripts lifecyle file either not present or is empty. Skipping.")
+      Logger.info("User scripts lifecyle file either not present or is empty. Skipping.")
 
       {:ok, :no_executable}
     end

@@ -39,7 +39,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
     - `quality_upgrade?`: re-downloads media, including the video. Does not force download
       if the source is set to not download media
 
-  Returns :ok | {:ok, %MediaItem{}} | {:error, any, ...any}
+  Returns :ok | {:error, any, ...any}
   """
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"id" => media_item_id} = args}) do
@@ -59,12 +59,14 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
     Ecto.StaleEntryError -> Logger.info("#{__MODULE__} discarded: media item #{media_item_id} stale")
   end
 
+  # If a user script exists and, when run, returns a non-zero exit code, prevent this and all future downloads
+  # of the media item.
   defp fetch_and_run_prevent_download_user_script(media_item_id) do
     media_item = Media.get_media_item!(media_item_id)
 
     {:ok, media_item} =
       case run_user_script(:media_pre_download, media_item) do
-        {:ok, _, exit_code} when exit_code > 0 -> Media.update_media_item(media_item, %{prevent_download: true})
+        {:ok, _, exit_code} when exit_code != 0 -> Media.update_media_item(media_item, %{prevent_download: true})
         _ -> {:ok, media_item}
       end
 
@@ -83,9 +85,9 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
             media_redownloaded_at: get_redownloaded_at(is_quality_upgrade)
           })
 
-        :ok = run_user_script(:media_downloaded, updated_media_item)
+        run_user_script(:media_downloaded, updated_media_item)
 
-        {:ok, updated_media_item}
+        :ok
 
       {:recovered, _} ->
         {:error, :retry}
