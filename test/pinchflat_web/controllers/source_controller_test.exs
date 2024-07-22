@@ -7,6 +7,7 @@ defmodule PinchflatWeb.SourceControllerTest do
 
   alias Pinchflat.Repo
   alias Pinchflat.Settings
+  alias Pinchflat.Sources.SourceDeletionWorker
   alias Pinchflat.Downloading.MediaDownloadWorker
   alias Pinchflat.Metadata.SourceMetadataStorageWorker
   alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
@@ -35,12 +36,23 @@ defmodule PinchflatWeb.SourceControllerTest do
     test "lists all sources", %{conn: conn} do
       source = source_fixture()
       conn = get(conn, ~p"/sources")
+
+      assert html_response(conn, 200) =~ "Sources"
       assert html_response(conn, 200) =~ source.custom_name
     end
 
     test "omits sources that have marked_for_deletion_at set", %{conn: conn} do
       source = source_fixture(marked_for_deletion_at: DateTime.utc_now())
       conn = get(conn, ~p"/sources")
+
+      refute html_response(conn, 200) =~ source.custom_name
+    end
+
+    test "omits sources who's media profile has marked_for_deletion_at set", %{conn: conn} do
+      media_profile = media_profile_fixture(marked_for_deletion_at: DateTime.utc_now())
+      source = source_fixture(media_profile_id: media_profile.id)
+      conn = get(conn, ~p"/sources")
+
       refute html_response(conn, 200) =~ source.custom_name
     end
   end
@@ -149,32 +161,22 @@ defmodule PinchflatWeb.SourceControllerTest do
   end
 
   describe "delete source when just deleting the records" do
-    test "deletes chosen source and media_items", %{conn: conn, source: source, media_item: media_item} do
+    setup [:create_source]
+
+    test "enqueues a job without the delete_files arg", %{conn: conn, source: source} do
       delete(conn, ~p"/sources/#{source}")
 
-      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(source) end
-      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_item) end
-    end
-
-    test "does not delete the files", %{conn: conn, source: source, media_item: media_item} do
-      delete(conn, ~p"/sources/#{source}")
-      assert File.exists?(media_item.media_filepath)
+      assert [%{args: %{"delete_files" => false}}] = all_enqueued(worker: SourceDeletionWorker)
     end
   end
 
   describe "delete source when deleting the records and files" do
     setup [:create_source]
 
-    test "deletes chosen source and media_items", %{conn: conn, source: source, media_item: media_item} do
+    test "enqueues a job without the delete_files arg", %{conn: conn, source: source} do
       delete(conn, ~p"/sources/#{source}?delete_files=true")
 
-      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(source) end
-      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_item) end
-    end
-
-    test "deletes the files", %{conn: conn, source: source, media_item: media_item} do
-      delete(conn, ~p"/sources/#{source}?delete_files=true")
-      refute File.exists?(media_item.media_filepath)
+      assert [%{args: %{"delete_files" => true}}] = all_enqueued(worker: SourceDeletionWorker)
     end
   end
 

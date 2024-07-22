@@ -5,10 +5,12 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileController do
   alias Pinchflat.Repo
   alias Pinchflat.Profiles
   alias Pinchflat.Profiles.MediaProfile
+  alias Pinchflat.Profiles.MediaProfileDeletionWorker
 
   def index(conn, _params) do
     media_profiles =
       MediaProfile
+      |> where([mp], is_nil(mp.marked_for_deletion_at))
       |> order_by(asc: :name)
       |> Repo.all()
 
@@ -70,19 +72,15 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileController do
   end
 
   def delete(conn, %{"id" => id} = params) do
-    delete_files = Map.get(params, "delete_files", false)
+    # This awkward comparison converts the string to a boolean
+    delete_files = Map.get(params, "delete_files", "") == "true"
     media_profile = Profiles.get_media_profile!(id)
-    {:ok, _media_profile} = Profiles.delete_media_profile(media_profile, delete_files: delete_files)
 
-    flash_message =
-      if delete_files do
-        "Media profile, its sources, and its files deleted successfully."
-      else
-        "Media profile and its sources deleted successfully. Files were not deleted."
-      end
+    {:ok, _} = Profiles.update_media_profile(media_profile, %{marked_for_deletion_at: DateTime.utc_now()})
+    MediaProfileDeletionWorker.kickoff(media_profile, %{delete_files: delete_files})
 
     conn
-    |> put_flash(:info, flash_message)
+    |> put_flash(:info, "Media Profile deletion started. This may take a while to complete.")
     |> redirect(to: ~p"/media_profiles")
   end
 

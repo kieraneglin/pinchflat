@@ -1,12 +1,11 @@
 defmodule PinchflatWeb.MediaProfileControllerTest do
   use PinchflatWeb.ConnCase
 
-  import Pinchflat.MediaFixtures
-  import Pinchflat.SourcesFixtures
   import Pinchflat.ProfilesFixtures
 
   alias Pinchflat.Repo
   alias Pinchflat.Settings
+  alias Pinchflat.Profiles.MediaProfileDeletionWorker
 
   @create_attrs %{name: "some name", output_path_template: "output_template.{{ ext }}"}
   @update_attrs %{
@@ -23,8 +22,17 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
 
   describe "index" do
     test "lists all media_profiles", %{conn: conn} do
+      profile = media_profile_fixture()
       conn = get(conn, ~p"/media_profiles")
+
       assert html_response(conn, 200) =~ "Media Profiles"
+      assert html_response(conn, 200) =~ profile.name
+    end
+
+    test "omits profiles that have marked_for_deletion_at set", %{conn: conn} do
+      profile = media_profile_fixture(marked_for_deletion_at: DateTime.utc_now())
+      conn = get(conn, ~p"/media_profiles")
+      refute html_response(conn, 200) =~ profile.name
     end
   end
 
@@ -102,20 +110,8 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
     end
   end
 
-  describe "delete media_profile when just deleting the records" do
+  describe "delete media_profile in all cases" do
     setup [:create_media_profile]
-
-    test "deletes chosen media_profile and its associations", %{conn: conn, media_profile: media_profile} do
-      source = source_fixture(media_profile_id: media_profile.id)
-      media_item = media_item_with_attachments(%{source_id: source.id})
-
-      conn = delete(conn, ~p"/media_profiles/#{media_profile}")
-      assert redirected_to(conn) == ~p"/media_profiles"
-
-      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_profile) end
-      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(source) end
-      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_item) end
-    end
 
     test "redirects to the media_profiles page", %{conn: conn, media_profile: media_profile} do
       conn = delete(conn, ~p"/media_profiles/#{media_profile}")
@@ -123,13 +119,19 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
       assert redirected_to(conn) == ~p"/media_profiles"
     end
 
-    test "doesn't delete any files", %{conn: conn, media_profile: media_profile} do
-      source = source_fixture(media_profile_id: media_profile.id)
-      media_item = media_item_with_attachments(%{source_id: source.id})
+    test "sets marked_for_deletion_at", %{conn: conn, media_profile: media_profile} do
+      delete(conn, ~p"/media_profiles/#{media_profile}")
+      assert Repo.reload!(media_profile).marked_for_deletion_at
+    end
+  end
 
+  describe "delete media_profile when just deleting the records" do
+    setup [:create_media_profile]
+
+    test "enqueues a job without the delete_files arg", %{conn: conn, media_profile: media_profile} do
       delete(conn, ~p"/media_profiles/#{media_profile}")
 
-      assert File.exists?(media_item.media_filepath)
+      assert [%{args: %{"delete_files" => false}}] = all_enqueued(worker: MediaProfileDeletionWorker)
     end
   end
 
@@ -142,31 +144,10 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
       :ok
     end
 
-    test "deletes chosen media_profile and its associations", %{conn: conn, media_profile: media_profile} do
-      source = source_fixture(media_profile_id: media_profile.id)
-      media_item = media_item_with_attachments(%{source_id: source.id})
-
-      conn = delete(conn, ~p"/media_profiles/#{media_profile}?delete_files=true")
-      assert redirected_to(conn) == ~p"/media_profiles"
-
-      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_profile) end
-      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(source) end
-      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_item) end
-    end
-
-    test "redirects to the media_profiles page", %{conn: conn, media_profile: media_profile} do
-      conn = delete(conn, ~p"/media_profiles/#{media_profile}?delete_files=true")
-
-      assert redirected_to(conn) == ~p"/media_profiles"
-    end
-
-    test "deletes the files", %{conn: conn, media_profile: media_profile} do
-      source = source_fixture(media_profile_id: media_profile.id)
-      media_item = media_item_with_attachments(%{source_id: source.id})
-
+    test "enqueues a job with the delete_files arg", %{conn: conn, media_profile: media_profile} do
       delete(conn, ~p"/media_profiles/#{media_profile}?delete_files=true")
 
-      refute File.exists?(media_item.media_filepath)
+      assert [%{args: %{"delete_files" => true}}] = all_enqueued(worker: MediaProfileDeletionWorker)
     end
   end
 

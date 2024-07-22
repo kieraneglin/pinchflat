@@ -4,8 +4,6 @@ defmodule Pinchflat.Sources.SourceDeletionWorkerTest do
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
 
-  alias Pinchflat.Media
-  alias Pinchflat.Sources
   alias Pinchflat.Sources.SourceDeletionWorker
 
   setup do
@@ -36,8 +34,8 @@ defmodule Pinchflat.Sources.SourceDeletionWorkerTest do
 
       perform_job(SourceDeletionWorker, %{"id" => source.id})
 
-      assert_raise Ecto.NoResultsError, fn -> Sources.get_source!(source.id) end
-      assert_raise Ecto.NoResultsError, fn -> Media.get_media_item!(media_item.id) end
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(source) end
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_item) end
       assert File.exists?(media_item.media_filepath)
     end
 
@@ -46,8 +44,8 @@ defmodule Pinchflat.Sources.SourceDeletionWorkerTest do
 
       perform_job(SourceDeletionWorker, %{"id" => source.id, "delete_files" => true})
 
-      assert_raise Ecto.NoResultsError, fn -> Sources.get_source!(source.id) end
-      assert_raise Ecto.NoResultsError, fn -> Media.get_media_item!(media_item.id) end
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(source) end
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_item) end
       refute File.exists?(media_item.media_filepath)
     end
   end

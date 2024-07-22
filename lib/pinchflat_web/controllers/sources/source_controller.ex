@@ -17,8 +17,8 @@ defmodule PinchflatWeb.Sources.SourceController do
     source_query =
       from s in Source,
         as: :source,
-        where: is_nil(s.marked_for_deletion_at),
         inner_join: mp in assoc(s, :media_profile),
+        where: is_nil(s.marked_for_deletion_at) and is_nil(mp.marked_for_deletion_at),
         preload: [media_profile: mp],
         order_by: [asc: s.custom_name],
         select: map(s, ^Source.__schema__(:fields)),
@@ -126,17 +126,15 @@ defmodule PinchflatWeb.Sources.SourceController do
   end
 
   def delete(conn, %{"id" => id} = params) do
-    delete_files = Map.get(params, "delete_files", false)
+    # This awkward comparison converts the string to a boolean
+    delete_files = Map.get(params, "delete_files", "") == "true"
     source = Sources.get_source!(id)
 
     {:ok, _} = Sources.update_source(source, %{marked_for_deletion_at: DateTime.utc_now()})
     SourceDeletionWorker.kickoff(source, %{delete_files: delete_files})
 
     conn
-    |> put_flash(
-      :info,
-      "Source deletion started. This may take a while to complete for large sources."
-    )
+    |> put_flash(:info, "Source deletion started. This may take a while to complete.")
     |> redirect(to: ~p"/sources")
   end
 
