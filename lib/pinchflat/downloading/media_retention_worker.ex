@@ -2,9 +2,9 @@ defmodule Pinchflat.Downloading.MediaRetentionWorker do
   @moduledoc false
 
   use Oban.Worker,
-    queue: :local_metadata,
+    queue: :local_data,
     unique: [period: :infinity, states: [:available, :scheduled, :retryable, :executing]],
-    tags: ["media_item", "local_metadata"]
+    tags: ["media_item", "local_data"]
 
   use Pinchflat.Media.MediaQuery
 

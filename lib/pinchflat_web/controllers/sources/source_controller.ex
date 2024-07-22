@@ -8,6 +8,7 @@ defmodule PinchflatWeb.Sources.SourceController do
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Profiles.MediaProfile
+  alias Pinchflat.Sources.SourceDeletionWorker
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.SlowIndexing.SlowIndexingHelpers
   alias Pinchflat.Metadata.SourceMetadataStorageWorker
@@ -17,6 +18,7 @@ defmodule PinchflatWeb.Sources.SourceController do
       from s in Source,
         as: :source,
         inner_join: mp in assoc(s, :media_profile),
+        where: is_nil(s.marked_for_deletion_at) and is_nil(mp.marked_for_deletion_at),
         preload: [media_profile: mp],
         order_by: [asc: s.custom_name],
         select: map(s, ^Source.__schema__(:fields)),
@@ -124,19 +126,15 @@ defmodule PinchflatWeb.Sources.SourceController do
   end
 
   def delete(conn, %{"id" => id} = params) do
-    delete_files = Map.get(params, "delete_files", false)
+    # This awkward comparison converts the string to a boolean
+    delete_files = Map.get(params, "delete_files", "") == "true"
     source = Sources.get_source!(id)
-    {:ok, _source} = Sources.delete_source(source, delete_files: delete_files)
 
-    flash_message =
-      if delete_files do
-        "Source and files deleted successfully."
-      else
-        "Source deleted successfully. Files were not deleted."
-      end
+    {:ok, _} = Sources.update_source(source, %{marked_for_deletion_at: DateTime.utc_now()})
+    SourceDeletionWorker.kickoff(source, %{delete_files: delete_files})
 
     conn
-    |> put_flash(:info, flash_message)
+    |> put_flash(:info, "Source deletion started. This may take a while to complete.")
     |> redirect(to: ~p"/sources")
   end
 
