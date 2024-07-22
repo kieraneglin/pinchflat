@@ -33,8 +33,15 @@ defmodule PinchflatWeb.SourceControllerTest do
 
   describe "index" do
     test "lists all sources", %{conn: conn} do
+      source = source_fixture()
       conn = get(conn, ~p"/sources")
-      assert html_response(conn, 200) =~ "Sources"
+      assert html_response(conn, 200) =~ source.custom_name
+    end
+
+    test "omits sources that have marked_for_deletion_at set", %{conn: conn} do
+      source = source_fixture(marked_for_deletion_at: DateTime.utc_now())
+      conn = get(conn, ~p"/sources")
+      refute html_response(conn, 200) =~ source.custom_name
     end
   end
 
@@ -127,19 +134,26 @@ defmodule PinchflatWeb.SourceControllerTest do
     end
   end
 
-  describe "delete source when just deleting the records" do
+  describe "delete source in all cases" do
     setup [:create_source]
 
+    test "redirects to the sources page", %{conn: conn, source: source} do
+      conn = delete(conn, ~p"/sources/#{source}")
+      assert redirected_to(conn) == ~p"/sources"
+    end
+
+    test "sets marked_for_deletion_at", %{conn: conn, source: source} do
+      delete(conn, ~p"/sources/#{source}")
+      assert Repo.reload!(source).marked_for_deletion_at
+    end
+  end
+
+  describe "delete source when just deleting the records" do
     test "deletes chosen source and media_items", %{conn: conn, source: source, media_item: media_item} do
       delete(conn, ~p"/sources/#{source}")
 
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(source) end
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_item) end
-    end
-
-    test "redirects to the sources page", %{conn: conn, source: source} do
-      conn = delete(conn, ~p"/sources/#{source}")
-      assert redirected_to(conn) == ~p"/sources"
     end
 
     test "does not delete the files", %{conn: conn, source: source, media_item: media_item} do
@@ -156,11 +170,6 @@ defmodule PinchflatWeb.SourceControllerTest do
 
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(source) end
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(media_item) end
-    end
-
-    test "redirects to the sources page", %{conn: conn, source: source} do
-      conn = delete(conn, ~p"/sources/#{source}?delete_files=true")
-      assert redirected_to(conn) == ~p"/sources"
     end
 
     test "deletes the files", %{conn: conn, source: source, media_item: media_item} do

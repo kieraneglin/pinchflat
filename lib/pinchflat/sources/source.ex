@@ -35,6 +35,7 @@ defmodule Pinchflat.Sources.Source do
     title_filter_regex
     media_profile_id
     output_path_template_override
+    marked_for_deletion_at
   )a
 
   # Expensive API calls are made when a source is inserted/updated so
@@ -86,6 +87,8 @@ defmodule Pinchflat.Sources.Source do
     field :poster_filepath, :string
     field :fanart_filepath, :string
     field :banner_filepath, :string
+
+    field :marked_for_deletion_at, :utc_datetime
 
     belongs_to :media_profile, MediaProfile
 
