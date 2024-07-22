@@ -12,6 +12,7 @@ defmodule Pinchflat.Lifecycle.UserScripts.CommandRunner do
   @behaviour UserScriptCommandRunner
 
   @event_types [
+    :media_pre_download,
     :media_downloaded,
     :media_deleted
   ]
@@ -39,7 +40,7 @@ defmodule Pinchflat.Lifecycle.UserScripts.CommandRunner do
       {:ok, executable_path} ->
         {:ok, encoded_data} = Phoenix.json_library().encode(encodable_data)
 
-        {_output, _exit_code} =
+        {output, exit_code} =
           CliUtils.wrap_cmd(
             executable_path,
             [to_string(event_type), encoded_data],
@@ -47,7 +48,7 @@ defmodule Pinchflat.Lifecycle.UserScripts.CommandRunner do
             logging_arg_override: "[suppressed]"
           )
 
-        :ok
+        {:ok, output, exit_code}
     end
   end
 

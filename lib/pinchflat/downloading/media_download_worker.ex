@@ -46,10 +46,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
     should_force = Map.get(args, "force", false)
     is_quality_upgrade = Map.get(args, "quality_upgrade?", false)
 
-    media_item =
-      media_item_id
-      |> Media.get_media_item!()
-      |> Repo.preload(:source)
+    media_item = fetch_and_run_prevent_download_user_script(media_item_id)
 
     # If the source or media item is set to not download media, perform a no-op unless forced
     if (media_item.source.download_media && !media_item.prevent_download) || should_force do
@@ -60,6 +57,18 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
   rescue
     Ecto.NoResultsError -> Logger.info("#{__MODULE__} discarded: media item #{media_item_id} not found")
     Ecto.StaleEntryError -> Logger.info("#{__MODULE__} discarded: media item #{media_item_id} stale")
+  end
+
+  defp fetch_and_run_prevent_download_user_script(media_item_id) do
+    media_item = Media.get_media_item!(media_item_id)
+
+    {:ok, media_item} =
+      case run_user_script(:media_pre_download, media_item) do
+        {:ok, _, 0} -> {:ok, media_item}
+        {:ok, _, _} -> Media.update_media_item(media_item, %{prevent_download: true})
+      end
+
+    Repo.preload(media_item, :source)
   end
 
   defp download_media_and_schedule_jobs(media_item, is_quality_upgrade, should_force) do
@@ -74,7 +83,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
             media_redownloaded_at: get_redownloaded_at(is_quality_upgrade)
           })
 
-        :ok = run_user_script(updated_media_item)
+        :ok = run_user_script(:media_downloaded, updated_media_item)
 
         {:ok, updated_media_item}
 
@@ -112,9 +121,9 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
 
   # NOTE: I like this pattern of using the default value so that I don't have to
   # define it in config.exs (and friends). Consider using this elsewhere.
-  defp run_user_script(media_item) do
+  defp run_user_script(event, media_item) do
     runner = Application.get_env(:pinchflat, :user_script_runner, UserScriptRunner)
 
-    runner.run(:media_downloaded, media_item)
+    runner.run(event, media_item)
   end
 end
