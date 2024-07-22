@@ -8,7 +8,7 @@ defmodule Pinchflat.Downloading.MediaRetentionWorkerTest do
   alias Pinchflat.Downloading.MediaRetentionWorker
 
   setup do
-    stub(UserScriptRunnerMock, :run, fn _event_type, _data -> :ok end)
+    stub(UserScriptRunnerMock, :run, fn _event_type, _data -> {:ok, "", 0} end)
 
     :ok
   end

@@ -684,7 +684,7 @@ defmodule Pinchflat.MediaTest do
 
   describe "delete_media_item/2 when testing file deletion" do
     setup do
-      stub(UserScriptRunnerMock, :run, fn _event_type, _data -> :ok end)
+      stub(UserScriptRunnerMock, :run, fn _event_type, _data -> {:ok, "", 0} end)
 
       :ok
     end
@@ -745,7 +745,7 @@ defmodule Pinchflat.MediaTest do
       expect(UserScriptRunnerMock, :run, fn :media_deleted, data ->
         assert data.id == media_item.id
 
-        :ok
+        {:ok, "", 0}
       end)
 
       assert {:ok, _} = Media.delete_media_item(media_item, delete_files: true)
@@ -754,7 +754,7 @@ defmodule Pinchflat.MediaTest do
 
   describe "delete_media_files/2" do
     setup do
-      stub(UserScriptRunnerMock, :run, fn _event_type, _data -> :ok end)
+      stub(UserScriptRunnerMock, :run, fn _event_type, _data -> {:ok, "", 0} end)
 
       :ok
     end
@@ -817,7 +817,7 @@ defmodule Pinchflat.MediaTest do
       expect(UserScriptRunnerMock, :run, fn :media_deleted, data ->
         assert data.id == media_item.id
 
-        :ok
+        {:ok, "", 0}
       end)
 
       assert {:ok, _} = Media.delete_media_files(media_item)

@@ -35,7 +35,7 @@ defmodule Pinchflat.Lifecycle.UserScripts.CommandRunner do
   def run(event_type, encodable_data) when event_type in @event_types do
     case backend_executable() do
       {:ok, :no_executable} ->
-        :ok
+        {:ok, :no_executable}
 
       {:ok, executable_path} ->
         {:ok, encoded_data} = Phoenix.json_library().encode(encodable_data)

@@ -10,7 +10,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
 
   setup do
     stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, ""} end)
-    stub(UserScriptRunnerMock, :run, fn _event_type, _data -> :ok end)
+    stub(UserScriptRunnerMock, :run, fn _event_type, _data -> {:ok, "", 0} end)
     stub(HTTPClientMock, :get, fn _url, _headers, _opts -> {:ok, ""} end)
 
     media_item =
@@ -170,7 +170,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
       expect(UserScriptRunnerMock, :run, fn :media_downloaded, data ->
         assert data.id == media_item.id
 
-        :ok
+        {:ok, "", 0}
       end)
 
       perform_job(MediaDownloadWorker, %{id: media_item.id})

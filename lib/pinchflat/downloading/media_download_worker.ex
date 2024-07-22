@@ -64,8 +64,8 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
 
     {:ok, media_item} =
       case run_user_script(:media_pre_download, media_item) do
-        {:ok, _, 0} -> {:ok, media_item}
-        {:ok, _, _} -> Media.update_media_item(media_item, %{prevent_download: true})
+        {:ok, _, exit_code} when exit_code > 0 -> Media.update_media_item(media_item, %{prevent_download: true})
+        _ -> {:ok, media_item}
       end
 
     Repo.preload(media_item, :source)
