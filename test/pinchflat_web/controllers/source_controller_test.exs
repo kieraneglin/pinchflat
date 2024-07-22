@@ -128,12 +128,6 @@ defmodule PinchflatWeb.SourceControllerTest do
   end
 
   describe "delete source when just deleting the records" do
-    setup do
-      stub(UserScriptRunnerMock, :run, fn _event_type, _data -> :ok end)
-
-      :ok
-    end
-
     setup [:create_source]
 
     test "deletes chosen source and media_items", %{conn: conn, source: source, media_item: media_item} do
@@ -156,12 +150,6 @@ defmodule PinchflatWeb.SourceControllerTest do
 
   describe "delete source when deleting the records and files" do
     setup [:create_source]
-
-    setup do
-      stub(UserScriptRunnerMock, :run, fn _event_type, _data -> {:ok, "", 0} end)
-
-      :ok
-    end
 
     test "deletes chosen source and media_items", %{conn: conn, source: source, media_item: media_item} do
       delete(conn, ~p"/sources/#{source}?delete_files=true")
