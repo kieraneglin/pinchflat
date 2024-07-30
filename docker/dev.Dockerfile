@@ -12,7 +12,7 @@ RUN echo "Building for ${TARGETPLATFORM:?}"
 RUN apt-get update -qq && \
   apt-get install -y inotify-tools curl git openssh-client jq \
     python3 python3-setuptools python3-wheel python3-dev pipx \
-    python3-mutagen locales procps build-essential graphviz
+    python3-mutagen locales procps build-essential graphviz zsh
 
 # Install ffmpeg
 RUN export FFMPEG_DOWNLOAD=$(case ${TARGETPLATFORM:-linux/amd64} in \
@@ -38,7 +38,10 @@ RUN curl -sL https://deb.nodesource.com/setup_20.x -o nodesource_setup.sh && \
   # Install Apprise
   export PIPX_HOME=/opt/pipx && \
   export PIPX_BIN_DIR=/usr/local/bin && \
-  pipx install apprise
+  pipx install apprise && \
+  # Set up ZSH tools
+  chsh -s $(which zsh) && \
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 # Set the locale
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
