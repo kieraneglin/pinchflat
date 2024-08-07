@@ -10,5 +10,3 @@ services:
     command: bash -c "chmod +x docker/docker-run.dev.sh && docker/docker-run.dev.sh"
     stdin_open: true
     tty: true
-    env_file:
-      - .env

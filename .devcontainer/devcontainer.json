@@ -1,0 +1,16 @@
+{
+  "name": "Pinchflat Dev",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "phx",
+  "workspaceFolder": "/app",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "phoenixframework.phoenix",
+        "JakeBecker.elixir-ls",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
+}
