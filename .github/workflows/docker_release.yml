@@ -73,6 +73,8 @@ jobs:
 
       - name: Build and Push
         uses: docker/build-push-action@v5
+        timeout_minutes: 10
+        max_attempts: 3
         with:
           context: .
           file: ./docker/selfhosted.Dockerfile
