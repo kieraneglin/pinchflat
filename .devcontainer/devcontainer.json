@@ -6,11 +6,7 @@
   "shutdownAction": "stopCompose",
   "customizations": {
     "vscode": {
-      "extensions": [
-        "phoenixframework.phoenix",
-        "JakeBecker.elixir-ls",
-        "esbenp.prettier-vscode"
-      ]
+      "extensions": ["phoenixframework.phoenix", "JakeBecker.elixir-ls", "esbenp.prettier-vscode"]
     }
   }
 }
