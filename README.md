@@ -17,6 +17,7 @@
 [![](https://img.shields.io/github/license/kieraneglin/pinchflat?style=for-the-badge&color=ee512b)](LICENSE)
 [![](https://img.shields.io/github/v/release/kieraneglin/pinchflat?style=for-the-badge)](https://github.com/kieraneglin/pinchflat/releases)
 [![](https://img.shields.io/github/actions/workflow/status/kieraneglin/pinchflat/lint_and_test.yml?style=for-the-badge)](#)
+[![](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode&style=for-the-badge)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/kieraneglin/pinchflat)
 
 </div>
 
