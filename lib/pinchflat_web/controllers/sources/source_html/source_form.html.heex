@@ -87,6 +87,13 @@
     />
 
     <.input
+      field={f[:use_cookies]}
+      type="toggle"
+      label="Use Cookies for Downloading"
+      help="Uses your YouTube cookies when downloading (if configured). Good for downloading private playlists. See docs for setup notes"
+    />
+
+    <.input
       field={f[:download_cutoff_date]}
       type="text"
       label="Download Cutoff Date"
