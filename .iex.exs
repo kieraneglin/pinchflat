@@ -23,3 +23,11 @@ alias Pinchflat.Metadata.MetadataFileHelpers
 alias Pinchflat.SlowIndexing.FileFollowerServer
 
 Pinchflat.Release.check_file_permissions()
+
+defmodule IexHelpers do
+  def restart do
+    :init.restart()
+  end
+end
+
+import IexHelpers
