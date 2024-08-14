@@ -92,7 +92,6 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
 
   defp determine_series_directory(source) do
     output_path = DownloadOptionBuilder.build_output_path_for(source)
-    # TODO: test
     runner_opts = [output: output_path]
     addl_opts = [use_cookies: source.use_cookies]
     {:ok, %{filepath: filepath}} = MediaCollection.get_source_details(source.original_url, runner_opts, addl_opts)
@@ -122,7 +121,6 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
         base_opts ++ [:write_thumbnail, playlist_items: 1]
       end
 
-    # TODO: test
     MediaCollection.get_source_metadata(source.original_url, opts, use_cookies: source.use_cookies)
   end
 

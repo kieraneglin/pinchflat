@@ -9,7 +9,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
   alias Pinchflat.Downloading.MediaDownloadWorker
 
   setup do
-    stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, ""} end)
+    stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> {:ok, ""} end)
     stub(UserScriptRunnerMock, :run, fn _event_type, _data -> {:ok, "", 0} end)
     stub(HTTPClientMock, :get, fn _url, _headers, _opts -> {:ok, ""} end)
 
@@ -53,9 +53,11 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
 
   describe "perform/1" do
     test "it saves attributes to the media_item", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, _addl ->
         {:ok, render_metadata(:media_metadata)}
       end)
+
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, _addl -> {:ok, ""} end)
 
       assert media_item.media_filepath == nil
       perform_job(MediaDownloadWorker, %{id: media_item.id})
@@ -65,9 +67,11 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
     end
 
     test "it saves the metadata to the media_item", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, _addl ->
         {:ok, render_metadata(:media_metadata)}
       end)
+
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, _addl -> {:ok, ""} end)
 
       assert media_item.metadata == nil
       perform_job(MediaDownloadWorker, %{id: media_item.id})
@@ -138,12 +142,14 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
     end
 
     test "it saves the file's size to the database", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, _addl ->
         metadata = render_parsed_metadata(:media_metadata)
         FilesystemUtils.write_p!(metadata["filepath"], "test")
 
         {:ok, Phoenix.json_library().encode!(metadata)}
       end)
+
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, _addl -> {:ok, ""} end)
 
       perform_job(MediaDownloadWorker, %{id: media_item.id})
       media_item = Repo.reload(media_item)
@@ -152,7 +158,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
     end
 
     test "does not set redownloaded_at by default", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+      expect(YtDlpRunnerMock, :run, 2, fn _url, _opts, _ot, _addl ->
         {:ok, render_metadata(:media_metadata)}
       end)
 
@@ -167,12 +173,14 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
     end
 
     test "sets the no_force_overwrites runner option", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot, _addl ->
+      expect(YtDlpRunnerMock, :run, 1, fn _url, opts, _ot, _addl ->
         assert :no_force_overwrites in opts
         refute :force_overwrites in opts
 
         {:ok, render_metadata(:media_metadata)}
       end)
+
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, _addl -> {:ok, ""} end)
 
       perform_job(MediaDownloadWorker, %{id: media_item.id})
     end
@@ -189,12 +197,14 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
     end
 
     test "sets force_overwrites runner option", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot, _addl ->
+      expect(YtDlpRunnerMock, :run, 1, fn _url, opts, _ot, _addl ->
         assert :force_overwrites in opts
         refute :no_force_overwrites in opts
 
         {:ok, render_metadata(:media_metadata)}
       end)
+
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, _addl -> {:ok, ""} end)
 
       perform_job(MediaDownloadWorker, %{id: media_item.id, force: true})
     end
@@ -202,9 +212,11 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
 
   describe "perform/1 when testing re-downloads" do
     test "sets redownloaded_at on the media_item", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, _addl ->
         {:ok, render_metadata(:media_metadata)}
       end)
+
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, _addl -> {:ok, ""} end)
 
       perform_job(MediaDownloadWorker, %{id: media_item.id, quality_upgrade?: true})
       media_item = Repo.reload(media_item)
@@ -213,12 +225,14 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
     end
 
     test "sets force_overwrites runner option", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot, _addl ->
+      expect(YtDlpRunnerMock, :run, 1, fn _url, opts, _ot, _addl ->
         assert :force_overwrites in opts
         refute :no_force_overwrites in opts
 
         {:ok, render_metadata(:media_metadata)}
       end)
+
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, _addl -> {:ok, ""} end)
 
       perform_job(MediaDownloadWorker, %{id: media_item.id, force: true})
     end

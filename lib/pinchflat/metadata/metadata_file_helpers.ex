@@ -68,7 +68,6 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
     command_opts = [output: yt_dlp_filepath]
     addl_opts = [use_cookies: media_item_with_preloads.source.use_cookies]
 
-    # TODO: test
     case YtDlpMedia.download_thumbnail(media_item_with_preloads.original_url, command_opts, addl_opts) do
       {:ok, _} -> real_filepath
       _ -> nil

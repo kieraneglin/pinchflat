@@ -15,7 +15,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
   alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
 
   describe "kickoff_indexing_task/3" do
-    test "it schedules a job" do
+    test "schedules a job" do
       source = source_fixture(index_frequency_minutes: 1)
 
       assert {:ok, _} = SlowIndexingHelpers.kickoff_indexing_task(source)
@@ -23,7 +23,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       assert_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
     end
 
-    test "it creates and attaches a task" do
+    test "creates and attaches a task" do
       source = source_fixture(index_frequency_minutes: 1)
 
       assert {:ok, %Task{} = task} = SlowIndexingHelpers.kickoff_indexing_task(source)
@@ -31,7 +31,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       assert task.source_id == source.id
     end
 
-    test "it deletes any pending media collection tasks for the source" do
+    test "deletes any pending media collection tasks for the source" do
       source = source_fixture()
       {:ok, job} = Oban.insert(MediaCollectionIndexingWorker.new(%{"id" => source.id}))
       task = task_fixture(source_id: source.id, job_id: job.id)
@@ -41,7 +41,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
     end
 
-    test "it deletes any pending media tasks for the source" do
+    test "deletes any pending media tasks for the source" do
       source = source_fixture()
       {:ok, job} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
       task = task_fixture(source_id: source.id, job_id: job.id)
@@ -51,7 +51,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
     end
 
-    test "it deletes any fast indexing tasks for the source" do
+    test "deletes any fast indexing tasks for the source" do
       source = source_fixture()
       {:ok, job} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
       task = task_fixture(source_id: source.id, job_id: job.id)
@@ -90,7 +90,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       {:ok, [source: source_fixture()]}
     end
 
-    test "it creates a media_item record for each media ID returned", %{source: source} do
+    test "creates a media_item record for each media ID returned", %{source: source} do
       assert media_items = SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
 
       assert Enum.count(media_items) == 3
@@ -101,7 +101,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       assert Enum.all?(media_items, fn %MediaItem{} -> true end)
     end
 
-    test "it attaches all media_items to the given source", %{source: source} do
+    test "attaches all media_items to the given source", %{source: source} do
       source_id = source.id
       assert media_items = SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
 
@@ -109,7 +109,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       assert Enum.all?(media_items, fn %MediaItem{source_id: ^source_id} -> true end)
     end
 
-    test "it won't duplicate media_items based on media_id and source", %{source: source} do
+    test "won't duplicate media_items based on media_id and source", %{source: source} do
       _first_run = SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
       _duplicate_run = SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
 
@@ -117,7 +117,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       assert Enum.count(media_items) == 3
     end
 
-    test "it can duplicate media_ids for different sources", %{source: source} do
+    test "can duplicate media_ids for different sources", %{source: source} do
       other_source = source_fixture()
 
       media_items = SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
@@ -130,7 +130,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
                Enum.map(media_items_other_source, & &1.media_id)
     end
 
-    test "it returns a list of media_items", %{source: source} do
+    test "returns a list of media_items", %{source: source} do
       first_run = SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
       duplicate_run = SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
 
@@ -140,7 +140,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       assert first_ids == duplicate_ids
     end
 
-    test "it updates the source's last_indexed_at field", %{source: source} do
+    test "updates the source's last_indexed_at field", %{source: source} do
       assert source.last_indexed_at == nil
 
       SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
@@ -149,7 +149,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       assert DateTime.diff(DateTime.utc_now(), source.last_indexed_at) < 2
     end
 
-    test "it enqueues a job for each pending media item" do
+    test "enqueues a job for each pending media item" do
       source = source_fixture()
       media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
 
@@ -158,7 +158,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       assert_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
     end
 
-    test "it does not attach tasks if the source is set to not download" do
+    test "does not attach tasks if the source is set to not download" do
       source = source_fixture(download_media: false)
       media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
 
@@ -167,7 +167,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       assert [] = Tasks.list_tasks_for(media_item)
     end
 
-    test "it doesn't blow up if a media item cannot be coerced into a struct", %{source: source} do
+    test "doesn't blow up if a media item cannot be coerced into a struct", %{source: source} do
       stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts ->
         response =
           Phoenix.json_library().encode!(%{
@@ -189,6 +189,28 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       assert [changeset] = SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
 
       assert %Ecto.Changeset{} = changeset
+    end
+
+    test "sets use_cookies if the source uses cookies" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl_opts ->
+        assert {:use_cookies, true} in addl_opts
+        {:ok, source_attributes_return_fixture()}
+      end)
+
+      source = source_fixture(%{use_cookies: true})
+
+      SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
+    end
+
+    test "doesn't set use_cookies if the source doesn't use cookies" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl_opts ->
+        assert {:use_cookies, false} in addl_opts
+        {:ok, source_attributes_return_fixture()}
+      end)
+
+      source = source_fixture(%{use_cookies: false})
+
+      SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
     end
   end
 

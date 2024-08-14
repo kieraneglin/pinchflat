@@ -68,7 +68,6 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
   defp create_media_item_from_media_id(source, media_id) do
     url = "https://www.youtube.com/watch?v=#{media_id}"
 
-    # TODO: test
     case YtDlpMedia.get_media_attributes(url, use_cookies: source.use_cookies) do
       {:ok, media_attrs} ->
         Media.create_media_item_from_backend_attrs(source, media_attrs)
