@@ -93,6 +93,24 @@
       help="Uses your YouTube cookies for this source (if configured). Used for downloading private playlists and videos. See docs for important details"
     />
 
+    <section x-show="advancedMode">
+      <.input
+        field={f[:min_duration_seconds]}
+        type="number"
+        label="Minimum Duration (seconds)"
+        min="0"
+        help="Minimum duration of the media to be downloaded. Can be blank"
+      />
+
+      <.input
+        field={f[:max_duration_seconds]}
+        type="number"
+        label="Maximum Duration (seconds)"
+        min="0"
+        help="Maximum duration of the media to be downloaded. Can be blank"
+      />
+    </section>
+
     <.input
       field={f[:download_cutoff_date]}
       type="text"
@@ -120,22 +138,6 @@
       <p class="text-sm mt-2">
         Tread carefully
       </p>
-
-      <.input
-        field={f[:min_duration_seconds]}
-        type="number"
-        label="Minimum Duration (seconds)"
-        min="0"
-        help="Minimum duration of the media to be downloaded. Can be blank"
-      />
-
-      <.input
-        field={f[:max_duration_seconds]}
-        type="number"
-        label="Maximum Duration (seconds)"
-        min="0"
-        help="Maximum duration of the media to be downloaded. Can be blank"
-      />
 
       <.input
         field={f[:title_filter_regex]}
