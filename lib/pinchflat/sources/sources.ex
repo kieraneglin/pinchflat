@@ -180,7 +180,9 @@ defmodule Pinchflat.Sources do
   end
 
   defp add_source_details_to_changeset(source, changeset) do
-    case MediaCollection.get_source_details(changeset.changes.original_url) do
+    use_cookies = Ecto.Changeset.get_field(changeset, :use_cookies)
+
+    case MediaCollection.get_source_details(changeset.changes.original_url, [], use_cookies: use_cookies) do
       {:ok, source_details} ->
         add_source_details_by_collection_type(source, changeset, source_details)
 

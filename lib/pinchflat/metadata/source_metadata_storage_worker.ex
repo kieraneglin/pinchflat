@@ -92,7 +92,9 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
 
   defp determine_series_directory(source) do
     output_path = DownloadOptionBuilder.build_output_path_for(source)
-    {:ok, %{filepath: filepath}} = MediaCollection.get_source_details(source.original_url, output: output_path)
+    runner_opts = [output: output_path]
+    addl_opts = [use_cookies: source.use_cookies]
+    {:ok, %{filepath: filepath}} = MediaCollection.get_source_details(source.original_url, runner_opts, addl_opts)
 
     case MetadataFileHelpers.series_directory_from_media_filepath(filepath) do
       {:ok, series_directory} -> series_directory
@@ -119,7 +121,7 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
         base_opts ++ [:write_thumbnail, playlist_items: 1]
       end
 
-    MediaCollection.get_source_metadata(source.original_url, opts)
+    MediaCollection.get_source_metadata(source.original_url, opts, use_cookies: source.use_cookies)
   end
 
   defp tmp_directory do

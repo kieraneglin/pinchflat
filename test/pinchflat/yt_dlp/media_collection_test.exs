@@ -18,7 +18,7 @@ defmodule Pinchflat.YtDlp.MediaCollectionTest do
                MediaCollection.get_media_attributes_for_collection(@channel_url)
     end
 
-    test "it passes the expected default args" do
+    test "passes the expected default args" do
       expect(YtDlpRunnerMock, :run, fn _url, opts, ot, _addl_opts ->
         assert opts == [:simulate, :skip_download, :ignore_no_formats_error, :no_warnings]
         assert ot == Media.indexing_output_template()
@@ -35,9 +35,10 @@ defmodule Pinchflat.YtDlp.MediaCollectionTest do
       assert {:error, "Big issue", 1} = MediaCollection.get_media_attributes_for_collection(@channel_url)
     end
 
-    test "passes the explict tmpfile path to runner" do
+    test "passes additional args to runner" do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl_opts ->
-        assert [{:output_filepath, filepath}] = addl_opts
+        assert [{:output_filepath, filepath} | _] = addl_opts
+        assert {:use_cookies, false} in addl_opts
         assert String.ends_with?(filepath, ".json")
 
         {:ok, ""}
@@ -72,8 +73,8 @@ defmodule Pinchflat.YtDlp.MediaCollectionTest do
   end
 
   describe "get_source_details/1" do
-    test "it returns a map with data on success" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+    test "returns a map with data on success" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts ->
         Phoenix.json_library().encode(%{
           channel: "PinchflatTestChannel",
           channel_id: "UCQH2",
@@ -92,8 +93,8 @@ defmodule Pinchflat.YtDlp.MediaCollectionTest do
              } = res
     end
 
-    test "it passes the expected args to the backend runner" do
-      expect(YtDlpRunnerMock, :run, fn @channel_url, opts, ot ->
+    test "passes the expected args to the runner" do
+      expect(YtDlpRunnerMock, :run, fn @channel_url, opts, ot, _addl_opts ->
         assert opts == [:simulate, :skip_download, :ignore_no_formats_error, playlist_end: 1]
         assert ot == "%(.{channel,channel_id,playlist_id,playlist_title,filename})j"
 
@@ -103,55 +104,73 @@ defmodule Pinchflat.YtDlp.MediaCollectionTest do
       assert {:ok, _} = MediaCollection.get_source_details(@channel_url)
     end
 
-    test "it returns an error if the runner returns an error" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:error, "Big issue", 1} end)
+    test "passes custom args to the runner" do
+      expect(YtDlpRunnerMock, :run, fn @channel_url, opts, _ot, _addl_opts ->
+        assert {:foo, :bar} in opts
+
+        {:ok, "{}"}
+      end)
+
+      assert {:ok, _} = MediaCollection.get_source_details(@channel_url, foo: :bar)
+    end
+
+    test "passes additional args to the runner" do
+      expect(YtDlpRunnerMock, :run, fn @channel_url, _opts, _ot, addl_opts ->
+        assert {:use_cookies, true} in addl_opts
+
+        {:ok, "{}"}
+      end)
+
+      assert {:ok, _} = MediaCollection.get_source_details(@channel_url, [], use_cookies: true)
+    end
+
+    test "returns an error if the runner returns an error" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:error, "Big issue", 1} end)
 
       assert {:error, "Big issue", 1} = MediaCollection.get_source_details(@channel_url)
     end
 
-    test "it returns an error if the output is not JSON" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, "Not JSON"} end)
+    test "returns an error if the output is not JSON" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:ok, "Not JSON"} end)
 
       assert {:error, %Jason.DecodeError{}} = MediaCollection.get_source_details(@channel_url)
     end
   end
 
   describe "get_source_metadata/1" do
-    test "it returns a map with data on success" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+    test "returns a map with data on success" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts ->
         Phoenix.json_library().encode(%{channel: "PinchflatTestChannel"})
       end)
 
-      assert {:ok, res} = MediaCollection.get_source_metadata(@channel_url)
+      assert {:ok, res} = MediaCollection.get_source_metadata(@channel_url, playlist_items: 0)
 
       assert %{"channel" => "PinchflatTestChannel"} = res
     end
 
-    test "it passes the expected args to the backend runner" do
-      expect(YtDlpRunnerMock, :run, fn @channel_url, opts, ot ->
+    test "passes the expected args to the backend runner" do
+      expect(YtDlpRunnerMock, :run, fn @channel_url, opts, ot, _addl_opts ->
         assert opts == [:skip_download, playlist_items: 0]
         assert ot == "playlist:%()j"
 
         {:ok, "{}"}
       end)
 
-      assert {:ok, _} = MediaCollection.get_source_metadata(@channel_url)
+      assert {:ok, _} = MediaCollection.get_source_metadata(@channel_url, playlist_items: 0)
     end
 
-    test "it returns an error if the runner returns an error" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:error, "Big issue", 1} end)
+    test "passes additional args to the runner" do
+      expect(YtDlpRunnerMock, :run, fn @channel_url, _opts, _ot, addl_opts ->
+        assert {:use_cookies, true} in addl_opts
 
-      assert {:error, "Big issue", 1} = MediaCollection.get_source_metadata(@channel_url)
+        {:ok, "{}"}
+      end)
+
+      assert {:ok, _} = MediaCollection.get_source_metadata(@channel_url, [playlist_items: 0], use_cookies: true)
     end
 
-    test "it returns an error if the output is not JSON" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, "Not JSON"} end)
-
-      assert {:error, %Jason.DecodeError{}} = MediaCollection.get_source_metadata(@channel_url)
-    end
-
-    test "allows you to pass additional opts" do
-      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot ->
+    test "passes custom args to the runner" do
+      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot, _addl_opts ->
         assert opts == [:skip_download, playlist_items: 1, real_opt: :yup]
 
         {:ok, "{}"}
@@ -164,6 +183,18 @@ defmodule Pinchflat.YtDlp.MediaCollectionTest do
       assert_raise KeyError, fn ->
         MediaCollection.get_source_metadata(@channel_url, real_opt: :yup)
       end
+    end
+
+    test "returns an error if the runner returns an error" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:error, "Big issue", 1} end)
+
+      assert {:error, "Big issue", 1} = MediaCollection.get_source_metadata(@channel_url, playlist_items: 0)
+    end
+
+    test "returns an error if the output is not JSON" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:ok, "Not JSON"} end)
+
+      assert {:error, %Jason.DecodeError{}} = MediaCollection.get_source_metadata(@channel_url, playlist_items: 0)
     end
   end
 end

@@ -51,18 +51,26 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
       {:ok, cookie_file: cookie_file, yt_dlp_file: yt_dlp_file}
     end
 
-    test "includes cookie options when cookies.txt exists", %{cookie_file: cookie_file} do
+    test "includes cookie options when cookies.txt exists and enabled", %{cookie_file: cookie_file} do
       FilesystemUtils.write_p!(cookie_file, "cookie data")
 
-      assert {:ok, output} = Runner.run(@media_url, [], "")
+      assert {:ok, output} = Runner.run(@media_url, [], "", use_cookies: true)
 
       assert String.contains?(output, "--cookies #{cookie_file}")
+    end
+
+    test "doesn't include cookie options when cookies.txt exists but disabled", %{cookie_file: cookie_file} do
+      FilesystemUtils.write_p!(cookie_file, "cookie data")
+
+      assert {:ok, output} = Runner.run(@media_url, [], "", use_cookies: false)
+
+      refute String.contains?(output, "--cookies #{cookie_file}")
     end
 
     test "doesn't include cookie options when cookies.txt blank", %{cookie_file: cookie_file} do
       FilesystemUtils.write_p!(cookie_file, " \n \n ")
 
-      assert {:ok, output} = Runner.run(@media_url, [], "")
+      assert {:ok, output} = Runner.run(@media_url, [], "", use_cookies: true)
 
       refute String.contains?(output, "--cookies")
       refute String.contains?(output, cookie_file)

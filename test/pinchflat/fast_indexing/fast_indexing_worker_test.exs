@@ -84,7 +84,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingWorkerTest do
       source = source_fixture(fast_index: true)
 
       expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, render_metadata(:media_metadata)} end)
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> {:ok, render_metadata(:media_metadata)} end)
 
       expect(AppriseRunnerMock, :run, fn servers, opts ->
         assert "server_1" = servers
@@ -110,7 +110,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingWorkerTest do
       source = source_fixture(fast_index: true, download_media: false)
 
       expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, render_metadata(:media_metadata)} end)
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> {:ok, render_metadata(:media_metadata)} end)
       expect(AppriseRunnerMock, :run, 0, fn _servers, _opts -> {:ok, ""} end)
 
       perform_job(FastIndexingWorker, %{id: source.id})
@@ -120,7 +120,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingWorkerTest do
       source = source_fixture(fast_index: true, title_filter_regex: "foobar")
 
       expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, render_metadata(:media_metadata)} end)
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> {:ok, render_metadata(:media_metadata)} end)
       expect(AppriseRunnerMock, :run, 0, fn _servers, _opts -> {:ok, ""} end)
 
       perform_job(FastIndexingWorker, %{id: source.id})

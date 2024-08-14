@@ -18,6 +18,8 @@ defmodule Pinchflat.YtDlp.CommandRunner do
     - :output_filepath - the path to save the output to. If not provided, a temporary
       file will be created and used. Useful for if you need a reference to the file
       for a file watcher.
+    - :use_cookies - if true, will add a cookie file to the command options. Will not
+      attach a cookie file if the user hasn't set one up.
 
   Returns {:ok, binary()} | {:error, output, status}.
   """
@@ -28,7 +30,7 @@ defmodule Pinchflat.YtDlp.CommandRunner do
 
     output_filepath = generate_output_filepath(addl_opts)
     print_to_file_opts = [{:print_to_file, output_template}, output_filepath]
-    user_configured_opts = cookie_file_options()
+    user_configured_opts = cookie_file_options(addl_opts)
     # These must stay in exactly this order, hence why I'm giving it its own variable.
     all_opts = command_opts ++ print_to_file_opts ++ user_configured_opts ++ global_options()
     formatted_command_opts = [url] ++ CliUtils.parse_options(all_opts)
@@ -78,7 +80,14 @@ defmodule Pinchflat.YtDlp.CommandRunner do
     ]
   end
 
-  defp cookie_file_options do
+  defp cookie_file_options(addl_opts) do
+    case Keyword.get(addl_opts, :use_cookies) do
+      true -> add_cookie_file()
+      _ -> []
+    end
+  end
+
+  defp add_cookie_file do
     base_dir = Application.get_env(:pinchflat, :extras_directory)
     filename_options_map = %{cookies: "cookies.txt"}
 

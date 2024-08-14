@@ -16,27 +16,29 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
       )
 
     stub(HTTPClientMock, :get, fn _url, _headers, _opts -> {:ok, ""} end)
-    stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, ""} end)
+    stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_args -> {:ok, ""} end)
 
     {:ok, %{media_item: media_item}}
   end
 
   describe "download_for_media_item/3" do
-    test "it calls the backend runner", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn url, _opts, ot, addl ->
+    test "calls the backend runner", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, 1, fn url, _opts, ot, addl ->
         assert url == media_item.original_url
         assert ot == "after_move:%()j"
-        assert [{:output_filepath, filepath}] = addl
+        assert [{:output_filepath, filepath} | _] = addl
         assert is_binary(filepath)
 
         {:ok, render_metadata(:media_metadata)}
       end)
 
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, _addl_args -> {:ok, ""} end)
+
       assert {:ok, _} = MediaDownloader.download_for_media_item(media_item)
     end
 
-    test "it saves the metadata filepath to the database", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+    test "saves the metadata filepath to the database", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, 2, fn _url, _opts, _ot, _addl ->
         {:ok, render_metadata(:media_metadata)}
       end)
 
@@ -67,16 +69,48 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
 
   describe "download_for_media_item/3 when testing override options" do
     test "includes override opts if specified", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot, _addl ->
+      expect(YtDlpRunnerMock, :run, 1, fn _url, opts, _ot, _addl ->
         refute :force_overwrites in opts
         assert :no_force_overwrites in opts
 
         {:ok, render_metadata(:media_metadata)}
       end)
 
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, _addl -> {:ok, ""} end)
+
       override_opts = [overwrite_behaviour: :no_force_overwrites]
 
       assert {:ok, _} = MediaDownloader.download_for_media_item(media_item, override_opts)
+    end
+  end
+
+  describe "download_for_media_item/3 when testing cookie usage" do
+    test "sets use_cookies if the source uses cookies" do
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, addl ->
+        assert {:use_cookies, true} in addl
+        {:ok, render_metadata(:media_metadata)}
+      end)
+
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, _addl_args -> {:ok, ""} end)
+
+      source = source_fixture(%{use_cookies: true})
+      media_item = media_item_fixture(%{source_id: source.id})
+
+      assert {:ok, _} = MediaDownloader.download_for_media_item(media_item)
+    end
+
+    test "does not set use_cookies if the source does not use cookies" do
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, addl ->
+        assert {:use_cookies, false} in addl
+        {:ok, render_metadata(:media_metadata)}
+      end)
+
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, _addl_args -> {:ok, ""} end)
+
+      source = source_fixture(%{use_cookies: false})
+      media_item = media_item_fixture(%{source_id: source.id})
+
+      assert {:ok, _} = MediaDownloader.download_for_media_item(media_item)
     end
   end
 
@@ -94,12 +128,14 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
     test "attempts to update the media item on recoverable errors", %{media_item: media_item} do
       message = "Unable to communicate with SponsorBlock"
 
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl ->
-        [{:output_filepath, filepath}] = addl
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, addl ->
+        [{:output_filepath, filepath} | _] = addl
         File.write(filepath, render_metadata(:media_metadata))
 
         {:error, message, 1}
       end)
+
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, _addl_args -> {:ok, ""} end)
 
       assert {:recovered, ^message} = MediaDownloader.download_for_media_item(media_item)
       media_item = Repo.reload(media_item)
@@ -118,48 +154,48 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
       :ok
     end
 
-    test "it sets the media_downloaded_at", %{media_item: media_item} do
+    test "sets the media_downloaded_at", %{media_item: media_item} do
       assert media_item.media_downloaded_at == nil
       assert {:ok, updated_media_item} = MediaDownloader.download_for_media_item(media_item)
       assert DateTime.diff(DateTime.utc_now(), updated_media_item.media_downloaded_at) < 2
     end
 
-    test "it sets the culled_at to nil", %{media_item: media_item} do
+    test "sets the culled_at to nil", %{media_item: media_item} do
       Media.update_media_item(media_item, %{culled_at: DateTime.utc_now()})
       assert {:ok, updated_media_item} = MediaDownloader.download_for_media_item(media_item)
       assert updated_media_item.culled_at == nil
     end
 
-    test "it extracts the title", %{media_item: media_item} do
+    test "extracts the title", %{media_item: media_item} do
       assert {:ok, updated_media_item} = MediaDownloader.download_for_media_item(media_item)
       assert updated_media_item.title == "Pinchflat Example Video"
     end
 
-    test "it extracts the description", %{media_item: media_item} do
+    test "extracts the description", %{media_item: media_item} do
       assert {:ok, updated_media_item} = MediaDownloader.download_for_media_item(media_item)
       assert is_binary(updated_media_item.description)
     end
 
-    test "it extracts the media_filepath", %{media_item: media_item} do
+    test "extracts the media_filepath", %{media_item: media_item} do
       assert media_item.media_filepath == nil
       assert {:ok, updated_media_item} = MediaDownloader.download_for_media_item(media_item)
       assert String.ends_with?(updated_media_item.media_filepath, ".mkv")
     end
 
-    test "it extracts the subtitle_filepaths", %{media_item: media_item} do
+    test "extracts the subtitle_filepaths", %{media_item: media_item} do
       assert media_item.subtitle_filepaths == []
       assert {:ok, updated_media_item} = MediaDownloader.download_for_media_item(media_item)
       assert [["de", _], ["en", _] | _rest] = updated_media_item.subtitle_filepaths
     end
 
-    test "it extracts the duration_seconds", %{media_item: media_item} do
+    test "extracts the duration_seconds", %{media_item: media_item} do
       assert media_item.duration_seconds == nil
       assert {:ok, updated_media_item} = MediaDownloader.download_for_media_item(media_item)
       assert is_integer(updated_media_item.duration_seconds)
     end
 
-    test "it extracts the thumbnail_filepath", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+    test "extracts the thumbnail_filepath", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, 2, fn _url, _opts, _ot, _addl ->
         metadata = render_parsed_metadata(:media_metadata)
 
         thumbnail_filepath =
@@ -182,8 +218,8 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
       File.rm(updated_media_item.thumbnail_filepath)
     end
 
-    test "it extracts the metadata_filepath", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+    test "extracts the metadata_filepath", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, 2, fn _url, _opts, _ot, _addl ->
         metadata = render_parsed_metadata(:media_metadata)
 
         infojson_filepath = metadata["infojson_filename"]
@@ -202,14 +238,14 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
 
   describe "download_for_media_item/3 when testing NFO generation" do
     setup do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
         {:ok, render_metadata(:media_metadata)}
       end)
 
       :ok
     end
 
-    test "it generates an NFO file if the source is set to download NFOs" do
+    test "generates an NFO file if the source is set to download NFOs" do
       profile = media_profile_fixture(%{download_nfo: true})
       source = source_fixture(%{media_profile_id: profile.id})
       media_item = media_item_fixture(%{source_id: source.id})
@@ -222,7 +258,7 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
       File.rm!(updated_media_item.nfo_filepath)
     end
 
-    test "it does not generate an NFO file if the source is set to not download NFOs" do
+    test "does not generate an NFO file if the source is set to not download NFOs" do
       profile = media_profile_fixture(%{download_nfo: false})
       source = source_fixture(%{media_profile_id: profile.id})
       media_item = media_item_fixture(%{source_id: source.id})
