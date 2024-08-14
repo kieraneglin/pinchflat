@@ -37,6 +37,8 @@ defmodule Pinchflat.Sources.Source do
     media_profile_id
     output_path_template_override
     marked_for_deletion_at
+    min_duration_seconds
+    max_duration_seconds
   )a
 
   # Expensive API calls are made when a source is inserted/updated so
@@ -83,6 +85,9 @@ defmodule Pinchflat.Sources.Source do
     field :original_url, :string
     field :title_filter_regex, :string
     field :output_path_template_override, :string
+
+    field :min_duration_seconds, :integer
+    field :max_duration_seconds, :integer
 
     field :series_directory, :string
     field :nfo_filepath, :string
