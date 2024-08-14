@@ -62,6 +62,7 @@ defmodule PinchflatWeb.Sources.SourceController do
           | id: nil,
             uuid: nil,
             custom_name: nil,
+            description: nil,
             collection_name: nil,
             collection_id: nil,
             collection_type: nil,
