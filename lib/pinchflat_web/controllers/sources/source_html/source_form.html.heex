@@ -122,6 +122,20 @@
       </p>
 
       <.input
+        field={f[:min_duration_seconds]}
+        type="number"
+        label="Minimum Duration (seconds)"
+        help="Minimum duration of the media to be downloaded. Can be blank"
+      />
+
+      <.input
+        field={f[:max_duration_seconds]}
+        type="number"
+        label="Maximum Duration (seconds)"
+        help="Maximum duration of the media to be downloaded. Can be blank"
+      />
+
+      <.input
         field={f[:title_filter_regex]}
         type="text"
         label="Title Filter Regex"
