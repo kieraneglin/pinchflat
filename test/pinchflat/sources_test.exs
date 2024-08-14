@@ -681,6 +681,34 @@ defmodule Pinchflat.SourcesTest do
     end
   end
 
+  describe "change_source/3 when testing min/max duration validations" do
+    test "succeeds if min and max are nil" do
+      source = source_fixture()
+
+      assert %{errors: []} = Sources.change_source(source, %{min_duration_seconds: nil, max_duration_seconds: nil})
+    end
+
+    test "succeeds if either min or max is nil" do
+      source = source_fixture()
+
+      assert %{errors: []} = Sources.change_source(source, %{min_duration_seconds: nil, max_duration_seconds: 100})
+      assert %{errors: []} = Sources.change_source(source, %{min_duration_seconds: 100, max_duration_seconds: nil})
+    end
+
+    test "succeeds if min is less than max" do
+      source = source_fixture()
+
+      assert %{errors: []} = Sources.change_source(source, %{min_duration_seconds: 100, max_duration_seconds: 200})
+    end
+
+    test "fails if min is greater than or equal to max" do
+      source = source_fixture()
+
+      assert %{errors: [_]} = Sources.change_source(source, %{min_duration_seconds: 200, max_duration_seconds: 100})
+      assert %{errors: [_]} = Sources.change_source(source, %{min_duration_seconds: 100, max_duration_seconds: 100})
+    end
+  end
+
   describe "change_source/3 when testing original_url validation" do
     test "succeeds when an original URL is valid" do
       source = source_fixture()

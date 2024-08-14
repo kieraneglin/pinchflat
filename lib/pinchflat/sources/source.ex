@@ -123,6 +123,7 @@ defmodule Pinchflat.Sources.Source do
     |> dynamic_default(:uuid, fn _ -> Ecto.UUID.generate() end)
     |> validate_required(required_fields)
     |> validate_title_regex()
+    |> validate_min_and_max_durations()
     |> validate_number(:retention_period_days, greater_than_or_equal_to: 0)
     # Ensures it ends with `.{{ ext }}` or `.%(ext)s` or similar (with a little wiggle room)
     |> validate_format(:output_path_template_override, MediaProfile.ext_regex(), message: "must end with .{{ ext }}")
@@ -168,6 +169,17 @@ defmodule Pinchflat.Sources.Source do
   end
 
   defp validate_title_regex(changeset), do: changeset
+
+  defp validate_min_and_max_durations(changeset) do
+    min_duration = get_change(changeset, :min_duration_seconds)
+    max_duration = get_change(changeset, :max_duration_seconds)
+
+    case {min_duration, max_duration} do
+      {min, max} when is_nil(min) or is_nil(max) -> changeset
+      {min, max} when min >= max -> add_error(changeset, :max_duration_seconds, "must be greater than minumum duration")
+      _ -> changeset
+    end
+  end
 
   defimpl Jason.Encoder, for: Source do
     def encode(value, opts) do
