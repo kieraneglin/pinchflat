@@ -51,6 +51,8 @@ defmodule PinchflatWeb.Sources.SourceController do
         template_id -> Repo.get(Source, template_id) || %Source{}
       end
 
+    IO.inspect(cs_struct)
+
     render(conn, :new,
       media_profiles: media_profiles(),
       layout: get_onboarding_layout(),
@@ -62,6 +64,7 @@ defmodule PinchflatWeb.Sources.SourceController do
           | id: nil,
             uuid: nil,
             custom_name: nil,
+            description: nil,
             collection_name: nil,
             collection_id: nil,
             collection_type: nil,

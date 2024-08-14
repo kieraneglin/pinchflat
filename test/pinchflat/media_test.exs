@@ -355,6 +355,48 @@ defmodule Pinchflat.MediaTest do
     end
   end
 
+  describe "list_pending_media_items_for/1 when min and max durations" do
+    test "returns media items that meet the min and max duration" do
+      source = source_fixture(%{min_duration_seconds: 10, max_duration_seconds: 20})
+
+      _short_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, duration_seconds: 5})
+      normal_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, duration_seconds: 15})
+      _long_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, duration_seconds: 25})
+
+      assert Media.list_pending_media_items_for(source) == [normal_media_item]
+    end
+
+    test "does not apply a min duration if none is specified" do
+      source = source_fixture(%{min_duration_seconds: nil, max_duration_seconds: 20})
+
+      short_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, duration_seconds: 5})
+      normal_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, duration_seconds: 15})
+      _long_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, duration_seconds: 25})
+
+      assert Media.list_pending_media_items_for(source) == [short_media_item, normal_media_item]
+    end
+
+    test "does not apply a max duration if none is specified" do
+      source = source_fixture(%{min_duration_seconds: 10, max_duration_seconds: nil})
+
+      _short_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, duration_seconds: 5})
+      normal_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, duration_seconds: 15})
+      long_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, duration_seconds: 25})
+
+      assert Media.list_pending_media_items_for(source) == [normal_media_item, long_media_item]
+    end
+
+    test "does not apply a min or max duration if none are specified" do
+      source = source_fixture(%{min_duration_seconds: nil, max_duration_seconds: nil})
+
+      short_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, duration_seconds: 5})
+      normal_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, duration_seconds: 15})
+      long_media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, duration_seconds: 25})
+
+      assert Media.list_pending_media_items_for(source) == [short_media_item, normal_media_item, long_media_item]
+    end
+  end
+
   describe "list_pending_media_items_for/1 when testing download prevention" do
     test "returns only media items that are not prevented from downloading" do
       source = source_fixture()
@@ -430,6 +472,34 @@ defmodule Pinchflat.MediaTest do
     test "return true if there is no title regex" do
       source = source_fixture(%{title_filter_regex: nil})
       media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, title: "foo"})
+
+      assert Media.pending_download?(media_item)
+    end
+
+    test "returns true if the duration is between the min and max" do
+      source = source_fixture(%{min_duration_seconds: 10, max_duration_seconds: 20})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, duration_seconds: 15})
+
+      assert Media.pending_download?(media_item)
+    end
+
+    test "returns false if the duration is below the min" do
+      source = source_fixture(%{min_duration_seconds: 10, max_duration_seconds: 20})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, duration_seconds: 5})
+
+      refute Media.pending_download?(media_item)
+    end
+
+    test "returns false if the duration is above the max" do
+      source = source_fixture(%{min_duration_seconds: 10, max_duration_seconds: 20})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, duration_seconds: 25})
+
+      refute Media.pending_download?(media_item)
+    end
+
+    test "returns true if there is no min or max duration" do
+      source = source_fixture(%{min_duration_seconds: nil, max_duration_seconds: nil})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, duration_seconds: 15})
 
       assert Media.pending_download?(media_item)
     end

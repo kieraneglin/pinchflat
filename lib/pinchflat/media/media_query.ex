@@ -75,6 +75,14 @@ defmodule Pinchflat.Media.MediaQuery do
     )
   end
 
+  def meets_min_and_max_duration do
+    dynamic(
+      [mi, source],
+      (is_nil(source.min_duration_seconds) or fragment("duration_seconds >= ?", source.min_duration_seconds)) and
+        (is_nil(source.max_duration_seconds) or fragment("duration_seconds <= ?", source.max_duration_seconds))
+    )
+  end
+
   def past_retention_period do
     dynamic(
       [mi, source],
@@ -123,7 +131,8 @@ defmodule Pinchflat.Media.MediaQuery do
         not (^download_prevented()) and
         ^upload_date_after_source_cutoff() and
         ^format_matching_profile_preference() and
-        ^matches_source_title_regex()
+        ^matches_source_title_regex() and
+        ^meets_min_and_max_duration()
     )
   end
 
