@@ -62,11 +62,14 @@ defmodule Pinchflat.Metadata.MetadataFileHelpers do
 
   Returns binary() | nil
   """
-  def download_and_store_thumbnail_for(database_record) do
-    yt_dlp_filepath = generate_filepath_for(database_record, "thumbnail.%(ext)s")
-    real_filepath = generate_filepath_for(database_record, "thumbnail.jpg")
+  def download_and_store_thumbnail_for(media_item_with_preloads) do
+    yt_dlp_filepath = generate_filepath_for(media_item_with_preloads, "thumbnail.%(ext)s")
+    real_filepath = generate_filepath_for(media_item_with_preloads, "thumbnail.jpg")
+    command_opts = [output: yt_dlp_filepath]
+    addl_opts = [use_cookies: media_item_with_preloads.source.use_cookies]
 
-    case YtDlpMedia.download_thumbnail(database_record.original_url, output: yt_dlp_filepath) do
+    # TODO: test
+    case YtDlpMedia.download_thumbnail(media_item_with_preloads.original_url, command_opts, addl_opts) do
       {:ok, _} -> real_filepath
       _ -> nil
     end

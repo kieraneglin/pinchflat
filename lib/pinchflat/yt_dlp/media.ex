@@ -53,12 +53,13 @@ defmodule Pinchflat.YtDlp.Media do
 
   Returns {:ok, ""} | {:error, any, ...}.
   """
-  def download_thumbnail(url, command_opts \\ []) do
-    opts = [:no_simulate, :skip_download, :write_thumbnail, convert_thumbnail: "jpg"] ++ command_opts
+  def download_thumbnail(url, command_opts \\ [], addl_opts \\ []) do
+    all_command_opts = [:no_simulate, :skip_download, :write_thumbnail, convert_thumbnail: "jpg"] ++ command_opts
 
     # NOTE: it doesn't seem like this command actually returns anything in `after_move` since
     # we aren't downloading the main media file
-    backend_runner().run(url, opts, "after_move:%()j")
+    # TODO: test
+    backend_runner().run(url, all_command_opts, "after_move:%()j", addl_opts)
   end
 
   @doc """
@@ -66,12 +67,13 @@ defmodule Pinchflat.YtDlp.Media do
 
   Returns {:ok, %Media{}} | {:error, any, ...}.
   """
-  def get_media_attributes(url) do
+  def get_media_attributes(url, addl_opts \\ []) do
     runner = Application.get_env(:pinchflat, :yt_dlp_runner)
     command_opts = [:simulate, :skip_download]
     output_template = indexing_output_template()
 
-    case runner.run(url, command_opts, output_template) do
+    # TODO: test
+    case runner.run(url, command_opts, output_template, addl_opts) do
       {:ok, output} ->
         output
         |> Phoenix.json_library().decode!()

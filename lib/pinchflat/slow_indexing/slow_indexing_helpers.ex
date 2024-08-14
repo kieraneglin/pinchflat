@@ -94,7 +94,9 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
     {:ok, pid} = FileFollowerServer.start_link()
 
     handler = fn filepath -> setup_file_follower_watcher(pid, filepath, source) end
-    result = MediaCollection.get_media_attributes_for_collection(source.original_url, file_listener_handler: handler)
+    runner_opts = [file_listener_handler: handler, use_cookies: source.use_cookies]
+    # TODO: test
+    result = MediaCollection.get_media_attributes_for_collection(source.original_url, runner_opts)
 
     FileFollowerServer.stop(pid)
 
