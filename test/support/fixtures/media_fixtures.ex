@@ -93,7 +93,7 @@ defmodule Pinchflat.MediaFixtures do
       id: "video1",
       title: "Video 1",
       webpage_url: "https://example.com/video1",
-      was_live: false,
+      live_status: "not_live",
       description: "desc1",
       aspect_ratio: 1.67,
       duration: 123.45,

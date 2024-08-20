@@ -101,7 +101,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
             id: "video2",
             title: "Video 2",
             webpage_url: "https://example.com/shorts/video2",
-            was_live: true,
+            live_status: "is_live",
             description: "desc2",
             aspect_ratio: 1.67,
             duration: 345.67,

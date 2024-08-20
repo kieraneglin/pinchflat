@@ -43,11 +43,12 @@ defmodule Pinchflat.Metadata.MetadataParserTest do
     test "it extracts the livestream flag", %{metadata: metadata} do
       result = Parser.parse_for_media_item(metadata)
 
-      assert result.livestream == metadata["was_live"]
+      assert metadata["live_status"] == "not_live"
+      refute result.livestream
     end
 
     test "the livestream flag defaults to false", %{metadata: metadata} do
-      metadata = Map.put(metadata, "was_live", nil)
+      metadata = Map.put(metadata, "live_status", nil)
 
       result = Parser.parse_for_media_item(metadata)
 
