@@ -89,7 +89,7 @@ defmodule Pinchflat.YtDlp.Media do
   NOTE: playlist_index is really only useful for playlists that will never change their order.
   """
   def indexing_output_template do
-    "%(.{id,title,was_live,webpage_url,description,aspect_ratio,duration,upload_date,timestamp,playlist_index})j"
+    "%(.{id,title,live_status,webpage_url,description,aspect_ratio,duration,upload_date,timestamp,playlist_index})j"
   end
 
   @doc """
@@ -104,7 +104,7 @@ defmodule Pinchflat.YtDlp.Media do
       title: response["title"],
       description: response["description"],
       original_url: response["webpage_url"],
-      livestream: !!response["was_live"],
+      livestream: !!response["live_status"] && response["live_status"] != "not_live",
       duration_seconds: response["duration"] && round(response["duration"]),
       short_form_content: response["webpage_url"] && short_form_content?(response),
       uploaded_at: response["upload_date"] && parse_uploaded_at(response),

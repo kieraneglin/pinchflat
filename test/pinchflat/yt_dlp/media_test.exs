@@ -138,7 +138,9 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
   describe "indexing_output_template/0" do
     test "contains all the greatest hits" do
-      attrs = ~w(id title was_live webpage_url description aspect_ratio duration upload_date timestamp playlist_index)a
+      attrs =
+        ~w(id title live_status webpage_url description aspect_ratio duration upload_date timestamp playlist_index)a
+
       formatted_attrs = "%(.{#{Enum.join(attrs, ",")}})j"
 
       assert formatted_attrs == Media.indexing_output_template()
@@ -152,7 +154,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
         "title" => "Trying to Wheelie Without the Rear Brake",
         "description" => "I'm not sure what I expected.",
         "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
-        "was_live" => false,
+        "live_status" => "not_live",
         "aspect_ratio" => 1.0,
         "duration" => 60,
         "upload_date" => "20210101",
@@ -239,7 +241,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
       assert %Media{duration_seconds: nil} = Media.response_to_struct(response)
     end
 
-    test "sets livestream to false if the was_live field isn't present" do
+    test "sets livestream to false if the live_status field isn't present" do
       response = %{
         "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
         "aspect_ratio" => 1.0,
