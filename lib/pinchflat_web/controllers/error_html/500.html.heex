@@ -16,14 +16,14 @@
   </ul>
   <textarea class="w-full min-h-96 font-mono inline-block rounded-lg" readonly>
 **Status**:
-`<%= @status %>`
+`<%= if Map.has_key?(assigns, :status), do: @status, else: "" %>`
 
 **Reason**:
-`<%= inspect(@reason) %>`
+`<%= if Map.has_key?(assigns, :reason), do: inspect(@reason), else: "" %>`
 
 **Stacktrace**:
 ```
-  <%= Exception.format_stacktrace(@stack) %>
+  <%= if Map.has_key?(assigns, :stack), do: Exception.format_stacktrace(@stack), else: "" %>
 ```
   </textarea>
 </section>
