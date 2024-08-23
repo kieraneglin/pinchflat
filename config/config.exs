@@ -41,7 +41,8 @@ config :pinchflat, PinchflatWeb.Endpoint,
   adapter: Phoenix.Endpoint.Cowboy2Adapter,
   render_errors: [
     formats: [html: PinchflatWeb.ErrorHTML, json: PinchflatWeb.ErrorJSON],
-    layout: false
+    root_layout: {PinchflatWeb.Layouts, :root},
+    layout: {PinchflatWeb.Layouts, :app}
   ],
   pubsub_server: Pinchflat.PubSub,
   live_view: [signing_salt: "/t5878kO"]

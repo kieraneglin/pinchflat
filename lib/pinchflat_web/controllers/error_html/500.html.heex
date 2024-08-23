@@ -1,0 +1,29 @@
+<section>
+  <h2 class="text-title-md2 font-bold text-white">Internal Server Error</h2>
+  <p class="text-body-md text-white mt-2">
+    This shouldn't happen! Please make a
+    <.inline_link href="https://github.com/kieraneglin/pinchflat/issues/new/choose">GitHub issue</.inline_link>
+    with the following information:
+  </p>
+
+  <ul class="list-disc ml-8 mb-8">
+    <li>What you were doing when you saw this page</li>
+    <li>
+      Your system details and logs from
+      <.inline_link href={~p"/app_info"}>app info</.inline_link>
+    </li>
+    <li>All the information in the textarea below (use select all + copy)</li>
+  </ul>
+  <textarea class="w-full min-h-96 font-mono inline-block rounded-lg" readonly>
+**Status**:
+`<%= if Map.has_key?(assigns, :status), do: @status, else: "" %>`
+
+**Reason**:
+`<%= if Map.has_key?(assigns, :reason), do: inspect(@reason), else: "" %>`
+
+**Stacktrace**:
+```
+  <%= if Map.has_key?(assigns, :stack), do: Exception.format_stacktrace(@stack), else: "" %>
+```
+  </textarea>
+</section>
