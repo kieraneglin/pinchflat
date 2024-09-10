@@ -41,6 +41,17 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
     end
 
+    test "deletes any executing media collection tasks for the source" do
+      source = source_fixture()
+      {:ok, job} = Oban.insert(MediaCollectionIndexingWorker.new(%{"id" => source.id}))
+      task = task_fixture(source_id: source.id, job_id: job.id)
+      Repo.update_all(from(Oban.Job, where: [id: ^task.job_id], update: [set: [state: "executing"]]), [])
+
+      assert {:ok, _} = SlowIndexingHelpers.kickoff_indexing_task(source)
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+
     test "deletes any pending media tasks for the source" do
       source = source_fixture()
       {:ok, job} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))

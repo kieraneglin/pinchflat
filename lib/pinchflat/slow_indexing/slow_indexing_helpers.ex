@@ -28,7 +28,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   """
   def kickoff_indexing_task(%Source{} = source, job_args \\ %{}, job_opts \\ []) do
     Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
-    Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker")
+    Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker", include_executing: true)
 
     MediaCollectionIndexingWorker.kickoff_with_task(source, job_args, job_opts)
   end

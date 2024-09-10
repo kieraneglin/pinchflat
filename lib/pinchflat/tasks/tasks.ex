@@ -54,20 +54,6 @@ defmodule Pinchflat.Tasks do
   end
 
   @doc """
-  Returns the list of pending tasks for a given record type and ID. Optionally allows you to specify
-  which worker to include.
-
-  Returns [%Task{}, ...]
-  """
-  def list_pending_tasks_for(record, worker_name \\ nil) do
-    list_tasks_for(
-      record,
-      worker_name,
-      [:available, :scheduled, :retryable]
-    )
-  end
-
-  @doc """
   Gets a single task.
 
   Returns %Task{}. Raises `Ecto.NoResultsError` if the Task does not exist.
@@ -127,13 +113,13 @@ defmodule Pinchflat.Tasks do
 
   @doc """
   Deletes all tasks attached to a given record, cancelling any attached jobs.
-  Optionally allows you to specify which worker to include.
+  Optionally allows you to specify which worker and job states to include.
 
   Returns :ok
   """
-  def delete_tasks_for(record, worker_name \\ nil) do
+  def delete_tasks_for(record, worker_name \\ nil, job_states \\ Oban.Job.states()) do
     record
-    |> list_tasks_for(worker_name)
+    |> list_tasks_for(worker_name, job_states)
     |> Enum.each(&delete_task/1)
   end
 
@@ -143,10 +129,12 @@ defmodule Pinchflat.Tasks do
 
   Returns :ok
   """
-  def delete_pending_tasks_for(record, worker_name \\ nil) do
-    record
-    |> list_pending_tasks_for(worker_name)
-    |> Enum.each(&delete_task/1)
+  def delete_pending_tasks_for(record, worker_name \\ nil, opts \\ []) do
+    include_executing = Keyword.get(opts, :include_executing, false)
+    base_job_states = [:available, :scheduled, :retryable]
+    job_states = if include_executing, do: base_job_states ++ [:executing], else: base_job_states
+
+    delete_tasks_for(record, worker_name, job_states)
   end
 
   @doc """
