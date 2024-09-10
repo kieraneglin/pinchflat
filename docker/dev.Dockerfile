@@ -53,6 +53,7 @@ WORKDIR /app
 
 COPY mix.exs mix.lock ./
 # Install Elixir deps
+# NOTE: this has to be before the bulk copy to ensure that deps are cached
 RUN MIX_ENV=dev mix deps.get && MIX_ENV=dev mix deps.compile
 RUN MIX_ENV=test mix deps.get && MIX_ENV=test mix deps.compile
 
