@@ -21,7 +21,7 @@
 
 </div>
 
-# Your next YouTube media manager
+# Your next YouTube media manager!
 
 ## Table of contents:
 
