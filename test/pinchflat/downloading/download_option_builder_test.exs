@@ -252,7 +252,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
     end
   end
 
-  describe "build/1 when testing format options" do
+  describe "build/1 when testing media quality and format options" do
     test "includes quality options" do
       resolutions = ["360", "480", "720", "1080", "2160", "4320"]
 
