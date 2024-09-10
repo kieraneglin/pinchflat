@@ -252,7 +252,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
     end
   end
 
-  describe "build/1 when testing quality options" do
+  describe "build/1 when testing media quality and format options" do
     test "includes quality options" do
       resolutions = ["360", "480", "720", "1080", "2160", "4320"]
 
@@ -290,6 +290,22 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
       assert {:ok, res} = DownloadOptionBuilder.build(media_item)
 
       assert {:format_sort, "res:1080,+codec:av01:aac"} in res
+    end
+
+    test "includes custom remux target for videos if specified", %{media_item: media_item} do
+      media_item = update_media_profile_attribute(media_item, %{media_container: "mkv"})
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+
+      assert {:remux_video, "mkv"} in res
+    end
+
+    test "includes custom format target for audio if specified", %{media_item: media_item} do
+      media_item = update_media_profile_attribute(media_item, %{media_container: "flac", preferred_resolution: :audio})
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+
+      assert {:audio_format, "flac"} in res
     end
   end
 
