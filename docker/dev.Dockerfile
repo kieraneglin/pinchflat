@@ -49,14 +49,15 @@ ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
-# Create app directory and copy the Elixir projects into it.
 WORKDIR /app
-COPY . ./
 
+COPY mix.exs mix.lock ./
 # Install Elixir deps
-# RUN mix archive.install github hexpm/hex branch latest
 RUN MIX_ENV=dev mix deps.get && MIX_ENV=dev mix deps.compile
 RUN MIX_ENV=test mix deps.get && MIX_ENV=test mix deps.compile
+
+COPY . ./
+
 # Gives us iex shell history
 ENV ERL_AFLAGS="-kernel shell_history enabled"
 
