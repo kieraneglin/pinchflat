@@ -27,11 +27,6 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          driver: docker
-
-      - name: Set up containerd
-        uses: crazy-max/ghaction-setup-containerd@v3
 
       - name: Build docker image
         uses: docker/build-push-action@v6
