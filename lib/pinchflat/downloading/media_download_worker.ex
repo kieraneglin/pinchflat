@@ -12,6 +12,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
   alias Pinchflat.Tasks
   alias Pinchflat.Repo
   alias Pinchflat.Media
+  alias Pinchflat.Media.FileDeletion
   alias Pinchflat.Downloading.MediaDownloader
 
   alias Pinchflat.Lifecycle.UserScripts.CommandRunner, as: UserScriptRunner
@@ -85,6 +86,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
             media_redownloaded_at: get_redownloaded_at(is_quality_upgrade)
           })
 
+        :ok = FileDeletion.delete_outdated_files(media_item, updated_media_item)
         run_user_script(:media_downloaded, updated_media_item)
 
         :ok

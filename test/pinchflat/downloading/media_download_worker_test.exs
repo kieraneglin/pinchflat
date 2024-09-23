@@ -236,6 +236,26 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
 
       perform_job(MediaDownloadWorker, %{id: media_item.id, force: true})
     end
+
+    test "deletes old files if the media item has been updated" do
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, _addl ->
+        tmp_media_item = media_item_with_attachments()
+        metadata = render_parsed_metadata(:media_metadata)
+        metadata = Map.put(metadata, "filepath", tmp_media_item.media_filepath)
+
+        {:ok, Phoenix.json_library().encode!(metadata)}
+      end)
+
+      expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, _addl -> {:ok, ""} end)
+
+      old_media_item = media_item_with_attachments()
+      perform_job(MediaDownloadWorker, %{id: old_media_item.id, force: true})
+      updated_media_item = Repo.reload(old_media_item)
+
+      assert updated_media_item.media_filepath != old_media_item.media_filepath
+      refute File.exists?(old_media_item.media_filepath)
+      assert File.exists?(updated_media_item.media_filepath)
+    end
   end
 
   describe "perform/1 when testing user script callbacks" do

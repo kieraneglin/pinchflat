@@ -73,16 +73,19 @@ defmodule Pinchflat.MediaFixtures do
         "#{:rand.uniform(1_000_000)}"
       ])
 
-    stored_media_filepath = Path.join(base_dir, "#media.mp4")
+    stored_media_filepath = Path.join(base_dir, "media.mp4")
     thumbnail_filepath = Path.join(base_dir, "thumbnail.jpg")
+    subtitle_filepath = Path.join(base_dir, "subtitle.en.srt")
 
     FilesystemUtils.cp_p!(media_filepath_fixture(), stored_media_filepath)
     FilesystemUtils.cp_p!(thumbnail_filepath_fixture(), thumbnail_filepath)
+    FilesystemUtils.cp_p!(subtitle_filepath_fixture(), subtitle_filepath)
 
     merged_attrs =
       Map.merge(attrs, %{
         media_filepath: stored_media_filepath,
-        thumbnail_filepath: thumbnail_filepath
+        thumbnail_filepath: thumbnail_filepath,
+        subtitle_filepaths: [["en", subtitle_filepath]]
       })
 
     media_item_fixture(merged_attrs)
@@ -121,6 +124,16 @@ defmodule Pinchflat.MediaFixtures do
       "support",
       "files",
       "thumbnail.jpg"
+    ])
+  end
+
+  def subtitle_filepath_fixture do
+    Path.join([
+      File.cwd!(),
+      "test",
+      "support",
+      "files",
+      "subtitle.srt"
     ])
   end
 
