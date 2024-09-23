@@ -37,6 +37,46 @@ defmodule Pinchflat.Utils.FilesystemUtilsTest do
     end
   end
 
+  describe "filepaths_reference_same_file?/2" do
+    setup do
+      filepath = FilesystemUtils.generate_metadata_tmpfile(:json)
+
+      on_exit(fn -> File.rm!(filepath) end)
+
+      {:ok, %{filepath: filepath}}
+    end
+
+    test "returns true if the files are the same", %{filepath: filepath} do
+      assert FilesystemUtils.filepaths_reference_same_file?(filepath, filepath)
+    end
+
+    test "returns true if different filepaths point to the same file", %{filepath: filepath} do
+      short_path = Path.expand(filepath)
+      long_path = Path.join(["/tmp", "..", filepath])
+
+      assert short_path != long_path
+      assert FilesystemUtils.filepaths_reference_same_file?(short_path, long_path)
+    end
+
+    test "returns true if the files are symlinked", %{filepath: filepath} do
+      tmpfile_directory = Application.get_env(:pinchflat, :tmpfile_directory)
+      other_filepath = Path.join([tmpfile_directory, "symlink.json"])
+      :ok = File.ln_s!(filepath, other_filepath)
+
+      assert FilesystemUtils.filepaths_reference_same_file?(filepath, other_filepath)
+
+      File.rm!(other_filepath)
+    end
+
+    test "returns false if the files are different", %{filepath: filepath} do
+      other_filepath = FilesystemUtils.generate_metadata_tmpfile(:json)
+
+      refute FilesystemUtils.filepaths_reference_same_file?(filepath, other_filepath)
+
+      File.rm!(other_filepath)
+    end
+  end
+
   describe "generate_metadata_tmpfile/1" do
     test "creates a tmpfile and returns its path" do
       res = FilesystemUtils.generate_metadata_tmpfile(:json)

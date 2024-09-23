@@ -121,6 +121,21 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
     end
   end
 
+  defp delete_outdated_media_files(old_media_item, updated_media_item) do
+    filepath_keys = MediaItem.filepath_attributes()
+
+    Enum.each(filepath_keys, fn key ->
+      old_filepath_attribute = get_in(old_media_item, [Access.key!(key)])
+      new_filepath_attribute = get_in(updated_media_item, [Access.key!(key)])
+      # filepath_is_string = is_binary(old_filepath) && is_binary(new_filepath)
+      # files_exist = old_filepath && new_filepath && File.exists?(old_filepath) && File.exists?(new_filepath)
+      # IO.inspect({old_filepath, new_filepath, files_exist})
+      # if files_exist && !FSUtils.filepaths_reference_same_file?(old_filepath, new_filepath) do
+      #   FSUtils.delete_file_and_remove_empty_directories(old_filepath)
+      # end
+    end)
+  end
+
   # NOTE: I like this pattern of using the default value so that I don't have to
   # define it in config.exs (and friends). Consider using this elsewhere.
   defp run_user_script(event, media_item) do

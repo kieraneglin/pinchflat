@@ -21,6 +21,24 @@ defmodule Pinchflat.Utils.FilesystemUtils do
   end
 
   @doc """
+  Checks if two filepaths reference the same file.
+
+  Useful if you have a relative and absolute filepath and want to be sure they're the same file.
+  Also works with symlinks.
+
+  Returns boolean()
+  """
+  def filepaths_reference_same_file?(filepath_1, filepath_2) do
+    {:ok, stat_1} = File.stat(filepath_1)
+    {:ok, stat_2} = File.stat(filepath_2)
+
+    identifier_1 = "#{stat_1.major_device}:#{stat_1.minor_device}:#{stat_1.inode}"
+    identifier_2 = "#{stat_2.major_device}:#{stat_2.minor_device}:#{stat_2.inode}"
+
+    identifier_1 == identifier_2
+  end
+
+  @doc """
   Generates a temporary file and returns its path. The file is empty and has the given type.
   Generates all the directories in the path if they don't exist.
 
