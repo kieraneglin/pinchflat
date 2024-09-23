@@ -43,11 +43,10 @@ defmodule Pinchflat.Media.FileDeletion do
 
     Enum.each(new_attributes, fn {key, new_filepath} ->
       old_filepath = Map.get(old_attributes, key)
-      files_do_exist = old_filepath && new_filepath && File.exists?(old_filepath) && File.exists?(new_filepath)
-      filepaths_are_different = old_filepath != new_filepath
+      files_have_changed = old_filepath && new_filepath && old_filepath != new_filepath
+      files_exist_on_disk = files_have_changed && File.exists?(old_filepath) && File.exists?(new_filepath)
 
-      if files_do_exist && filepaths_are_different &&
-           !FSUtils.filepaths_reference_same_file?(old_filepath, new_filepath) do
+      if files_exist_on_disk && !FSUtils.filepaths_reference_same_file?(old_filepath, new_filepath) do
         FSUtils.delete_file_and_remove_empty_directories(old_filepath)
       end
     end)

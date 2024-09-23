@@ -12,6 +12,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
   alias Pinchflat.Tasks
   alias Pinchflat.Repo
   alias Pinchflat.Media
+  alias Pinchflat.Media.FileDeletion
   alias Pinchflat.Downloading.MediaDownloader
 
   alias Pinchflat.Lifecycle.UserScripts.CommandRunner, as: UserScriptRunner
@@ -85,6 +86,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
             media_redownloaded_at: get_redownloaded_at(is_quality_upgrade)
           })
 
+        :ok = FileDeletion.delete_outdated_files(media_item, updated_media_item)
         run_user_script(:media_downloaded, updated_media_item)
 
         :ok
@@ -119,21 +121,6 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
     else
       {:error, :download_failed}
     end
-  end
-
-  defp delete_outdated_media_files(old_media_item, updated_media_item) do
-    filepath_keys = MediaItem.filepath_attributes()
-
-    Enum.each(filepath_keys, fn key ->
-      old_filepath_attribute = get_in(old_media_item, [Access.key!(key)])
-      new_filepath_attribute = get_in(updated_media_item, [Access.key!(key)])
-      # filepath_is_string = is_binary(old_filepath) && is_binary(new_filepath)
-      # files_exist = old_filepath && new_filepath && File.exists?(old_filepath) && File.exists?(new_filepath)
-      # IO.inspect({old_filepath, new_filepath, files_exist})
-      # if files_exist && !FSUtils.filepaths_reference_same_file?(old_filepath, new_filepath) do
-      #   FSUtils.delete_file_and_remove_empty_directories(old_filepath)
-      # end
-    end)
   end
 
   # NOTE: I like this pattern of using the default value so that I don't have to
