@@ -175,6 +175,17 @@ defmodule PinchflatWeb.Sources.SourceController do
     )
   end
 
+  # TODO: test
+  # TODO: update the job that's running
+  def sync_files_on_disk(conn, %{"source_id" => id}) do
+    wrap_forced_action(
+      conn,
+      id,
+      "File sync enqueued.",
+      &SourceMetadataStorageWorker.kickoff_with_task/1
+    )
+  end
+
   defp wrap_forced_action(conn, source_id, message, fun) do
     source = Sources.get_source!(source_id)
     fun.(source)
