@@ -8,6 +8,7 @@ defmodule PinchflatWeb.Sources.SourceController do
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Profiles.MediaProfile
+  alias Pinchflat.Media.FileSyncingWorker
   alias Pinchflat.Sources.SourceDeletionWorker
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.SlowIndexing.SlowIndexingHelpers
@@ -175,14 +176,12 @@ defmodule PinchflatWeb.Sources.SourceController do
     )
   end
 
-  # TODO: test
-  # TODO: update the job that's running
   def sync_files_on_disk(conn, %{"source_id" => id}) do
     wrap_forced_action(
       conn,
       id,
       "File sync enqueued.",
-      &SourceMetadataStorageWorker.kickoff_with_task/1
+      &FileSyncingWorker.kickoff_with_task/1
     )
   end
 

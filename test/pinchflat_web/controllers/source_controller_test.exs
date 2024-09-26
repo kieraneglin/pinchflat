@@ -7,6 +7,7 @@ defmodule PinchflatWeb.SourceControllerTest do
 
   alias Pinchflat.Repo
   alias Pinchflat.Settings
+  alias Pinchflat.Media.FileSyncingWorker
   alias Pinchflat.Sources.SourceDeletionWorker
   alias Pinchflat.Downloading.MediaDownloadWorker
   alias Pinchflat.Metadata.SourceMetadataStorageWorker
@@ -264,6 +265,23 @@ defmodule PinchflatWeb.SourceControllerTest do
       source = source_fixture()
 
       conn = post(conn, ~p"/sources/#{source.id}/force_metadata_refresh")
+      assert redirected_to(conn) == ~p"/sources/#{source.id}"
+    end
+  end
+
+  describe "sync_files_on_disk" do
+    test "forces a file sync", %{conn: conn} do
+      source = source_fixture()
+
+      assert [] = all_enqueued(worker: FileSyncingWorker)
+      post(conn, ~p"/sources/#{source.id}/sync_files_on_disk")
+      assert [_] = all_enqueued(worker: FileSyncingWorker)
+    end
+
+    test "redirects to the source page", %{conn: conn} do
+      source = source_fixture()
+
+      conn = post(conn, ~p"/sources/#{source.id}/sync_files_on_disk")
       assert redirected_to(conn) == ~p"/sources/#{source.id}"
     end
   end

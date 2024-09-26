@@ -82,6 +82,17 @@ defmodule Pinchflat.Media.FileSyncingTest do
       assert updated_media_item.media_filepath
     end
 
+    test "doesn't touch other attributes if some are missing and some aren't" do
+      media_item = media_item_with_attachments()
+      File.rm(media_item.media_filepath)
+
+      assert media_item.thumbnail_filepath
+      assert media_item.media_filepath
+      assert [updated_media_item] = FileSyncing.sync_file_presence_on_disk([media_item])
+      assert updated_media_item.thumbnail_filepath
+      refute updated_media_item.media_filepath
+    end
+
     test "removes subtitle files that are missing" do
       media_item = media_item_fixture(%{subtitle_filepaths: [["en", "/tmp/missing_file.srt"]]})
 
