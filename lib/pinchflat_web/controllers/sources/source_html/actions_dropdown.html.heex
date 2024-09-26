@@ -38,7 +38,7 @@
     <.link
       href={~p"/sources/#{@source}/force_download_pending"}
       method="post"
-      data-confirm="Are you sure you want to force a download of all *pending* media items? This isn't normally needed."
+      data-confirm="Are you sure you want to force a download of all pending media items? This isn't normally needed."
     >
       Download Pending
     </.link>
@@ -47,7 +47,7 @@
     <.link
       href={~p"/sources/#{@source}/force_redownload"}
       method="post"
-      data-confirm="Are you sure you want to re-download all currently downloaded media items? This isn't normally needed and won't change anything if the files already exist."
+      data-confirm="Are you sure you want to re-download all currently downloaded media items? This doesn't upgrade your media, but will download any missing files if your settings have changed. This isn't normally needed."
     >
       Redownload Existing
     </.link>
@@ -68,6 +68,15 @@
       data-confirm="Are you sure you want to refresh this source's metadata?"
     >
       Refresh Metadata
+    </.link>
+  </:option>
+  <:option>
+    <.link
+      href={~p"/sources/#{@source}/sync_files_on_disk"}
+      method="post"
+      data-confirm="Are you sure you want to sync files? This will update media items if their files have been deleted. File addition or moves are not detected. This isn't normally needed."
+    >
+      Sync Files on Disk
     </.link>
   </:option>
   <:option>
