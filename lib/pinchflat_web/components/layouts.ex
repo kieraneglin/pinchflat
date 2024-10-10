@@ -64,7 +64,7 @@ defmodule PinchflatWeb.Layouts do
           <.icon name={@icon} /> <%= @text %>
         </span>
         <span class="text-bodydark2">
-          <.icon name="hero-chevron-up" x-bind:class="{ 'rotate-180': selected }" />
+          <.icon name="hero-chevron-down" x-bind:class="{ 'rotate-180': selected }" />
         </span>
       </span>
 
