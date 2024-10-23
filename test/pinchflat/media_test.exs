@@ -441,6 +441,13 @@ defmodule Pinchflat.MediaTest do
       assert Media.pending_download?(media_item)
     end
 
+    test "returns true if the cutoff date is equal to the upload date" do
+      source = source_fixture(%{download_cutoff_date: now_minus(2, :days)})
+      media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, uploaded_at: now_minus(2, :days)})
+
+      assert Media.pending_download?(media_item)
+    end
+
     test "returns false if there is a cutoff date after the media's upload date" do
       source = source_fixture(%{download_cutoff_date: now_minus(1, :day)})
       media_item = media_item_fixture(%{source_id: source.id, media_filepath: nil, uploaded_at: now_minus(2, :days)})
