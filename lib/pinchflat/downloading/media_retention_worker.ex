@@ -49,6 +49,8 @@ defmodule Pinchflat.Downloading.MediaRetentionWorker do
     end)
   end
 
+  # NOTE: Since this is a date and not a datetime, we can't add logic to have to-the-minute
+  # comparison like we can with retention periods. We can only compare to the day.
   defp delete_media_items_from_before_cutoff do
     deletable_media =
       MediaQuery.new()

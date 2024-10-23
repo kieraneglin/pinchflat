@@ -88,7 +88,7 @@ defmodule Pinchflat.Media.MediaQuery do
       [mi, source],
       fragment("""
         IFNULL(retention_period_days, 0) > 0 AND
-        DATETIME('now', '-' || retention_period_days || ' day') > media_downloaded_at
+        DATETIME(media_downloaded_at, '+' || retention_period_days || ' day') < DATETIME('now')
       """)
     )
   end
@@ -100,8 +100,8 @@ defmodule Pinchflat.Media.MediaQuery do
       # downloaded_at minus the redownload_delay_days is before the upload date
       fragment("""
         IFNULL(redownload_delay_days, 0) > 0 AND
-        DATETIME('now', '-' || redownload_delay_days || ' day') > uploaded_at AND
-        DATETIME(media_downloaded_at, '-' || redownload_delay_days || ' day') < uploaded_at
+        DATE('now', '-' || redownload_delay_days || ' day') > DATE(uploaded_at) AND
+        DATE(media_downloaded_at, '-' || redownload_delay_days || ' day') < DATE(uploaded_at)
       """)
     )
   end

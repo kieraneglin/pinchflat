@@ -46,6 +46,23 @@ defmodule Pinchflat.Downloading.MediaRetentionWorkerTest do
       refute Repo.reload!(old_media_item).media_filepath
     end
 
+    test "deletes media files that are on their retention date per the 24-h clock" do
+      {_source, old_media_item, new_media_item} = prepare_records_for_retention_date(2)
+
+      just_over_two_days_ago = now_minus(2, :days) |> DateTime.add(-1, :minute)
+      just_under_two_days_ago = now_minus(2, :days) |> DateTime.add(1, :minute)
+
+      Media.update_media_item(old_media_item, %{media_downloaded_at: just_over_two_days_ago})
+      Media.update_media_item(new_media_item, %{media_downloaded_at: just_under_two_days_ago})
+
+      perform_job(MediaRetentionWorker, %{})
+
+      assert File.exists?(new_media_item.media_filepath)
+      refute File.exists?(old_media_item.media_filepath)
+      assert Repo.reload!(new_media_item).media_filepath
+      refute Repo.reload!(old_media_item).media_filepath
+    end
+
     test "sets culled_at and prevent_download" do
       {_source, old_media_item, new_media_item} = prepare_records_for_retention_date()
 
@@ -106,6 +123,25 @@ defmodule Pinchflat.Downloading.MediaRetentionWorkerTest do
       refute Repo.reload!(old_media_item).media_filepath
     end
 
+    # NOTE: Since this is a date and not a datetime, we can't add logic to have to-the-minute
+    # comparison like we can with retention periods. We can only compare to the day.
+    test "doesn't cull media from on or after the cutoff date" do
+      {_source, old_media_item, new_media_item} = prepare_records_for_source_cutoff_date(2)
+
+      Media.update_media_item(old_media_item, %{uploaded_at: now_minus(2, :days)})
+      Media.update_media_item(new_media_item, %{uploaded_at: now_minus(1, :day)})
+
+      perform_job(MediaRetentionWorker, %{})
+
+      assert File.exists?(new_media_item.media_filepath)
+      assert File.exists?(old_media_item.media_filepath)
+      assert Repo.reload!(new_media_item).media_filepath
+      assert Repo.reload!(old_media_item).media_filepath
+
+      refute Repo.reload!(new_media_item).culled_at
+      refute Repo.reload!(old_media_item).culled_at
+    end
+
     test "sets culled_at but not prevent_download" do
       {_source, old_media_item, new_media_item} = prepare_records_for_source_cutoff_date()
 
@@ -119,23 +155,6 @@ defmodule Pinchflat.Downloading.MediaRetentionWorkerTest do
 
     test "doesn't cull media if the source doesn't have a cutoff date" do
       {_source, old_media_item, new_media_item} = prepare_records_for_source_cutoff_date(nil)
-
-      perform_job(MediaRetentionWorker, %{})
-
-      assert File.exists?(new_media_item.media_filepath)
-      assert File.exists?(old_media_item.media_filepath)
-      assert Repo.reload!(new_media_item).media_filepath
-      assert Repo.reload!(old_media_item).media_filepath
-
-      refute Repo.reload!(new_media_item).culled_at
-      refute Repo.reload!(old_media_item).culled_at
-    end
-
-    test "doesn't cull media from on or after the cutoff date" do
-      {_source, old_media_item, new_media_item} = prepare_records_for_source_cutoff_date(2)
-
-      Media.update_media_item(old_media_item, %{uploaded_at: now_minus(2, :days)})
-      Media.update_media_item(new_media_item, %{uploaded_at: now_minus(1, :day)})
 
       perform_job(MediaRetentionWorker, %{})
 
