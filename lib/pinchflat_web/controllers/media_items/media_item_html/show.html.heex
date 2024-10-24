@@ -26,11 +26,12 @@
       <:tab title="Media" id="media">
         <div class="flex flex-col gap-10 dark:text-white">
           <%= if media_file_exists?(@media_item) do %>
-            <section class="grid grid-cols-1 xl:grid-cols-2 xl:gap-6 mt-6">
+            <section class="grid grid-cols-1 xl:gap-6 mt-6">
               <div>
                 <.media_preview media_item={@media_item} />
               </div>
-              <aside class="mt-4 xl:mt-0">
+              <aside class="mt-4">
+                <h2 class="text-xl mb-2"><%= @media_item.title %></h2>
                 <div>Uploaded: <%= DateTime.to_date(@media_item.uploaded_at) %></div>
                 <div>
                   <span :if={URI.parse(@media_item.original_url).scheme =~ "http"}>
@@ -70,7 +71,7 @@
               <%= task.job.state %>
             </:col>
             <:col :let={task} label="Scheduled At">
-              <.datetime_in_zone datetime={task.job.scheduled_at} format="%Y-%m-%d %H:%M:%S %Z" />
+              <.datetime_in_zone datetime={task.job.scheduled_at} />
             </:col>
           </.table>
         <% else %>

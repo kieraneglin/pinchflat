@@ -1,5 +1,5 @@
 <%= if media_type(@media_item) == :video do %>
-  <video controls class="max-h-96 w-full">
+  <video controls class="max-h-128 w-full">
     <source src={~p"/media/#{@media_item.uuid}/stream"} type="video/mp4" />
     Your browser does not support the video element.
   </video>
