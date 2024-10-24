@@ -2,7 +2,7 @@
   <:option>
     <span x-data="{ copied: false }" x-on:click={~s"
         copyWithCallbacks(
-          `#{Jason.Formatter.pretty_print(Phoenix.json_library().encode!(@media_profile))}`, 
+          String.raw`#{Jason.Formatter.pretty_print(Phoenix.json_library().encode!(@media_profile))}`,
           () => copied = true, 
           () => copied = false
         )
