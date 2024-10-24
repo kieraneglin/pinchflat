@@ -62,17 +62,24 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
   end
 
   @doc """
-  Renders a block of text with each line broken into a separate span.
+  Renders a block of text with each line broken into a separate span and links highlighted.
   """
   attr :text, :string, required: true
 
-  def break_on_newline(assigns) do
-    broken_text =
-      assigns.text
-      |> String.split("\n", trim: false)
-      |> Enum.intersperse(Phoenix.HTML.Tag.tag(:span, class: "inline-block mt-2"))
+  def render_description(assigns) do
+    formatted_text =
+      Regex.split(~r{https?://\S+}, assigns.text, include_captures: true)
+      |> Enum.map(fn
+        "http" <> _ = url ->
+          Phoenix.HTML.Tag.content_tag(:a, url, class: "text-blue-500 hover:text-blue-300", href: url, target: "_blank")
 
-    assigns = Map.put(assigns, :text, broken_text)
+        text ->
+          text
+          |> String.split("\n", trim: false)
+          |> Enum.intersperse(Phoenix.HTML.Tag.tag(:span, class: "inline-block mt-2"))
+      end)
+
+    assigns = Map.put(assigns, :text, formatted_text)
 
     ~H"""
     <span><%= @text %></span>
