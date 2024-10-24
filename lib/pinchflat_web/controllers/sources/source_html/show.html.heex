@@ -67,7 +67,7 @@
               <%= task.job.state %>
             </:col>
             <:col :let={task} label="Scheduled At">
-              <%= Calendar.strftime(task.job.scheduled_at, "%y-%m-%d %I:%M:%S %p %Z") %>
+              <.datetime_in_zone datetime={task.job.scheduled_at} />
             </:col>
           </.table>
         <% else %>
