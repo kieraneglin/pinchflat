@@ -131,9 +131,6 @@ You _must_ ensure the host directories you've mounted are writable by the user r
 > [!IMPORTANT]
 > It's not recommended to run the container as root. Doing so can create permission issues if other apps need to work with the downloaded media.
 
-> [!TIP]
-> If you need to run any command as root, you can run `su` from the container's shell as there is no password set for the root user.
-
 ### ADVANCED: Storing Pinchflat config directory on a network share
 
 As pointed out in [#137](https://github.com/kieraneglin/pinchflat/issues/137), SQLite doesn't like being run in WAL mode on network shares. If you're running Pinchflat on a network share, you can disable WAL mode by setting the `JOURNAL_MODE` environment variable to `delete`. This will make Pinchflat run in rollback journal mode which is less performant but should work on network shares.
