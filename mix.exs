@@ -4,7 +4,7 @@ defmodule Pinchflat.MixProject do
   def project do
     [
       app: :pinchflat,
-      version: "2024.10.2",
+      version: "2024.10.25",
       elixir: "~> 1.17",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
