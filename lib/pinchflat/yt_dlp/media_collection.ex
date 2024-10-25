@@ -84,6 +84,7 @@ defmodule Pinchflat.YtDlp.MediaCollection do
          {:ok, parsed_json} <- Phoenix.json_library().decode(output) do
       {:ok, format_source_details(parsed_json)}
     else
+      {:error, %Jason.DecodeError{}} -> {:error, "Error decoding JSON response"}
       err -> err
     end
   end

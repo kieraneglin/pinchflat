@@ -133,7 +133,7 @@ defmodule Pinchflat.YtDlp.MediaCollectionTest do
     test "returns an error if the output is not JSON" do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts -> {:ok, "Not JSON"} end)
 
-      assert {:error, %Jason.DecodeError{}} = MediaCollection.get_source_details(@channel_url)
+      assert {:error, "Error decoding JSON response"} = MediaCollection.get_source_details(@channel_url)
     end
   end
 

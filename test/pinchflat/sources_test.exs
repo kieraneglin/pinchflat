@@ -147,6 +147,18 @@ defmodule Pinchflat.SourcesTest do
       assert "could not fetch source details from URL" in errors_on(changeset).original_url
     end
 
+    test "adds an error if the runner succeeds but the result was invalid JSON" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> {:ok, "Not JSON"} end)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123"
+      }
+
+      assert {:error, %Ecto.Changeset{} = changeset} = Sources.create_source(valid_attrs)
+      assert "could not fetch source details from URL" in errors_on(changeset).original_url
+    end
+
     test "you can specify a custom custom_name" do
       expect(YtDlpRunnerMock, :run, &channel_mock/4)
 
