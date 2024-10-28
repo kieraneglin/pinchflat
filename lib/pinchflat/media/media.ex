@@ -15,6 +15,9 @@ defmodule Pinchflat.Media do
 
   alias Pinchflat.Lifecycle.UserScripts.CommandRunner, as: UserScriptRunner
 
+  # Some fields should only be set on insert and not on update.
+  @fields_to_drop_on_update [:playlist_index]
+
   @doc """
   Returns the list of media_items.
 
@@ -131,8 +134,6 @@ defmodule Pinchflat.Media do
   """
   def create_media_item_from_backend_attrs(source, media_attrs_struct) do
     attrs = Map.merge(%{source_id: source.id}, Map.from_struct(media_attrs_struct))
-    # Some fields should only be set on insert and not on update.
-    fields_to_drop_on_update = [:playlist_index]
 
     %MediaItem{}
     |> MediaItem.changeset(attrs)
@@ -140,7 +141,7 @@ defmodule Pinchflat.Media do
       on_conflict: [
         set:
           attrs
-          |> Map.drop(fields_to_drop_on_update)
+          |> Map.drop(@fields_to_drop_on_update)
           |> Map.to_list()
       ],
       conflict_target: [:source_id, :media_id]
@@ -153,8 +154,10 @@ defmodule Pinchflat.Media do
   Returns {:ok, %MediaItem{}} | {:error, %Ecto.Changeset{}}
   """
   def update_media_item(%MediaItem{} = media_item, attrs) do
+    update_attrs = Map.drop(attrs, @fields_to_drop_on_update)
+
     media_item
-    |> MediaItem.changeset(attrs)
+    |> MediaItem.changeset(update_attrs)
     |> Repo.update()
   end
 
