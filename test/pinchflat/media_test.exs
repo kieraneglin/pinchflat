@@ -712,6 +712,21 @@ defmodule Pinchflat.MediaTest do
       assert media_item.media_filepath == update_attrs.media_filepath
     end
 
+    test "updating strips playlist_index from the provided attrs" do
+      media_item = media_item_fixture(playlist_index: 5)
+
+      update_attrs = %{
+        media_id: Faker.String.base64(12),
+        title: Faker.Commerce.product_name(),
+        media_filepath: "/video/#{Faker.File.file_name(:video)}",
+        source_id: source_fixture().id,
+        playlist_index: 1
+      }
+
+      assert {:ok, %MediaItem{} = media_item} = Media.update_media_item(media_item, update_attrs)
+      assert media_item.playlist_index == 5
+    end
+
     test "updating with invalid data returns error changeset" do
       media_item = media_item_fixture()
       assert {:error, %Ecto.Changeset{}} = Media.update_media_item(media_item, @invalid_attrs)
