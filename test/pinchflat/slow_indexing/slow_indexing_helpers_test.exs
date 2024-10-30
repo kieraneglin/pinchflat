@@ -188,7 +188,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
             description: "desc3",
             # Only focusing on these because these are passed to functions that
             # could fail if they're not present
-            webpage_url: nil,
+            original_url: nil,
             aspect_ratio: nil,
             duration: nil,
             upload_date: nil
@@ -299,7 +299,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
           Phoenix.json_library().encode!(%{
             id: "video2",
             title: "Video 2",
-            webpage_url: "https://example.com/shorts/video2",
+            original_url: "https://example.com/shorts/video2",
             live_status: "is_live",
             description: "desc2",
             aspect_ratio: 1.67,

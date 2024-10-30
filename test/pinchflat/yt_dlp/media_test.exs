@@ -139,7 +139,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
   describe "indexing_output_template/0" do
     test "contains all the greatest hits" do
       attrs =
-        ~w(id title live_status webpage_url description aspect_ratio duration upload_date timestamp playlist_index)a
+        ~w(id title live_status original_url description aspect_ratio duration upload_date timestamp playlist_index)a
 
       formatted_attrs = "%(.{#{Enum.join(attrs, ",")}})j"
 
@@ -153,7 +153,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
         "id" => "TiZPUDkDYbk",
         "title" => "Trying to Wheelie Without the Rear Brake",
         "description" => "I'm not sure what I expected.",
-        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "original_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
         "live_status" => "not_live",
         "aspect_ratio" => 1.0,
         "duration" => 60,
@@ -177,7 +177,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
     test "sets short_form_content to true if the URL contains /shorts/" do
       response = %{
-        "webpage_url" => "https://www.youtube.com/shorts/TiZPUDkDYbk",
+        "original_url" => "https://www.youtube.com/shorts/TiZPUDkDYbk",
         "aspect_ratio" => 1.0,
         "duration" => 61,
         "upload_date" => "20210101"
@@ -188,7 +188,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
     test "sets short_form_content to true if the aspect ratio are duration are right" do
       response = %{
-        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "original_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
         "aspect_ratio" => 0.5,
         "duration" => 59,
         "upload_date" => "20210101"
@@ -199,7 +199,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
     test "sets short_form_content to false otherwise" do
       response = %{
-        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "original_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
         "aspect_ratio" => 1.0,
         "duration" => 61,
         "upload_date" => "20210101"
@@ -210,7 +210,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
     test "doesn't blow up if short form content-related fields are missing" do
       response = %{
-        "webpage_url" => nil,
+        "original_url" => nil,
         "aspect_ratio" => nil,
         "duration" => nil,
         "upload_date" => "20210101"
@@ -221,7 +221,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
     test "parses the duration" do
       response = %{
-        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "original_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
         "aspect_ratio" => 1.0,
         "duration" => 60.4,
         "upload_date" => "20210101"
@@ -232,7 +232,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
     test "doesn't blow up if duration is missing" do
       response = %{
-        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "original_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
         "aspect_ratio" => 1.0,
         "duration" => nil,
         "upload_date" => "20210101"
@@ -243,7 +243,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
     test "sets livestream to false if the live_status field isn't present" do
       response = %{
-        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "original_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
         "aspect_ratio" => 1.0,
         "duration" => 60,
         "upload_date" => "20210101"
@@ -254,7 +254,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
     test "doesn't blow up if playlist_index is missing" do
       response = %{
-        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "original_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
         "aspect_ratio" => 1.0,
         "duration" => nil,
         "upload_date" => "20210101"
@@ -267,7 +267,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
   describe "response_to_struct/1 when testing uploaded_at" do
     test "parses the upload date from the timestamp if present" do
       response = %{
-        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "original_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
         "aspect_ratio" => 1.0,
         "duration" => 61,
         "upload_date" => "20210101",
@@ -281,7 +281,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
     test "parses the upload date from the uploaded_at if timestamp is present but nil" do
       response = %{
-        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "original_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
         "aspect_ratio" => 1.0,
         "duration" => 61,
         "upload_date" => "20210101",
@@ -295,7 +295,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
     test "parses the upload date from the uploaded_at if timestamp absent" do
       response = %{
-        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "original_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
         "aspect_ratio" => 1.0,
         "duration" => 61,
         "upload_date" => "20210101"
@@ -308,7 +308,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
     test "doesn't blow up if upload date is missing" do
       response = %{
-        "webpage_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
+        "original_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
         "aspect_ratio" => 1.0,
         "duration" => 61,
         "upload_date" => nil

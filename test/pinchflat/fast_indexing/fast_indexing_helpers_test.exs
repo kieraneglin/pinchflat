@@ -100,7 +100,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
           Phoenix.json_library().encode!(%{
             id: "video2",
             title: "Video 2",
-            webpage_url: "https://example.com/shorts/video2",
+            original_url: "https://example.com/shorts/video2",
             live_status: "is_live",
             description: "desc2",
             aspect_ratio: 1.67,
