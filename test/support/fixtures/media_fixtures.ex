@@ -95,7 +95,7 @@ defmodule Pinchflat.MediaFixtures do
     media_attributes = %{
       id: "video1",
       title: "Video 1",
-      webpage_url: "https://example.com/video1",
+      original_url: "https://example.com/video1",
       live_status: "not_live",
       description: "desc1",
       aspect_ratio: 1.67,

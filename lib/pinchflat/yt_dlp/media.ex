@@ -87,9 +87,11 @@ defmodule Pinchflat.YtDlp.Media do
   Returns the output template for yt-dlp's indexing command.
 
   NOTE: playlist_index is really only useful for playlists that will never change their order.
+  NOTE: I've switched back to `original_url` (from `webpage_url`) since it's started indicating
+        if something is a short via the URL again
   """
   def indexing_output_template do
-    "%(.{id,title,live_status,webpage_url,description,aspect_ratio,duration,upload_date,timestamp,playlist_index})j"
+    "%(.{id,title,live_status,original_url,description,aspect_ratio,duration,upload_date,timestamp,playlist_index})j"
   end
 
   @doc """
@@ -103,17 +105,17 @@ defmodule Pinchflat.YtDlp.Media do
       media_id: response["id"],
       title: response["title"],
       description: response["description"],
-      original_url: response["webpage_url"],
+      original_url: response["original_url"],
       livestream: !!response["live_status"] && response["live_status"] != "not_live",
       duration_seconds: response["duration"] && round(response["duration"]),
-      short_form_content: response["webpage_url"] && short_form_content?(response),
+      short_form_content: response["original_url"] && short_form_content?(response),
       uploaded_at: response["upload_date"] && parse_uploaded_at(response),
       playlist_index: response["playlist_index"] || 0
     }
   end
 
   defp short_form_content?(response) do
-    if String.contains?(response["webpage_url"], "/shorts/") do
+    if String.contains?(response["original_url"], "/shorts/") do
       true
     else
       # Sometimes shorts are returned without /shorts/ in the URL,
