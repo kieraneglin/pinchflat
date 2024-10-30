@@ -84,7 +84,7 @@ if config_env() == :prod do
     log_path: log_path,
     base_route_path: base_route_path
 
-  config :tzdata, :data_dir, System.get_env("TZ_DATA_DIR", "/etc/elixir_tzdata_data")
+  config :tzdata, :data_dir, System.get_env("TZ_DATA_DIR", "/config/extras/elixir_tz_data")
 
   config :pinchflat, Pinchflat.Repo,
     database: db_path,
