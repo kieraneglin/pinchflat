@@ -4,9 +4,12 @@ defmodule Pinchflat.Application do
   @moduledoc false
 
   use Application
+  require Logger
 
   @impl true
   def start(_type, _args) do
+    check_and_update_timezone()
+
     children = [
       PinchflatWeb.Telemetry,
       Pinchflat.Repo,
@@ -46,5 +49,21 @@ defmodule Pinchflat.Application do
 
     :ok = Oban.Telemetry.attach_default_logger()
     :telemetry.attach_many("job-telemetry-broadcast", events, &PinchflatWeb.Telemetry.job_state_change_broadcast/4, [])
+  end
+
+  # This has to be here (rather than runtime.exs) since the `tzdata` application
+  # has to be started before we can check the timezone
+  defp check_and_update_timezone do
+    attempted_timezone = System.get_env("TIMEZONE") || System.get_env("TZ") || "UTC"
+
+    valid_timezone =
+      if Tzdata.zone_exists?(attempted_timezone) do
+        attempted_timezone
+      else
+        Logger.warning("Invalid timezone #{attempted_timezone}, defaulting to UTC")
+        "UTC"
+      end
+
+    Application.put_env(:pinchflat, :timezone, valid_timezone)
   end
 end

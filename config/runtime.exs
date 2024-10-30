@@ -67,15 +67,6 @@ if config_env() == :prod do
   # For running PF in a subdirectory via a reverse proxy
   base_route_path = System.get_env("BASE_ROUTE_PATH", "/")
   enable_ipv6 = String.length(System.get_env("ENABLE_IPV6", "")) > 0
-  attempted_timezone = System.get_env("TIMEZONE") || System.get_env("TZ") || "UTC"
-
-  valid_timezone =
-    if Timex.Timezone.exists?(attempted_timezone) do
-      attempted_timezone
-    else
-      Logger.warning("Invalid timezone #{attempted_timezone}, defaulting to UTC")
-      "UTC"
-    end
 
   config :logger, level: String.to_existing_atom(System.get_env("LOG_LEVEL", "debug"))
 
@@ -88,7 +79,8 @@ if config_env() == :prod do
     tmpfile_directory: Path.join([System.tmp_dir!(), "pinchflat", "data"]),
     dns_cluster_query: System.get_env("DNS_CLUSTER_QUERY"),
     expose_feed_endpoints: expose_feed_endpoints,
-    timezone: valid_timezone,
+    # This is configured in application.ex
+    timezone: "UTC",
     log_path: log_path,
     base_route_path: base_route_path
 
