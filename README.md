@@ -53,7 +53,7 @@ If it doesn't work for your use case, please make a feature request! You can als
 - Self-contained - just one Docker container with no external dependencies
 - Powerful naming system so content is stored where and how you want it
 - Easy-to-use web interface with presets to get you started right away
-- First-class support for media center apps like Plex, Jellyfin, and Kodi
+- First-class support for media center apps like Plex, Jellyfin, and Kodi ([docs](https://github.com/kieraneglin/pinchflat/wiki/Frequently-Asked-Questions#how-do-i-get-media-into-plexjellyfinkodi))
 - Supports serving RSS feeds to your favourite podcast app ([docs](https://github.com/kieraneglin/pinchflat/wiki/Podcast-RSS-Feeds))
 - Automatically downloads new content from channels and playlists
   - Uses a novel approach to download new content more quickly than other apps
@@ -63,7 +63,7 @@ If it doesn't work for your use case, please make a feature request! You can als
 - Allows automatically redownloading new media after a set period
   - This can help improve the download quality of new content or improve SponsorBlock tags
 - Optionally automatically delete old content ([docs](https://github.com/kieraneglin/pinchflat/wiki/Automatically-Delete-Media))
-- Advanced options like setting cutoff dates and filtering by title
+- Advanced options like setting cutoff dates and filtering by title ([docs](https://github.com/kieraneglin/pinchflat/wiki/Frequently-Asked-Questions#i-only-want-certain-videos-from-a-source---how-can-i-only-download-those))
 - Reliable hands-off operation
 - Can pass cookies to YouTube to download your private playlists ([docs](https://github.com/kieraneglin/pinchflat/wiki/YouTube-Cookies))
 - Sponsorblock integration
@@ -161,9 +161,9 @@ Prior to 2024-05-10, a portion of all donations were given to the [Electronic Fr
 
 The EFF defends your online liberties and [backed](https://github.com/github/dmca/blob/9a85e0f021f7967af80e186b890776a50443f06c/2020/11/2020-11-16-RIAA-reversal-effletter.pdf) `youtube-dl` when Google took them down.
 
-## Pre-release disclaimer
+## Stability disclaimer
 
-This is pre-release software and anything can break at any time. I make not guarantees about the stability of this software, forward-compatibility of updates, or integrity (both related to and independent of Pinchflat). Essentially, use at your own risk and expect there will be rough edges for now.
+This software is in active development and anything can break at any time. I make no guarantees about the stability of this software, forward-compatibility of updates, or integrity (both related to and independent of Pinchflat).
 
 ## License
 
