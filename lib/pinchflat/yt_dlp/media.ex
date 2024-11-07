@@ -63,15 +63,17 @@ defmodule Pinchflat.YtDlp.Media do
 
   @doc """
   Returns a map representing the media at the given URL.
+  Optionally takes a list of additional command options to pass to yt-dlp
+  or configuration-related options to pass to the runner.
 
   Returns {:ok, %Media{}} | {:error, any, ...}.
   """
-  def get_media_attributes(url, addl_opts \\ []) do
+  def get_media_attributes(url, command_opts \\ [], addl_opts \\ []) do
     runner = Application.get_env(:pinchflat, :yt_dlp_runner)
-    command_opts = [:simulate, :skip_download]
+    all_command_opts = [:simulate, :skip_download] ++ command_opts
     output_template = indexing_output_template()
 
-    case runner.run(url, command_opts, output_template, addl_opts) do
+    case runner.run(url, all_command_opts, output_template, addl_opts) do
       {:ok, output} ->
         output
         |> Phoenix.json_library().decode!()

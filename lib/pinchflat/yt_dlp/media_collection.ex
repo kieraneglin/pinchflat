@@ -11,20 +11,23 @@ defmodule Pinchflat.YtDlp.MediaCollection do
 
   @doc """
   Returns a list of maps representing the media in the collection.
+  Optionally takes a list of additional command options to pass to yt-dlp
+  or configuration-related options to pass to the runner.
 
-  Options:
+  Runner Options:
     - :file_listener_handler - a function that will be called with the path to the
       file that will be written to when yt-dlp is done. This is useful for
       setting up a file watcher to know when the file is ready to be read.
+    - :use_cookies - whether or not to use user-provided cookies when fetching the media details
 
   Returns {:ok, [map()]} | {:error, any, ...}.
   """
-  def get_media_attributes_for_collection(url, addl_opts \\ []) do
+  def get_media_attributes_for_collection(url, command_opts \\ [], addl_opts \\ []) do
     runner = Application.get_env(:pinchflat, :yt_dlp_runner)
     # `ignore_no_formats_error` is necessary because yt-dlp will error out if
     # the first video has not released yet (ie: is a premier). We don't care about
     # available formats since we're just getting the media details
-    command_opts = [:simulate, :skip_download, :ignore_no_formats_error, :no_warnings]
+    all_command_opts = [:simulate, :skip_download, :ignore_no_formats_error, :no_warnings] ++ command_opts
     use_cookies = Keyword.get(addl_opts, :use_cookies, false)
     output_template = YtDlpMedia.indexing_output_template()
     output_filepath = FilesystemUtils.generate_metadata_tmpfile(:json)
@@ -35,7 +38,7 @@ defmodule Pinchflat.YtDlp.MediaCollection do
       file_listener_handler.(output_filepath)
     end
 
-    case runner.run(url, command_opts, output_template, runner_opts) do
+    case runner.run(url, all_command_opts, output_template, runner_opts) do
       {:ok, output} ->
         parsed_lines =
           output
