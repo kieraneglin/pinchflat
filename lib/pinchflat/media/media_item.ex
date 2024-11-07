@@ -31,6 +31,7 @@ defmodule Pinchflat.Media.MediaItem do
     :uploaded_at,
     :upload_date_index,
     :duration_seconds,
+    :predicted_media_filepath,
     # these fields are captured only on download
     :media_downloaded_at,
     :media_filepath,
@@ -76,6 +77,7 @@ defmodule Pinchflat.Media.MediaItem do
     field :duration_seconds, :integer
     field :playlist_index, :integer, default: 0
 
+    field :predicted_media_filepath, :string
     field :media_filepath, :string
     field :media_size_bytes, :integer
     field :thumbnail_filepath, :string
