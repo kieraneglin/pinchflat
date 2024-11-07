@@ -12,7 +12,7 @@ defmodule Pinchflat.YtDlp.Media do
     :short_form_content,
     :uploaded_at,
     :duration_seconds,
-    :predicted_filepath
+    :predicted_media_filepath
   ]
 
   defstruct [
@@ -25,7 +25,7 @@ defmodule Pinchflat.YtDlp.Media do
     :uploaded_at,
     :duration_seconds,
     :playlist_index,
-    :predicted_filepath
+    :predicted_media_filepath
   ]
 
   alias __MODULE__
@@ -115,7 +115,7 @@ defmodule Pinchflat.YtDlp.Media do
       short_form_content: response["original_url"] && short_form_content?(response),
       uploaded_at: response["upload_date"] && parse_uploaded_at(response),
       playlist_index: response["playlist_index"] || 0,
-      predicted_filepath: response["filename"]
+      predicted_media_filepath: response["filename"]
     }
   end
 

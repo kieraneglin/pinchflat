@@ -182,7 +182,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
                uploaded_at: ~U[2020-09-13 12:26:40Z],
                duration_seconds: 60,
                playlist_index: 1,
-               predicted_filepath: "TiZPUDkDYbk.mp4"
+               predicted_media_filepath: "TiZPUDkDYbk.mp4"
              } == Media.response_to_struct(response)
     end
 
