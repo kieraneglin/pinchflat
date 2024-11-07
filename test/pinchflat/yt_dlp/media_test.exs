@@ -148,7 +148,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
   describe "indexing_output_template/0" do
     test "contains all the greatest hits" do
       attrs =
-        ~w(id title live_status original_url description aspect_ratio duration upload_date timestamp playlist_index)a
+        ~w(id title live_status original_url description aspect_ratio duration upload_date timestamp playlist_index filename)a
 
       formatted_attrs = "%(.{#{Enum.join(attrs, ",")}})j"
 
@@ -168,7 +168,8 @@ defmodule Pinchflat.YtDlp.MediaTest do
         "duration" => 60,
         "upload_date" => "20210101",
         "timestamp" => 1_600_000_000,
-        "playlist_index" => 1
+        "playlist_index" => 1,
+        "filename" => "TiZPUDkDYbk.mp4"
       }
 
       assert %Media{
@@ -180,7 +181,8 @@ defmodule Pinchflat.YtDlp.MediaTest do
                short_form_content: false,
                uploaded_at: ~U[2020-09-13 12:26:40Z],
                duration_seconds: 60,
-               playlist_index: 1
+               playlist_index: 1,
+               predicted_filepath: "TiZPUDkDYbk.mp4"
              } == Media.response_to_struct(response)
     end
 
