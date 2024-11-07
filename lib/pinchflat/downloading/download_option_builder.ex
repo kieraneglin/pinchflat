@@ -41,14 +41,25 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
 
   Returns binary()
   """
+  def build_output_path_for(%Source{} = source_with_preloads) do
+    build_output_path_for(%MediaItem{source: source_with_preloads})
+  end
+
   def build_output_path_for(%MediaItem{} = media_item_with_preloads) do
     output_path_template = Sources.output_path_template(media_item_with_preloads.source)
 
     build_output_path(output_path_template, media_item_with_preloads)
   end
 
-  def build_output_path_for(%Source{} = source_with_preloads) do
-    build_output_path_for(%MediaItem{source: source_with_preloads})
+  # TODO: test
+  def build_quality_options_for(%Source{} = source_with_preloads) do
+    build_quality_options_for(%MediaItem{source: source_with_preloads})
+  end
+
+  def build_quality_options_for(%MediaItem{} = media_item_with_preloads) do
+    media_profile = media_item_with_preloads.source.media_profile
+
+    quality_options(media_profile)
   end
 
   defp default_options(override_opts) do
