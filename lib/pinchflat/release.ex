@@ -29,6 +29,8 @@ defmodule Pinchflat.Release do
       [
         "/config",
         "/downloads",
+        "/etc/yt-dlp",
+        "/etc/yt-dlp/plugins",
         Application.get_env(:pinchflat, :media_directory),
         Application.get_env(:pinchflat, :tmpfile_directory),
         Application.get_env(:pinchflat, :extras_directory),

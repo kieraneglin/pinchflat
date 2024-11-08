@@ -16,6 +16,8 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
   alias Pinchflat.Settings
   alias Pinchflat.Utils.FilesystemUtils
 
+  alias Pinchflat.Lifecycle.UserScripts.CommandRunner, as: UserScriptRunner
+
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, %{}, opts)
   end
@@ -36,6 +38,7 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
     create_blank_yt_dlp_files()
     create_blank_user_script_file()
     apply_default_settings()
+    run_app_init_script()
 
     {:ok, state}
   end
@@ -93,6 +96,12 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
 
     Settings.set(yt_dlp_version: yt_dlp_version)
     Settings.set(apprise_version: apprise_version)
+  end
+
+  defp run_app_init_script do
+    runner = Application.get_env(:pinchflat, :user_script_runner, UserScriptRunner)
+
+    runner.run(:app_init, %{})
   end
 
   defp yt_dlp_runner do
