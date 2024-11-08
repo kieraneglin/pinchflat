@@ -88,6 +88,7 @@ RUN apt-get update -y && \
       ca-certificates \
       python3-mutagen \
       curl \
+      zip \
       openssh-client \
       nano \
       python3 \
@@ -116,7 +117,8 @@ ENV LC_ALL en_US.UTF-8
 WORKDIR "/app"
 
 # Set up data volumes
-RUN mkdir /config /downloads /etc/elixir_tzdata_data && chmod ugo+rw /etc/elixir_tzdata_data
+RUN mkdir -p /config /downloads /etc/elixir_tzdata_data /etc/yt-dlp/plugins && \ 
+  chmod ugo+rw /etc/elixir_tzdata_data /etc/yt-dlp /etc/yt-dlp/plugins
 
 # set runner ENV
 ENV MIX_ENV="prod"
