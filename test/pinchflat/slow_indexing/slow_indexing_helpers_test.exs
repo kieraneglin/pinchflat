@@ -202,6 +202,16 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       assert %Ecto.Changeset{} = changeset
     end
 
+    test "passes the source's download options to the yt-dlp runner", %{source: source} do
+      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot, _addl_opts ->
+        assert {:output, "/tmp/test/media/%(title)S.%(ext)S"} in opts
+        assert {:remux_video, "mp4"} in opts
+        {:ok, source_attributes_return_fixture()}
+      end)
+
+      SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
+    end
+
     test "sets use_cookies if the source uses cookies" do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl_opts ->
         assert {:use_cookies, true} in addl_opts

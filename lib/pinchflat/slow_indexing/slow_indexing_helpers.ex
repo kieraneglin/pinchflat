@@ -99,7 +99,6 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
 
     handler = fn filepath -> setup_file_follower_watcher(pid, filepath, source) end
 
-    # TODO: test
     command_opts =
       [output: DownloadOptionBuilder.build_output_path_for(source)] ++
         DownloadOptionBuilder.build_quality_options_for(source)

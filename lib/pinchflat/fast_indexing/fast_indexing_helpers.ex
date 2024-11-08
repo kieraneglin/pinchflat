@@ -72,7 +72,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
 
   defp create_media_item_from_media_id(source, media_id) do
     url = "https://www.youtube.com/watch?v=#{media_id}"
-    # TODO: test
+
     command_opts =
       [output: DownloadOptionBuilder.build_output_path_for(source)] ++
         DownloadOptionBuilder.build_quality_options_for(source)
