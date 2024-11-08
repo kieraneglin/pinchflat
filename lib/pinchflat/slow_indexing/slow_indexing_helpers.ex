@@ -16,6 +16,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   alias Pinchflat.YtDlp.MediaCollection
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.SlowIndexing.FileFollowerServer
+  alias Pinchflat.Downloading.DownloadOptionBuilder
   alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
 
   alias Pinchflat.YtDlp.Media, as: YtDlpMedia
@@ -56,6 +57,9 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   Returns [%MediaItem{} | %Ecto.Changeset{}]
   """
   def index_and_enqueue_download_for_media_items(%Source{} = source) do
+    # The media_profile is needed to determine the quality options to _then_ determine a more
+    # accurate predicted filepath
+    source = Repo.preload(source, [:media_profile])
     # See the method definition below for more info on how file watchers work
     # (important reading if you're not familiar with it)
     {:ok, media_attributes} = setup_file_watcher_and_kickoff_indexing(source)
@@ -94,8 +98,13 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
     {:ok, pid} = FileFollowerServer.start_link()
 
     handler = fn filepath -> setup_file_follower_watcher(pid, filepath, source) end
+
+    command_opts =
+      [output: DownloadOptionBuilder.build_output_path_for(source)] ++
+        DownloadOptionBuilder.build_quality_options_for(source)
+
     runner_opts = [file_listener_handler: handler, use_cookies: source.use_cookies]
-    result = MediaCollection.get_media_attributes_for_collection(source.original_url, runner_opts)
+    result = MediaCollection.get_media_attributes_for_collection(source.original_url, command_opts, runner_opts)
 
     FileFollowerServer.stop(pid)
 

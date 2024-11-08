@@ -11,7 +11,8 @@ defmodule Pinchflat.YtDlp.Media do
     :livestream,
     :short_form_content,
     :uploaded_at,
-    :duration_seconds
+    :duration_seconds,
+    :predicted_media_filepath
   ]
 
   defstruct [
@@ -23,7 +24,8 @@ defmodule Pinchflat.YtDlp.Media do
     :short_form_content,
     :uploaded_at,
     :duration_seconds,
-    :playlist_index
+    :playlist_index,
+    :predicted_media_filepath
   ]
 
   alias __MODULE__
@@ -63,15 +65,17 @@ defmodule Pinchflat.YtDlp.Media do
 
   @doc """
   Returns a map representing the media at the given URL.
+  Optionally takes a list of additional command options to pass to yt-dlp
+  or configuration-related options to pass to the runner.
 
   Returns {:ok, %Media{}} | {:error, any, ...}.
   """
-  def get_media_attributes(url, addl_opts \\ []) do
+  def get_media_attributes(url, command_opts \\ [], addl_opts \\ []) do
     runner = Application.get_env(:pinchflat, :yt_dlp_runner)
-    command_opts = [:simulate, :skip_download]
+    all_command_opts = [:simulate, :skip_download] ++ command_opts
     output_template = indexing_output_template()
 
-    case runner.run(url, command_opts, output_template, addl_opts) do
+    case runner.run(url, all_command_opts, output_template, addl_opts) do
       {:ok, output} ->
         output
         |> Phoenix.json_library().decode!()
@@ -91,7 +95,7 @@ defmodule Pinchflat.YtDlp.Media do
         if something is a short via the URL again
   """
   def indexing_output_template do
-    "%(.{id,title,live_status,original_url,description,aspect_ratio,duration,upload_date,timestamp,playlist_index})j"
+    "%(.{id,title,live_status,original_url,description,aspect_ratio,duration,upload_date,timestamp,playlist_index,filename})j"
   end
 
   @doc """
@@ -110,7 +114,8 @@ defmodule Pinchflat.YtDlp.Media do
       duration_seconds: response["duration"] && round(response["duration"]),
       short_form_content: response["original_url"] && short_form_content?(response),
       uploaded_at: response["upload_date"] && parse_uploaded_at(response),
-      playlist_index: response["playlist_index"] || 0
+      playlist_index: response["playlist_index"] || 0,
+      predicted_media_filepath: response["filename"]
     }
   end
 

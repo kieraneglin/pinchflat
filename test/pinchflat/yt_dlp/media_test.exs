@@ -120,13 +120,22 @@ defmodule Pinchflat.YtDlp.MediaTest do
       assert {:ok, _} = Media.get_media_attributes(@media_url)
     end
 
+    test "passes along additional command options" do
+      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot, _addl ->
+        assert [:simulate, :skip_download, :custom_arg] = opts
+        {:ok, media_attributes_return_fixture()}
+      end)
+
+      assert {:ok, _} = Media.get_media_attributes(@media_url, [:custom_arg])
+    end
+
     test "passes along additional options" do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl ->
         assert [addl_arg: true] = addl
         {:ok, media_attributes_return_fixture()}
       end)
 
-      assert {:ok, _} = Media.get_media_attributes(@media_url, addl_arg: true)
+      assert {:ok, _} = Media.get_media_attributes(@media_url, [], addl_arg: true)
     end
 
     test "returns the error straight through when the command fails" do
@@ -139,7 +148,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
   describe "indexing_output_template/0" do
     test "contains all the greatest hits" do
       attrs =
-        ~w(id title live_status original_url description aspect_ratio duration upload_date timestamp playlist_index)a
+        ~w(id title live_status original_url description aspect_ratio duration upload_date timestamp playlist_index filename)a
 
       formatted_attrs = "%(.{#{Enum.join(attrs, ",")}})j"
 
@@ -159,7 +168,8 @@ defmodule Pinchflat.YtDlp.MediaTest do
         "duration" => 60,
         "upload_date" => "20210101",
         "timestamp" => 1_600_000_000,
-        "playlist_index" => 1
+        "playlist_index" => 1,
+        "filename" => "TiZPUDkDYbk.mp4"
       }
 
       assert %Media{
@@ -171,7 +181,8 @@ defmodule Pinchflat.YtDlp.MediaTest do
                short_form_content: false,
                uploaded_at: ~U[2020-09-13 12:26:40Z],
                duration_seconds: 60,
-               playlist_index: 1
+               playlist_index: 1,
+               predicted_media_filepath: "TiZPUDkDYbk.mp4"
              } == Media.response_to_struct(response)
     end
 

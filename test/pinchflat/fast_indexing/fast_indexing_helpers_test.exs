@@ -61,6 +61,18 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
       assert [_] = Tasks.list_tasks_for(media_item, "MediaDownloadWorker")
     end
 
+    test "passes the source's download options to the yt-dlp runner", %{source: source} do
+      expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
+
+      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot, _addl_opts ->
+        assert {:output, "/tmp/test/media/%(title)S.%(ext)S"} in opts
+        assert {:remux_video, "mp4"} in opts
+        {:ok, media_attributes_return_fixture()}
+      end)
+
+      FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+    end
+
     test "sets use_cookies if the source uses cookies" do
       expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
 

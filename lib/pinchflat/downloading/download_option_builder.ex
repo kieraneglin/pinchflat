@@ -34,21 +34,38 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
 
   @doc """
   Builds the output path for yt-dlp to download media based on the given source's
-  media profile. Uses the source's override output path template if it exists.
+  or media_item's media profile. Uses the source's override output path template if it exists.
 
   Accepts a %MediaItem{} or %Source{} struct. If a %Source{} struct is passed, it
   will use a default %MediaItem{} struct with the given source.
 
   Returns binary()
   """
+  def build_output_path_for(%Source{} = source_with_preloads) do
+    build_output_path_for(%MediaItem{source: source_with_preloads})
+  end
+
   def build_output_path_for(%MediaItem{} = media_item_with_preloads) do
     output_path_template = Sources.output_path_template(media_item_with_preloads.source)
 
     build_output_path(output_path_template, media_item_with_preloads)
   end
 
-  def build_output_path_for(%Source{} = source_with_preloads) do
-    build_output_path_for(%MediaItem{source: source_with_preloads})
+  @doc """
+  Builds the quality options for yt-dlp to download media based on the given source's
+  or media_item's media profile. Useful for helping predict final filepath of downloaded
+  media.
+
+  returns [Keyword.t()]
+  """
+  def build_quality_options_for(%Source{} = source_with_preloads) do
+    build_quality_options_for(%MediaItem{source: source_with_preloads})
+  end
+
+  def build_quality_options_for(%MediaItem{} = media_item_with_preloads) do
+    media_profile = media_item_with_preloads.source.media_profile
+
+    quality_options(media_profile)
   end
 
   defp default_options(override_opts) do

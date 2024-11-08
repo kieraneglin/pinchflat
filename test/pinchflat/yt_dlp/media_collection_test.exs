@@ -35,6 +35,16 @@ defmodule Pinchflat.YtDlp.MediaCollectionTest do
       assert {:error, "Big issue", 1} = MediaCollection.get_media_attributes_for_collection(@channel_url)
     end
 
+    test "passes long additional command options" do
+      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot, _addl_opts ->
+        assert :foo in opts
+
+        {:ok, ""}
+      end)
+
+      assert {:ok, _} = MediaCollection.get_media_attributes_for_collection(@channel_url, [:foo])
+    end
+
     test "passes additional args to runner" do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl_opts ->
         assert [{:output_filepath, filepath} | _] = addl_opts
@@ -56,7 +66,7 @@ defmodule Pinchflat.YtDlp.MediaCollectionTest do
       end
 
       assert {:ok, _} =
-               MediaCollection.get_media_attributes_for_collection(@channel_url, file_listener_handler: handler)
+               MediaCollection.get_media_attributes_for_collection(@channel_url, [], file_listener_handler: handler)
 
       assert_receive {:handler, filename}
       assert String.ends_with?(filename, ".json")

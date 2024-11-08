@@ -461,6 +461,22 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
     end
   end
 
+  describe "build_quality_options_for/1" do
+    test "builds quality options for a media item", %{media_item: media_item} do
+      options = DownloadOptionBuilder.build_quality_options_for(media_item)
+
+      assert {:format_sort, "res:1080,+codec:avc:m4a"} in options
+      assert {:remux_video, "mp4"} in options
+    end
+
+    test "builds quality options for a source", %{media_item: media_item} do
+      options = DownloadOptionBuilder.build_quality_options_for(media_item.source)
+
+      assert {:format_sort, "res:1080,+codec:avc:m4a"} in options
+      assert {:remux_video, "mp4"} in options
+    end
+  end
+
   defp update_media_profile_attribute(media_item_with_preloads, attrs) do
     media_item_with_preloads.source.media_profile
     |> Profiles.change_media_profile(attrs)

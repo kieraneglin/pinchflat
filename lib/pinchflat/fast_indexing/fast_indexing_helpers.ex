@@ -15,6 +15,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
   alias Pinchflat.FastIndexing.YoutubeRss
   alias Pinchflat.FastIndexing.YoutubeApi
   alias Pinchflat.Downloading.DownloadingHelpers
+  alias Pinchflat.Downloading.DownloadOptionBuilder
 
   alias Pinchflat.YtDlp.Media, as: YtDlpMedia
 
@@ -27,6 +28,10 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
   downloaded_.
   """
   def kickoff_download_tasks_from_youtube_rss_feed(%Source{} = source) do
+    # The media_profile is needed to determine the quality options to _then_ determine a more
+    # accurate predicted filepath
+    source = Repo.preload(source, [:media_profile])
+
     {:ok, media_ids} = get_recent_media_ids(source)
     existing_media_items = list_media_items_by_media_id_for(source, media_ids)
     new_media_ids = media_ids -- Enum.map(existing_media_items, & &1.media_id)
@@ -68,7 +73,11 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
   defp create_media_item_from_media_id(source, media_id) do
     url = "https://www.youtube.com/watch?v=#{media_id}"
 
-    case YtDlpMedia.get_media_attributes(url, use_cookies: source.use_cookies) do
+    command_opts =
+      [output: DownloadOptionBuilder.build_output_path_for(source)] ++
+        DownloadOptionBuilder.build_quality_options_for(source)
+
+    case YtDlpMedia.get_media_attributes(url, command_opts, use_cookies: source.use_cookies) do
       {:ok, media_attrs} ->
         Media.create_media_item_from_backend_attrs(source, media_attrs)
 
