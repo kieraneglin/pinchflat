@@ -98,7 +98,6 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
     Settings.set(apprise_version: apprise_version)
   end
 
-  # TODO: test
   defp run_app_init_script do
     runner = Application.get_env(:pinchflat, :user_script_runner, UserScriptRunner)
 

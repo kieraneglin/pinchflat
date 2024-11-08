@@ -9,6 +9,7 @@ defmodule Pinchflat.Boot.PreJobStartupTasksTest do
   setup do
     stub(YtDlpRunnerMock, :version, fn -> {:ok, "1"} end)
     stub(AppriseRunnerMock, :version, fn -> {:ok, "2"} end)
+    stub(UserScriptRunnerMock, :run, fn _event_type, _data -> {:ok, "3", 0} end)
 
     :ok
   end
@@ -110,6 +111,18 @@ defmodule Pinchflat.Boot.PreJobStartupTasksTest do
       PreJobStartupTasks.init(%{})
 
       assert Settings.get!(:apprise_version)
+    end
+  end
+
+  describe "run_app_init_script" do
+    test "calls the app_init user script runner" do
+      expect(UserScriptRunnerMock, :run, fn :app_init, data ->
+        assert data == %{}
+
+        {:ok, "", 0}
+      end)
+
+      PreJobStartupTasks.init(%{})
     end
   end
 end
