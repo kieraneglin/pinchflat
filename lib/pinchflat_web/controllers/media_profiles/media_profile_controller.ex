@@ -17,10 +17,24 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileController do
     render(conn, :index, media_profiles: media_profiles)
   end
 
-  def new(conn, _params) do
-    changeset = Profiles.change_media_profile(%MediaProfile{})
+  def new(conn, params) do
+    # Preload an existing media profile for faster creation
+    cs_struct =
+      case to_string(params["template_id"]) do
+        "" -> %MediaProfile{}
+        template_id -> Repo.get(MediaProfile, template_id) || %MediaProfile{}
+      end
 
-    render(conn, :new, changeset: changeset, layout: get_onboarding_layout())
+    render(conn, :new,
+      layout: get_onboarding_layout(),
+      changeset:
+        Profiles.change_media_profile(%MediaProfile{
+          cs_struct
+          | id: nil,
+          name: nil,
+          marked_for_deletion_at: nil
+        })
+    )
   end
 
   def create(conn, %{"media_profile" => media_profile_params}) do
