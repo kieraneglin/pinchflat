@@ -67,7 +67,8 @@ defmodule PinchflatWeb.Sources.SourceController do
             collection_name: nil,
             collection_id: nil,
             collection_type: nil,
-            original_url: nil
+            original_url: nil,
+            marked_for_deletion_at: nil,
         })
     )
   end
