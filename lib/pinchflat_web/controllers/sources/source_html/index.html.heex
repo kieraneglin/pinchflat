@@ -12,32 +12,7 @@
 <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
   <div class="max-w-full overflow-x-auto">
     <div class="flex flex-col gap-10 min-w-max">
-      <.table rows={@sources} table_class="text-black dark:text-white">
-        <:col :let={source} label="Name">
-          <.subtle_link href={~p"/sources/#{source.id}"}>
-            <%= StringUtils.truncate(source.custom_name || source.collection_name, 35) %>
-          </.subtle_link>
-        </:col>
-        <:col :let={source} label="Type"><%= source.collection_type %></:col>
-        <:col :let={source} label="Pending"><.localized_number number={source.pending_count} /></:col>
-        <:col :let={source} label="Downloaded"><.localized_number number={source.downloaded_count} /></:col>
-        <:col :let={source} label="Retention">
-          <%= if source.retention_period_days && source.retention_period_days > 0 do %>
-            <.localized_number number={source.retention_period_days} />
-            <.pluralize count={source.retention_period_days} word="day" />
-          <% else %>
-            <span class="text-lg">∞</span>
-          <% end %>
-        </:col>
-        <:col :let={source} label="Media Profile">
-          <.subtle_link href={~p"/media_profiles/#{source.media_profile_id}"}>
-            <%= source.media_profile.name %>
-          </.subtle_link>
-        </:col>
-        <:col :let={source} label="" class="flex place-content-evenly">
-          <.icon_link href={~p"/sources/#{source.id}/edit"} icon="hero-pencil-square" class="mx-1" />
-        </:col>
-      </.table>
+      <%= live_render(@conn, PinchflatWeb.Sources.IndexTableLive) %>
     </div>
   </div>
 </div>
