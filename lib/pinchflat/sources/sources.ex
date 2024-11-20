@@ -255,19 +255,40 @@ defmodule Pinchflat.Sources do
     end
   end
 
-  # If the source is NOT new (ie: updated) and the download_media flag has changed,
+  # If the source is new (ie: not persisted), do nothing
+  defp maybe_handle_media_tasks(%{data: %{__meta__: %{state: state}}}, _source) when state != :loaded do
+    :ok
+  end
+
+  # If the source is NOT new (ie: updated),
   # enqueue or dequeue media download tasks as necessary.
   defp maybe_handle_media_tasks(changeset, source) do
-    case {changeset.data, changeset.changes} do
-      {%{__meta__: %{state: :loaded}}, %{download_media: true}} ->
-        DownloadingHelpers.enqueue_pending_download_tasks(source)
+    current_changes = changeset.changes
+    applied_changes = Ecto.Changeset.apply_changes(changeset)
 
-      {%{__meta__: %{state: :loaded}}, %{download_media: false}} ->
+    # We need both current_changes and applied_changes to determine
+    # the course of action to take. For example, we only care if a source is supposed
+    # to be `enabled` or not - we don't care if that information comes from the
+    # current changes or if that's how it already was in the database.
+    # Rephrased, we're essentially using it in place of `get_field/2`
+    case {current_changes, applied_changes} do
+      {%{download_media: false}, _} ->
         DownloadingHelpers.dequeue_pending_download_tasks(source)
 
+      {%{download_media: true}, %{enabled: true}} ->
+        DownloadingHelpers.enqueue_pending_download_tasks(source)
+
+      {%{enabled: false}, _} ->
+        DownloadingHelpers.dequeue_pending_download_tasks(source)
+
+      {%{enabled: true}, %{download_media: true}} ->
+        DownloadingHelpers.enqueue_pending_download_tasks(source)
+
       _ ->
-        :ok
+        nil
     end
+
+    :ok
   end
 
   defp maybe_run_indexing_task(changeset, source) do

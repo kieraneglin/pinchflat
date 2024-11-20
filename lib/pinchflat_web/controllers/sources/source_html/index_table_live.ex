@@ -7,10 +7,10 @@ defmodule PinchflatWeb.Sources.IndexTableLive do
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
 
-  # TODO: test
+  # TODO: test (and maybe remove existing index tests)
   def render(assigns) do
     ~H"""
-    <.table rows={@sources} table_class="text-black dark:text-white">
+    <.table rows={@sources} table_class="text-white">
       <:col :let={source} label="Name">
         <.subtle_link href={~p"/sources/#{source.id}"}>
           <%= StringUtils.truncate(source.custom_name || source.collection_name, 35) %>
