@@ -2,6 +2,7 @@
   :let={f}
   for={@changeset}
   action={@action}
+  method={@method}
   x-data="{ advancedMode: !!JSON.parse(localStorage.getItem('advancedMode')) }"
   x-init="$watch('advancedMode', value => localStorage.setItem('advancedMode', JSON.stringify(value)))"
 >

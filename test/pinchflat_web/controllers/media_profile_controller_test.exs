@@ -79,6 +79,15 @@ defmodule PinchflatWeb.MediaProfileControllerTest do
 
       refute html_response(conn, 200) =~ "MENU"
     end
+
+    test "preloads some attributes when using a template", %{conn: conn} do
+      profile = media_profile_fixture(name: "My first profile", download_subs: true, sub_langs: "de")
+
+      conn = get(conn, ~p"/media_profiles/new", %{"template_id" => profile.id})
+      assert html_response(conn, 200) =~ "New Media Profile"
+      assert html_response(conn, 200) =~ profile.sub_langs
+      refute html_response(conn, 200) =~ profile.name
+    end
   end
 
   describe "edit media_profile" do

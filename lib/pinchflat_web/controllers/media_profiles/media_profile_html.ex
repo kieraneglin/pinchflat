@@ -10,6 +10,7 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
   """
   attr :changeset, Ecto.Changeset, required: true
   attr :action, :string, required: true
+  attr :method, :string, required: true
 
   def media_profile_form(assigns)
 
