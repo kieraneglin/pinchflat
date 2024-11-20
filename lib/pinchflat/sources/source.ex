@@ -15,6 +15,7 @@ defmodule Pinchflat.Sources.Source do
   alias Pinchflat.Metadata.SourceMetadata
 
   @allowed_fields ~w(
+    enabled
     collection_name
     collection_id
     collection_type
@@ -64,6 +65,7 @@ defmodule Pinchflat.Sources.Source do
                                 )a
 
   schema "sources" do
+    field :enabled, :boolean, default: true
     # This is _not_ used as the primary key or internally in the database
     # relations. This is only used to prevent an enumeration attack on the streaming
     # and RSS feed endpoints since those _must_ be public (ie: no basic auth)

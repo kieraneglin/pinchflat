@@ -7,6 +7,7 @@ defmodule PinchflatWeb.Sources.IndexTableLive do
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
 
+  # TODO: test
   def render(assigns) do
     ~H"""
     <.table rows={@sources} table_class="text-black dark:text-white">
