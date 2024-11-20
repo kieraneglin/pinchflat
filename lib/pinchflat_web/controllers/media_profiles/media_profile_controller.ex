@@ -31,8 +31,8 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileController do
         Profiles.change_media_profile(%MediaProfile{
           cs_struct
           | id: nil,
-          name: nil,
-          marked_for_deletion_at: nil
+            name: nil,
+            marked_for_deletion_at: nil
         })
     )
   end
