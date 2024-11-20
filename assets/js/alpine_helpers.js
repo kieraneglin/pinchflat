@@ -35,3 +35,10 @@ window.markVersionAsSeen = (versionString) => {
 window.isVersionSeen = (versionString) => {
   return localStorage.getItem('seenVersion') === versionString
 }
+
+window.dispatchFor = (elementOrId, eventName, detail = {}) => {
+  const element =
+    typeof elementOrId === 'string' ? document.getElementById(elementOrId) : elementOrId
+
+  element.dispatchEvent(new CustomEvent(eventName, { detail }))
+}

@@ -39,12 +39,35 @@ let liveSocket = new LiveSocket(document.body.dataset.socketPath, Socket, {
     }
   },
   hooks: {
-    supressEnterSubmission: {
+    'supress-enter-submission': {
       mounted() {
         this.el.addEventListener('keypress', (event) => {
           if (event.key === 'Enter') {
             event.preventDefault()
           }
+        })
+      }
+    },
+    'formless-input': {
+      mounted() {
+        const subscribedEvents = this.el.dataset.subscribe.split(' ')
+        const eventName = this.el.dataset.eventName || ''
+        const identifier = this.el.dataset.identifier || ''
+
+        subscribedEvents.forEach((domEvent) => {
+          this.el.addEventListener(domEvent, () => {
+            // This ensures that the event is pushed to the server after the input value has been updated
+            // so that the server has the most up-to-date value
+            setTimeout(() => {
+              this.pushEvent('formless-input', {
+                value: this.el.value,
+                id: identifier,
+                event: eventName,
+                dom_id: this.el.id,
+                dom_event: domEvent
+              })
+            }, 0)
+          })
         })
       }
     }

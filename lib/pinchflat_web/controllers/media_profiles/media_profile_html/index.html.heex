@@ -14,19 +14,7 @@
 <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
   <div class="max-w-full overflow-x-auto">
     <div class="flex flex-col gap-10 min-w-max">
-      <.table rows={@media_profiles} table_class="text-black dark:text-white">
-        <:col :let={media_profile} label="Name">
-          <.subtle_link href={~p"/media_profiles/#{media_profile.id}"}>
-            <%= media_profile.name %>
-          </.subtle_link>
-        </:col>
-        <:col :let={media_profile} label="Preferred Resolution">
-          <%= media_profile.preferred_resolution %>
-        </:col>
-        <:col :let={media_profile} label="" class="flex justify-end">
-          <.icon_link href={~p"/media_profiles/#{media_profile.id}/edit"} icon="hero-pencil-square" class="mr-4" />
-        </:col>
-      </.table>
+      <%= live_render(@conn, PinchflatWeb.MediaProfiles.IndexTableLive) %>
     </div>
   </div>
 </div>
