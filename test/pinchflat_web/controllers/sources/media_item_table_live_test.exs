@@ -6,7 +6,7 @@ defmodule PinchflatWeb.Sources.MediaItemTableLiveTest do
   import Pinchflat.SourcesFixtures
   import Pinchflat.ProfilesFixtures
 
-  alias Pinchflat.Sources.MediaItemTableLive
+  alias PinchflatWeb.Sources.MediaItemTableLive
 
   setup do
     source = source_fixture()
