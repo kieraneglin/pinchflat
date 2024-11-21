@@ -333,7 +333,7 @@ defmodule Pinchflat.Sources do
       {%{enabled: true}, %{index_frequency_minutes: mins}} when mins > 0 ->
         SlowIndexingHelpers.kickoff_indexing_task(source)
 
-      {%{index_frequency_minutes: mins}, _} when mins <= 0 ->
+      {%{index_frequency_minutes: _}, _} ->
         SlowIndexingHelpers.delete_indexing_tasks(source, include_executing: true)
 
       {%{enabled: false}, _} ->
