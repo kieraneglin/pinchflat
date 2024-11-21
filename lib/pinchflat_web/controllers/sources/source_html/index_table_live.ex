@@ -8,6 +8,7 @@ defmodule PinchflatWeb.Sources.IndexTableLive do
   alias Pinchflat.Media.MediaItem
 
   # TODO: test (and maybe remove existing index tests)
+  # TODO: see comments in media profile index view
   def render(assigns) do
     ~H"""
     <.table rows={@sources} table_class="text-white">

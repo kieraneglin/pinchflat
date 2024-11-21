@@ -511,7 +511,7 @@ defmodule Pinchflat.SourcesTest do
     end
   end
 
-  describe "update_source/3 when testing indexing" do
+  describe "update_source/3 when testing slow indexing" do
     test "updating the index frequency to >0 will re-schedule the indexing task" do
       source = source_fixture()
       update_attrs = %{index_frequency_minutes: 123}
@@ -556,6 +556,47 @@ defmodule Pinchflat.SourcesTest do
       refute_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
     end
 
+    test "disabling a source will delete any pending tasks" do
+      source = source_fixture()
+      update_attrs = %{enabled: false}
+
+      {:ok, job} = Oban.insert(MediaCollectionIndexingWorker.new(%{"id" => source.id}))
+      task = task_fixture(source_id: source.id, job_id: job.id)
+
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+
+    test "updating the index frequency will not create a task if the source is disabled" do
+      source = source_fixture(enabled: false)
+      update_attrs = %{index_frequency_minutes: 123}
+
+      refute_enqueued(worker: MediaCollectionIndexingWorker)
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      refute_enqueued(worker: MediaCollectionIndexingWorker)
+    end
+
+    test "enabling a source will create a task if the index frequency is >0" do
+      source = source_fixture(enabled: false, index_frequency_minutes: 123)
+      update_attrs = %{enabled: true}
+
+      refute_enqueued(worker: MediaCollectionIndexingWorker)
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      assert_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
+    end
+
+    test "enabling a source will not create a task if the index frequency is 0" do
+      source = source_fixture(enabled: false, index_frequency_minutes: 0)
+      update_attrs = %{enabled: true}
+
+      refute_enqueued(worker: MediaCollectionIndexingWorker)
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      refute_enqueued(worker: MediaCollectionIndexingWorker)
+    end
+  end
+
+  describe "update_source/3 when testing fast indexing" do
     test "enabling fast_index will schedule a fast indexing task" do
       source = source_fixture(fast_index: false)
       update_attrs = %{fast_index: true}
@@ -592,6 +633,45 @@ defmodule Pinchflat.SourcesTest do
       assert {:ok, source} = Sources.update_source(source, update_attrs)
 
       assert source.index_frequency_minutes == 0
+    end
+
+    test "disabling a source will delete any pending tasks" do
+      source = source_fixture()
+      update_attrs = %{enabled: false}
+
+      {:ok, job} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
+      task = task_fixture(source_id: source.id, job_id: job.id)
+
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+
+    test "updating fast indexing will not create a task if the source is disabled" do
+      source = source_fixture(enabled: false, fast_index: false)
+      update_attrs = %{fast_index: true}
+
+      refute_enqueued(worker: FastIndexingWorker)
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      refute_enqueued(worker: FastIndexingWorker)
+    end
+
+    test "enabling a source will create a task if fast_index is true" do
+      source = source_fixture(enabled: false, fast_index: true)
+      update_attrs = %{enabled: true}
+
+      refute_enqueued(worker: FastIndexingWorker)
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      assert_enqueued(worker: FastIndexingWorker, args: %{"id" => source.id})
+    end
+
+    test "enabling a source will not create a task if fast_index is false" do
+      source = source_fixture(enabled: false, fast_index: false)
+      update_attrs = %{enabled: true}
+
+      refute_enqueued(worker: FastIndexingWorker)
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      refute_enqueued(worker: FastIndexingWorker)
     end
   end
 

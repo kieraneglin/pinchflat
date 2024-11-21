@@ -11,13 +11,21 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
 
   alias Pinchflat.Repo
   alias Pinchflat.Media
+  alias Pinchflat.Tasks
   alias Pinchflat.Sources.Source
   alias Pinchflat.FastIndexing.YoutubeRss
   alias Pinchflat.FastIndexing.YoutubeApi
   alias Pinchflat.Downloading.DownloadingHelpers
+  alias Pinchflat.FastIndexing.FastIndexingWorker
   alias Pinchflat.Downloading.DownloadOptionBuilder
 
   alias Pinchflat.YtDlp.Media, as: YtDlpMedia
+
+  # TODO: test
+  def kickoff_indexing_task(%Source{} = source) do
+    Tasks.delete_pending_tasks_for(source, "FastIndexingWorker", include_executing: true)
+    FastIndexingWorker.kickoff_with_task(source)
+  end
 
   @doc """
   Fetches new media IDs for a source from YT's API or RSS, indexes them, and kicks off downloading

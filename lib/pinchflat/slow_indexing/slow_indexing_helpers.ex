@@ -34,6 +34,14 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
     MediaCollectionIndexingWorker.kickoff_with_task(source, job_args, job_opts)
   end
 
+  # TODO: test
+  def delete_indexing_tasks(%Source{} = source, opts \\ []) do
+    include_executing = Keyword.get(opts, :include_executing, false)
+
+    Tasks.delete_pending_tasks_for(source, "FastIndexingWorker", include_executing: include_executing)
+    Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker", include_executing: include_executing)
+  end
+
   @doc """
   Given a media source, creates (indexes) the media by creating media_items for each
   media ID in the source. Afterward, kicks off a download task for each pending media
