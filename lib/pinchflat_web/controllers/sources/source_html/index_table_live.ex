@@ -68,8 +68,6 @@ defmodule PinchflatWeb.Sources.IndexTableLive do
 
     {:ok, _} = Sources.update_source(source, %{enabled: should_enable})
 
-    # NOTE: I'm not re-rendering the view here since, at least in this case, the UI's state
-    # tracking mechanisms are good enough
     {:noreply, assign(socket, %{sources: get_sources()})}
   end
 
