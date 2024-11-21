@@ -340,14 +340,15 @@ defmodule PinchflatWeb.CoreComponents do
       end)
 
     ~H"""
-    <div x-data={"{ enabled: #{@checked}}"}>
-      <.label for={@id}>
+    <div x-data={"{ enabled: #{@checked} }"} class="" phx-update="ignore" id={"#{@id}-wrapper"}>
+      <.label :if={@label} for={@id}>
         <%= @label %>
         <span :if={@label_suffix} class="text-xs text-bodydark"><%= @label_suffix %></span>
       </.label>
-      <div class="relative">
+      <div class="relative flex flex-col">
         <input type="hidden" id={@id} name={@name} x-bind:value="enabled" {@rest} />
-        <div class="inline-block cursor-pointer" @click="enabled = !enabled">
+        <%!-- This triggers a `change` event on the hidden input when the toggle is clicked --%>
+        <div class="inline-block cursor-pointer" @click={"enabled = !enabled; dispatchFor('#{@id}', 'change')"}>
           <div x-bind:class="enabled && '!bg-primary'" class="block h-8 w-14 rounded-full bg-black"></div>
           <div
             x-bind:class="enabled && '!right-1 !translate-x-full'"

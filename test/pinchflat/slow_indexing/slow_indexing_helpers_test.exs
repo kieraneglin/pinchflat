@@ -23,6 +23,36 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       assert_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
     end
 
+    test "schedules a job for the future based on when the source was last indexed" do
+      source = source_fixture(index_frequency_minutes: 30, last_indexed_at: now_minus(5, :minutes))
+
+      assert {:ok, _} = SlowIndexingHelpers.kickoff_indexing_task(source)
+
+      [job] = all_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
+
+      assert_in_delta DateTime.diff(job.scheduled_at, DateTime.utc_now(), :minute), 25, 1
+    end
+
+    test "schedules a job immediately if the source was indexed far in the past" do
+      source = source_fixture(index_frequency_minutes: 30, last_indexed_at: now_minus(60, :minutes))
+
+      assert {:ok, _} = SlowIndexingHelpers.kickoff_indexing_task(source)
+
+      [job] = all_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
+
+      assert_in_delta DateTime.diff(job.scheduled_at, DateTime.utc_now(), :second), 0, 1
+    end
+
+    test "schedules a job immediately if the source has never been indexed" do
+      source = source_fixture(index_frequency_minutes: 30, last_indexed_at: nil)
+
+      assert {:ok, _} = SlowIndexingHelpers.kickoff_indexing_task(source)
+
+      [job] = all_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
+
+      assert_in_delta DateTime.diff(job.scheduled_at, DateTime.utc_now(), :second), 0, 1
+    end
+
     test "creates and attaches a task" do
       source = source_fixture(index_frequency_minutes: 1)
 
@@ -89,6 +119,56 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
 
       [job] = all_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
       assert job.max_attempts == 5
+    end
+  end
+
+  describe "delete_indexing_tasks/2" do
+    setup do
+      source = source_fixture()
+
+      {:ok, %{source: source}}
+    end
+
+    test "deletes slow indexing tasks for the source", %{source: source} do
+      {:ok, job} = Oban.insert(MediaCollectionIndexingWorker.new(%{"id" => source.id}))
+      _task = task_fixture(source_id: source.id, job_id: job.id)
+
+      assert_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
+      assert :ok = SlowIndexingHelpers.delete_indexing_tasks(source)
+      refute_enqueued(worker: MediaCollectionIndexingWorker)
+    end
+
+    test "deletes fast indexing tasks for the source", %{source: source} do
+      {:ok, job} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
+      _task = task_fixture(source_id: source.id, job_id: job.id)
+
+      assert_enqueued(worker: FastIndexingWorker, args: %{"id" => source.id})
+      assert :ok = SlowIndexingHelpers.delete_indexing_tasks(source)
+      refute_enqueued(worker: FastIndexingWorker)
+    end
+
+    test "doesn't normally delete currently executing tasks", %{source: source} do
+      {:ok, job} = Oban.insert(MediaCollectionIndexingWorker.new(%{"id" => source.id}))
+      task = task_fixture(source_id: source.id, job_id: job.id)
+
+      from(Oban.Job, where: [id: ^job.id], update: [set: [state: "executing"]])
+      |> Repo.update_all([])
+
+      assert Repo.reload!(task)
+      assert :ok = SlowIndexingHelpers.delete_indexing_tasks(source)
+      assert Repo.reload!(task)
+    end
+
+    test "can optionally delete currently executing tasks", %{source: source} do
+      {:ok, job} = Oban.insert(MediaCollectionIndexingWorker.new(%{"id" => source.id}))
+      task = task_fixture(source_id: source.id, job_id: job.id)
+
+      from(Oban.Job, where: [id: ^job.id], update: [set: [state: "executing"]])
+      |> Repo.update_all([])
+
+      assert Repo.reload!(task)
+      assert :ok = SlowIndexingHelpers.delete_indexing_tasks(source, include_executing: true)
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
     end
   end
 

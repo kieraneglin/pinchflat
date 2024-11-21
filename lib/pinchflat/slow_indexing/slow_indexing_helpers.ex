@@ -25,13 +25,28 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   Starts tasks for indexing a source's media regardless of the source's indexing
   frequency. It's assumed the caller will check for indexing frequency.
 
-  Returns {:ok, %Task{}}.
+  Returns {:ok, %Task{}}
   """
   def kickoff_indexing_task(%Source{} = source, job_args \\ %{}, job_opts \\ []) do
+    job_offset_seconds = calculate_job_offset_seconds(source)
+
     Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
     Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker", include_executing: true)
 
-    MediaCollectionIndexingWorker.kickoff_with_task(source, job_args, job_opts)
+    MediaCollectionIndexingWorker.kickoff_with_task(source, job_args, job_opts ++ [schedule_in: job_offset_seconds])
+  end
+
+  @doc """
+  A helper method to delete all indexing-related tasks for a source.
+  Optionally, you can include executing tasks in the deletion process.
+
+  Returns :ok
+  """
+  def delete_indexing_tasks(%Source{} = source, opts \\ []) do
+    include_executing = Keyword.get(opts, :include_executing, false)
+
+    Tasks.delete_pending_tasks_for(source, "FastIndexingWorker", include_executing: include_executing)
+    Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker", include_executing: include_executing)
   end
 
   @doc """
@@ -140,5 +155,15 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
       {:error, changeset} ->
         changeset
     end
+  end
+
+  # Find the difference between the current time and the last time the source was indexed
+  defp calculate_job_offset_seconds(%Source{last_indexed_at: nil}), do: 0
+
+  defp calculate_job_offset_seconds(source) do
+    offset_seconds = DateTime.diff(DateTime.utc_now(), source.last_indexed_at, :second)
+    index_frequency_seconds = source.index_frequency_minutes * 60
+
+    max(0, index_frequency_seconds - offset_seconds)
   end
 end

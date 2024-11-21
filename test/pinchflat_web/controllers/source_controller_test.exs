@@ -34,27 +34,10 @@ defmodule PinchflatWeb.SourceControllerTest do
   end
 
   describe "index" do
-    test "lists all sources", %{conn: conn} do
-      source = source_fixture()
+    # Most of the tests are in `index_table_list_test.exs`
+    test "returns 200", %{conn: conn} do
       conn = get(conn, ~p"/sources")
-
       assert html_response(conn, 200) =~ "Sources"
-      assert html_response(conn, 200) =~ source.custom_name
-    end
-
-    test "omits sources that have marked_for_deletion_at set", %{conn: conn} do
-      source = source_fixture(marked_for_deletion_at: DateTime.utc_now())
-      conn = get(conn, ~p"/sources")
-
-      refute html_response(conn, 200) =~ source.custom_name
-    end
-
-    test "omits sources who's media profile has marked_for_deletion_at set", %{conn: conn} do
-      media_profile = media_profile_fixture(marked_for_deletion_at: DateTime.utc_now())
-      source = source_fixture(media_profile_id: media_profile.id)
-      conn = get(conn, ~p"/sources")
-
-      refute html_response(conn, 200) =~ source.custom_name
     end
   end
 

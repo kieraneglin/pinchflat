@@ -1,12 +1,11 @@
 defmodule PinchflatWeb.Sources.SourceController do
   use PinchflatWeb, :controller
-  use Pinchflat.Media.MediaQuery
+  use Pinchflat.Sources.SourcesQuery
 
   alias Pinchflat.Repo
   alias Pinchflat.Tasks
   alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
-  alias Pinchflat.Media.MediaItem
   alias Pinchflat.Profiles.MediaProfile
   alias Pinchflat.Media.FileSyncingWorker
   alias Pinchflat.Sources.SourceDeletionWorker
@@ -15,33 +14,7 @@ defmodule PinchflatWeb.Sources.SourceController do
   alias Pinchflat.Metadata.SourceMetadataStorageWorker
 
   def index(conn, _params) do
-    source_query =
-      from s in Source,
-        as: :source,
-        inner_join: mp in assoc(s, :media_profile),
-        where: is_nil(s.marked_for_deletion_at) and is_nil(mp.marked_for_deletion_at),
-        preload: [media_profile: mp],
-        order_by: [asc: s.custom_name],
-        select: map(s, ^Source.__schema__(:fields)),
-        select_merge: %{
-          downloaded_count:
-            subquery(
-              from m in MediaItem,
-                where: m.source_id == parent_as(:source).id,
-                where: ^MediaQuery.downloaded(),
-                select: count(m.id)
-            ),
-          pending_count:
-            subquery(
-              from m in MediaItem,
-                join: s in assoc(m, :source),
-                where: m.source_id == parent_as(:source).id,
-                where: ^MediaQuery.pending(),
-                select: count(m.id)
-            )
-        }
-
-    render(conn, :index, sources: Repo.all(source_query))
+    render(conn, :index)
   end
 
   def new(conn, params) do

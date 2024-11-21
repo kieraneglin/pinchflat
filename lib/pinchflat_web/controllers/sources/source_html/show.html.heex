@@ -39,21 +39,21 @@
       <:tab title="Pending" id="pending">
         <%= live_render(
           @conn,
-          Pinchflat.Sources.MediaItemTableLive,
+          PinchflatWeb.Sources.MediaItemTableLive,
           session: %{"source_id" => @source.id, "media_state" => "pending"}
         ) %>
       </:tab>
       <:tab title="Downloaded" id="downloaded">
         <%= live_render(
           @conn,
-          Pinchflat.Sources.MediaItemTableLive,
+          PinchflatWeb.Sources.MediaItemTableLive,
           session: %{"source_id" => @source.id, "media_state" => "downloaded"}
         ) %>
       </:tab>
       <:tab title="Other" id="other">
         <%= live_render(
           @conn,
-          Pinchflat.Sources.MediaItemTableLive,
+          PinchflatWeb.Sources.MediaItemTableLive,
           session: %{"source_id" => @source.id, "media_state" => "other"}
         ) %>
       </:tab>

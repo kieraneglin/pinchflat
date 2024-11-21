@@ -1,4 +1,4 @@
-defmodule Pinchflat.Sources.MediaItemTableLive do
+defmodule PinchflatWeb.Sources.MediaItemTableLive do
   use PinchflatWeb, :live_view
   use Pinchflat.Media.MediaQuery
 

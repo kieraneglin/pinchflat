@@ -20,6 +20,7 @@ defmodule Pinchflat.SourcesFixtures do
         Enum.into(
           attrs,
           %{
+            enabled: true,
             collection_name: "Source ##{:rand.uniform(1_000_000)}",
             collection_id: Base.encode16(:crypto.hash(:md5, "#{:rand.uniform(1_000_000)}")),
             collection_type: "channel",

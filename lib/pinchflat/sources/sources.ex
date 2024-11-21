@@ -15,8 +15,8 @@ defmodule Pinchflat.Sources do
   alias Pinchflat.Metadata.SourceMetadata
   alias Pinchflat.Utils.FilesystemUtils
   alias Pinchflat.Downloading.DownloadingHelpers
-  alias Pinchflat.FastIndexing.FastIndexingWorker
   alias Pinchflat.SlowIndexing.SlowIndexingHelpers
+  alias Pinchflat.FastIndexing.FastIndexingHelpers
   alias Pinchflat.Metadata.SourceMetadataStorageWorker
 
   @doc """
@@ -255,19 +255,40 @@ defmodule Pinchflat.Sources do
     end
   end
 
-  # If the source is NOT new (ie: updated) and the download_media flag has changed,
+  # If the source is new (ie: not persisted), do nothing
+  defp maybe_handle_media_tasks(%{data: %{__meta__: %{state: state}}}, _source) when state != :loaded do
+    :ok
+  end
+
+  # If the source is NOT new (ie: updated),
   # enqueue or dequeue media download tasks as necessary.
   defp maybe_handle_media_tasks(changeset, source) do
-    case {changeset.data, changeset.changes} do
-      {%{__meta__: %{state: :loaded}}, %{download_media: true}} ->
+    current_changes = changeset.changes
+    applied_changes = Ecto.Changeset.apply_changes(changeset)
+
+    # We need both current_changes and applied_changes to determine
+    # the course of action to take. For example, we only care if a source is supposed
+    # to be `enabled` or not - we don't care if that information comes from the
+    # current changes or if that's how it already was in the database.
+    # Rephrased, we're essentially using it in place of `get_field/2`
+    case {current_changes, applied_changes} do
+      {%{download_media: true}, %{enabled: true}} ->
         DownloadingHelpers.enqueue_pending_download_tasks(source)
 
-      {%{__meta__: %{state: :loaded}}, %{download_media: false}} ->
+      {%{enabled: true}, %{download_media: true}} ->
+        DownloadingHelpers.enqueue_pending_download_tasks(source)
+
+      {%{download_media: false}, _} ->
+        DownloadingHelpers.dequeue_pending_download_tasks(source)
+
+      {%{enabled: false}, _} ->
         DownloadingHelpers.dequeue_pending_download_tasks(source)
 
       _ ->
-        :ok
+        nil
     end
+
+    :ok
   end
 
   defp maybe_run_indexing_task(changeset, source) do
@@ -301,13 +322,22 @@ defmodule Pinchflat.Sources do
   end
 
   defp maybe_update_slow_indexing_task(changeset, source) do
-    case changeset.changes do
-      %{index_frequency_minutes: mins} when mins > 0 ->
+    # See comment in `maybe_handle_media_tasks` as to why we need these
+    current_changes = changeset.changes
+    applied_changes = Ecto.Changeset.apply_changes(changeset)
+
+    case {current_changes, applied_changes} do
+      {%{index_frequency_minutes: mins}, %{enabled: true}} when mins > 0 ->
         SlowIndexingHelpers.kickoff_indexing_task(source)
 
-      %{index_frequency_minutes: _} ->
-        Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
-        Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker")
+      {%{enabled: true}, %{index_frequency_minutes: mins}} when mins > 0 ->
+        SlowIndexingHelpers.kickoff_indexing_task(source)
+
+      {%{index_frequency_minutes: _}, _} ->
+        SlowIndexingHelpers.delete_indexing_tasks(source, include_executing: true)
+
+      {%{enabled: false}, _} ->
+        SlowIndexingHelpers.delete_indexing_tasks(source, include_executing: true)
 
       _ ->
         :ok
@@ -315,13 +345,25 @@ defmodule Pinchflat.Sources do
   end
 
   defp maybe_update_fast_indexing_task(changeset, source) do
-    case changeset.changes do
-      %{fast_index: true} ->
-        Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
-        FastIndexingWorker.kickoff_with_task(source)
+    # See comment in `maybe_handle_media_tasks` as to why we need these
+    current_changes = changeset.changes
+    applied_changes = Ecto.Changeset.apply_changes(changeset)
 
-      %{fast_index: false} ->
-        Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
+    # This technically could be simplified since `maybe_update_slow_indexing_task`
+    # has some overlap re: deleting pending tasks, but I'm keeping it separate
+    # for clarity and explicitness.
+    case {current_changes, applied_changes} do
+      {%{fast_index: true}, %{enabled: true}} ->
+        FastIndexingHelpers.kickoff_indexing_task(source)
+
+      {%{enabled: true}, %{fast_index: true}} ->
+        FastIndexingHelpers.kickoff_indexing_task(source)
+
+      {%{fast_index: false}, _} ->
+        Tasks.delete_pending_tasks_for(source, "FastIndexingWorker", include_executing: true)
+
+      {%{enabled: false}, _} ->
+        Tasks.delete_pending_tasks_for(source, "FastIndexingWorker", include_executing: true)
 
       _ ->
         :ok

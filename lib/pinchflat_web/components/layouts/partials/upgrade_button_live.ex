@@ -3,7 +3,7 @@ defmodule Pinchflat.UpgradeButtonLive do
 
   def render(assigns) do
     ~H"""
-    <form id="upgradeForm" phx-change="check_matching_text" phx-hook="supressEnterSubmission">
+    <form id="upgradeForm" phx-change="check_matching_text" phx-hook="supress-enter-submission">
       <.input type="text" name="unlock-pro-textbox" value="" />
     </form>
 

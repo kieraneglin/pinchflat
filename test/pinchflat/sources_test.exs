@@ -418,6 +418,100 @@ defmodule Pinchflat.SourcesTest do
       assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
     end
 
+    test "updates with invalid data returns error changeset" do
+      source = source_fixture()
+
+      assert {:error, %Ecto.Changeset{}} =
+               Sources.update_source(source, @invalid_source_attrs)
+
+      assert source == Sources.get_source!(source.id)
+    end
+
+    test "updating will kickoff a metadata storage worker if the original_url changes" do
+      expect(YtDlpRunnerMock, :run, &playlist_mock/4)
+      source = source_fixture()
+      update_attrs = %{original_url: "https://www.youtube.com/channel/cba321"}
+
+      assert {:ok, %Source{} = source} = Sources.update_source(source, update_attrs)
+
+      assert_enqueued(worker: SourceMetadataStorageWorker, args: %{"id" => source.id})
+    end
+
+    test "updating will not kickoff a metadata storage worker other attrs change" do
+      source = source_fixture()
+      update_attrs = %{name: "some new name"}
+
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+
+      refute_enqueued(worker: SourceMetadataStorageWorker)
+    end
+  end
+
+  describe "update_source/3 when testing media download tasks" do
+    test "enabling the download_media attribute will schedule a download task" do
+      source = source_fixture(download_media: false)
+      media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
+      update_attrs = %{download_media: true}
+
+      refute_enqueued(worker: MediaDownloadWorker)
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      assert_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
+    end
+
+    test "disabling the download_media attribute will cancel the download task" do
+      source = source_fixture(download_media: true, enabled: true)
+      media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
+      update_attrs = %{download_media: false}
+      DownloadingHelpers.enqueue_pending_download_tasks(source)
+
+      assert_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      refute_enqueued(worker: MediaDownloadWorker)
+    end
+
+    test "enabling download_media will not schedule a task if the source is disabled" do
+      source = source_fixture(download_media: false, enabled: false)
+      _media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
+      update_attrs = %{download_media: true}
+
+      refute_enqueued(worker: MediaDownloadWorker)
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      refute_enqueued(worker: MediaDownloadWorker)
+    end
+
+    test "disabling a source will cancel any pending download tasks" do
+      source = source_fixture(download_media: true, enabled: true)
+      media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
+      update_attrs = %{enabled: false}
+      DownloadingHelpers.enqueue_pending_download_tasks(source)
+
+      assert_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      refute_enqueued(worker: MediaDownloadWorker)
+    end
+
+    test "enabling a source will schedule a download task if download_media is true" do
+      source = source_fixture(download_media: true, enabled: false)
+      media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
+      update_attrs = %{enabled: true}
+
+      refute_enqueued(worker: MediaDownloadWorker)
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      assert_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
+    end
+
+    test "enabling a source will not schedule a download task if download_media is false" do
+      source = source_fixture(download_media: false, enabled: false)
+      _media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
+      update_attrs = %{enabled: true}
+
+      refute_enqueued(worker: MediaDownloadWorker)
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      refute_enqueued(worker: MediaDownloadWorker)
+    end
+  end
+
+  describe "update_source/3 when testing slow indexing" do
     test "updating the index frequency to >0 will re-schedule the indexing task" do
       source = source_fixture()
       update_attrs = %{index_frequency_minutes: 123}
@@ -462,27 +556,47 @@ defmodule Pinchflat.SourcesTest do
       refute_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
     end
 
-    test "enabling the download_media attribute will schedule a download task" do
-      source = source_fixture(download_media: false)
-      media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
-      update_attrs = %{download_media: true}
+    test "disabling a source will delete any pending tasks" do
+      source = source_fixture()
+      update_attrs = %{enabled: false}
 
-      refute_enqueued(worker: MediaDownloadWorker)
+      {:ok, job} = Oban.insert(MediaCollectionIndexingWorker.new(%{"id" => source.id}))
+      task = task_fixture(source_id: source.id, job_id: job.id)
+
       assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
-      assert_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
+
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
     end
 
-    test "disabling the download_media attribute will cancel the download task" do
-      source = source_fixture(download_media: true)
-      media_item = media_item_fixture(source_id: source.id, media_filepath: nil)
-      update_attrs = %{download_media: false}
-      DownloadingHelpers.enqueue_pending_download_tasks(source)
+    test "updating the index frequency will not create a task if the source is disabled" do
+      source = source_fixture(enabled: false)
+      update_attrs = %{index_frequency_minutes: 123}
 
-      assert_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
+      refute_enqueued(worker: MediaCollectionIndexingWorker)
       assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
-      refute_enqueued(worker: MediaDownloadWorker)
+      refute_enqueued(worker: MediaCollectionIndexingWorker)
     end
 
+    test "enabling a source will create a task if the index frequency is >0" do
+      source = source_fixture(enabled: false, index_frequency_minutes: 123)
+      update_attrs = %{enabled: true}
+
+      refute_enqueued(worker: MediaCollectionIndexingWorker)
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      assert_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
+    end
+
+    test "enabling a source will not create a task if the index frequency is 0" do
+      source = source_fixture(enabled: false, index_frequency_minutes: 0)
+      update_attrs = %{enabled: true}
+
+      refute_enqueued(worker: MediaCollectionIndexingWorker)
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      refute_enqueued(worker: MediaCollectionIndexingWorker)
+    end
+  end
+
+  describe "update_source/3 when testing fast indexing" do
     test "enabling fast_index will schedule a fast indexing task" do
       source = source_fixture(fast_index: false)
       update_attrs = %{fast_index: true}
@@ -503,15 +617,6 @@ defmodule Pinchflat.SourcesTest do
       refute_enqueued(worker: FastIndexingWorker)
     end
 
-    test "updates with invalid data returns error changeset" do
-      source = source_fixture()
-
-      assert {:error, %Ecto.Changeset{}} =
-               Sources.update_source(source, @invalid_source_attrs)
-
-      assert source == Sources.get_source!(source.id)
-    end
-
     test "fast_index forces the index frequency to be a default value" do
       source = source_fixture(%{fast_index: true})
       update_attrs = %{index_frequency_minutes: 0}
@@ -530,23 +635,43 @@ defmodule Pinchflat.SourcesTest do
       assert source.index_frequency_minutes == 0
     end
 
-    test "updating will kickoff a metadata storage worker if the original_url changes" do
-      expect(YtDlpRunnerMock, :run, &playlist_mock/4)
+    test "disabling a source will delete any pending tasks" do
       source = source_fixture()
-      update_attrs = %{original_url: "https://www.youtube.com/channel/cba321"}
+      update_attrs = %{enabled: false}
 
-      assert {:ok, %Source{} = source} = Sources.update_source(source, update_attrs)
-
-      assert_enqueued(worker: SourceMetadataStorageWorker, args: %{"id" => source.id})
-    end
-
-    test "updating will not kickoff a metadata storage worker other attrs change" do
-      source = source_fixture()
-      update_attrs = %{name: "some new name"}
+      {:ok, job} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
+      task = task_fixture(source_id: source.id, job_id: job.id)
 
       assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
 
-      refute_enqueued(worker: SourceMetadataStorageWorker)
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+
+    test "updating fast indexing will not create a task if the source is disabled" do
+      source = source_fixture(enabled: false, fast_index: false)
+      update_attrs = %{fast_index: true}
+
+      refute_enqueued(worker: FastIndexingWorker)
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      refute_enqueued(worker: FastIndexingWorker)
+    end
+
+    test "enabling a source will create a task if fast_index is true" do
+      source = source_fixture(enabled: false, fast_index: true)
+      update_attrs = %{enabled: true}
+
+      refute_enqueued(worker: FastIndexingWorker)
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      assert_enqueued(worker: FastIndexingWorker, args: %{"id" => source.id})
+    end
+
+    test "enabling a source will not create a task if fast_index is false" do
+      source = source_fixture(enabled: false, fast_index: false)
+      update_attrs = %{enabled: true}
+
+      refute_enqueued(worker: FastIndexingWorker)
+      assert {:ok, %Source{}} = Sources.update_source(source, update_attrs)
+      refute_enqueued(worker: FastIndexingWorker)
     end
   end
 

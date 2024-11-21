@@ -1,20 +1,31 @@
 defmodule PinchflatWeb.MediaProfiles.MediaProfileController do
   use PinchflatWeb, :controller
   use Pinchflat.Sources.SourcesQuery
+  use Pinchflat.Profiles.ProfilesQuery
 
   alias Pinchflat.Repo
   alias Pinchflat.Profiles
+  alias Pinchflat.Sources.Source
   alias Pinchflat.Profiles.MediaProfile
   alias Pinchflat.Profiles.MediaProfileDeletionWorker
 
   def index(conn, _params) do
-    media_profiles =
-      MediaProfile
-      |> where([mp], is_nil(mp.marked_for_deletion_at))
-      |> order_by(asc: :name)
-      |> Repo.all()
+    media_profiles_query =
+      from mp in MediaProfile,
+        as: :media_profile,
+        where: is_nil(mp.marked_for_deletion_at),
+        order_by: [asc: mp.name],
+        select: map(mp, ^MediaProfile.__schema__(:fields)),
+        select_merge: %{
+          source_count:
+            subquery(
+              from s in Source,
+                where: s.media_profile_id == parent_as(:media_profile).id,
+                select: count(s.id)
+            )
+        }
 
-    render(conn, :index, media_profiles: media_profiles)
+    render(conn, :index, media_profiles: Repo.all(media_profiles_query))
   end
 
   def new(conn, params) do
