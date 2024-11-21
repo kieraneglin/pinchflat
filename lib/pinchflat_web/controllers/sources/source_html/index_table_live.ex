@@ -4,6 +4,7 @@ defmodule PinchflatWeb.Sources.IndexTableLive do
   use Pinchflat.Sources.SourcesQuery
 
   alias Pinchflat.Repo
+  alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
 
@@ -35,6 +36,7 @@ defmodule PinchflatWeb.Sources.IndexTableLive do
       <:col :let={source} label="Enabled?">
         <.input
           name={"source[#{source.id}][enabled]"}
+          value={source.enabled}
           id={"source_#{source.id}_enabled"}
           phx-hook="formless-input"
           data-subscribe="change"
@@ -51,18 +53,18 @@ defmodule PinchflatWeb.Sources.IndexTableLive do
   end
 
   def mount(_params, _session, socket) do
-    new_assigns = %{
-      sources: get_sources()
-    }
-
-    {:ok, assign(socket, new_assigns)}
+    {:ok, assign(socket, %{sources: get_sources()})}
   end
 
   def handle_event("formless-input", %{"event" => "toggle_enabled"} = params, socket) do
-    # should_enable = params["value"] == "true"
-    IO.inspect(params)
+    source = Sources.get_source!(params["id"])
+    should_enable = params["value"] == "true"
 
-    {:noreply, socket}
+    {:ok, new_source} = Sources.update_source(source, %{enabled: should_enable})
+    # Trying to be efficient with the update. Let's see if it pays off
+    updated_sources = Enum.map(socket.assigns.sources, fn s -> if s.id == new_source.id, do: new_source, else: s end)
+
+    {:noreply, assign(socket, sources: updated_sources)}
   end
 
   defp get_sources do
