@@ -25,7 +25,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   Starts tasks for indexing a source's media regardless of the source's indexing
   frequency. It's assumed the caller will check for indexing frequency.
 
-  Returns {:ok, %Task{}}.
+  Returns {:ok, %Task{}}
   """
   def kickoff_indexing_task(%Source{} = source, job_args \\ %{}, job_opts \\ []) do
     Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
@@ -34,7 +34,12 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
     MediaCollectionIndexingWorker.kickoff_with_task(source, job_args, job_opts)
   end
 
-  # TODO: test
+  @doc """
+  A helper method to delete all indexing-related tasks for a source.
+  Optionally, you can include executing tasks in the deletion process.
+
+  Returns :ok
+  """
   def delete_indexing_tasks(%Source{} = source, opts \\ []) do
     include_executing = Keyword.get(opts, :include_executing, false)
 

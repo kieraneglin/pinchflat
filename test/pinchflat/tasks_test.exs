@@ -247,7 +247,7 @@ defmodule Pinchflat.TasksTest do
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
     end
 
-    test "deletion can optionall include executing tasks" do
+    test "deletion can optionally include executing tasks" do
       source = source_fixture()
       task = task_fixture(source_id: source.id)
 

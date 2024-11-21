@@ -1,6 +1,7 @@
 defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
   use Pinchflat.DataCase
 
+  import Pinchflat.TasksFixtures
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
   import Pinchflat.ProfilesFixtures
@@ -8,6 +9,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
   alias Pinchflat.Tasks
   alias Pinchflat.Settings
   alias Pinchflat.Media.MediaItem
+  alias Pinchflat.FastIndexing.FastIndexingWorker
   alias Pinchflat.Downloading.MediaDownloadWorker
   alias Pinchflat.FastIndexing.FastIndexingHelpers
 
@@ -17,6 +19,23 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
     end)
 
     {:ok, [source: source_fixture()]}
+  end
+
+  describe "kickoff_indexing_task/1" do
+    test "deletes any existing fast indexing tasks", %{source: source} do
+      {:ok, job} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
+      task = task_fixture(source_id: source.id, job_id: job.id)
+
+      assert Repo.reload!(task)
+      assert {:ok, _} = FastIndexingHelpers.kickoff_indexing_task(source)
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+
+    test "kicks off a new fast indexing task", %{source: source} do
+      assert {:ok, _} = FastIndexingHelpers.kickoff_indexing_task(source)
+      assert [worker] = all_enqueued(worker: FastIndexingWorker)
+      assert worker.args["id"] == source.id
+    end
   end
 
   describe "kickoff_download_tasks_from_youtube_rss_feed/1" do

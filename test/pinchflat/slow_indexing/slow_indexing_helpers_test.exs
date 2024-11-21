@@ -92,6 +92,56 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
     end
   end
 
+  describe "delete_indexing_tasks/2" do
+    setup do
+      source = source_fixture()
+
+      {:ok, %{source: source}}
+    end
+
+    test "deletes slow indexing tasks for the source", %{source: source} do
+      {:ok, job} = Oban.insert(MediaCollectionIndexingWorker.new(%{"id" => source.id}))
+      _task = task_fixture(source_id: source.id, job_id: job.id)
+
+      assert_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
+      assert :ok = SlowIndexingHelpers.delete_indexing_tasks(source)
+      refute_enqueued(worker: MediaCollectionIndexingWorker)
+    end
+
+    test "deletes fast indexing tasks for the source", %{source: source} do
+      {:ok, job} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
+      _task = task_fixture(source_id: source.id, job_id: job.id)
+
+      assert_enqueued(worker: FastIndexingWorker, args: %{"id" => source.id})
+      assert :ok = SlowIndexingHelpers.delete_indexing_tasks(source)
+      refute_enqueued(worker: FastIndexingWorker)
+    end
+
+    test "doesn't normally delete currently executing tasks", %{source: source} do
+      {:ok, job} = Oban.insert(MediaCollectionIndexingWorker.new(%{"id" => source.id}))
+      task = task_fixture(source_id: source.id, job_id: job.id)
+
+      from(Oban.Job, where: [id: ^job.id], update: [set: [state: "executing"]])
+      |> Repo.update_all([])
+
+      assert Repo.reload!(task)
+      assert :ok = SlowIndexingHelpers.delete_indexing_tasks(source)
+      assert Repo.reload!(task)
+    end
+
+    test "can optionally delete currently executing tasks", %{source: source} do
+      {:ok, job} = Oban.insert(MediaCollectionIndexingWorker.new(%{"id" => source.id}))
+      task = task_fixture(source_id: source.id, job_id: job.id)
+
+      from(Oban.Job, where: [id: ^job.id], update: [set: [state: "executing"]])
+      |> Repo.update_all([])
+
+      assert Repo.reload!(task)
+      assert :ok = SlowIndexingHelpers.delete_indexing_tasks(source, include_executing: true)
+      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
+    end
+  end
+
   describe "index_and_enqueue_download_for_media_items/1" do
     setup do
       stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts ->

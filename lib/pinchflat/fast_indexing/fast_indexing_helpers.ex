@@ -21,7 +21,12 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
 
   alias Pinchflat.YtDlp.Media, as: YtDlpMedia
 
-  # TODO: test
+  @doc """
+  Kicks off a new fast indexing task for a source. This will delete any existing fast indexing
+  tasks for the source before starting a new one.
+
+  Returns {:ok, %Task{}}
+  """
   def kickoff_indexing_task(%Source{} = source) do
     Tasks.delete_pending_tasks_for(source, "FastIndexingWorker", include_executing: true)
     FastIndexingWorker.kickoff_with_task(source)
