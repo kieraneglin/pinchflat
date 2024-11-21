@@ -23,6 +23,36 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       assert_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
     end
 
+    test "schedules a job for the future based on when the source was last indexed" do
+      source = source_fixture(index_frequency_minutes: 30, last_indexed_at: now_minus(5, :minutes))
+
+      assert {:ok, _} = SlowIndexingHelpers.kickoff_indexing_task(source)
+
+      [job] = all_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
+
+      assert_in_delta DateTime.diff(job.scheduled_at, DateTime.utc_now(), :minute), 25, 1
+    end
+
+    test "schedules a job immediately if the source was indexed far in the past" do
+      source = source_fixture(index_frequency_minutes: 30, last_indexed_at: now_minus(60, :minutes))
+
+      assert {:ok, _} = SlowIndexingHelpers.kickoff_indexing_task(source)
+
+      [job] = all_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
+
+      assert_in_delta DateTime.diff(job.scheduled_at, DateTime.utc_now(), :second), 0, 1
+    end
+
+    test "schedules a job immediately if the source has never been indexed" do
+      source = source_fixture(index_frequency_minutes: 30, last_indexed_at: nil)
+
+      assert {:ok, _} = SlowIndexingHelpers.kickoff_indexing_task(source)
+
+      [job] = all_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
+
+      assert_in_delta DateTime.diff(job.scheduled_at, DateTime.utc_now(), :second), 0, 1
+    end
+
     test "creates and attaches a task" do
       source = source_fixture(index_frequency_minutes: 1)
 

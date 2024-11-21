@@ -28,10 +28,12 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   Returns {:ok, %Task{}}
   """
   def kickoff_indexing_task(%Source{} = source, job_args \\ %{}, job_opts \\ []) do
+    job_offset_seconds = calculate_job_offset_seconds(source)
+
     Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
     Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker", include_executing: true)
 
-    MediaCollectionIndexingWorker.kickoff_with_task(source, job_args, job_opts)
+    MediaCollectionIndexingWorker.kickoff_with_task(source, job_args, job_opts ++ [schedule_in: job_offset_seconds])
   end
 
   @doc """
@@ -153,5 +155,15 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
       {:error, changeset} ->
         changeset
     end
+  end
+
+  # Find the difference between the current time and the last time the source was indexed
+  defp calculate_job_offset_seconds(%Source{last_indexed_at: nil}), do: 0
+
+  defp calculate_job_offset_seconds(source) do
+    offset_seconds = DateTime.diff(DateTime.utc_now(), source.last_indexed_at, :second)
+    index_frequency_seconds = source.index_frequency_minutes * 60
+
+    max(0, index_frequency_seconds - offset_seconds)
   end
 end

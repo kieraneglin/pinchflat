@@ -328,8 +328,6 @@ defmodule Pinchflat.Sources do
 
     case {current_changes, applied_changes} do
       {%{index_frequency_minutes: mins}, %{enabled: true}} when mins > 0 ->
-        # TODO: consider scheduling the task for the future based on the index_frequency_minutes
-        # compared to `last_indexed_at`
         SlowIndexingHelpers.kickoff_indexing_task(source)
 
       {%{enabled: true}, %{index_frequency_minutes: mins}} when mins > 0 ->
