@@ -9,7 +9,6 @@ defmodule PinchflatWeb.Sources.IndexTableLive do
   alias Pinchflat.Media.MediaItem
 
   # TODO: test (and maybe remove existing index tests)
-  # TODO: see comments in media profile index view
   def render(assigns) do
     ~H"""
     <.table rows={@sources} table_class="text-white">
@@ -18,8 +17,16 @@ defmodule PinchflatWeb.Sources.IndexTableLive do
           <%= StringUtils.truncate(source.custom_name || source.collection_name, 35) %>
         </.subtle_link>
       </:col>
-      <:col :let={source} label="Pending"><.localized_number number={source.pending_count} /></:col>
-      <:col :let={source} label="Downloaded"><.localized_number number={source.downloaded_count} /></:col>
+      <:col :let={source} label="Pending">
+        <.subtle_link href={~p"/sources/#{source.id}/#tab-pending"}>
+          <.localized_number number={source.pending_count} />
+        </.subtle_link>
+      </:col>
+      <:col :let={source} label="Downloaded">
+        <.subtle_link href={~p"/sources/#{source.id}/#tab-downloaded"}>
+          <.localized_number number={source.downloaded_count} />
+        </.subtle_link>
+      </:col>
       <:col :let={source} label="Retention">
         <%= if source.retention_period_days && source.retention_period_days > 0 do %>
           <.localized_number number={source.retention_period_days} />
