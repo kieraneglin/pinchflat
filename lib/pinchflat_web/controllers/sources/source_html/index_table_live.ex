@@ -8,7 +8,6 @@ defmodule PinchflatWeb.Sources.IndexTableLive do
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
 
-  # TODO: test (and maybe remove existing index tests)
   def render(assigns) do
     ~H"""
     <.table rows={@sources} table_class="text-white">
@@ -67,15 +66,15 @@ defmodule PinchflatWeb.Sources.IndexTableLive do
     source = Sources.get_source!(params["id"])
     should_enable = params["value"] == "true"
 
-    {:ok, new_source} = Sources.update_source(source, %{enabled: should_enable})
-    # Trying to be efficient with the update. Let's see if it pays off
-    updated_sources = Enum.map(socket.assigns.sources, fn s -> if s.id == new_source.id, do: new_source, else: s end)
+    {:ok, _} = Sources.update_source(source, %{enabled: should_enable})
 
-    {:noreply, assign(socket, sources: updated_sources)}
+    # NOTE: I'm not re-rendering the view here since, at least in this case, the UI's state
+    # tracking mechanisms are good enough
+    {:noreply, assign(socket, %{sources: get_sources()})}
   end
 
   defp get_sources do
-    source_query =
+    query =
       from s in Source,
         as: :source,
         inner_join: mp in assoc(s, :media_profile),
@@ -101,6 +100,6 @@ defmodule PinchflatWeb.Sources.IndexTableLive do
             )
         }
 
-    Repo.all(source_query)
+    Repo.all(query)
   end
 end

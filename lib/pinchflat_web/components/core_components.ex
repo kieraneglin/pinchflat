@@ -340,7 +340,7 @@ defmodule PinchflatWeb.CoreComponents do
       end)
 
     ~H"""
-    <div x-data={"{ enabled: #{@checked}}"} class="">
+    <div x-data={"{ enabled: #{@checked} }"} class="" phx-update="ignore" id={"#{@id}-wrapper"}>
       <.label :if={@label} for={@id}>
         <%= @label %>
         <span :if={@label_suffix} class="text-xs text-bodydark"><%= @label_suffix %></span>
