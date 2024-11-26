@@ -94,7 +94,6 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
       {:recovered, _} ->
         {:error, :retry}
 
-      # TODO: test
       {:error, :unsuitable_for_download} ->
         {:ok, :non_retry}
 
