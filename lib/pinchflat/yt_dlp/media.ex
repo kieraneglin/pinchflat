@@ -49,7 +49,12 @@ defmodule Pinchflat.YtDlp.Media do
     end
   end
 
-  # TODO: test
+  @doc """
+  Determines if the media at the given URL is ready to be downloaded.
+  Common examples of non-downloadable media are upcoming or in-progress live streams.
+
+  Returns {:ok, :downloadable | :ignorable} | {:error, any}
+  """
   def get_downloadable_status(url) do
     case backend_runner().run(url, [:simulate, :skip_download], "%(.{live_status})j") do
       {:ok, output} ->
@@ -163,6 +168,8 @@ defmodule Pinchflat.YtDlp.Media do
     case response["live_status"] do
       status when status in ["is_live", "is_upcoming", "post_live"] -> {:ok, :ignorable}
       status when status in ["was_live", "not_live"] -> {:ok, :downloadable}
+      # This preserves my tenuous support for non-youtube sources.
+      nil -> {:ok, :downloadable}
       _ -> {:error, "Unknown live status: #{response["live_status"]}"}
     end
   end
