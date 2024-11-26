@@ -37,6 +37,13 @@ defmodule Pinchflat.Downloading.MediaDownloader do
       {:ok, parsed_json} ->
         update_media_item_from_parsed_json(media_with_preloads, parsed_json)
 
+      {:error, :unsuitable_for_download} ->
+        Logger.warning(
+          "Media item ##{media_with_preloads.id} isn't suitable for download yet. May be an active or processing live stream"
+        )
+
+        {:error, :unsuitable_for_download}
+
       {:error, message, _exit_code} ->
         Logger.error("yt-dlp download error for media item ##{media_with_preloads.id}: #{inspect(message)}")
 
@@ -108,7 +115,11 @@ defmodule Pinchflat.Downloading.MediaDownloader do
     {:ok, options} = DownloadOptionBuilder.build(item_with_preloads, override_opts)
     runner_opts = [output_filepath: output_filepath, use_cookies: item_with_preloads.source.use_cookies]
 
-    YtDlpMedia.download(url, options, runner_opts)
+    case YtDlpMedia.get_downloadable_status(url) do
+      {:ok, :downloadable} -> YtDlpMedia.download(url, options, runner_opts)
+      {:ok, :ignorable} -> {:error, :unsuitable_for_download}
+      err -> err
+    end
   end
 
   defp recoverable_errors do

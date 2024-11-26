@@ -16,6 +16,7 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
       )
 
     stub(HTTPClientMock, :get, fn _url, _headers, _opts -> {:ok, ""} end)
+    stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, "{}"} end)
     stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_args -> {:ok, ""} end)
 
     {:ok, %{media_item: media_item}}
@@ -49,6 +50,14 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
       assert updated_media_item.metadata.thumbnail_filepath =~ "media_items/#{media_item.id}/thumbnail.jpg"
     end
 
+    test "errors for non-downloadable media are passed through", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+        {:ok, Phoenix.json_library().encode!(%{"live_status" => "is_live"})}
+      end)
+
+      assert {:error, :unsuitable_for_download} = MediaDownloader.download_for_media_item(media_item)
+    end
+
     test "non-recoverable errors are passed through", %{media_item: media_item} do
       expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
         {:error, :some_error, 1}
@@ -64,6 +73,36 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
 
       assert {:error, message} = MediaDownloader.download_for_media_item(media_item)
       assert message == "Unknown error: {:error, :some_error}"
+    end
+  end
+
+  describe "download_for_media_item/3 when testing non-downloadable media" do
+    test "calls the download runner if the media is currently downloadable", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+        {:ok, Phoenix.json_library().encode!(%{"live_status" => "was_live"})}
+      end)
+
+      expect(YtDlpRunnerMock, :run, 2, fn _url, _opts, _ot, _addl ->
+        {:ok, render_metadata(:media_metadata)}
+      end)
+
+      assert {:ok, _} = MediaDownloader.download_for_media_item(media_item)
+    end
+
+    test "does not call the download runner if the media is not downloadable", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+        {:ok, Phoenix.json_library().encode!(%{"live_status" => "is_live"})}
+      end)
+
+      expect(YtDlpRunnerMock, :run, 0, fn _url, _opts, _ot, _addl -> {:ok, ""} end)
+
+      assert {:error, :unsuitable_for_download} = MediaDownloader.download_for_media_item(media_item)
+    end
+
+    test "returns unexpected errors from the download status determination method", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:error, :what_tha} end)
+
+      assert {:error, "Unknown error: {:error, :what_tha}"} = MediaDownloader.download_for_media_item(media_item)
     end
   end
 

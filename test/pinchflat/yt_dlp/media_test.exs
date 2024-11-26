@@ -58,6 +58,64 @@ defmodule Pinchflat.YtDlp.MediaTest do
     end
   end
 
+  describe "get_downloadable_status/1" do
+    test "returns :downloadable if the media was never live" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+        {:ok, Phoenix.json_library().encode!(%{"live_status" => "not_live"})}
+      end)
+
+      assert {:ok, :downloadable} = Media.get_downloadable_status(@media_url)
+    end
+
+    test "returns :downloadable if the media was live and has been processed" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+        {:ok, Phoenix.json_library().encode!(%{"live_status" => "was_live"})}
+      end)
+
+      assert {:ok, :downloadable} = Media.get_downloadable_status(@media_url)
+    end
+
+    test "returns :downloadable if the media's live_status is nil" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+        {:ok, Phoenix.json_library().encode!(%{"live_status" => nil})}
+      end)
+
+      assert {:ok, :downloadable} = Media.get_downloadable_status(@media_url)
+    end
+
+    test "returns :ignorable if the media is currently live" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+        {:ok, Phoenix.json_library().encode!(%{"live_status" => "is_live"})}
+      end)
+
+      assert {:ok, :ignorable} = Media.get_downloadable_status(@media_url)
+    end
+
+    test "returns :ignorable if the media is scheduled to be live" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+        {:ok, Phoenix.json_library().encode!(%{"live_status" => "is_upcoming"})}
+      end)
+
+      assert {:ok, :ignorable} = Media.get_downloadable_status(@media_url)
+    end
+
+    test "returns :ignorable if the media was live but hasn't been processed" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+        {:ok, Phoenix.json_library().encode!(%{"live_status" => "post_live"})}
+      end)
+
+      assert {:ok, :ignorable} = Media.get_downloadable_status(@media_url)
+    end
+
+    test "returns an error if the downloadable status can't be determined" do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+        {:ok, Phoenix.json_library().encode!(%{"live_status" => "what_tha"})}
+      end)
+
+      assert {:error, "Unknown live status: what_tha"} = Media.get_downloadable_status(@media_url)
+    end
+  end
+
   describe "download_thumbnail/2" do
     test "calls the backend runner with the expected arguments" do
       expect(YtDlpRunnerMock, :run, fn @media_url, opts, ot, _addl ->

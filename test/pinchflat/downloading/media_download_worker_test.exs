@@ -9,6 +9,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
   alias Pinchflat.Downloading.MediaDownloadWorker
 
   setup do
+    stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot -> {:ok, "{}"} end)
     stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> {:ok, ""} end)
     stub(UserScriptRunnerMock, :run, fn _event_type, _data -> {:ok, "", 0} end)
     stub(HTTPClientMock, :get, fn _url, _headers, _opts -> {:ok, ""} end)
@@ -183,6 +184,20 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
       expect(YtDlpRunnerMock, :run, 1, fn _url, _opts, _ot, _addl -> {:ok, ""} end)
 
       perform_job(MediaDownloadWorker, %{id: media_item.id})
+    end
+  end
+
+  describe "perform/1 when testing non-downloadable media" do
+    test "does not retry the job if the media is currently not downloadable", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+        {:ok, Phoenix.json_library().encode!(%{"live_status" => "is_live"})}
+      end)
+
+      Oban.Testing.with_testing_mode(:inline, fn ->
+        {:ok, job} = Oban.insert(MediaDownloadWorker.new(%{id: media_item.id}))
+
+        assert job.state == "completed"
+      end)
     end
   end
 
