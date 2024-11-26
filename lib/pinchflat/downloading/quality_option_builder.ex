@@ -29,9 +29,9 @@ defmodule Pinchflat.Downloading.QualityOptionBuilder do
   # TODO: test
   defp build_format_string(language_preference) do
     if language_preference do
-      "bestvideo*+bestaudio[#{build_format_modifier(language_preference)}]/bestvideo*+bestaudio/best"
+      ["bestvideo*+bestaudio[#{build_format_modifier(language_preference)}]/bestvideo*+bestaudio/best"]
     else
-      "bestvideo*+bestaudio/best"
+      ["bestvideo*+bestaudio/best"]
     end
   end
 

@@ -253,21 +253,14 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
   end
 
   describe "build/1 when testing media quality and format options" do
-    test "includes quality options" do
-      resolutions = ["360", "480", "720", "1080", "2160", "4320"]
+    # There are more tests inside QualityOptionBuilderTest
+    # This is essenitally just testing that we implement that module correctly
 
-      Enum.each(resolutions, fn resolution ->
-        resolution_atom = String.to_existing_atom(resolution <> "p")
+    test "includes video options for video profiles", %{media_item: media_item} do
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
 
-        media_profile = media_profile_fixture(%{preferred_resolution: resolution_atom})
-        source = source_fixture(%{media_profile_id: media_profile.id})
-        media_item = Repo.preload(media_item_fixture(source_id: source.id), source: :media_profile)
-
-        assert {:ok, res} = DownloadOptionBuilder.build(media_item)
-
-        assert {:format_sort, "res:#{resolution},+codec:avc:m4a"} in res
-        assert {:remux_video, "mp4"} in res
-      end)
+      assert {:format_sort, "res:1080,+codec:avc:m4a"} in res
+      assert {:remux_video, "mp4"} in res
     end
 
     test "includes quality options for audio only", %{media_item: media_item} do
@@ -279,33 +272,6 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
       assert {:format_sort, "+acodec:m4a"} in res
 
       refute {:remux_video, "mp4"} in res
-    end
-
-    test "includes custom quality options if specified", %{media_item: media_item} do
-      Settings.set(video_codec_preference: "av01")
-      Settings.set(audio_codec_preference: "aac")
-
-      media_item = update_media_profile_attribute(media_item, %{preferred_resolution: :"1080p"})
-
-      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
-
-      assert {:format_sort, "res:1080,+codec:av01:aac"} in res
-    end
-
-    test "includes custom remux target for videos if specified", %{media_item: media_item} do
-      media_item = update_media_profile_attribute(media_item, %{media_container: "mkv"})
-
-      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
-
-      assert {:remux_video, "mkv"} in res
-    end
-
-    test "includes custom format target for audio if specified", %{media_item: media_item} do
-      media_item = update_media_profile_attribute(media_item, %{media_container: "flac", preferred_resolution: :audio})
-
-      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
-
-      assert {:audio_format, "flac"} in res
     end
   end
 
