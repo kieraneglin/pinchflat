@@ -49,6 +49,19 @@ defmodule Pinchflat.YtDlp.Media do
     end
   end
 
+  # TODO: test
+  def get_downloadable_status(url) do
+    case backend_runner().run(url, [:simulate, :skip_download], "%(.{live_status})j") do
+      {:ok, output} ->
+        output
+        |> Phoenix.json_library().decode!()
+        |> parse_downloadable_status()
+
+      err ->
+        err
+    end
+  end
+
   @doc """
   Downloads a thumbnail for a single piece of media. Usually used for
   downloading thumbnails for internal use
@@ -71,11 +84,10 @@ defmodule Pinchflat.YtDlp.Media do
   Returns {:ok, %Media{}} | {:error, any, ...}.
   """
   def get_media_attributes(url, command_opts \\ [], addl_opts \\ []) do
-    runner = Application.get_env(:pinchflat, :yt_dlp_runner)
     all_command_opts = [:simulate, :skip_download] ++ command_opts
     output_template = indexing_output_template()
 
-    case runner.run(url, all_command_opts, output_template, addl_opts) do
+    case backend_runner().run(url, all_command_opts, output_template, addl_opts) do
       {:ok, output} ->
         output
         |> Phoenix.json_library().decode!()
@@ -146,6 +158,14 @@ defmodule Pinchflat.YtDlp.Media do
   # of this field should fail at insert-time rather than here
   defp parse_uploaded_at(%{"upload_date" => nil}), do: nil
   defp parse_uploaded_at(response), do: MetadataFileHelpers.parse_upload_date(response["upload_date"])
+
+  defp parse_downloadable_status(response) do
+    case response["live_status"] do
+      status when status in ["is_live", "is_upcoming", "post_live"] -> {:ok, :ignorable}
+      status when status in ["was_live", "not_live"] -> {:ok, :downloadable}
+      _ -> {:error, "Unknown live status: #{response["live_status"]}"}
+    end
+  end
 
   defp backend_runner do
     # This approach lets us mock the command for testing
