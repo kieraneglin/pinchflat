@@ -4,10 +4,10 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
   """
 
   alias Pinchflat.Sources
-  alias Pinchflat.Settings
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Downloading.OutputPathBuilder
+  alias Pinchflat.Downloading.QualityOptionBuilder
 
   alias Pinchflat.Utils.FilesystemUtils, as: FSUtils
 
@@ -142,27 +142,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
   end
 
   defp quality_options(media_profile) do
-    vcodec = Settings.get!(:video_codec_preference)
-    acodec = Settings.get!(:audio_codec_preference)
-    container = media_profile.media_container
-
-    case media_profile.preferred_resolution do
-      # Also be aware that :audio disabled all embedding options for subtitles
-      :audio ->
-        [:extract_audio, format_sort: "+acodec:#{acodec}", audio_format: container || "best"]
-
-      resolution_atom ->
-        {resolution_string, _} =
-          resolution_atom
-          |> Atom.to_string()
-          |> Integer.parse()
-
-        [
-          # Since Plex doesn't support reading metadata from MKV
-          remux_video: container || "mp4",
-          format_sort: "res:#{resolution_string},+codec:#{vcodec}:#{acodec}"
-        ]
-    end
+    QualityOptionBuilder.build(media_profile)
   end
 
   defp sponsorblock_options(media_profile) do
