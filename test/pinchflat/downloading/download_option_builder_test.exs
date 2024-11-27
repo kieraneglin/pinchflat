@@ -6,7 +6,6 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
 
   alias Pinchflat.Sources
   alias Pinchflat.Profiles
-  alias Pinchflat.Settings
   alias Pinchflat.Utils.FilesystemUtils
   alias Pinchflat.Downloading.DownloadOptionBuilder
 

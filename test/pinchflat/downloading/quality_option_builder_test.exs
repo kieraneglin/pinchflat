@@ -6,7 +6,32 @@ defmodule Pinchflat.Downloading.QualityOptionBuilderTest do
   alias Pinchflat.Settings
   alias Pinchflat.Downloading.QualityOptionBuilder
 
-  # TODO: this basically tests the existing logic but doesn't test any of the new stuff. Add those tests.
+  describe "build/1" do
+    test "includes format options if audio_track is set to original" do
+      media_profile = media_profile_fixture(%{audio_track: "original"})
+
+      assert res = QualityOptionBuilder.build(media_profile)
+
+      assert {:format, "bestvideo+bestaudio[format_note*=original]/bestvideo*+bestaudio/best"} in res
+    end
+
+    test "includes format options if audio_track is set to default" do
+      media_profile = media_profile_fixture(%{audio_track: "default"})
+
+      assert res = QualityOptionBuilder.build(media_profile)
+
+      assert {:format, "bestvideo+bestaudio[format_note*=(default)]/bestvideo*+bestaudio/best"} in res
+    end
+
+    test "includes format options if audio_track is set to a language code" do
+      media_profile = media_profile_fixture(%{audio_track: "en"})
+
+      assert res = QualityOptionBuilder.build(media_profile)
+
+      assert {:format, "bestvideo+bestaudio[language^=en]/bestvideo*+bestaudio/best"} in res
+    end
+  end
+
   describe "build/1 when testing audio profiles" do
     setup do
       {:ok, media_profile: media_profile_fixture(%{preferred_resolution: :audio})}
@@ -28,6 +53,12 @@ defmodule Pinchflat.Downloading.QualityOptionBuilderTest do
       assert res = QualityOptionBuilder.build(media_profile)
 
       assert {:audio_format, "flac"} in res
+    end
+
+    test "includes custom format options", %{media_profile: media_profile} do
+      assert res = QualityOptionBuilder.build(media_profile)
+
+      assert {:format, "bestaudio/best"} in res
     end
   end
 
@@ -67,6 +98,12 @@ defmodule Pinchflat.Downloading.QualityOptionBuilderTest do
       assert res = QualityOptionBuilder.build(media_profile)
 
       assert {:remux_video, "mkv"} in res
+    end
+
+    test "includes custom format options", %{media_profile: media_profile} do
+      assert res = QualityOptionBuilder.build(media_profile)
+
+      assert {:format, "bestvideo*+bestaudio/best"} in res
     end
   end
 end

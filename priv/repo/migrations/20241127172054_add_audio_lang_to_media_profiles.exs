@@ -3,7 +3,7 @@ defmodule Pinchflat.Repo.Migrations.AddAudioLangToMediaProfiles do
 
   def change do
     alter table(:media_profiles) do
-      add :audio_lang, :string
+      add :audio_track, :string
     end
   end
 end
