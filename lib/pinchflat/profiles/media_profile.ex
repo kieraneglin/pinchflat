@@ -26,6 +26,7 @@ defmodule Pinchflat.Profiles.MediaProfile do
     sponsorblock_categories
     shorts_behaviour
     livestream_behaviour
+    audio_lang
     preferred_resolution
     media_container
     redownload_delay_days
@@ -65,6 +66,7 @@ defmodule Pinchflat.Profiles.MediaProfile do
     # See `build_format_clauses` in the Media context for more.
     field :shorts_behaviour, Ecto.Enum, values: ~w(include exclude only)a, default: :include
     field :livestream_behaviour, Ecto.Enum, values: ~w(include exclude only)a, default: :include
+    field :audio_lang, :string
     field :preferred_resolution, Ecto.Enum, values: ~w(4320p 2160p 1080p 720p 480p 360p audio)a, default: :"1080p"
     field :media_container, :string, default: nil
 
