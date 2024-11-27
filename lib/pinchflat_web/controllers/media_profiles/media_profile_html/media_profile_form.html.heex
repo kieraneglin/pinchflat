@@ -125,6 +125,16 @@
       />
     </section>
 
+    <section x-show="advancedMode">
+      <.input
+        field={f[:audio_track]}
+        placeholder="de"
+        type="text"
+        label="Audio Track Language"
+        help="Only works if there are multiple audio tracks. Use either a language code, 'original' for the original audio track, or 'default' for YouTube's preference. Or just leave it blank"
+      />
+    </section>
+
     <h3 class="mt-10 text-2xl text-black dark:text-white">
       Thumbnail Options
     </h3>
