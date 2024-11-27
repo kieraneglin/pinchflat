@@ -39,7 +39,10 @@
                     <span class="mx-2">or</span>
                   </span>
                   <span>
-                    <.subtle_link href={~p"/media/#{@media_item.uuid}/stream"} target="_blank">
+                    <.subtle_link
+                      href={~p"/media/#{@media_item.uuid}/stream?v=#{DateTime.to_unix(@media_item.updated_at)}"}
+                      target="_blank"
+                    >
                       Open Local Stream
                     </.subtle_link>
                   </span>
