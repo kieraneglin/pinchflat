@@ -54,8 +54,11 @@ defmodule Pinchflat.Downloading.QualityOptionBuilder do
     end
   end
 
+  # Reminder to self: this conflicts with `--extractor-args "youtube:lang=<LANG>"`
+  # since that will translate the format_notes as well, which means they may not match.
+  # At least that's what happens now - worth a re-check if I have to come back to this
   defp build_format_modifier("original"), do: "format_note*=original"
-  defp build_format_modifier("default"), do: "format_note*=(default)"
+  defp build_format_modifier("default"), do: "format_note*='(default)'"
   # This uses the carat to anchor the language to the beginning of the string
   # since that's what's needed to match `en` to `en-US` and `en-GB`, etc. The user
   # can always specify the full language code if they want.

@@ -20,7 +20,7 @@ defmodule Pinchflat.Downloading.QualityOptionBuilderTest do
 
       assert res = QualityOptionBuilder.build(media_profile)
 
-      assert {:format, "bestvideo+bestaudio[format_note*=(default)]/bestvideo*+bestaudio/best"} in res
+      assert {:format, "bestvideo+bestaudio[format_note*='(default)']/bestvideo*+bestaudio/best"} in res
     end
 
     test "includes format options if audio_track is set to a language code" do
