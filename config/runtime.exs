@@ -64,7 +64,7 @@ if config_env() == :prod do
   extras_path = System.get_env("EXTRAS_PATH", Path.join([config_path, "extras"]))
   tmpfile_path = System.get_env("TMPFILE_PATH", Path.join([System.tmp_dir!(), "pinchflat", "data"]))
   # This one can be changed if you want
-  tz_data_path = System.get_env("TZ_DATA_PATH", "/config/extras/elixir_tz_data")
+  tz_data_path = System.get_env("TZ_DATA_PATH", Path.join([extras_path, "elixir_tz_data"]))
   # For running PF as a podcast host on self-hosted environments
   expose_feed_endpoints = String.length(System.get_env("EXPOSE_FEED_ENDPOINTS", "")) > 0
   # For testing alternate journal modes (see issue #137)
