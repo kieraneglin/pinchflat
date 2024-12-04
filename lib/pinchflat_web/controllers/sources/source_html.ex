@@ -27,6 +27,18 @@ defmodule PinchflatWeb.Sources.SourceHTML do
     ]
   end
 
+  def cutoff_date_presets do
+    [
+      {"7 days", compute_date_offset(7)},
+      {"14 days", compute_date_offset(14)},
+      {"30 days", compute_date_offset(30)},
+      {"60 days", compute_date_offset(60)},
+      {"90 days", compute_date_offset(90)},
+      {"180 days", compute_date_offset(180)},
+      {"365 days", compute_date_offset(365)}
+    ]
+  end
+
   def rss_feed_url(conn, source) do
     url(conn, ~p"/sources/#{source.uuid}/feed") <> ".xml"
   end
@@ -54,5 +66,14 @@ defmodule PinchflatWeb.Sources.SourceHTML do
     """
     Must end with .{{ ext }}. Same rules as Media Profile output path templates. #{help_button} to load your media profile's output template
     """
+  end
+
+  defp compute_date_offset(days) do
+    timezone = Application.get_env(:pinchflat, :timezone)
+
+    timezone
+    |> Timex.now()
+    |> Timex.shift(days: -days)
+    |> Timex.format!("{YYYY}-{0M}-{0D}")
   end
 end

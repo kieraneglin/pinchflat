@@ -111,16 +111,31 @@
       />
     </section>
 
-    <.input
-      field={f[:download_cutoff_date]}
-      type="text"
-      label="Download Cutoff Date"
-      placeholder="YYYY-MM-DD"
-      maxlength="10"
-      pattern="((?:19|20)[0-9][0-9])-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])"
-      title="YYYY-MM-DD"
-      help="Only download media uploaded after this date. Leave blank to download all media. Must be in YYYY-MM-DD format. Old media may be deleted or downloaded if you change this date"
-    />
+    <section x-data={"{ cutoffDate: '#{f[:download_cutoff_date].value}' }"}>
+      <.input
+        field={f[:download_cutoff_date]}
+        type="text"
+        label="Download Cutoff Date"
+        placeholder="YYYY-MM-DD"
+        maxlength="10"
+        pattern="((?:19|20)[0-9][0-9])-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])"
+        title="YYYY-MM-DD"
+        help="Only download media uploaded after this date. Leave blank to download all media. Must be in YYYY-MM-DD format. Old media may be deleted or downloaded if you change this date"
+        x-model="cutoffDate"
+      >
+        <:input_append>
+          <.input
+            prompt="Select preset"
+            name="download_cutoff_date_preset"
+            value=""
+            options={cutoff_date_presets()}
+            type="select"
+            inputclass="w-30 lg:w-60 ml-2 md:ml-4"
+            x-on:change={"cutoffDate = $event.target.value || '#{f[:download_cutoff_date].value}'"}
+          />
+        </:input_append>
+      </.input>
+    </section>
 
     <.input
       field={f[:retention_period_days]}
