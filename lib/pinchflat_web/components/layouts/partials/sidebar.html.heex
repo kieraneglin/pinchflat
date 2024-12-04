@@ -67,7 +67,7 @@
             class="group relative flex items-center gap-2.5 px-4 pt-2 text-sm"
             x-on:click={"markVersionAsSeen('#{Application.spec(:pinchflat)[:vsn]}')"}
           >
-            <span>Pinchflat <%= Application.spec(:pinchflat)[:vsn] %></span>
+            <span>Pinchflat {Application.spec(:pinchflat)[:vsn]}</span>
             <a
               href="https://github.com/kieraneglin/pinchflat/releases"
               target="_blank"
@@ -79,7 +79,7 @@
             </a>
           </span>
           <span class="group relative flex items-center gap-2.5 px-4 pt-2 text-sm">
-            yt-dlp <%= Settings.get!(:yt_dlp_version) %>
+            yt-dlp {Settings.get!(:yt_dlp_version)}
           </span>
         </li>
       </ul>

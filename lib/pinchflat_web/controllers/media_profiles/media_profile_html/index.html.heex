@@ -16,11 +16,11 @@
       <.table rows={@media_profiles} table_class="text-black dark:text-white">
         <:col :let={media_profile} label="Name">
           <.subtle_link href={~p"/media_profiles/#{media_profile.id}"}>
-            <%= media_profile.name %>
+            {media_profile.name}
           </.subtle_link>
         </:col>
         <:col :let={media_profile} label="Preferred Resolution">
-          <%= media_profile.preferred_resolution %>
+          {media_profile.preferred_resolution}
         </:col>
         <:col :let={media_profile} label="Sources">
           <.subtle_link href={~p"/media_profiles/#{media_profile.id}/#tab-sources"}>

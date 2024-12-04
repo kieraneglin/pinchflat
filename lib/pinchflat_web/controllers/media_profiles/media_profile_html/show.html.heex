@@ -4,7 +4,7 @@
       <.icon name="hero-arrow-left" class="w-10 h-10 hover:dark:text-white" />
     </.link>
     <h2 class="text-title-md2 font-bold text-black dark:text-white ml-2">
-      <%= @media_profile.name %>
+      {@media_profile.name}
     </h2>
   </div>
 
@@ -33,10 +33,10 @@
         <.table rows={@sources} table_class="text-black dark:text-white">
           <:col :let={source} label="Name">
             <.subtle_link href={~p"/sources/#{source.id}"}>
-              <%= source.custom_name || source.collection_name %>
+              {source.custom_name || source.collection_name}
             </.subtle_link>
           </:col>
-          <:col :let={source} label="Type"><%= source.collection_type %></:col>
+          <:col :let={source} label="Type">{source.collection_type}</:col>
           <:col :let={source} label="Should Download?">
             <.icon name={if source.download_media, do: "hero-check", else: "hero-x-mark"} />
           </:col>

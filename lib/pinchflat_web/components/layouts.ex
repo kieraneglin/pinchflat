@@ -61,7 +61,7 @@ defmodule PinchflatWeb.Layouts do
         x-on:click="selected = !selected"
       >
         <span class="flex items-center gap-2.5">
-          <.icon name={@icon} /> <%= @text %>
+          <.icon name={@icon} /> {@text}
         </span>
         <span class="text-bodydark2">
           <.icon name="hero-chevron-down" x-bind:class="{ 'rotate-180': selected }" />
@@ -103,7 +103,7 @@ defmodule PinchflatWeb.Layouts do
         @class
       ]}
     >
-      <.icon :if={@icon} name={@icon} /> <%= @text %>
+      <.icon :if={@icon} name={@icon} /> {@text}
     </.link>
     """
   end

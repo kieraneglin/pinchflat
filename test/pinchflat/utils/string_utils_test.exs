@@ -41,4 +41,10 @@ defmodule Pinchflat.Utils.StringUtilsTest do
       assert StringUtils.truncate("hello", 10) == "hello"
     end
   end
+
+  describe "double_brace/1" do
+    test "wraps a string in double braces" do
+      assert StringUtils.double_brace("hello") == "{{ hello }}"
+    end
+  end
 end

@@ -34,16 +34,16 @@ defmodule PinchflatWeb.CustomComponents.TabComponents do
             x-bind:class={"openTab === '#{tab.id}' ? activeClasses : inactiveClasses"}
             class="border-b-2 py-4 w-full sm:w-fit text-sm font-medium hover:text-meta-5 md:text-base"
           >
-            <span class="text-xl"><%= tab.title %></span>
+            <span class="text-xl">{tab.title}</span>
           </a>
         </div>
         <div class="mx-4 my-4 lg:my-0 flex gap-5 sm:gap-10 items-center">
-          <%= render_slot(@tab_append) %>
+          {render_slot(@tab_append)}
         </div>
       </header>
       <div class="mt-4 min-h-60">
         <div :for={tab <- @tab} x-show={"openTab === '#{tab.id}'"} class="font-medium leading-relaxed">
-          <%= render_slot(tab) %>
+          {render_slot(tab)}
         </div>
       </div>
     </div>

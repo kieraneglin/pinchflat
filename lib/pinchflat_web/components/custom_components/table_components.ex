@@ -32,7 +32,7 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
       <thead>
         <tr class="text-left bg-meta-4">
           <th :for={col <- @col} class="px-4 py-4 font-medium text-white xl:pl-11">
-            <%= col[:label] %>
+            {col[:label]}
           </th>
         </tr>
       </thead>
@@ -45,7 +45,7 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
               col[:class]
             ]}
           >
-            <%= render_slot(col, @row_item.(row)) %>
+            {render_slot(col, @row_item.(row))}
           </td>
         </tr>
       </tbody>

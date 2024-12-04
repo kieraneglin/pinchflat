@@ -4,7 +4,7 @@
       <.icon name="hero-arrow-left" class="w-10 h-10 hover:dark:text-white" />
     </.link>
     <h2 class="text-title-md2 font-bold text-black dark:text-white ml-4">
-      <%= @source.custom_name %>
+      {@source.custom_name}
     </h2>
   </div>
 
@@ -29,7 +29,7 @@
           <section>
             <strong>Media Profile:</strong>
             <.subtle_link href={~p"/media_profiles/#{@source.media_profile_id}"}>
-              <%= @source.media_profile.name %>
+              {@source.media_profile.name}
             </.subtle_link>
           </section>
 
@@ -37,34 +37,34 @@
         </div>
       </:tab>
       <:tab title="Pending" id="pending">
-        <%= live_render(
+        {live_render(
           @conn,
           PinchflatWeb.Sources.MediaItemTableLive,
           session: %{"source_id" => @source.id, "media_state" => "pending"}
-        ) %>
+        )}
       </:tab>
       <:tab title="Downloaded" id="downloaded">
-        <%= live_render(
+        {live_render(
           @conn,
           PinchflatWeb.Sources.MediaItemTableLive,
           session: %{"source_id" => @source.id, "media_state" => "downloaded"}
-        ) %>
+        )}
       </:tab>
       <:tab title="Other" id="other">
-        <%= live_render(
+        {live_render(
           @conn,
           PinchflatWeb.Sources.MediaItemTableLive,
           session: %{"source_id" => @source.id, "media_state" => "other"}
-        ) %>
+        )}
       </:tab>
       <:tab title="Tasks" id="tasks">
         <%= if match?([_|_], @pending_tasks) do %>
           <.table rows={@pending_tasks} table_class="text-black dark:text-white">
             <:col :let={task} label="Worker">
-              <%= task.job.worker %>
+              {task.job.worker}
             </:col>
             <:col :let={task} label="State">
-              <%= task.job.state %>
+              {task.job.state}
             </:col>
             <:col :let={task} label="Scheduled At">
               <.datetime_in_zone datetime={task.job.scheduled_at} />

@@ -48,14 +48,14 @@ defmodule PinchflatWeb.Sources.MediaItemTableLive do
       <.table rows={@records} table_class="text-white">
         <:col :let={media_item} label="Title">
           <.subtle_link href={~p"/sources/#{@source.id}/media/#{media_item.id}"}>
-            <%= StringUtils.truncate(media_item.title, 50) %>
+            {StringUtils.truncate(media_item.title, 50)}
           </.subtle_link>
         </:col>
         <:col :let={media_item} :if={@media_state == "other"} label="Manually Ignored?">
           <.icon name={if media_item.prevent_download, do: "hero-check", else: "hero-x-mark"} />
         </:col>
         <:col :let={media_item} label="Upload Date">
-          <%= DateTime.to_date(media_item.uploaded_at) %>
+          {DateTime.to_date(media_item.uploaded_at)}
         </:col>
         <:col :let={media_item} label="" class="flex justify-end">
           <.icon_link href={~p"/sources/#{@source.id}/media/#{media_item.id}/edit"} icon="hero-pencil-square" class="mr-4" />

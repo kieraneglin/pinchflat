@@ -30,21 +30,21 @@ defmodule Pinchflat.Pages.HistoryTableLive do
         <.table rows={@records} table_class="text-white">
           <:col :let={media_item} label="Title">
             <.subtle_link href={~p"/sources/#{media_item.source_id}/media/#{media_item}"}>
-              <%= StringUtils.truncate(media_item.title, 35) %>
+              {StringUtils.truncate(media_item.title, 35)}
             </.subtle_link>
           </:col>
           <:col :let={media_item} label="Upload Date">
-            <%= DateTime.to_date(media_item.uploaded_at) %>
+            {DateTime.to_date(media_item.uploaded_at)}
           </:col>
           <:col :let={media_item} label="Indexed At">
-            <%= format_datetime(media_item.inserted_at) %>
+            {format_datetime(media_item.inserted_at)}
           </:col>
           <:col :let={media_item} label="Downloaded At">
-            <%= format_datetime(media_item.media_downloaded_at) %>
+            {format_datetime(media_item.media_downloaded_at)}
           </:col>
           <:col :let={media_item} label="Source">
             <.subtle_link href={~p"/sources/#{media_item.source_id}"}>
-              <%= StringUtils.truncate(media_item.source.custom_name, 35) %>
+              {StringUtils.truncate(media_item.source.custom_name, 35)}
             </.subtle_link>
           </:col>
         </.table>
