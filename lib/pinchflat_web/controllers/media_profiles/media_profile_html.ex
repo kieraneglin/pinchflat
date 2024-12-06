@@ -26,6 +26,7 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
     [
       {"8k", "4320p"},
       {"4k", "2160p"},
+      {"1440p", "1440p"},
       {"1080p", "1080p"},
       {"720p", "720p"},
       {"480p", "480p"},
