@@ -19,11 +19,11 @@
       </span>
     </section>
 
-    <%= live_render(
+    {live_render(
       @conn,
       Pinchflat.Settings.AppriseServerLive,
       session: %{"value" => f[:apprise_server].value}
-    ) %>
+    )}
   </section>
 
   <section class="mt-8">

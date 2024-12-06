@@ -37,7 +37,7 @@ defmodule PinchflatWeb.CustomComponents.ButtonComponents do
       disabled={@disabled}
       {@rest}
     >
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </button>
     """
   end
@@ -66,7 +66,7 @@ defmodule PinchflatWeb.CustomComponents.ButtonComponents do
           "font-medium text-white hover:bg-opacity-95"
         ]}
       >
-        <%= @text %>
+        {@text}
         <CoreComponents.icon
           name="hero-chevron-down"
           class="fill-current duration-200 ease-linear mt-1"
@@ -81,7 +81,7 @@ defmodule PinchflatWeb.CustomComponents.ButtonComponents do
         <ul class="flex flex-col">
           <li :for={option <- @option}>
             <span class="flex px-5 py-2 font-medium text-bodydark2 hover:text-white cursor-pointer">
-              <%= render_slot(option) %>
+              {render_slot(option)}
             </span>
           </li>
         </ul>
@@ -126,7 +126,7 @@ defmodule PinchflatWeb.CustomComponents.ButtonComponents do
       >
         <span class="border-light absolute -top-1 left-1/2 -z-10 h-2 w-2 -translate-x-1/2 rotate-45 rounded-sm bg-meta-4">
         </span>
-        <span><%= @tooltip %></span>
+        <span>{@tooltip}</span>
       </div>
     </div>
     """

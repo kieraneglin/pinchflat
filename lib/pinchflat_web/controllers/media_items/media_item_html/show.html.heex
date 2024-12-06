@@ -4,7 +4,7 @@
       <.icon name="hero-arrow-left" class="w-10 h-10 hover:dark:text-white" />
     </.link>
     <h2 class="text-title-md2 font-bold text-black dark:text-white ml-4">
-      <%= StringUtils.truncate(@media_item.title, 35) %>
+      {StringUtils.truncate(@media_item.title, 35)}
     </h2>
   </div>
 
@@ -31,8 +31,8 @@
                 <.media_preview media_item={@media_item} />
               </div>
               <aside class="mt-4">
-                <h2 class="text-xl mb-2"><%= @media_item.title %></h2>
-                <div>Uploaded: <%= DateTime.to_date(@media_item.uploaded_at) %></div>
+                <h2 class="text-xl mb-2">{@media_item.title}</h2>
+                <div>Uploaded: {DateTime.to_date(@media_item.uploaded_at)}</div>
                 <div>
                   <span :if={URI.parse(@media_item.original_url).scheme =~ "http"}>
                     <.subtle_link href={@media_item.original_url} target="_blank">Open Original</.subtle_link>
@@ -58,7 +58,7 @@
           <section>
             <strong>Source:</strong>
             <.subtle_link href={~p"/sources/#{@media_item.source_id}"}>
-              <%= @media_item.source.custom_name %>
+              {@media_item.source.custom_name}
             </.subtle_link>
             <.list_items_from_map map={Map.from_struct(@media_item)} />
           </section>
@@ -68,10 +68,10 @@
         <%= if match?([_|_], @media_item.tasks) do %>
           <.table rows={@media_item.tasks} table_class="text-black dark:text-white">
             <:col :let={task} label="Worker">
-              <%= task.job.worker %>
+              {task.job.worker}
             </:col>
             <:col :let={task} label="State">
-              <%= task.job.state %>
+              {task.job.state}
             </:col>
             <:col :let={task} label="Scheduled At">
               <.datetime_in_zone datetime={task.job.scheduled_at} />

@@ -41,4 +41,15 @@ defmodule Pinchflat.Utils.StringUtils do
       string
     end
   end
+
+  @doc """
+  Wraps a string in double braces. Useful as a UI helper now that
+  LiveView 1.0.0 allows `{}` for interpolation so now we can't use braces
+  directly in the view.
+
+  Returns binary()
+  """
+  def double_brace(string) do
+    "{{ #{string} }}"
+  end
 end

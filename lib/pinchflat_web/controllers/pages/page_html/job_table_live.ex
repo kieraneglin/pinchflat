@@ -19,18 +19,18 @@ defmodule Pinchflat.Pages.JobTableLive do
     <div class="max-w-full overflow-x-auto">
       <.table rows={@tasks} table_class="text-white">
         <:col :let={task} label="Task">
-          <%= worker_to_task_name(task.job.worker) %>
+          {worker_to_task_name(task.job.worker)}
         </:col>
         <:col :let={task} label="Subject">
           <.subtle_link href={task_to_link(task)}>
-            <%= StringUtils.truncate(task_to_record_name(task), 35) %>
+            {StringUtils.truncate(task_to_record_name(task), 35)}
           </.subtle_link>
         </:col>
         <:col :let={task} label="Attempt No.">
-          <%= task.job.attempt %>
+          {task.job.attempt}
         </:col>
         <:col :let={task} label="Started At">
-          <%= format_datetime(task.job.attempted_at) %>
+          {format_datetime(task.job.attempted_at)}
         </:col>
       </.table>
     </div>

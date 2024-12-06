@@ -13,7 +13,7 @@ defmodule PinchflatWeb.Sources.IndexTableLive do
     <.table rows={@sources} table_class="text-white">
       <:col :let={source} label="Name">
         <.subtle_link href={~p"/sources/#{source.id}"}>
-          <%= StringUtils.truncate(source.custom_name || source.collection_name, 35) %>
+          {StringUtils.truncate(source.custom_name || source.collection_name, 35)}
         </.subtle_link>
       </:col>
       <:col :let={source} label="Pending">
@@ -36,7 +36,7 @@ defmodule PinchflatWeb.Sources.IndexTableLive do
       </:col>
       <:col :let={source} label="Media Profile">
         <.subtle_link href={~p"/media_profiles/#{source.media_profile_id}"}>
-          <%= source.media_profile.name %>
+          {source.media_profile.name}
         </.subtle_link>
       </:col>
       <:col :let={source} label="Enabled?">

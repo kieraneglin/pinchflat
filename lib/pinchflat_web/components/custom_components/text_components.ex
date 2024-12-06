@@ -12,7 +12,7 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
   def inline_code(assigns) do
     ~H"""
     <code class="inline-block text-sm font-mono text-gray bg-boxdark rounded-md p-0.5 mx-0.5 text-nowrap">
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </code>
     """
   end
@@ -26,7 +26,7 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
   def inline_link(assigns) do
     ~H"""
     <.link href={@href} target="_blank" class="text-blue-500 hover:text-blue-300">
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </.link>
     """
   end
@@ -41,7 +41,7 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
   def subtle_link(assigns) do
     ~H"""
     <.link href={@href} target={@target} class="underline decoration-bodydark decoration-1 hover:decoration-white">
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </.link>
     """
   end
@@ -82,7 +82,7 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
     assigns = Map.put(assigns, :text, formatted_text)
 
     ~H"""
-    <span><%= @text %></span>
+    <span>{@text}</span>
     """
   end
 
@@ -98,7 +98,7 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
     assigns = Map.put(assigns, :timezone, timezone)
 
     ~H"""
-    <time><%= Calendar.strftime(Timex.Timezone.convert(@datetime, @timezone), @format) %></time>
+    <time>{Calendar.strftime(Timex.Timezone.convert(@datetime, @timezone), @format)}</time>
     """
   end
 
@@ -109,7 +109,7 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
 
   def localized_number(assigns) do
     ~H"""
-    <span x-data x-text={"Intl.NumberFormat().format(#{@number})"}><%= @number %></span>
+    <span x-data x-text={"Intl.NumberFormat().format(#{@number})"}>{@number}</span>
     """
   end
 
@@ -122,7 +122,7 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
 
   def pluralize(assigns) do
     ~H"""
-    <%= @word %><%= if @count == 1, do: "", else: @suffix %>
+    {@word}{if @count == 1, do: "", else: @suffix}
     """
   end
 end

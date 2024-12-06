@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
     <.live_title>
-      <%= assigns[:page_title] || "Pinchflat" %>
+      {assigns[:page_title] || "Pinchflat"}
     </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <link rel="icon" type="image/x-icon" href={~p"/favicon.ico?cachebust=2024-03-20"} />
@@ -21,7 +21,7 @@
     class="dark text-bodydark bg-boxdark-2"
     data-socket-path={Path.join(Application.get_env(:pinchflat, :base_route_path), "/live")}
   >
-    <%= @inner_content %>
+    {@inner_content}
 
     <.donate_modal conn={@conn} />
     <template x-if="!proEnabled && !onboarding">

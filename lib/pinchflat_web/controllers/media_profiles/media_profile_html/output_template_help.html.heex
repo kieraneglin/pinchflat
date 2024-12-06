@@ -6,7 +6,9 @@
     <ul class="list-disc list-inside ml-2 md:ml-5">
       <li>
         Liquid-style:
-        <.inline_code>/{{ channel }}/{{ title }} - {{ id }}.{{ ext }}</.inline_code>
+        <.inline_code>
+          {"/#{double_brace("channel")}/#{double_brace("title")} - #{double_brace("id")}.#{double_brace("ext")}"}
+        </.inline_code>
       </li>
       <li>
         <code class="text-sm">yt-dlp</code>-style
@@ -17,7 +19,7 @@
       </li>
       <li>
         Any bare words:
-        <.inline_code>/videos/1080p/{{ id }}.{{ ext }}</.inline_code>
+        <.inline_code>{"/videos/1080p/#{double_brace("id")}.#{double_brace("ext")}"}</.inline_code>
       </li>
     </ul>
     <p class="my-2">
@@ -25,7 +27,7 @@
       <em>any</em>
       single-word <code class="text-sm">yt-dlp</code>
       option can be used as liquid-style and it's automatically made filepath-safe. For example, the
-      <.inline_code>{{ duration }}</.inline_code>
+      <.inline_code>{double_brace("duration")}</.inline_code>
       option is translated to
       <.inline_code>%(duration)S</.inline_code>
     </p>
@@ -33,12 +35,14 @@
       <strong>Major 🔑:</strong>
       these syntaxes can be mixed and matched freely! I prefer to use liquid-style and bare words
       but I'll include <code class="text-sm">yt-dlp</code>-style when I need more control. For example:
-      <.inline_code>/1080p/{{ channel }}/{{ title }}-(%(subtitles.en.-1.ext)s).{{ ext }}</.inline_code>
+      <.inline_code>
+        {"/1080p/#{double_brace("channel")}/#{double_brace("title")}-(%(subtitles.en.-1.ext)s).#{double_brace("ext")}"}
+      </.inline_code>
     </p>
     <p class="my-2">
       <strong>NOTE:</strong>
       Your template <em>must</em>
-      end with an extension option (<.inline_code>.{{ ext }}</.inline_code>
+      end with an extension option (<.inline_code>.{double_brace("ext")}</.inline_code>
       or
       <.inline_code>.%(ext)S</.inline_code>).
       Downloading won't work as expected without it.
@@ -59,21 +63,21 @@
     <h3 class="text-lg font-bold my-2">Media Center Custom Aliases</h3>
     <ul class="list-disc list-inside mb-4 ml-2 md:ml-5 max-w-prose">
       <li :for={{k, v} <- media_center_custom_output_template_options()} class="mt-1">
-        <.inline_code>{{ <%= k %> }}</.inline_code>
-        <span :if={v}>- <%= html_escape({:safe, v}) %></span>
+        <.inline_code>{double_brace(k)}</.inline_code>
+        <span :if={v}>- {html_escape({:safe, v})}</span>
       </li>
     </ul>
     <h3 class="text-lg font-bold mb-2">Other Custom Aliases</h3>
     <ul class="list-disc list-inside mb-4 ml-2 md:ml-5 max-w-prose">
       <li :for={{k, v} <- other_custom_output_template_options()} class="mt-1">
-        <.inline_code>{{ <%= k %> }}</.inline_code>
-        <span :if={v}>- <%= html_escape({:safe, v}) %></span>
+        <.inline_code>{double_brace(k)}</.inline_code>
+        <span :if={v}>- {html_escape({:safe, v})}</span>
       </li>
     </ul>
     <h3 class="text-lg font-bold mb-2">Common Options</h3>
     <ul class="list-disc list-inside ml-2 md:ml-5">
       <li :for={opt <- common_output_template_options()} class="mt-1">
-        <.inline_code>{{ <%= opt %> }}</.inline_code>
+        <.inline_code>{double_brace(opt)}</.inline_code>
       </li>
     </ul>
   </section>

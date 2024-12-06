@@ -14,7 +14,7 @@ defmodule PinchflatWeb.Searches.SearchHTML do
 
     ~H"""
     <%= for fragment <- @split_string do %>
-      <%= render_fragment(fragment) %>
+      {render_fragment(fragment)}
     <% end %>
     """
   end

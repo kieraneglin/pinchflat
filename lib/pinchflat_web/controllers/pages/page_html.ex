@@ -17,7 +17,7 @@ defmodule PinchflatWeb.Pages.PageHTML do
       })
 
     ~H"""
-    <.localized_number number={@num} /> <%= @suffix %>
+    <.localized_number number={@num} /> {@suffix}
     """
   end
 end
