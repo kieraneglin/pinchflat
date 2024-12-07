@@ -55,11 +55,16 @@ config :pinchflat, Oban,
   ]
 
 if config_env() == :prod do
-  config_path = "/config"
+  # Various paths. These ones shouldn't be tweaked if running in Docker
+  media_path = System.get_env("MEDIA_PATH", "/downloads")
+  config_path = System.get_env("CONFIG_PATH", "/config")
   db_path = System.get_env("DATABASE_PATH", Path.join([config_path, "db", "pinchflat.db"]))
   log_path = System.get_env("LOG_PATH", Path.join([config_path, "logs", "pinchflat.log"]))
   metadata_path = System.get_env("METADATA_PATH", Path.join([config_path, "metadata"]))
   extras_path = System.get_env("EXTRAS_PATH", Path.join([config_path, "extras"]))
+  tmpfile_path = System.get_env("TMPFILE_PATH", Path.join([System.tmp_dir!(), "pinchflat", "data"]))
+  # This one can be changed if you want
+  tz_data_path = System.get_env("TZ_DATA_PATH", Path.join([extras_path, "elixir_tz_data"]))
   # For running PF as a podcast host on self-hosted environments
   expose_feed_endpoints = String.length(System.get_env("EXPOSE_FEED_ENDPOINTS", "")) > 0
   # For testing alternate journal modes (see issue #137)
@@ -73,10 +78,10 @@ if config_env() == :prod do
   config :pinchflat,
     yt_dlp_executable: System.find_executable("yt-dlp"),
     apprise_executable: System.find_executable("apprise"),
-    media_directory: "/downloads",
+    media_directory: media_path,
     metadata_directory: metadata_path,
     extras_directory: extras_path,
-    tmpfile_directory: Path.join([System.tmp_dir!(), "pinchflat", "data"]),
+    tmpfile_directory: tmpfile_path,
     dns_cluster_query: System.get_env("DNS_CLUSTER_QUERY"),
     expose_feed_endpoints: expose_feed_endpoints,
     # This is configured in application.ex
@@ -84,7 +89,7 @@ if config_env() == :prod do
     log_path: log_path,
     base_route_path: base_route_path
 
-  config :tzdata, :data_dir, System.get_env("TZ_DATA_DIR", "/config/extras/elixir_tz_data")
+  config :tzdata, :data_dir, tz_data_path
 
   config :pinchflat, Pinchflat.Repo,
     database: db_path,
