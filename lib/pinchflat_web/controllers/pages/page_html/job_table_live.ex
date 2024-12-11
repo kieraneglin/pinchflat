@@ -21,9 +21,9 @@ defmodule Pinchflat.Pages.JobTableLive do
         <:col :let={task} label="Task">
           {worker_to_task_name(task.job.worker)}
         </:col>
-        <:col :let={task} label="Subject">
+        <:col :let={task} label="Subject" class="truncate max-w-xs">
           <.subtle_link href={task_to_link(task)}>
-            {StringUtils.truncate(task_to_record_name(task), 35)}
+            {task_to_record_name(task)}
           </.subtle_link>
         </:col>
         <:col :let={task} label="Attempt No.">

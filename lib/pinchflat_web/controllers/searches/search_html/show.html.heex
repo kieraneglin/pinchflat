@@ -9,9 +9,9 @@
     <div class="flex flex-col gap-10 dark:text-white">
       <%= if match?([_|_], @search_results) do %>
         <.table rows={@search_results} table_class="text-black dark:text-white">
-          <:col :let={result} label="Title">
+          <:col :let={result} label="Title" class="truncate max-w-xs">
             <.subtle_link href={~p"/sources/#{result.source_id}/media/#{result.id}"}>
-              {StringUtils.truncate(result.title, 35)}
+              {result.title}
             </.subtle_link>
           </:col>
           <:col :let={result} label="Excerpt">
