@@ -22,15 +22,6 @@ defmodule PinchflatWeb.Sources.SourceLive.IndexTableLive do
     |> then(&{:ok, &1})
   end
 
-  # def handle_event("formless-input", %{"event" => "toggle_enabled"} = params, socket) do
-  #   source = Sources.get_source!(params["id"])
-  #   should_enable = params["value"] == "true"
-
-  #   {:ok, _} = Sources.update_source(source, %{enabled: should_enable})
-
-  #   {:noreply, assign(socket, %{sources: get_sources(socket.assigns)})}
-  # end
-
   def handle_event("sort_update", %{"sort_key" => sort_key}, %{assigns: assigns} = socket) do
     new_sort_key = String.to_existing_atom(sort_key)
 
@@ -48,7 +39,7 @@ defmodule PinchflatWeb.Sources.SourceLive.IndexTableLive do
   defp set_sources(%{assigns: assigns} = socket) do
     sources =
       sources_query()
-      |> order_by(^[{assigns.sort_direction, sort_attr(assigns.sort_key)}])
+      |> order_by(^[{assigns.sort_direction, sort_attr(assigns.sort_key)}, asc: :id])
       |> Repo.all()
 
     assign(socket, %{sources: sources})
@@ -56,7 +47,10 @@ defmodule PinchflatWeb.Sources.SourceLive.IndexTableLive do
 
   defp sort_attr(:pending_count), do: dynamic([s, mp, dl, pe], field(pe, :pending_count))
   defp sort_attr(:downloaded_count), do: dynamic([s, mp, dl], field(dl, :downloaded_count))
+  defp sort_attr(:media_profile_name), do: dynamic([s, mp], field(mp, :name))
   defp sort_attr(:custom_name), do: dynamic([s], field(s, :custom_name))
+  defp sort_attr(:enabled), do: dynamic([s], field(s, :enabled))
+  defp sort_attr(:retention_period_days), do: dynamic([s], field(s, :retention_period_days))
   defp sort_attr(_), do: sort_attr(:custom_name)
 
   defp sources_query do
