@@ -47,6 +47,7 @@ defmodule PinchflatWeb.Sources.IndexTableLiveTest do
       }
 
       # Send an event to the server directly
+      # TODO: remove
       render_change(view, "formless-input", params)
 
       assert %{enabled: false} = Repo.get!(Source, source.id)

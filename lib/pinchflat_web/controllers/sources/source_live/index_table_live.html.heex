@@ -14,4 +14,27 @@
       <.localized_number number={source.downloaded_count} />
     </.subtle_link>
   </:col>
+  <:col :let={source} label="Retention">
+    <%= if source.retention_period_days && source.retention_period_days > 0 do %>
+      <.localized_number number={source.retention_period_days} />
+      <.pluralize count={source.retention_period_days} word="day" />
+    <% else %>
+      <span class="text-lg">∞</span>
+    <% end %>
+  </:col>
+  <:col :let={source} label="Media Profile">
+    <.subtle_link href={~p"/media_profiles/#{source.media_profile_id}"}>
+      {source.media_profile.name}
+    </.subtle_link>
+  </:col>
+  <:col :let={source} label="Enabled?">
+    <.live_component
+      module={PinchflatWeb.Sources.SourceLive.SourceEnableToggle}
+      source={source}
+      id={"source_#{source.id}_enabled"}
+    />
+  </:col>
+  <:col :let={source} label="" class="flex place-content-evenly">
+    <.icon_link href={~p"/sources/#{source.id}/edit"} icon="hero-pencil-square" class="mx-1" />
+  </:col>
 </.table>
