@@ -83,7 +83,7 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
         <li>
           <span
             class={[
-              "flex h-8 w-8 items-center justify-center rounded",
+              "pagination-prev h-8 w-8 items-center justify-center rounded",
               @page_number != 1 && "cursor-pointer hover:bg-primary hover:text-white",
               @page_number <= 1 && "cursor-not-allowed"
             ]}
@@ -101,7 +101,7 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
         <li>
           <span
             class={[
-              "flex h-8 w-8 items-center justify-center rounded",
+              "pagination-next flex h-8 w-8 items-center justify-center rounded",
               @page_number != @total_pages && "cursor-pointer hover:bg-primary hover:text-white",
               @page_number >= @total_pages && "cursor-not-allowed"
             ]}

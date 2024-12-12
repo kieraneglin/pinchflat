@@ -7,12 +7,12 @@ defmodule PinchflatWeb.Sources.SourceLive.IndexTableLive do
   import PinchflatWeb.Helpers.PaginationHelpers
 
   alias Pinchflat.Repo
-  alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
 
   def mount(_params, session, socket) do
     limit = session["results_per_page"]
+
     initial_params =
       Map.merge(
         %{
