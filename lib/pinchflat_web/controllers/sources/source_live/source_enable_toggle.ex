@@ -8,11 +8,7 @@ defmodule PinchflatWeb.Sources.SourceLive.SourceEnableToggle do
     ~H"""
     <div>
       <.form :let={f} for={@form} phx-change="update" phx-target={@myself}>
-        <.input
-          id={"source_#{@source_id}_enabled_input"}
-          field={f[:enabled]}
-          type="toggle"
-        />
+        <.input id={"source_#{@source_id}_enabled_input"} field={f[:enabled]} type="toggle" />
       </.form>
     </div>
     """

@@ -1,40 +1,46 @@
-<.table rows={@sources} table_class="text-white" sort_key={@sort_key} sort_direction={@sort_direction}>
-  <:col :let={source} label="Name" sort_key="custom_name">
-    <.subtle_link href={~p"/sources/#{source.id}"}>
-      {source.custom_name}
-    </.subtle_link>
-  </:col>
-  <:col :let={source} label="Pending" sort_key="pending_count">
-    <.subtle_link href={~p"/sources/#{source.id}/#tab-pending"}>
-      <.localized_number number={source.pending_count} />
-    </.subtle_link>
-  </:col>
-  <:col :let={source} label="Downloaded" sort_key="downloaded_count">
-    <.subtle_link href={~p"/sources/#{source.id}/#tab-downloaded"}>
-      <.localized_number number={source.downloaded_count} />
-    </.subtle_link>
-  </:col>
-  <:col :let={source} label="Retention" sort_key="retention_period_days">
-    <%= if source.retention_period_days && source.retention_period_days > 0 do %>
-      <.localized_number number={source.retention_period_days} />
-      <.pluralize count={source.retention_period_days} word="day" />
-    <% else %>
-      <span class="text-lg">∞</span>
-    <% end %>
-  </:col>
-  <:col :let={source} label="Media Profile" sort_key="media_profile_name">
-    <.subtle_link href={~p"/media_profiles/#{source.media_profile_id}"}>
-      {source.media_profile.name}
-    </.subtle_link>
-  </:col>
-  <:col :let={source} label="Enabled?" sort_key="enabled">
-    <.live_component
-      module={PinchflatWeb.Sources.SourceLive.SourceEnableToggle}
-      source={source}
-      id={"source_#{source.id}_enabled"}
-    />
-  </:col>
-  <:col :let={source} label="" class="flex place-content-evenly">
-    <.icon_link href={~p"/sources/#{source.id}/edit"} icon="hero-pencil-square" class="mx-1" />
-  </:col>
-</.table>
+<div class="flex flex-col min-w-max">
+  <.table rows={@sources} table_class="text-white" sort_key={@sort_key} sort_direction={@sort_direction}>
+    <:col :let={source} label="Name" sort_key="custom_name">
+      <.subtle_link href={~p"/sources/#{source.id}"}>
+        {source.custom_name}
+      </.subtle_link>
+    </:col>
+    <:col :let={source} label="Pending" sort_key="pending_count">
+      <.subtle_link href={~p"/sources/#{source.id}/#tab-pending"}>
+        <.localized_number number={source.pending_count} />
+      </.subtle_link>
+    </:col>
+    <:col :let={source} label="Downloaded" sort_key="downloaded_count">
+      <.subtle_link href={~p"/sources/#{source.id}/#tab-downloaded"}>
+        <.localized_number number={source.downloaded_count} />
+      </.subtle_link>
+    </:col>
+    <:col :let={source} label="Retention" sort_key="retention_period_days">
+      <%= if source.retention_period_days && source.retention_period_days > 0 do %>
+        <.localized_number number={source.retention_period_days} />
+        <.pluralize count={source.retention_period_days} word="day" />
+      <% else %>
+        <span class="text-lg">∞</span>
+      <% end %>
+    </:col>
+    <:col :let={source} label="Media Profile" sort_key="media_profile_name">
+      <.subtle_link href={~p"/media_profiles/#{source.media_profile_id}"}>
+        {source.media_profile.name}
+      </.subtle_link>
+    </:col>
+    <:col :let={source} label="Enabled?" sort_key="enabled">
+      <.live_component
+        module={PinchflatWeb.Sources.SourceLive.SourceEnableToggle}
+        source={source}
+        id={"source_#{source.id}_enabled"}
+      />
+    </:col>
+    <:col :let={source} label="" class="flex place-content-evenly">
+      <.icon_link href={~p"/sources/#{source.id}/edit"} icon="hero-pencil-square" class="mx-1" />
+    </:col>
+  </.table>
+
+  <section class="flex justify-center my-5">
+    <.live_pagination_controls page_number={@page} total_pages={@total_pages} />
+  </section>
+</div>

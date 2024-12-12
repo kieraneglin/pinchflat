@@ -85,7 +85,7 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
             class={[
               "flex h-8 w-8 items-center justify-center rounded",
               @page_number != 1 && "cursor-pointer hover:bg-primary hover:text-white",
-              @page_number == 1 && "cursor-not-allowed"
+              @page_number <= 1 && "cursor-not-allowed"
             ]}
             phx-click={@page_number != 1 && "page_change"}
             phx-value-direction="dec"
@@ -103,7 +103,7 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
             class={[
               "flex h-8 w-8 items-center justify-center rounded",
               @page_number != @total_pages && "cursor-pointer hover:bg-primary hover:text-white",
-              @page_number == @total_pages && "cursor-not-allowed"
+              @page_number >= @total_pages && "cursor-not-allowed"
             ]}
             phx-click={@page_number != @total_pages && "page_change"}
             phx-value-direction="inc"
