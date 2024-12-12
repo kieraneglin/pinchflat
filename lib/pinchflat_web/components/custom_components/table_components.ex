@@ -16,6 +16,8 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
   """
   attr :rows, :list, required: true
   attr :table_class, :string, default: ""
+  attr :sort_key, :string, default: nil
+  attr :sort_direction, :string, default: nil
 
   attr :row_item, :any,
     default: &Function.identity/1,
@@ -35,10 +37,15 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
           <th
             :for={col <- @col}
             class={["px-4 py-4 font-medium text-white xl:pl-11", col[:sort_key] && "cursor-pointer"]}
-            phx-click="sort_update"
+            phx-click={col[:sort_key] && "sort_update"}
             phx-value-sort_key={col[:sort_key]}
           >
             {col[:label]}
+            <.icon
+              name={if @sort_direction == :asc, do: "hero-chevron-up", else: "hero-chevron-down"}
+              class="w-3 h-3 mt-2 ml-1 absolute"
+              :if={to_string(@sort_key) == col[:sort_key]}
+            />
           </th>
         </tr>
       </thead>
@@ -58,11 +65,6 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
     </table>
     """
   end
-
-  # attr :
-  # def my_table(assigns) do
-
-  # end
 
   @doc """
   Renders simple pagination controls for a table in a liveview.

@@ -54,6 +54,7 @@ defmodule PinchflatWeb.Sources.SourceLive.IndexTableLive do
     assign(socket, %{sources: sources})
   end
 
+  defp sort_attr(:pending_count), do: dynamic([s, mp, dl, pe], field(pe, :pending_count))
   defp sort_attr(:downloaded_count), do: dynamic([s, mp, dl], field(dl, :downloaded_count))
   defp sort_attr(:custom_name), do: dynamic([s], field(s, :custom_name))
   defp sort_attr(_), do: sort_attr(:custom_name)
@@ -67,34 +68,28 @@ defmodule PinchflatWeb.Sources.SourceLive.IndexTableLive do
         group_by: m.source_id
       )
 
+    pending_subquery =
+      from(
+        m in MediaItem,
+        inner_join: s in assoc(m, :source),
+        inner_join: mp in assoc(s, :media_profile),
+        select: %{pending_count: count(m.id), source_id: m.source_id},
+        where: ^MediaQuery.pending(),
+        group_by: m.source_id
+      )
+
     from s in Source,
       as: :source,
       inner_join: mp in assoc(s, :media_profile),
-      left_join: d in subquery(downloaded_subquery),
+      left_join: d in subquery(downloaded_subquery), on: d.source_id == s.id,
+      left_join: p in subquery(pending_subquery), on: p.source_id == s.id,
       on: d.source_id == s.id,
       where: is_nil(s.marked_for_deletion_at) and is_nil(mp.marked_for_deletion_at),
       preload: [media_profile: mp],
       select: map(s, ^Source.__schema__(:fields)),
       select_merge: %{
-        downloaded_count: coalesce(d.downloaded_count, 0)
+        downloaded_count: coalesce(d.downloaded_count, 0),
+        pending_count: coalesce(p.pending_count, 0)
       }
-
-    # select_merge: %{
-    #   downloaded_count:
-    #     subquery(
-    #       from m in MediaItem,
-    #         where: m.source_id == parent_as(:source).id,
-    #         where: ^MediaQuery.downloaded(),
-    #         select: count(m.id)
-    #     ),
-    # pending_count:
-    # subquery(
-    #   from m in MediaItem,
-    #     join: s in assoc(m, :source),
-    #     where: m.source_id == parent_as(:source).id,
-    #     where: ^MediaQuery.pending(),
-    #     select: count(m.id)
-    # )
-    # }
   end
 end

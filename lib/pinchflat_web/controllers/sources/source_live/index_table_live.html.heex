@@ -1,7 +1,12 @@
-<.table rows={@sources} table_class="text-white">
+<.table rows={@sources} table_class="text-white" sort_key={@sort_key} sort_direction={@sort_direction}>
   <:col :let={source} label="Name" sort_key="custom_name">
     <.subtle_link href={~p"/sources/#{source.id}"}>
       {source.custom_name}
+    </.subtle_link>
+  </:col>
+  <:col :let={source} label="Pending" sort_key="pending_count">
+    <.subtle_link href={~p"/sources/#{source.id}/#tab-pending"}>
+      <.localized_number number={source.pending_count} />
     </.subtle_link>
   </:col>
   <:col :let={source} label="Downloaded" sort_key="downloaded_count">
