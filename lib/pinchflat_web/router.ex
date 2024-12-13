@@ -53,6 +53,8 @@ defmodule PinchflatWeb.Router do
   scope "/", PinchflatWeb do
     pipe_through :feeds
 
+    get "/opml", Podcasts.PodcastController, :opml_feed
+
     get "/sources/:uuid/feed", Podcasts.PodcastController, :rss_feed
     get "/sources/:uuid/feed_image", Podcasts.PodcastController, :feed_image
     get "/media/:uuid/episode_image", Podcasts.PodcastController, :episode_image

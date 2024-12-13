@@ -5,10 +5,24 @@ defmodule Pinchflat.Podcasts.PodcastHelpers do
   """
 
   use Pinchflat.Media.MediaQuery
+  use Pinchflat.Sources.SourcesQuery
 
   alias Pinchflat.Repo
   alias Pinchflat.Metadata.MediaMetadata
   alias Pinchflat.Metadata.SourceMetadata
+
+  @doc """
+  Returns a list of sources that are not marked for deletion.
+
+  Returns: [%Source{}]
+  """
+  def opml_sources() do
+    SourcesQuery.new()
+    |> select([s], %{custom_name: s.custom_name, uuid: s.uuid})
+    |> where([s], is_nil(s.marked_for_deletion_at))
+    |> order_by(asc: :custom_name)
+    |> Repo.all()
+  end
 
   @doc """
   Returns a list of media items that have been downloaded to disk
