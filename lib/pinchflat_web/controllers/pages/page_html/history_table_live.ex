@@ -28,9 +28,9 @@ defmodule Pinchflat.Pages.HistoryTableLive do
       </span>
       <div class="max-w-full overflow-x-auto">
         <.table rows={@records} table_class="text-white">
-          <:col :let={media_item} label="Title">
+          <:col :let={media_item} label="Title" class="truncate max-w-xs">
             <.subtle_link href={~p"/sources/#{media_item.source_id}/media/#{media_item}"}>
-              {StringUtils.truncate(media_item.title, 35)}
+              {media_item.title}
             </.subtle_link>
           </:col>
           <:col :let={media_item} label="Upload Date">
@@ -42,9 +42,9 @@ defmodule Pinchflat.Pages.HistoryTableLive do
           <:col :let={media_item} label="Downloaded At">
             {format_datetime(media_item.media_downloaded_at)}
           </:col>
-          <:col :let={media_item} label="Source">
+          <:col :let={media_item} label="Source" class="truncate max-w-xs">
             <.subtle_link href={~p"/sources/#{media_item.source_id}"}>
-              {StringUtils.truncate(media_item.source.custom_name, 35)}
+              {media_item.source.custom_name}
             </.subtle_link>
           </:col>
         </.table>
