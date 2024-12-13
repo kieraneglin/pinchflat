@@ -46,9 +46,9 @@ defmodule PinchflatWeb.Sources.MediaItemTableLive do
         </div>
       </header>
       <.table rows={@records} table_class="text-white">
-        <:col :let={media_item} label="Title">
+        <:col :let={media_item} label="Title" class="truncate max-w-xs">
           <.subtle_link href={~p"/sources/#{@source.id}/media/#{media_item.id}"}>
-            {StringUtils.truncate(media_item.title, 50)}
+            {media_item.title}
           </.subtle_link>
         </:col>
         <:col :let={media_item} :if={@media_state == "other"} label="Manually Ignored?">
