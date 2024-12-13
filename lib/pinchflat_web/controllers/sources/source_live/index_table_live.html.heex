@@ -1,6 +1,6 @@
 <div class="flex flex-col min-w-max">
   <.table rows={@sources} table_class="text-white" sort_key={@sort_key} sort_direction={@sort_direction}>
-    <:col :let={source} label="Name" sort_key="custom_name">
+    <:col :let={source} label="Name" sort_key="custom_name" class="truncate max-w-xs">
       <.subtle_link href={~p"/sources/#{source.id}"}>
         {source.custom_name}
       </.subtle_link>
