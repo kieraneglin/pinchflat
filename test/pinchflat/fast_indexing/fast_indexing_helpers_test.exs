@@ -14,7 +14,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
   alias Pinchflat.FastIndexing.FastIndexingHelpers
 
   setup do
-    stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+    stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes, _opts, _ot, _addl ->
       {:ok, media_attributes_return_fixture()}
     end)
 
@@ -83,7 +83,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
     test "passes the source's download options to the yt-dlp runner", %{source: source} do
       expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
 
-      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot, _addl_opts ->
+      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes, opts, _ot, _addl_opts ->
         assert {:output, "/tmp/test/media/%(title)S.%(ext)S"} in opts
         assert {:remux_video, "mp4"} in opts
         {:ok, media_attributes_return_fixture()}
@@ -95,7 +95,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
     test "sets use_cookies if the source uses cookies" do
       expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
 
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl ->
+      stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes, _opts, _ot, addl ->
         assert {:use_cookies, true} in addl
 
         {:ok, media_attributes_return_fixture()}
@@ -109,7 +109,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
     test "does not set use_cookies if the source does not use cookies" do
       expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
 
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl ->
+      stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes, _opts, _ot, addl ->
         assert {:use_cookies, false} in addl
 
         {:ok, media_attributes_return_fixture()}
@@ -126,7 +126,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
       profile = media_profile_fixture(%{shorts_behaviour: :exclude})
       source = source_fixture(%{media_profile_id: profile.id})
 
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+      stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes, _opts, _ot, _addl ->
         output =
           Phoenix.json_library().encode!(%{
             id: "video2",
@@ -150,7 +150,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
     test "does not blow up if a media item cannot be created", %{source: source} do
       expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
 
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+      stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes, _opts, _ot, _addl ->
         {:ok, "{}"}
       end)
 
@@ -160,7 +160,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
     test "does not blow up if a media item causes a yt-dlp error", %{source: source} do
       expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
 
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+      stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes, _opts, _ot, _addl ->
         {:error, "message", 1}
       end)
 

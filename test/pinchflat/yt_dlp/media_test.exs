@@ -9,7 +9,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
   describe "download/3" do
     test "calls the backend runner with the expected arguments" do
-      expect(YtDlpRunnerMock, :run, fn @media_url, opts, ot, addl ->
+      expect(YtDlpRunnerMock, :run, fn @media_url, :download, opts, ot, addl ->
         assert [:no_simulate] = opts
         assert "after_move:%()j" = ot
         assert addl == []
@@ -21,7 +21,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
     end
 
     test "passes along custom command args" do
-      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot, _addl ->
+      expect(YtDlpRunnerMock, :run, fn _url, :download, opts, _ot, _addl ->
         assert [:no_simulate, :custom_arg] = opts
 
         {:ok, "{}"}
@@ -31,7 +31,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
     end
 
     test "passes along additional options" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl ->
+      expect(YtDlpRunnerMock, :run, fn _url, :download, _opts, _ot, addl ->
         assert [addl_arg: true] = addl
 
         {:ok, "{}"}
@@ -41,7 +41,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
     end
 
     test "parses and returns the generated file as JSON" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+      expect(YtDlpRunnerMock, :run, fn _url, :download, _opts, _ot, _addl ->
         {:ok, render_metadata(:media_metadata)}
       end)
 
@@ -50,7 +50,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
     end
 
     test "returns errors" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opt, _ot, _addl ->
+      expect(YtDlpRunnerMock, :run, fn _url, :download, _opt, _ot, _addl ->
         {:error, "something"}
       end)
 
@@ -60,7 +60,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
   describe "get_downloadable_status/1" do
     test "returns :downloadable if the media was never live" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+      expect(YtDlpRunnerMock, :run, fn _url, :get_downloadable_status, _opts, _ot ->
         {:ok, Phoenix.json_library().encode!(%{"live_status" => "not_live"})}
       end)
 
@@ -68,7 +68,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
     end
 
     test "returns :downloadable if the media was live and has been processed" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+      expect(YtDlpRunnerMock, :run, fn _url, :get_downloadable_status, _opts, _ot ->
         {:ok, Phoenix.json_library().encode!(%{"live_status" => "was_live"})}
       end)
 
@@ -76,7 +76,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
     end
 
     test "returns :downloadable if the media's live_status is nil" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+      expect(YtDlpRunnerMock, :run, fn _url, :get_downloadable_status, _opts, _ot ->
         {:ok, Phoenix.json_library().encode!(%{"live_status" => nil})}
       end)
 
@@ -84,7 +84,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
     end
 
     test "returns :ignorable if the media is currently live" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+      expect(YtDlpRunnerMock, :run, fn _url, :get_downloadable_status, _opts, _ot ->
         {:ok, Phoenix.json_library().encode!(%{"live_status" => "is_live"})}
       end)
 
@@ -92,7 +92,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
     end
 
     test "returns :ignorable if the media is scheduled to be live" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+      expect(YtDlpRunnerMock, :run, fn _url, :get_downloadable_status, _opts, _ot ->
         {:ok, Phoenix.json_library().encode!(%{"live_status" => "is_upcoming"})}
       end)
 
@@ -100,7 +100,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
     end
 
     test "returns :ignorable if the media was live but hasn't been processed" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+      expect(YtDlpRunnerMock, :run, fn _url, :get_downloadable_status, _opts, _ot ->
         {:ok, Phoenix.json_library().encode!(%{"live_status" => "post_live"})}
       end)
 
@@ -108,7 +108,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
     end
 
     test "returns an error if the downloadable status can't be determined" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot ->
+      expect(YtDlpRunnerMock, :run, fn _url, :get_downloadable_status, _opts, _ot ->
         {:ok, Phoenix.json_library().encode!(%{"live_status" => "what_tha"})}
       end)
 
@@ -118,7 +118,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
   describe "download_thumbnail/2" do
     test "calls the backend runner with the expected arguments" do
-      expect(YtDlpRunnerMock, :run, fn @media_url, opts, ot, _addl ->
+      expect(YtDlpRunnerMock, :run, fn @media_url, :download_thumbnail, opts, ot, _addl ->
         assert opts == [:no_simulate, :skip_download, :write_thumbnail, {:convert_thumbnail, "jpg"}]
         assert ot == "after_move:%()j"
 
@@ -129,7 +129,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
     end
 
     test "passes along custom command args" do
-      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot, _addl ->
+      expect(YtDlpRunnerMock, :run, fn _url, :download_thumbnail, opts, _ot, _addl ->
         assert :custom_arg in opts
 
         {:ok, "{}"}
@@ -139,7 +139,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
     end
 
     test "passes along additional options" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl ->
+      expect(YtDlpRunnerMock, :run, fn _url, :download_thumbnail, _opts, _ot, addl ->
         assert [addl_arg: true] = addl
 
         {:ok, "{}"}
@@ -149,7 +149,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
     end
 
     test "returns errors" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opt, _ot, _addl ->
+      expect(YtDlpRunnerMock, :run, fn _url, :download_thumbnail, _opt, _ot, _addl ->
         {:error, "something"}
       end)
 
@@ -159,7 +159,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
 
   describe "get_media_attributes/1" do
     test "returns a list of video attributes" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl ->
+      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes, _opts, _ot, _addl ->
         {:ok, media_attributes_return_fixture()}
       end)
 
@@ -168,7 +168,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
     end
 
     test "it passes the expected default args" do
-      expect(YtDlpRunnerMock, :run, fn _url, opts, ot, _addl ->
+      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes, opts, ot, _addl ->
         assert opts == [:simulate, :skip_download]
         assert ot == Media.indexing_output_template()
 
@@ -179,7 +179,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
     end
 
     test "passes along additional command options" do
-      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot, _addl ->
+      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes, opts, _ot, _addl ->
         assert [:simulate, :skip_download, :custom_arg] = opts
         {:ok, media_attributes_return_fixture()}
       end)
@@ -188,7 +188,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
     end
 
     test "passes along additional options" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl ->
+      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes, _opts, _ot, addl ->
         assert [addl_arg: true] = addl
         {:ok, media_attributes_return_fixture()}
       end)
@@ -197,7 +197,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
     end
 
     test "returns the error straight through when the command fails" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> {:error, "Big issue", 1} end)
+      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes, _opts, _ot, _addl -> {:error, "Big issue", 1} end)
 
       assert {:error, "Big issue", 1} = Media.get_media_attributes(@media_url)
     end

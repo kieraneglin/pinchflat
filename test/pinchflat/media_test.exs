@@ -757,7 +757,7 @@ defmodule Pinchflat.MediaTest do
     end
 
     test "does delete the media item's metadata files" do
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> {:ok, ""} end)
+      stub(YtDlpRunnerMock, :run, fn _url, :download_thumbnail, _opts, _ot, _addl -> {:ok, ""} end)
       media_item = Repo.preload(media_item_with_attachments(), [:metadata, :source])
 
       update_attrs = %{
@@ -789,7 +789,7 @@ defmodule Pinchflat.MediaTest do
     end
 
     test "deletes the media item's metadata files" do
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> {:ok, ""} end)
+      stub(YtDlpRunnerMock, :run, fn _url, :download_thumbnail, _opts, _ot, _addl -> {:ok, ""} end)
       media_item = Repo.preload(media_item_with_attachments(), [:metadata, :source])
 
       update_attrs = %{
@@ -875,7 +875,7 @@ defmodule Pinchflat.MediaTest do
     end
 
     test "does not delete the media item's metadata files" do
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> {:ok, ""} end)
+      stub(YtDlpRunnerMock, :run, fn _url, :download_thumbnail, _opts, _ot, _addl -> {:ok, ""} end)
       media_item = Repo.preload(media_item_with_attachments(), [:metadata, :source])
 
       update_attrs = %{

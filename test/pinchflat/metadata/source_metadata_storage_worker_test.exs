@@ -8,9 +8,6 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
   alias Pinchflat.Metadata.MetadataFileHelpers
   alias Pinchflat.Metadata.SourceMetadataStorageWorker
 
-  @source_details_ot "%(.{channel,channel_id,playlist_id,playlist_title,filename})j"
-  @metadata_ot "playlist:%()j"
-
   describe "kickoff_with_task/1" do
     test "enqueues a new worker for the source" do
       source = source_fixture()
@@ -32,8 +29,8 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
   describe "perform/1" do
     test "won't call itself in an infinite loop" do
       stub(YtDlpRunnerMock, :run, fn
-        _url, _opts, ot, _addl when ot == @source_details_ot -> {:ok, source_details_return_fixture()}
-        _url, _opts, ot, _addl when ot == @metadata_ot -> {:ok, "{}"}
+        _url, :get_source_details, _opts, _ot, _addl -> {:ok, source_details_return_fixture()}
+        _url, :get_source_metadata, _opts, _ot, _addl -> {:ok, "{}"}
       end)
 
       source = source_fixture()
@@ -51,8 +48,8 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
   describe "perform/1 when testing attribute updates" do
     test "the source description is saved" do
       stub(YtDlpRunnerMock, :run, fn
-        _url, _opts, ot, _addl when ot == @source_details_ot -> {:ok, source_details_return_fixture()}
-        _url, _opts, ot, _addl when ot == @metadata_ot -> {:ok, render_metadata(:channel_source_metadata)}
+        _url, :get_source_details, _opts, _ot, _addl -> {:ok, source_details_return_fixture()}
+        _url, :get_source_metadata, _opts, _ot, _addl -> {:ok, render_metadata(:channel_source_metadata)}
       end)
 
       source = source_fixture(%{description: nil})
@@ -68,8 +65,8 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
   describe "perform/1 when testing metadata storage" do
     test "sets metadata location for source" do
       stub(YtDlpRunnerMock, :run, fn
-        _url, _opts, ot, _addl when ot == @source_details_ot -> {:ok, source_details_return_fixture()}
-        _url, _opts, ot, _addl when ot == @metadata_ot -> {:ok, "{}"}
+        _url, :get_source_details, _opts, _ot, _addl -> {:ok, source_details_return_fixture()}
+        _url, :get_source_metadata, _opts, _ot, _addl -> {:ok, "{}"}
       end)
 
       source = Repo.preload(source_fixture(), :metadata)
@@ -87,8 +84,8 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
       file_contents = Phoenix.json_library().encode!(%{"title" => "test"})
 
       stub(YtDlpRunnerMock, :run, fn
-        _url, _opts, ot, _addl when ot == @source_details_ot -> {:ok, source_details_return_fixture()}
-        _url, _opts, ot, _addl when ot == @metadata_ot -> {:ok, file_contents}
+        _url, :get_source_details, _opts, _ot, _addl -> {:ok, source_details_return_fixture()}
+        _url, :get_source_metadata, _opts, _ot, _addl -> {:ok, file_contents}
       end)
 
       perform_job(SourceMetadataStorageWorker, %{id: source.id})
@@ -100,8 +97,8 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
 
     test "sets metadata image location for source" do
       stub(YtDlpRunnerMock, :run, fn
-        _url, _opts, ot, _addl when ot == @source_details_ot -> {:ok, source_details_return_fixture()}
-        _url, _opts, ot, _addl when ot == @metadata_ot -> {:ok, render_metadata(:channel_source_metadata)}
+        _url, :get_source_details, _opts, _ot, _addl -> {:ok, source_details_return_fixture()}
+        _url, :get_source_metadata, _opts, _ot, _addl -> {:ok, render_metadata(:channel_source_metadata)}
       end)
 
       source = source_fixture()
@@ -118,8 +115,8 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
 
     test "stores metadata images for source" do
       stub(YtDlpRunnerMock, :run, fn
-        _url, _opts, ot, _addl when ot == @source_details_ot -> {:ok, source_details_return_fixture()}
-        _url, _opts, ot, _addl when ot == @metadata_ot -> {:ok, render_metadata(:channel_source_metadata)}
+        _url, :get_source_details, _opts, _ot, _addl -> {:ok, source_details_return_fixture()}
+        _url, :get_source_metadata, _opts, _ot, _addl -> {:ok, render_metadata(:channel_source_metadata)}
       end)
 
       source = source_fixture()
@@ -138,12 +135,12 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
   describe "perform/1 when testing source image downloading" do
     test "downloads and stores source images" do
       stub(YtDlpRunnerMock, :run, fn
-        _url, _opts, ot, _addl when ot == @source_details_ot ->
+        _url, :get_source_details, _opts, _ot, _addl ->
           filename = Path.join([Application.get_env(:pinchflat, :media_directory), "Season 1", "bar.mp4"])
 
           {:ok, source_details_return_fixture(%{filename: filename})}
 
-        _url, opts, ot, _addl when ot == @metadata_ot ->
+        _url, :get_source_metadata, opts, _ot, _addl ->
           assert {:convert_thumbnails, "jpg"} in opts
 
           {:ok, render_metadata(:channel_source_metadata)}
@@ -168,10 +165,10 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
 
     test "calls one set of yt-dlp metadata opts for channels" do
       stub(YtDlpRunnerMock, :run, fn
-        _url, _opts, ot, _addl when ot == @source_details_ot ->
+        _url, :get_source_details, _opts, _ot, _addl ->
           {:ok, source_details_return_fixture()}
 
-        _url, opts, ot, _addl when ot == @metadata_ot ->
+        _url, :get_source_metadata, opts, _ot, _addl ->
           assert {:playlist_items, 0} in opts
           assert :write_all_thumbnails in opts
 
@@ -186,10 +183,10 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
 
     test "calls another set of yt-dlp metadata opts for playlists" do
       stub(YtDlpRunnerMock, :run, fn
-        _url, _opts, ot, _addl when ot == @source_details_ot ->
+        _url, :get_source_details, _opts, _ot, _addl ->
           {:ok, source_details_return_fixture()}
 
-        _url, opts, ot, _addl when ot == @metadata_ot ->
+        _url, :get_source_metadata, opts, _ot, _addl ->
           assert {:playlist_items, 1} in opts
           assert :write_thumbnail in opts
 
@@ -204,12 +201,12 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
 
     test "does not store source images if the profile is not set to" do
       stub(YtDlpRunnerMock, :run, fn
-        _url, _opts, ot, _addl when ot == @source_details_ot ->
+        _url, :get_source_details, _opts, _ot, _addl ->
           filename = Path.join([Application.get_env(:pinchflat, :media_directory), "Season 1", "bar.mp4"])
 
           {:ok, source_details_return_fixture(%{filename: filename})}
 
-        _url, _opts, ot, _addl when ot == @metadata_ot ->
+        _url, :get_source_metadata, _opts, _ot, _addl ->
           {:ok, render_metadata(:channel_source_metadata)}
       end)
 
@@ -226,12 +223,12 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
 
     test "does not store source images if the series directory cannot be determined" do
       stub(YtDlpRunnerMock, :run, fn
-        _url, _opts, ot, _addl when ot == @source_details_ot ->
+        _url, :get_source_details, _opts, _ot, _addl ->
           filename = Path.join([Application.get_env(:pinchflat, :media_directory), "foo", "bar.mp4"])
 
           {:ok, source_details_return_fixture(%{filename: filename})}
 
-        _url, _opts, ot, _addl when ot == @metadata_ot ->
+        _url, :get_source_metadata, _opts, _ot, _addl ->
           {:ok, render_metadata(:channel_source_metadata)}
       end)
 
@@ -248,10 +245,10 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
 
     test "sets use_cookies if the source uses cookies" do
       expect(YtDlpRunnerMock, :run, 2, fn
-        _url, _opts, ot, _addl when ot == @source_details_ot ->
+        _url, :get_source_details, _opts, _ot, _addl ->
           {:ok, source_details_return_fixture()}
 
-        _url, _opts, ot, addl when ot == @metadata_ot ->
+        _url, :get_source_metadata, _opts, _ot, addl ->
           assert {:use_cookies, true} in addl
           {:ok, render_metadata(:channel_source_metadata)}
       end)
@@ -264,10 +261,10 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
 
     test "does not set use_cookies if the source does not use cookies" do
       expect(YtDlpRunnerMock, :run, 2, fn
-        _url, _opts, ot, _addl when ot == @source_details_ot ->
+        _url, :get_source_details, _opts, _ot, _addl ->
           {:ok, source_details_return_fixture()}
 
-        _url, _opts, ot, addl when ot == @metadata_ot ->
+        _url, :get_source_metadata, _opts, _ot, addl ->
           assert {:use_cookies, false} in addl
           {:ok, render_metadata(:channel_source_metadata)}
       end)
@@ -282,12 +279,12 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
   describe "perform/1 when determining the series_directory" do
     test "sets the series directory based on the returned media filepath" do
       stub(YtDlpRunnerMock, :run, fn
-        _url, _opts, ot, _addl when ot == @source_details_ot ->
+        _url, :get_source_details, _opts, _ot, _addl ->
           filename = Path.join([Application.get_env(:pinchflat, :media_directory), "Season 1", "bar.mp4"])
 
           {:ok, source_details_return_fixture(%{filename: filename})}
 
-        _url, _opts, ot, _addl when ot == @metadata_ot ->
+        _url, :get_source_metadata, _opts, _ot, _addl ->
           {:ok, "{}"}
       end)
 
@@ -300,12 +297,12 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
 
     test "does not set the series directory if it cannot be determined" do
       stub(YtDlpRunnerMock, :run, fn
-        _url, _opts, ot, _addl when ot == @source_details_ot ->
+        _url, :get_source_details, _opts, _ot, _addl ->
           filename = Path.join([Application.get_env(:pinchflat, :media_directory), "foo", "bar.mp4"])
 
           {:ok, source_details_return_fixture(%{filename: filename})}
 
-        _url, _opts, ot, _addl when ot == @metadata_ot ->
+        _url, :get_source_metadata, _opts, _ot, _addl ->
           {:ok, "{}"}
       end)
 
@@ -318,11 +315,11 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
 
     test "sets use_cookies if the source is set to use cookies" do
       expect(YtDlpRunnerMock, :run, 2, fn
-        _url, _opts, ot, addl when ot == @source_details_ot ->
+        _url, :get_source_details, _opts, _ot, addl ->
           assert {:use_cookies, true} in addl
           {:ok, source_details_return_fixture()}
 
-        _url, _opts, ot, _addl when ot == @metadata_ot ->
+        _url, :get_source_metadata, _opts, _ot, _addl ->
           {:ok, "{}"}
       end)
 
@@ -332,11 +329,11 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
 
     test "does not set use_cookies if the source is not set to use cookies" do
       expect(YtDlpRunnerMock, :run, 2, fn
-        _url, _opts, ot, addl when ot == @source_details_ot ->
+        _url, :get_source_details, _opts, _ot, addl ->
           assert {:use_cookies, false} in addl
           {:ok, source_details_return_fixture()}
 
-        _url, _opts, ot, _addl when ot == @metadata_ot ->
+        _url, :get_source_metadata, _opts, _ot, _addl ->
           {:ok, "{}"}
       end)
 
@@ -348,12 +345,12 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
   describe "perform/1 when storing the series NFO" do
     test "stores the NFO if specified" do
       stub(YtDlpRunnerMock, :run, fn
-        _url, _opts, ot, _addl when ot == @source_details_ot ->
+        _url, :get_source_details, _opts, _ot, _addl ->
           filename = Path.join([Application.get_env(:pinchflat, :media_directory), "Season 1", "bar.mp4"])
 
           {:ok, source_details_return_fixture(%{filename: filename})}
 
-        _url, _opts, ot, _addl when ot == @metadata_ot ->
+        _url, :get_source_metadata, _opts, _ot, _addl ->
           {:ok, "{}"}
       end)
 
@@ -371,12 +368,12 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
 
     test "does not store the NFO if not specified" do
       stub(YtDlpRunnerMock, :run, fn
-        _url, _opts, ot, _addl when ot == @source_details_ot ->
+        _url, :get_source_details, _opts, _ot, _addl ->
           filename = Path.join([Application.get_env(:pinchflat, :media_directory), "Season 1", "bar.mp4"])
 
           {:ok, source_details_return_fixture(%{filename: filename})}
 
-        _url, _opts, ot, _addl when ot == @metadata_ot ->
+        _url, :get_source_metadata, _opts, _ot, _addl ->
           {:ok, "{}"}
       end)
 
@@ -390,12 +387,12 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
 
     test "does not store the NFO if the series directory cannot be determined" do
       stub(YtDlpRunnerMock, :run, fn
-        _url, _opts, ot, _addl when ot == @source_details_ot ->
+        _url, :get_source_details, _opts, _ot, _addl ->
           filename = Path.join([Application.get_env(:pinchflat, :media_directory), "foo", "bar.mp4"])
 
           {:ok, source_details_return_fixture(%{filename: filename})}
 
-        _url, _opts, ot, _addl when ot == @metadata_ot ->
+        _url, :get_source_metadata, _opts, _ot, _addl ->
           {:ok, "{}"}
       end)
 

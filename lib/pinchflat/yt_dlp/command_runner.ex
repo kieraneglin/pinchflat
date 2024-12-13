@@ -3,6 +3,8 @@ defmodule Pinchflat.YtDlp.CommandRunner do
   Runs yt-dlp commands using the `System.cmd/3` function
   """
 
+  require Logger
+
   alias Pinchflat.Utils.CliUtils
   alias Pinchflat.YtDlp.YtDlpCommandRunner
   alias Pinchflat.Utils.FilesystemUtils, as: FSUtils
@@ -24,7 +26,8 @@ defmodule Pinchflat.YtDlp.CommandRunner do
   Returns {:ok, binary()} | {:error, output, status}.
   """
   @impl YtDlpCommandRunner
-  def run(url, command_opts, output_template, addl_opts \\ []) do
+  def run(url, action_name, command_opts, output_template, addl_opts \\ []) do
+    Logger.debug("Running yt-dlp command for action: #{action_name}")
     # This approach lets us mock the command for testing
     command = backend_executable()
 

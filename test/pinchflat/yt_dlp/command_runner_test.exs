@@ -13,30 +13,30 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
   end
 
   describe "run/4" do
-    test "it returns the output and status when the command succeeds" do
-      assert {:ok, _output} = Runner.run(@media_url, [], "")
+    test "returns the output and status when the command succeeds" do
+      assert {:ok, _output} = Runner.run(@media_url, :foo, [], "")
     end
 
-    test "it includes the media url as the first argument" do
-      assert {:ok, output} = Runner.run(@media_url, [:ignore_errors], "")
+    test "includes the media url as the first argument" do
+      assert {:ok, output} = Runner.run(@media_url, :foo, [:ignore_errors], "")
 
       assert String.contains?(output, "#{@media_url} --ignore-errors")
     end
 
-    test "it automatically includes the --print-to-file flag" do
-      assert {:ok, output} = Runner.run(@media_url, [], "%(id)s")
+    test "automatically includes the --print-to-file flag" do
+      assert {:ok, output} = Runner.run(@media_url, :foo, [], "%(id)s")
 
       assert String.contains?(output, "--print-to-file %(id)s /tmp/")
     end
 
-    test "it returns the output and status when the command fails" do
+    test "returns the output and status when the command fails" do
       wrap_executable("/bin/false", fn ->
-        assert {:error, "", 1} = Runner.run(@media_url, [], "")
+        assert {:error, "", 1} = Runner.run(@media_url, :foo, [], "")
       end)
     end
 
     test "optionally lets you specify an output_filepath" do
-      assert {:ok, output} = Runner.run(@media_url, [], "%(id)s", output_filepath: "/tmp/yt-dlp-output.json")
+      assert {:ok, output} = Runner.run(@media_url, :foo, [], "%(id)s", output_filepath: "/tmp/yt-dlp-output.json")
 
       assert String.contains?(output, "--print-to-file %(id)s /tmp/yt-dlp-output.json")
     end
@@ -54,7 +54,7 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
     test "includes cookie options when cookies.txt exists and enabled", %{cookie_file: cookie_file} do
       FilesystemUtils.write_p!(cookie_file, "cookie data")
 
-      assert {:ok, output} = Runner.run(@media_url, [], "", use_cookies: true)
+      assert {:ok, output} = Runner.run(@media_url, :foo, [], "", use_cookies: true)
 
       assert String.contains?(output, "--cookies #{cookie_file}")
     end
@@ -62,7 +62,7 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
     test "doesn't include cookie options when cookies.txt exists but disabled", %{cookie_file: cookie_file} do
       FilesystemUtils.write_p!(cookie_file, "cookie data")
 
-      assert {:ok, output} = Runner.run(@media_url, [], "", use_cookies: false)
+      assert {:ok, output} = Runner.run(@media_url, :foo, [], "", use_cookies: false)
 
       refute String.contains?(output, "--cookies #{cookie_file}")
     end
@@ -70,7 +70,7 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
     test "doesn't include cookie options when cookies.txt blank", %{cookie_file: cookie_file} do
       FilesystemUtils.write_p!(cookie_file, " \n \n ")
 
-      assert {:ok, output} = Runner.run(@media_url, [], "", use_cookies: true)
+      assert {:ok, output} = Runner.run(@media_url, :foo, [], "", use_cookies: true)
 
       refute String.contains?(output, "--cookies")
       refute String.contains?(output, cookie_file)
@@ -79,7 +79,7 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
     test "doesn't include cookie options when cookies.txt doesn't exist", %{cookie_file: cookie_file} do
       File.rm(cookie_file)
 
-      assert {:ok, output} = Runner.run(@media_url, [], "")
+      assert {:ok, output} = Runner.run(@media_url, :foo, [], "")
 
       refute String.contains?(output, "--cookies")
       refute String.contains?(output, cookie_file)
@@ -91,19 +91,19 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
 
   describe "run/4 when testing global options" do
     test "creates windows-safe filenames" do
-      assert {:ok, output} = Runner.run(@media_url, [], "")
+      assert {:ok, output} = Runner.run(@media_url, :foo, [], "")
 
       assert String.contains?(output, "--windows-filenames")
     end
 
     test "runs quietly" do
-      assert {:ok, output} = Runner.run(@media_url, [], "")
+      assert {:ok, output} = Runner.run(@media_url, :foo, [], "")
 
       assert String.contains?(output, "--quiet")
     end
 
     test "sets the cache directory" do
-      assert {:ok, output} = Runner.run(@media_url, [], "")
+      assert {:ok, output} = Runner.run(@media_url, :foo, [], "")
 
       assert String.contains?(output, "--cache-dir /tmp/test/tmpfiles/yt-dlp-cache")
     end

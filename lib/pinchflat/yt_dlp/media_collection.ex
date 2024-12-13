@@ -33,12 +33,13 @@ defmodule Pinchflat.YtDlp.MediaCollection do
     output_filepath = FilesystemUtils.generate_metadata_tmpfile(:json)
     file_listener_handler = Keyword.get(addl_opts, :file_listener_handler, false)
     runner_opts = [output_filepath: output_filepath, use_cookies: use_cookies]
+    action = :get_media_attributes_for_collection
 
     if file_listener_handler do
       file_listener_handler.(output_filepath)
     end
 
-    case runner.run(url, all_command_opts, output_template, runner_opts) do
+    case runner.run(url, action, all_command_opts, output_template, runner_opts) do
       {:ok, output} ->
         parsed_lines =
           output
@@ -82,8 +83,9 @@ defmodule Pinchflat.YtDlp.MediaCollection do
 
     all_command_opts = default_opts ++ command_opts
     output_template = "%(.{channel,channel_id,playlist_id,playlist_title,filename})j"
+    action = :get_source_details
 
-    with {:ok, output} <- backend_runner().run(source_url, all_command_opts, output_template, addl_opts),
+    with {:ok, output} <- backend_runner().run(source_url, action, all_command_opts, output_template, addl_opts),
          {:ok, parsed_json} <- Phoenix.json_library().decode(output) do
       {:ok, format_source_details(parsed_json)}
     else
@@ -121,8 +123,9 @@ defmodule Pinchflat.YtDlp.MediaCollection do
 
     all_command_opts = [:skip_download] ++ command_opts
     output_template = "playlist:%()j"
+    action = :get_source_metadata
 
-    with {:ok, output} <- backend_runner().run(source_url, all_command_opts, output_template, addl_opts),
+    with {:ok, output} <- backend_runner().run(source_url, action, all_command_opts, output_template, addl_opts),
          {:ok, parsed_json} <- Phoenix.json_library().decode(output) do
       {:ok, parsed_json}
     else
