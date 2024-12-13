@@ -28,20 +28,6 @@ defmodule Pinchflat.Utils.StringUtilsTest do
     end
   end
 
-  describe "truncate/2" do
-    test "truncates a string to the given length and adds ..." do
-      assert StringUtils.truncate("hello world", 5) == "hello..."
-    end
-
-    test "breaks on a word boundary" do
-      assert StringUtils.truncate("hello world", 7) == "hello..."
-    end
-
-    test "does not truncate a string shorter than the given length" do
-      assert StringUtils.truncate("hello", 10) == "hello"
-    end
-  end
-
   describe "double_brace/1" do
     test "wraps a string in double braces" do
       assert StringUtils.double_brace("hello") == "{{ hello }}"

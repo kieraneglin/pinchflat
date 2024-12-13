@@ -26,23 +26,6 @@ defmodule Pinchflat.Utils.StringUtils do
   end
 
   @doc """
-  Truncates a string to the given length and adds `...` if the string is longer than the given length.
-  Will break on a word boundary. Nothing happens if the string is shorter than the given length.
-
-  Returns binary()
-  """
-  def truncate(string, length) do
-    if String.length(string) > length do
-      string
-      |> String.slice(0..(length - 1))
-      |> String.replace(~r/\s+\S*$/, "")
-      |> Kernel.<>("...")
-    else
-      string
-    end
-  end
-
-  @doc """
   Wraps a string in double braces. Useful as a UI helper now that
   LiveView 1.0.0 allows `{}` for interpolation so now we can't use braces
   directly in the view.
