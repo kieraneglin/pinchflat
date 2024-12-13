@@ -7,7 +7,7 @@ defmodule PinchflatWeb.Sources.SourceLive.SourceEnableToggleTest do
 
   describe "initial rendering" do
     test "renders a toggle in the on position if the source is enabled" do
-      source = %{ id: 1, enabled: true }
+      source = %{id: 1, enabled: true}
 
       html = render_component(SourceEnableToggle, %{id: :foo, source: source})
 
@@ -16,7 +16,7 @@ defmodule PinchflatWeb.Sources.SourceLive.SourceEnableToggleTest do
     end
 
     test "renders a toggle in the off position if the source is disabled" do
-      source = %{ id: 1, enabled: false }
+      source = %{id: 1, enabled: false}
 
       html = render_component(SourceEnableToggle, %{id: :foo, source: source})
 
