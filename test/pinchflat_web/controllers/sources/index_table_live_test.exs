@@ -59,19 +59,19 @@ defmodule PinchflatWeb.Sources.SourceLive.IndexTableLiveTest do
     end
 
     test "clicking a different row will sort by that attribute", %{conn: conn} do
-      source1 = source_fixture(custom_name: "Source_A", retention_period_days: 10)
-      source2 = source_fixture(custom_name: "Source_A", retention_period_days: 5)
+      source1 = source_fixture(custom_name: "Source_A", enabled: true)
+      source2 = source_fixture(custom_name: "Source_A", enabled: false)
 
       {:ok, view, _html} = live_isolated(conn, IndexTableLive, session: create_session())
 
       # Click the row to change the sort field
-      click_element(view, "th", "Retention")
+      click_element(view, "th", "Enabled?")
 
       assert render_element(view, "tbody tr:first-child") =~ source2.custom_name
       assert render_element(view, "tbody tr:last-child") =~ source1.custom_name
 
       # Click the row to again change the sort direcation
-      click_element(view, "th", "Retention")
+      click_element(view, "th", "Enabled?")
       assert render_element(view, "tbody tr:first-child") =~ source1.custom_name
       assert render_element(view, "tbody tr:last-child") =~ source2.custom_name
     end

@@ -41,12 +41,12 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
             phx-value-sort_key={col[:sort_key]}
           >
             <div class="relative">
-            {col[:label]}
-            <.icon
-              :if={to_string(@sort_key) == col[:sort_key]}
-              name={if @sort_direction == :asc, do: "hero-chevron-up", else: "hero-chevron-down"}
-              class="w-3 h-3 mt-2 ml-1 absolute"
-            />
+              {col[:label]}
+              <.icon
+                :if={to_string(@sort_key) == col[:sort_key]}
+                name={if @sort_direction == :asc, do: "hero-chevron-up", else: "hero-chevron-down"}
+                class="w-3 h-3 mt-2 ml-1 absolute"
+              />
             </div>
           </th>
         </tr>
