@@ -3,7 +3,7 @@
   <nav>
      <.button color="bg-transparent" x-data="{ copied: false }" x-on:click={~s"
           copyWithCallbacks(
-            `#{~p"/podcasts/opml"}`,
+            '#{opml_feed_url(@conn)}',
             () => copied = true,
             () => copied = false
           )
