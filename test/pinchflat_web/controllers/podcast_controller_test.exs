@@ -4,6 +4,20 @@ defmodule PinchflatWeb.PodcastControllerTest do
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
 
+  describe "opml_feed" do
+    test "renders the XML document", %{conn: conn} do
+      source = source_fixture()
+
+      conn = get(conn, ~p"/podcasts/opml" <> ".xml")
+
+      assert conn.status == 200
+      assert {"content-type", "application/opml+xml; charset=utf-8"} in conn.resp_headers
+      assert {"content-disposition", "inline"} in conn.resp_headers
+      assert conn.resp_body =~ ~s"http://www.example.com/sources/#{source.uuid}/feed.xml"
+      assert conn.resp_body =~ "text=\"Cool and good internal name!\""
+    end
+  end
+
   describe "rss_feed" do
     test "renders the XML document", %{conn: conn} do
       source = source_fixture()
