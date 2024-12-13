@@ -6,7 +6,6 @@ defmodule PinchflatWeb.Pages.JobTableLiveTest do
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
 
-  alias Pinchflat.Utils.StringUtils
   alias Pinchflat.Pages.JobTableLive
   alias Pinchflat.Downloading.MediaDownloadWorker
   alias Pinchflat.FastIndexing.FastIndexingWorker
