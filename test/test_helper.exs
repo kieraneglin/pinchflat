@@ -10,6 +10,8 @@ Application.put_env(:pinchflat, :http_client, HTTPClientMock)
 Mox.defmock(UserScriptRunnerMock, for: Pinchflat.Lifecycle.UserScripts.UserScriptCommandRunner)
 Application.put_env(:pinchflat, :user_script_runner, UserScriptRunnerMock)
 
+if System.get_env("EX_CHECK"), do: Code.put_compiler_option(:warnings_as_errors, true)
+
 ExUnit.start()
 Ecto.Adapters.SQL.Sandbox.mode(Pinchflat.Repo, :manual)
 Faker.start()
