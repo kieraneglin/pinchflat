@@ -100,7 +100,7 @@ defmodule Pinchflat.Pages.HistoryTableLive do
   defp generate_base_query("pending") do
     MediaQuery.new()
     |> MediaQuery.require_assoc(:media_profile)
-    |> where(^dynamic(^MediaQuery.downloaded()))
+    |> where(^dynamic(^MediaQuery.pending()))
     |> order_by(desc: :id)
   end
 
