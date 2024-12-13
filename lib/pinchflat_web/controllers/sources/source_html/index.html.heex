@@ -1,15 +1,15 @@
 <div class="mb-6 flex gap-3 flex-row items-center justify-between">
   <h2 class="text-title-md2 font-bold text-black dark:text-white">Sources</h2>
   <nav>
-     <.button color="bg-transparent" x-data="{ copied: false }" x-on:click={~s"
+    <.button color="bg-transparent" x-data="{ copied: false }" x-on:click={~s"
           copyWithCallbacks(
             '#{opml_feed_url(@conn)}',
             () => copied = true,
             () => copied = false
           )
         "}>
-        Copy OPML Feed
-        <span x-show="copied" x-transition.duration.150ms><.icon name="hero-check" class="ml-2 h-4 w-4" /></span>
+      Copy OPML Feed
+      <span x-show="copied" x-transition.duration.150ms><.icon name="hero-check" class="ml-2 h-4 w-4" /></span>
     </.button>
     <.link href={~p"/sources/new"}>
       <.button color="bg-primary" rounding="rounded-lg">
