@@ -56,9 +56,9 @@ defmodule Pinchflat.Pages.HistoryTableLive do
     """
   end
 
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
     page = 1
-    base_query = generate_base_query()
+    base_query = generate_base_query(session["media_state"])
     pagination_attrs = fetch_pagination_attributes(base_query, page)
 
     {:ok, assign(socket, Map.merge(pagination_attrs, %{base_query: base_query}))}
@@ -97,10 +97,17 @@ defmodule Pinchflat.Pages.HistoryTableLive do
     |> Repo.preload(:source)
   end
 
-  defp generate_base_query do
+  defp generate_base_query("pending") do
     MediaQuery.new()
     |> MediaQuery.require_assoc(:media_profile)
-    |> where(^dynamic(^MediaQuery.downloaded() or ^MediaQuery.pending()))
+    |> where(^dynamic(^MediaQuery.pending()))
+    |> order_by(desc: :id)
+  end
+
+  defp generate_base_query("downloaded") do
+    MediaQuery.new()
+    |> MediaQuery.require_assoc(:media_profile)
+    |> where(^dynamic(^MediaQuery.downloaded()))
     |> order_by(desc: :id)
   end
 
