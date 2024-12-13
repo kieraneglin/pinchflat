@@ -62,7 +62,7 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
 
   describe "download_and_store_thumbnail_for/2" do
     test "returns the filepath", %{media_item: media_item} do
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> {:ok, ""} end)
+      stub(YtDlpRunnerMock, :run, fn _url, :download_thumbnail, _opts, _ot, _addl -> {:ok, ""} end)
 
       filepath = Helpers.download_and_store_thumbnail_for(media_item)
 
@@ -70,7 +70,7 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
     end
 
     test "calls yt-dlp with the expected options", %{media_item: media_item} do
-      expect(YtDlpRunnerMock, :run, fn url, opts, ot, _addl ->
+      expect(YtDlpRunnerMock, :run, fn url, :download_thumbnail, opts, ot, _addl ->
         assert url == media_item.original_url
         assert ot == "after_move:%()j"
 
@@ -89,7 +89,7 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
     end
 
     test "sets use_cookies if the source uses cookies" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl ->
+      expect(YtDlpRunnerMock, :run, fn _url, :download_thumbnail, _opts, _ot, addl ->
         assert {:use_cookies, true} in addl
         {:ok, ""}
       end)
@@ -101,7 +101,7 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
     end
 
     test "does not set use_cookies if the source does not use cookies" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl ->
+      expect(YtDlpRunnerMock, :run, fn _url, :download_thumbnail, _opts, _ot, addl ->
         assert {:use_cookies, false} in addl
         {:ok, ""}
       end)
@@ -113,7 +113,7 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
     end
 
     test "returns nil if yt-dlp fails", %{media_item: media_item} do
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> {:error, "error"} end)
+      stub(YtDlpRunnerMock, :run, fn _url, :download_thumbnail, _opts, _ot, _addl -> {:error, "error"} end)
 
       filepath = Helpers.download_and_store_thumbnail_for(media_item)
 

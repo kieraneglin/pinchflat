@@ -174,7 +174,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
 
   describe "index_and_enqueue_download_for_media_items/1" do
     setup do
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts ->
+      stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, _addl_opts ->
         {:ok, source_attributes_return_fixture()}
       end)
 
@@ -259,7 +259,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
     end
 
     test "doesn't blow up if a media item cannot be coerced into a struct", %{source: source} do
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl_opts ->
+      stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, _addl_opts ->
         response =
           Phoenix.json_library().encode!(%{
             id: "video3",
@@ -283,7 +283,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
     end
 
     test "passes the source's download options to the yt-dlp runner", %{source: source} do
-      expect(YtDlpRunnerMock, :run, fn _url, opts, _ot, _addl_opts ->
+      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, opts, _ot, _addl_opts ->
         assert {:output, "/tmp/test/media/%(title)S.%(ext)S"} in opts
         assert {:remux_video, "mp4"} in opts
         {:ok, source_attributes_return_fixture()}
@@ -293,7 +293,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
     end
 
     test "sets use_cookies if the source uses cookies" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl_opts ->
+      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, addl_opts ->
         assert {:use_cookies, true} in addl_opts
         {:ok, source_attributes_return_fixture()}
       end)
@@ -304,7 +304,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
     end
 
     test "doesn't set use_cookies if the source doesn't use cookies" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl_opts ->
+      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, addl_opts ->
         assert {:use_cookies, false} in addl_opts
         {:ok, source_attributes_return_fixture()}
       end)
@@ -323,7 +323,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
     test "creates a new media item for everything already in the file", %{source: source} do
       watcher_poll_interval = Application.get_env(:pinchflat, :file_watcher_poll_interval)
 
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl_opts ->
+      stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, addl_opts ->
         filepath = Keyword.get(addl_opts, :output_filepath)
         File.write(filepath, source_attributes_return_fixture())
 
@@ -342,7 +342,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
     test "enqueues a download for everything already in the file", %{source: source} do
       watcher_poll_interval = Application.get_env(:pinchflat, :file_watcher_poll_interval)
 
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl_opts ->
+      stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, addl_opts ->
         filepath = Keyword.get(addl_opts, :output_filepath)
         File.write(filepath, source_attributes_return_fixture())
 
@@ -362,7 +362,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       watcher_poll_interval = Application.get_env(:pinchflat, :file_watcher_poll_interval)
       source = source_fixture(download_media: false)
 
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl_opts ->
+      stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, addl_opts ->
         filepath = Keyword.get(addl_opts, :output_filepath)
         File.write(filepath, source_attributes_return_fixture())
 
@@ -382,7 +382,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       profile = media_profile_fixture(%{shorts_behaviour: :exclude})
       source = source_fixture(%{media_profile_id: profile.id})
 
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl_opts ->
+      stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, addl_opts ->
         filepath = Keyword.get(addl_opts, :output_filepath)
 
         contents =
@@ -413,7 +413,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
     test "does not enqueue multiple download jobs for the same media items", %{source: source} do
       watcher_poll_interval = Application.get_env(:pinchflat, :file_watcher_poll_interval)
 
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl_opts ->
+      stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, addl_opts ->
         filepath = Keyword.get(addl_opts, :output_filepath)
         File.write(filepath, source_attributes_return_fixture())
 
@@ -432,7 +432,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
     test "does not blow up if the file returns invalid json", %{source: source} do
       watcher_poll_interval = Application.get_env(:pinchflat, :file_watcher_poll_interval)
 
-      stub(YtDlpRunnerMock, :run, fn _url, _opts, _ot, addl_opts ->
+      stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, addl_opts ->
         filepath = Keyword.get(addl_opts, :output_filepath)
         File.write(filepath, "INVALID")
 

@@ -66,7 +66,7 @@ defmodule PinchflatWeb.SourceControllerTest do
 
   describe "create source" do
     test "redirects to show when data is valid", %{conn: conn, create_attrs: create_attrs} do
-      expect(YtDlpRunnerMock, :run, 1, &runner_function_mock/4)
+      expect(YtDlpRunnerMock, :run, 1, &runner_function_mock/5)
       conn = post(conn, ~p"/sources", source: create_attrs)
 
       assert %{id: id} = redirected_params(conn)
@@ -82,7 +82,7 @@ defmodule PinchflatWeb.SourceControllerTest do
     end
 
     test "redirects to onboarding when onboarding", %{conn: conn, create_attrs: create_attrs} do
-      expect(YtDlpRunnerMock, :run, 1, &runner_function_mock/4)
+      expect(YtDlpRunnerMock, :run, 1, &runner_function_mock/5)
 
       Settings.set(onboarding: true)
       conn = post(conn, ~p"/sources", source: create_attrs)
@@ -111,7 +111,7 @@ defmodule PinchflatWeb.SourceControllerTest do
     setup [:create_source]
 
     test "redirects when data is valid", %{conn: conn, source: source, update_attrs: update_attrs} do
-      expect(YtDlpRunnerMock, :run, 1, &runner_function_mock/4)
+      expect(YtDlpRunnerMock, :run, 1, &runner_function_mock/5)
 
       conn = put(conn, ~p"/sources/#{source}", source: update_attrs)
       assert redirected_to(conn) == ~p"/sources/#{source}"
@@ -276,7 +276,7 @@ defmodule PinchflatWeb.SourceControllerTest do
     %{source: source, media_item: media_item}
   end
 
-  defp runner_function_mock(_url, _opts, _ot, _addl) do
+  defp runner_function_mock(_url, :get_source_details, _opts, _ot, _addl) do
     {
       :ok,
       Phoenix.json_library().encode!(%{

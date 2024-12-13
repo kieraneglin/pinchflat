@@ -85,7 +85,7 @@ defmodule Pinchflat.SourcesTest do
 
   describe "create_source/2" do
     test "automatically sets the UUID" do
-      expect(YtDlpRunnerMock, :run, &channel_mock/4)
+      expect(YtDlpRunnerMock, :run, &channel_mock/5)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
@@ -97,7 +97,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "UUID is not writable by the user" do
-      expect(YtDlpRunnerMock, :run, &channel_mock/4)
+      expect(YtDlpRunnerMock, :run, &channel_mock/5)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
@@ -110,7 +110,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "creates a source and adds name + ID from runner response for channels" do
-      expect(YtDlpRunnerMock, :run, &channel_mock/4)
+      expect(YtDlpRunnerMock, :run, &channel_mock/5)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
@@ -123,7 +123,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "creates a source and adds name + ID for playlists" do
-      expect(YtDlpRunnerMock, :run, &playlist_mock/4)
+      expect(YtDlpRunnerMock, :run, &playlist_mock/5)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
@@ -136,7 +136,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "adds an error if the runner fails" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> {:error, "some error", 1} end)
+      expect(YtDlpRunnerMock, :run, fn _url, :get_source_details, _opts, _ot, _addl -> {:error, "some error", 1} end)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
@@ -148,7 +148,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "adds an error if the runner succeeds but the result was invalid JSON" do
-      expect(YtDlpRunnerMock, :run, fn _url, _opts, _ot, _addl -> {:ok, "Not JSON"} end)
+      expect(YtDlpRunnerMock, :run, fn _url, :get_source_details, _opts, _ot, _addl -> {:ok, "Not JSON"} end)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
@@ -160,7 +160,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "you can specify a custom custom_name" do
-      expect(YtDlpRunnerMock, :run, &channel_mock/4)
+      expect(YtDlpRunnerMock, :run, &channel_mock/5)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
@@ -174,7 +174,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "friendly name is pulled from collection_name if not specified" do
-      expect(YtDlpRunnerMock, :run, &channel_mock/4)
+      expect(YtDlpRunnerMock, :run, &channel_mock/5)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
@@ -187,7 +187,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "creation enforces uniqueness of collection_id scoped to the media_profile and title regex" do
-      expect(YtDlpRunnerMock, :run, 2, fn _url, _opts, _ot, _addl ->
+      expect(YtDlpRunnerMock, :run, 2, fn _url, :get_source_details, _opts, _ot, _addl ->
         {:ok,
          Phoenix.json_library().encode!(%{
            channel: "some channel name",
@@ -208,7 +208,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "creation lets you duplicate collection_ids and profiles as long as the regex is different" do
-      expect(YtDlpRunnerMock, :run, 2, fn _url, _opts, _ot, _addl ->
+      expect(YtDlpRunnerMock, :run, 2, fn _url, :get_source_details, _opts, _ot, _addl ->
         {:ok,
          Phoenix.json_library().encode!(%{
            channel: "some channel name",
@@ -232,7 +232,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "creation lets you duplicate collection_ids as long as the media profile is different" do
-      expect(YtDlpRunnerMock, :run, 2, fn _url, _opts, _ot, _addl ->
+      expect(YtDlpRunnerMock, :run, 2, fn _url, :get_source_details, _opts, _ot, _addl ->
         {:ok,
          Phoenix.json_library().encode!(%{
            channel: "some channel name",
@@ -256,8 +256,8 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "collection_type is inferred from source details" do
-      expect(YtDlpRunnerMock, :run, &channel_mock/4)
-      expect(YtDlpRunnerMock, :run, &playlist_mock/4)
+      expect(YtDlpRunnerMock, :run, &channel_mock/5)
+      expect(YtDlpRunnerMock, :run, &playlist_mock/5)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
@@ -276,13 +276,13 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "creation with invalid data fails fast and does not call the runner" do
-      expect(YtDlpRunnerMock, :run, 0, &channel_mock/4)
+      expect(YtDlpRunnerMock, :run, 0, &channel_mock/5)
 
       assert {:error, %Ecto.Changeset{}} = Sources.create_source(@invalid_source_attrs)
     end
 
     test "creation will schedule the indexing task" do
-      expect(YtDlpRunnerMock, :run, &channel_mock/4)
+      expect(YtDlpRunnerMock, :run, &channel_mock/5)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
@@ -295,7 +295,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "creation schedules an index test even if the index frequency is 0" do
-      expect(YtDlpRunnerMock, :run, &channel_mock/4)
+      expect(YtDlpRunnerMock, :run, &channel_mock/5)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
@@ -309,7 +309,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "fast_index forces the index frequency to be a default value" do
-      expect(YtDlpRunnerMock, :run, &channel_mock/4)
+      expect(YtDlpRunnerMock, :run, &channel_mock/5)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
@@ -324,7 +324,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "disabling fast index will not change the index frequency" do
-      expect(YtDlpRunnerMock, :run, &channel_mock/4)
+      expect(YtDlpRunnerMock, :run, &channel_mock/5)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
@@ -339,7 +339,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "creating will kickoff a metadata storage worker" do
-      expect(YtDlpRunnerMock, :run, &channel_mock/4)
+      expect(YtDlpRunnerMock, :run, &channel_mock/5)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
@@ -356,7 +356,7 @@ defmodule Pinchflat.SourcesTest do
 
   describe "create_source/2 when testing options" do
     test "run_post_commit_tasks: false won't enqueue post-commit tasks" do
-      expect(YtDlpRunnerMock, :run, &channel_mock/4)
+      expect(YtDlpRunnerMock, :run, &channel_mock/5)
 
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
@@ -380,7 +380,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "updates with invalid data fails fast and does not call the runner" do
-      expect(YtDlpRunnerMock, :run, 0, &channel_mock/4)
+      expect(YtDlpRunnerMock, :run, 0, &channel_mock/5)
 
       source = source_fixture()
 
@@ -388,7 +388,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "updating the original_url will re-fetch the source details for channels" do
-      expect(YtDlpRunnerMock, :run, &channel_mock/4)
+      expect(YtDlpRunnerMock, :run, &channel_mock/5)
 
       source = source_fixture()
       update_attrs = %{original_url: "https://www.youtube.com/channel/abc123"}
@@ -399,7 +399,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "updating the original_url will re-fetch the source details for playlists" do
-      expect(YtDlpRunnerMock, :run, &playlist_mock/4)
+      expect(YtDlpRunnerMock, :run, &playlist_mock/5)
 
       source = source_fixture()
       update_attrs = %{original_url: "https://www.youtube.com/playlist?list=abc123"}
@@ -410,7 +410,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "not updating the original_url will not re-fetch the source details" do
-      expect(YtDlpRunnerMock, :run, 0, &channel_mock/4)
+      expect(YtDlpRunnerMock, :run, 0, &channel_mock/5)
 
       source = source_fixture()
       update_attrs = %{name: "some updated name"}
@@ -428,7 +428,7 @@ defmodule Pinchflat.SourcesTest do
     end
 
     test "updating will kickoff a metadata storage worker if the original_url changes" do
-      expect(YtDlpRunnerMock, :run, &playlist_mock/4)
+      expect(YtDlpRunnerMock, :run, &playlist_mock/5)
       source = source_fixture()
       update_attrs = %{original_url: "https://www.youtube.com/channel/cba321"}
 
@@ -901,7 +901,7 @@ defmodule Pinchflat.SourcesTest do
     end
   end
 
-  defp playlist_mock(_url, _opts, _ot, _addl) do
+  defp playlist_mock(_url, :get_source_details, _opts, _ot, _addl) do
     {
       :ok,
       Phoenix.json_library().encode!(%{
@@ -913,7 +913,7 @@ defmodule Pinchflat.SourcesTest do
     }
   end
 
-  defp channel_mock(_url, _opts, _ot, _addl) do
+  defp channel_mock(_url, :get_source_details, _opts, _ot, _addl) do
     channel_id = "some_channel_id_#{:rand.uniform(1_000_000)}"
 
     {
