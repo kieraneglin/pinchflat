@@ -2,6 +2,7 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
   @moduledoc false
   use Phoenix.Component
 
+  alias Pinchflat.Utils.NumberUtils
   alias PinchflatWeb.CoreComponents
 
   @doc """
@@ -123,6 +124,26 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
   def pluralize(assigns) do
     ~H"""
     {@word}{if @count == 1, do: "", else: @suffix}
+    """
+  end
+
+  @doc """
+  Renders a human-readable byte size
+  """
+
+  attr :byte_size, :integer, required: true
+
+  def readable_filesize(assigns) do
+    {num, suffix} = NumberUtils.human_byte_size(assigns.byte_size, precision: 2)
+
+    assigns =
+      Map.merge(assigns, %{
+        num: num,
+        suffix: suffix
+      })
+
+    ~H"""
+    <.localized_number number={@num} /> {@suffix}
     """
   end
 end

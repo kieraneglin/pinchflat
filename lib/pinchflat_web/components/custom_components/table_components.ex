@@ -16,6 +16,8 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
   """
   attr :rows, :list, required: true
   attr :table_class, :string, default: ""
+  attr :sort_key, :string, default: nil
+  attr :sort_direction, :string, default: nil
 
   attr :row_item, :any,
     default: &Function.identity/1,
@@ -24,6 +26,7 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
   slot :col, required: true do
     attr :label, :string
     attr :class, :string
+    attr :sort_key, :string
   end
 
   def table(assigns) do
@@ -31,8 +34,20 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
     <table class={["w-full table-auto bg-boxdark", @table_class]}>
       <thead>
         <tr class="text-left bg-meta-4">
-          <th :for={col <- @col} class="px-4 py-4 font-medium text-white xl:pl-11">
-            {col[:label]}
+          <th
+            :for={col <- @col}
+            class={["px-4 py-4 font-medium text-white xl:pl-11", col[:sort_key] && "cursor-pointer"]}
+            phx-click={col[:sort_key] && "sort_update"}
+            phx-value-sort_key={col[:sort_key]}
+          >
+            <div class="relative">
+              {col[:label]}
+              <.icon
+                :if={to_string(@sort_key) == col[:sort_key]}
+                name={if @sort_direction == :asc, do: "hero-chevron-up", else: "hero-chevron-down"}
+                class="w-3 h-3 mt-2 ml-1 absolute"
+              />
+            </div>
           </th>
         </tr>
       </thead>
@@ -70,9 +85,9 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
         <li>
           <span
             class={[
-              "flex h-8 w-8 items-center justify-center rounded",
+              "pagination-prev h-8 w-8 items-center justify-center rounded",
               @page_number != 1 && "cursor-pointer hover:bg-primary hover:text-white",
-              @page_number == 1 && "cursor-not-allowed"
+              @page_number <= 1 && "cursor-not-allowed"
             ]}
             phx-click={@page_number != 1 && "page_change"}
             phx-value-direction="dec"
@@ -88,9 +103,9 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
         <li>
           <span
             class={[
-              "flex h-8 w-8 items-center justify-center rounded",
+              "pagination-next flex h-8 w-8 items-center justify-center rounded",
               @page_number != @total_pages && "cursor-pointer hover:bg-primary hover:text-white",
-              @page_number == @total_pages && "cursor-not-allowed"
+              @page_number >= @total_pages && "cursor-not-allowed"
             ]}
             phx-click={@page_number != @total_pages && "page_change"}
             phx-value-direction="inc"

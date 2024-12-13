@@ -40,5 +40,9 @@ window.dispatchFor = (elementOrId, eventName, detail = {}) => {
   const element =
     typeof elementOrId === 'string' ? document.getElementById(elementOrId) : elementOrId
 
-  element.dispatchEvent(new CustomEvent(eventName, { detail }))
+  // This is needed to ensure the DOM has updated before dispatching the event.
+  // Doing so ensures that the latest DOM state is what's sent to the server
+  setTimeout(() => {
+    element.dispatchEvent(new Event(eventName, { bubbles: true, detail }))
+  }, 0)
 }

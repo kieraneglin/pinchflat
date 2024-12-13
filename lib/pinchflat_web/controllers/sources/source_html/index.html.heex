@@ -11,8 +11,12 @@
 
 <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
   <div class="max-w-full overflow-x-auto">
-    <div class="flex flex-col gap-10 min-w-max">
-      {live_render(@conn, PinchflatWeb.Sources.IndexTableLive)}
-    </div>
+    {live_render(@conn, PinchflatWeb.Sources.SourceLive.IndexTableLive,
+      session: %{
+        "initial_sort_key" => :custom_name,
+        "initial_sort_direction" => :asc,
+        "results_per_page" => 10
+      }
+    )}
   </div>
 </div>
