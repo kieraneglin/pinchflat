@@ -41,7 +41,7 @@ defmodule Pinchflat.YtDlp.Media do
   def download(url, command_opts \\ [], addl_opts \\ []) do
     all_command_opts = [:no_simulate] ++ command_opts
 
-    with {:ok, output} <- backend_runner().run(url, all_command_opts, "after_move:%()j", addl_opts),
+    with {:ok, output} <- backend_runner().run(url, :download, all_command_opts, "after_move:%()j", addl_opts),
          {:ok, parsed_json} <- Phoenix.json_library().decode(output) do
       {:ok, parsed_json}
     else
@@ -56,7 +56,7 @@ defmodule Pinchflat.YtDlp.Media do
   Returns {:ok, :downloadable | :ignorable} | {:error, any}
   """
   def get_downloadable_status(url) do
-    case backend_runner().run(url, [:simulate, :skip_download], "%(.{live_status})j") do
+    case backend_runner().run(url, :get_downloadable_status, [:simulate, :skip_download], "%(.{live_status})j") do
       {:ok, output} ->
         output
         |> Phoenix.json_library().decode!()
@@ -78,7 +78,7 @@ defmodule Pinchflat.YtDlp.Media do
 
     # NOTE: it doesn't seem like this command actually returns anything in `after_move` since
     # we aren't downloading the main media file
-    backend_runner().run(url, all_command_opts, "after_move:%()j", addl_opts)
+    backend_runner().run(url, :download_thumbnail, all_command_opts, "after_move:%()j", addl_opts)
   end
 
   @doc """
@@ -92,7 +92,7 @@ defmodule Pinchflat.YtDlp.Media do
     all_command_opts = [:simulate, :skip_download] ++ command_opts
     output_template = indexing_output_template()
 
-    case backend_runner().run(url, all_command_opts, output_template, addl_opts) do
+    case backend_runner().run(url, :get_media_attributes, all_command_opts, output_template, addl_opts) do
       {:ok, output} ->
         output
         |> Phoenix.json_library().decode!()
