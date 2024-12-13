@@ -51,13 +51,12 @@ defmodule PinchflatWeb.Sources.SourceLive.IndexTableLive do
     |> then(&{:noreply, &1})
   end
 
-  defp sort_attr(:pending_count), do: dynamic([s, mp, dl, pe], field(pe, :pending_count))
-  defp sort_attr(:downloaded_count), do: dynamic([s, mp, dl], field(dl, :downloaded_count))
-  defp sort_attr(:media_profile_name), do: dynamic([s, mp], field(mp, :name))
-  defp sort_attr(:custom_name), do: dynamic([s], field(s, :custom_name))
-  defp sort_attr(:enabled), do: dynamic([s], field(s, :enabled))
-  defp sort_attr(:retention_period_days), do: dynamic([s], field(s, :retention_period_days))
-  defp sort_attr(_), do: sort_attr(:custom_name)
+  defp sort_attr(:pending_count), do: dynamic([s, mp, dl, pe], pe.pending_count)
+  defp sort_attr(:downloaded_count), do: dynamic([s, mp, dl], dl.downloaded_count)
+  defp sort_attr(:media_size_bytes), do: dynamic([s, mp, dl], dl.media_size_bytes)
+  defp sort_attr(:media_profile_name), do: dynamic([s, mp], mp.name)
+  defp sort_attr(:custom_name), do: dynamic([s], s.custom_name)
+  defp sort_attr(:enabled), do: dynamic([s], s.enabled)
 
   defp set_sources(%{assigns: assigns} = socket) do
     sources =
@@ -74,7 +73,7 @@ defmodule PinchflatWeb.Sources.SourceLive.IndexTableLive do
     downloaded_subquery =
       from(
         m in MediaItem,
-        select: %{downloaded_count: count(m.id), source_id: m.source_id},
+        select: %{downloaded_count: count(m.id), source_id: m.source_id, media_size_bytes: sum(m.media_size_bytes)},
         where: ^MediaQuery.downloaded(),
         group_by: m.source_id
       )
@@ -102,7 +101,8 @@ defmodule PinchflatWeb.Sources.SourceLive.IndexTableLive do
       select: map(s, ^Source.__schema__(:fields)),
       select_merge: %{
         downloaded_count: coalesce(d.downloaded_count, 0),
-        pending_count: coalesce(p.pending_count, 0)
+        pending_count: coalesce(p.pending_count, 0),
+        media_size_bytes: coalesce(d.media_size_bytes, 0)
       }
   end
 end
