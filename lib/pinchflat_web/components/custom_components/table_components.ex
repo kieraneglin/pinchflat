@@ -36,7 +36,7 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
         <tr class="text-left bg-meta-4">
           <th
             :for={col <- @col}
-            class={["px-4 py-4 font-medium text-white xl:pl-11", col[:sort_key] && "cursor-pointer"]}
+            class={["px-4 py-4 font-medium text-white", col[:sort_key] && "cursor-pointer"]}
             phx-click={col[:sort_key] && "sort_update"}
             phx-value-sort_key={col[:sort_key]}
           >
@@ -56,7 +56,7 @@ defmodule PinchflatWeb.CustomComponents.TableComponents do
           <td
             :for={col <- @col}
             class={[
-              "px-4 py-5 pl-9 xl:pl-11",
+              "px-4 py-5",
               col[:class]
             ]}
           >

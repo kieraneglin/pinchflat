@@ -48,7 +48,7 @@ defmodule PinchflatWeb.Pages.JobTableLiveTest do
       {_source, media_item, _task, _job} = create_media_item_job()
       {:ok, _view, html} = live_isolated(conn, JobTableLive, session: %{})
 
-      assert html =~ StringUtils.truncate(media_item.title, 35)
+      assert html =~ media_item.title
     end
 
     test "shows a media item link", %{conn: conn} do
@@ -62,7 +62,7 @@ defmodule PinchflatWeb.Pages.JobTableLiveTest do
       {source, _task, _job} = create_source_job()
       {:ok, _view, html} = live_isolated(conn, JobTableLive, session: %{})
 
-      assert html =~ StringUtils.truncate(source.custom_name, 35)
+      assert html =~ source.custom_name
     end
 
     test "shows a source link", %{conn: conn} do

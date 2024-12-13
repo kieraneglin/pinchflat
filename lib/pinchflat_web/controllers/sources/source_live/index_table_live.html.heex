@@ -18,7 +18,7 @@
     <:col :let={source} label="Size" sort_key="media_size_bytes">
       <.readable_filesize byte_size={source.media_size_bytes} />
     </:col>
-    <:col :let={source} label="Media Profile" sort_key="media_profile_name">
+    <:col :let={source} label="Media Profile" sort_key="media_profile_name" class="truncate max-w-xs">
       <.subtle_link href={~p"/media_profiles/#{source.media_profile_id}"}>
         {source.media_profile.name}
       </.subtle_link>
