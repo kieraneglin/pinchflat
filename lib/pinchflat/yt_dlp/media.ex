@@ -55,8 +55,11 @@ defmodule Pinchflat.YtDlp.Media do
 
   Returns {:ok, :downloadable | :ignorable} | {:error, any}
   """
-  def get_downloadable_status(url) do
-    case backend_runner().run(url, :get_downloadable_status, [:simulate, :skip_download], "%(.{live_status})j") do
+  def get_downloadable_status(url, addl_opts \\ []) do
+    action = :get_downloadable_status
+    command_opts = [:simulate, :skip_download]
+
+    case backend_runner().run(url, action, command_opts, "%(.{live_status})j", addl_opts) do
       {:ok, output} ->
         output
         |> Phoenix.json_library().decode!()
