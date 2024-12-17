@@ -113,9 +113,11 @@ defmodule Pinchflat.Downloading.MediaDownloader do
 
   defp download_with_options(url, item_with_preloads, output_filepath, override_opts) do
     {:ok, options} = DownloadOptionBuilder.build(item_with_preloads, override_opts)
-    runner_opts = [output_filepath: output_filepath, use_cookies: item_with_preloads.source.use_cookies]
+    use_cookies = item_with_preloads.source.use_cookies
+    runner_opts = [output_filepath: output_filepath, use_cookies: use_cookies]
 
-    case YtDlpMedia.get_downloadable_status(url) do
+    # TODO: test
+    case YtDlpMedia.get_downloadable_status(url, use_cookies: use_cookies) do
       {:ok, :downloadable} -> YtDlpMedia.download(url, options, runner_opts)
       {:ok, :ignorable} -> {:error, :unsuitable_for_download}
       err -> err
