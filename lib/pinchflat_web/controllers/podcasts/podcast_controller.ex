@@ -9,7 +9,7 @@ defmodule PinchflatWeb.Podcasts.PodcastController do
   alias Pinchflat.Podcasts.OpmlFeedBuilder
   alias Pinchflat.Podcasts.PodcastHelpers
 
-  def opml_feed(conn, %{}) do
+  def opml_feed(conn, _params) do
     url_base = url(conn, ~p"/")
     xml = OpmlFeedBuilder.build(url_base, PodcastHelpers.opml_sources())
 
