@@ -24,12 +24,12 @@ defmodule Pinchflat.Podcasts.OpmlFeedBuilder do
     """
     <?xml version="1.0" encoding="UTF-8"?>
     <opml version="2.0">
-    <head>
-    <title>All Sources</title>
-    </head>
-    <body>
-      #{Enum.join(sources_xml, "\n")}
-    </body>
+      <head>
+        <title>All Sources</title>
+      </head>
+      <body>
+        #{Enum.join(sources_xml, "\n")}
+      </body>
     </opml>
     """
   end
