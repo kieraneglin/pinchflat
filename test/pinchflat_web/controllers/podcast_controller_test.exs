@@ -8,7 +8,7 @@ defmodule PinchflatWeb.PodcastControllerTest do
     test "renders the XML document", %{conn: conn} do
       source = source_fixture()
 
-      conn = get(conn, ~p"/podcasts/opml" <> ".xml")
+      conn = get(conn, ~p"/sources/opml" <> ".xml")
 
       assert conn.status == 200
       assert {"content-type", "application/opml+xml; charset=utf-8"} in conn.resp_headers

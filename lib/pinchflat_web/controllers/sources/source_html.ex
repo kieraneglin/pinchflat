@@ -44,7 +44,7 @@ defmodule PinchflatWeb.Sources.SourceHTML do
   end
 
   def opml_feed_url(conn) do
-    url(conn, ~p"/podcasts/opml") <> ".xml"
+    url(conn, ~p"/sources/opml") <> ".xml"
   end
 
   def output_path_template_override_placeholders(media_profiles) do
