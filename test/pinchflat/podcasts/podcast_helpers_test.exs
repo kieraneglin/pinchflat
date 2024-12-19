@@ -6,6 +6,16 @@ defmodule Pinchflat.Podcasts.PodcastHelpersTest do
 
   alias Pinchflat.Podcasts.PodcastHelpers
 
+  describe "opml_sources" do
+    test "returns sources not marked for deletion" do
+      source = source_fixture()
+      source_fixture(%{marked_for_deletion_at: DateTime.utc_now()})
+      assert [found_source] = PodcastHelpers.opml_sources()
+      assert found_source.custom_name == source.custom_name
+      assert found_source.uuid == source.uuid
+    end
+  end
+
   describe "persisted_media_items_for/2" do
     test "returns media items with files that exist on-disk" do
       source = source_fixture()
