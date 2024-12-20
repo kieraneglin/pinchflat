@@ -23,6 +23,20 @@ defmodule PinchflatWeb.Router do
     plug :maybe_basic_auth
   end
 
+  # Routes in here _may not be_ protected by basic auth. This is necessary for
+  # media streaming to work for RSS podcast feeds.
+  scope "/", PinchflatWeb do
+    pipe_through :feeds
+    # has to match before /sources/:id
+    get "/sources/opml", Podcasts.PodcastController, :opml_feed
+
+    get "/sources/:uuid/feed", Podcasts.PodcastController, :rss_feed
+    get "/sources/:uuid/feed_image", Podcasts.PodcastController, :feed_image
+    get "/media/:uuid/episode_image", Podcasts.PodcastController, :episode_image
+
+    get "/media/:uuid/stream", MediaItems.MediaItemController, :stream
+  end
+
   scope "/", PinchflatWeb do
     pipe_through :browser
 
@@ -46,18 +60,6 @@ defmodule PinchflatWeb.Router do
         post "/force_download", MediaItems.MediaItemController, :force_download
       end
     end
-  end
-
-  # Routes in here _may not be_ protected by basic auth. This is necessary for
-  # media streaming to work for RSS podcast feeds.
-  scope "/", PinchflatWeb do
-    pipe_through :feeds
-
-    get "/sources/:uuid/feed", Podcasts.PodcastController, :rss_feed
-    get "/sources/:uuid/feed_image", Podcasts.PodcastController, :feed_image
-    get "/media/:uuid/episode_image", Podcasts.PodcastController, :episode_image
-
-    get "/media/:uuid/stream", MediaItems.MediaItemController, :stream
   end
 
   # No auth or CSRF protection for the health check endpoint

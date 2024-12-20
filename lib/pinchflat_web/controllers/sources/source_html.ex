@@ -43,6 +43,10 @@ defmodule PinchflatWeb.Sources.SourceHTML do
     url(conn, ~p"/sources/#{source.uuid}/feed") <> ".xml"
   end
 
+  def opml_feed_url(conn) do
+    url(conn, ~p"/sources/opml") <> ".xml"
+  end
+
   def output_path_template_override_placeholders(media_profiles) do
     media_profiles
     |> Enum.map(&{&1.id, &1.output_path_template})

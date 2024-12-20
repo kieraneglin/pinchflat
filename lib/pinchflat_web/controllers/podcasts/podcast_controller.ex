@@ -6,7 +6,18 @@ defmodule PinchflatWeb.Podcasts.PodcastController do
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Podcasts.RssFeedBuilder
+  alias Pinchflat.Podcasts.OpmlFeedBuilder
   alias Pinchflat.Podcasts.PodcastHelpers
+
+  def opml_feed(conn, _params) do
+    url_base = url(conn, ~p"/")
+    xml = OpmlFeedBuilder.build(url_base, PodcastHelpers.opml_sources())
+
+    conn
+    |> put_resp_content_type("application/opml+xml")
+    |> put_resp_header("content-disposition", "inline")
+    |> send_resp(200, xml)
+  end
 
   def rss_feed(conn, %{"uuid" => uuid}) do
     source = Repo.get_by!(Source, uuid: uuid)
