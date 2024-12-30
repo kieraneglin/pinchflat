@@ -10,3 +10,5 @@ services:
     command: bash -c "chmod +x docker/docker-run.dev.sh && docker/docker-run.dev.sh"
     stdin_open: true
     tty: true
+    environment:
+      - ROUTE_SECRET=J8vaF1t

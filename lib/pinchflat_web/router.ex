@@ -23,14 +23,14 @@ defmodule PinchflatWeb.Router do
     plug :maybe_basic_auth
   end
 
-  pipeline :protected_feeds do
-    plug :basic_auth
+  pipeline :secret do
+    plug :validate_secret
   end
 
-  scope "/", PinchflatWeb do
-    pipe_through :protected_feeds
+  scope "/secret/:secret", PinchflatWeb do
+    pipe_through :secret
     # has to match before /sources/:id
-    get "/sources/opml", Podcasts.PodcastController, :opml_feed
+    get "/opml/feed", Podcasts.PodcastController, :opml_feed
   end
 
   # Routes in here _may not be_ protected by basic auth. This is necessary for
@@ -106,6 +106,19 @@ defmodule PinchflatWeb.Router do
 
   defp credential_set?(credential) do
     credential && credential != ""
+  end
+
+  defp validate_secret(conn, _opts) do
+    expected_secret = Application.get_env(:pinchflat, :route_secret)
+    provided_secret = conn.params["secret"]
+
+    if expected_secret && provided_secret == expected_secret do
+      conn
+    else
+      conn
+      |> Plug.Conn.send_resp(:unauthorized, "Unauthorized")
+      |> Plug.Conn.halt()
+    end
   end
 
   defp allow_iframe_embed(conn, _opts) do

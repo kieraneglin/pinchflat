@@ -23,7 +23,8 @@ end
 
 config :pinchflat,
   basic_auth_username: System.get_env("BASIC_AUTH_USERNAME"),
-  basic_auth_password: System.get_env("BASIC_AUTH_PASSWORD")
+  basic_auth_password: System.get_env("BASIC_AUTH_PASSWORD"),
+  route_secret: System.get_env("ROUTE_SECRET")
 
 arch_string = to_string(:erlang.system_info(:system_architecture))
 

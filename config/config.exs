@@ -24,6 +24,7 @@ config :pinchflat,
   # If either is unset, basic auth will not be used.
   basic_auth_username: "",
   basic_auth_password: "",
+  route_secret: "",
   expose_feed_endpoints: false,
   file_watcher_poll_interval: 1000,
   timezone: "UTC",
