@@ -16,7 +16,9 @@ defmodule PinchflatWeb.Router do
     plug :allow_iframe_embed
   end
 
-  pipeline :api, do: plug(:accepts, ["json"])
+  pipeline :api do
+    plug :accepts, ["json"]
+  end
 
   scope "/", PinchflatWeb do
     pipe_through [:maybe_basic_auth, :token_protected_route]

@@ -40,11 +40,12 @@ defmodule PinchflatWeb.Sources.SourceHTML do
   end
 
   def rss_feed_url(conn, source) do
+    # TODO: finally address this. I shouldn't have to use concatination here
     url(conn, ~p"/sources/#{source.uuid}/feed") <> ".xml"
   end
 
   def opml_feed_url(conn) do
-    url(conn, ~p"/sources/opml") <> ".xml"
+    url(conn, ~p"/sources/opml.xml?#{[route_token: Settings.get!(:route_token)]}")
   end
 
   def output_path_template_override_placeholders(media_profiles) do

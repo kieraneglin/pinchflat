@@ -73,6 +73,13 @@ defmodule PinchflatWeb.Endpoint do
     Phoenix.Controller.put_router_url(conn, new_base_url)
   end
 
+  # Some podcast clients require file extensions, and others still will _add_
+  # file extensions to XML files if they don't have them. This plug removes
+  # the extension from the path so that the correct route is matched, regardless
+  # of the provided extension.
+  #
+  # This has the downside of in-app generated verified routes not working with
+  # extensions so this behaviour may change in the future.
   defp strip_trailing_extension(%{path_info: []} = conn, _opts), do: conn
 
   defp strip_trailing_extension(conn, _opts) do

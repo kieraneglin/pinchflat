@@ -1,18 +1,16 @@
 <.button_dropdown text="Actions" class="justify-center w-full sm:w-50">
   <:option>
-    <span
-      x-data="{ copied: false }"
-      x-on:click={"
-        copyWithCallbacks(
-          '#{rss_feed_url(@conn, @source)}', 
-          () => copied = true, 
-          () => copied = false
-        )
-      "}
-    >
+    <.link href={rss_feed_url(@conn, @source)} x-data="{ copied: false }" x-on:click={~s"
+          $event.preventDefault();
+          copyWithCallbacks(
+            '#{rss_feed_url(@conn, @source)}',
+            () => copied = true,
+            () => copied = false
+          )
+        "}>
       Copy RSS Feed
       <span x-show="copied" x-transition.duration.150ms><.icon name="hero-check" class="ml-2 h-4 w-4" /></span>
-    </span>
+    </.link>
   </:option>
   <:option>
     <span x-data="{ copied: false }" x-on:click={~s"
