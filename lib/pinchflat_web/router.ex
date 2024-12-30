@@ -23,12 +23,20 @@ defmodule PinchflatWeb.Router do
     plug :maybe_basic_auth
   end
 
+  pipeline :protected_feeds do
+    plug :basic_auth
+  end
+
+  scope "/", PinchflatWeb do
+    pipe_through :protected_feeds
+    # has to match before /sources/:id
+    get "/sources/opml", Podcasts.PodcastController, :opml_feed
+  end
+
   # Routes in here _may not be_ protected by basic auth. This is necessary for
   # media streaming to work for RSS podcast feeds.
   scope "/", PinchflatWeb do
     pipe_through :feeds
-    # has to match before /sources/:id
-    get "/sources/opml", Podcasts.PodcastController, :opml_feed
 
     get "/sources/:uuid/feed", Podcasts.PodcastController, :rss_feed
     get "/sources/:uuid/feed_image", Podcasts.PodcastController, :feed_image
