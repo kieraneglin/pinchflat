@@ -1,7 +1,11 @@
 <div class="mb-6 flex gap-3 flex-row items-center justify-between">
   <h2 class="text-title-md2 font-bold text-black dark:text-white">Sources</h2>
   <nav>
-    <.button :if={Application.get_env(:pinchflat, :route_secret)} color="bg-transparent" x-data="{ copied: false }" x-on:click={~s"
+    <.button
+        :if={Application.get_env(:pinchflat, :route_secret)}
+        color="bg-transparent"
+        x-data="{ copied: false }"
+        x-on:click={~s"
           copyWithCallbacks(
             '#{opml_feed_url(@conn)}',
             () => copied = true,
