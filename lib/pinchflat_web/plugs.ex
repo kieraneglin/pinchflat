@@ -1,7 +1,8 @@
 defmodule PinchflatWeb.Plugs do
-  use PinchflatWeb, :router
-
   # TODO: doc and test
+  use PinchflatWeb, :router
+  alias Pinchflat.Settings
+
   def maybe_basic_auth(conn, opts) do
     if Application.get_env(:pinchflat, :expose_feed_endpoints) do
       conn
@@ -26,17 +27,24 @@ defmodule PinchflatWeb.Plugs do
   end
 
   def token_protected_route(%{query_params: %{"route_token" => route_token}} = conn, _opts) do
-    # TODO: make this match against the token in the database
-    conn
+    if Settings.get!(:route_token) == route_token do
+      conn
+    else
+      send_unauthorized(conn)
+    end
   end
 
   def token_protected_route(conn, _opts) do
-    conn
-    |> send_resp(:unauthorized, "Unauthorized")
-    |> halt()
+    send_unauthorized(conn)
   end
 
   defp credential_set?(credential) do
     credential && credential != ""
+  end
+
+  defp send_unauthorized(conn) do
+    conn
+    |> send_resp(:unauthorized, "Unauthorized")
+    |> halt()
   end
 end
