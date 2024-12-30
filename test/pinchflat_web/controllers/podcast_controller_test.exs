@@ -5,10 +5,23 @@ defmodule PinchflatWeb.PodcastControllerTest do
   import Pinchflat.SourcesFixtures
 
   describe "opml_feed" do
+
+    test "unauthorized when no secret set", %{conn: conn} do
+      Application.put_env(:pinchflat, :route_secret, "")
+      conn = get(conn, ~p"/secret/the-secret/opml/feed" <> ".xml")
+      assert conn.status == 401
+    end
+
+    test "unauthorized when secret incorrect", %{conn: conn} do
+      Application.put_env(:pinchflat, :route_secret, "test-secret")
+      conn = get(conn, ~p"/secret/invalid-secret/opml/feed" <> ".xml")
+      assert conn.status == 401
+    end
+
     test "renders the XML document", %{conn: conn} do
       source = source_fixture()
-
-      conn = get(conn, ~p"/sources/opml" <> ".xml")
+      Application.put_env(:pinchflat, :route_secret, "test-secret")
+      conn = get(conn, ~p"/secret/test-secret/opml/feed" <> ".xml")
 
       assert conn.status == 200
       assert {"content-type", "application/opml+xml; charset=utf-8"} in conn.resp_headers

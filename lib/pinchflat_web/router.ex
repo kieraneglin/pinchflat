@@ -29,7 +29,6 @@ defmodule PinchflatWeb.Router do
 
   scope "/secret/:secret", PinchflatWeb do
     pipe_through :secret
-    # has to match before /sources/:id
     get "/opml/feed", Podcasts.PodcastController, :opml_feed
   end
 
