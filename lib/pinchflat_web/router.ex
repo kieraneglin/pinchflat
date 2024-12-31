@@ -25,7 +25,6 @@ defmodule PinchflatWeb.Router do
 
     # has to match before /sources/:id
     get "/sources/opml", Podcasts.PodcastController, :opml_feed
-    get "/sources/:foo/opml", Podcasts.PodcastController, :opml_feed
   end
 
   # Routes in here _may not be_ protected by basic auth. This is necessary for
