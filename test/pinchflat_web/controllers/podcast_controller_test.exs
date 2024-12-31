@@ -4,17 +4,34 @@ defmodule PinchflatWeb.PodcastControllerTest do
   import Pinchflat.MediaFixtures
   import Pinchflat.SourcesFixtures
 
+  alias Pinchflat.Settings
+
   describe "opml_feed" do
     test "renders the XML document", %{conn: conn} do
       source = source_fixture()
+      route_token = Settings.get!(:route_token)
 
-      conn = get(conn, ~p"/sources/opml" <> ".xml")
+      conn = get(conn, ~p"/sources/opml.xml?#{[route_token: route_token]}")
 
       assert conn.status == 200
       assert {"content-type", "application/opml+xml; charset=utf-8"} in conn.resp_headers
       assert {"content-disposition", "inline"} in conn.resp_headers
       assert conn.resp_body =~ ~s"http://www.example.com/sources/#{source.uuid}/feed.xml"
-      assert conn.resp_body =~ "text=\"Cool and good internal name!\""
+      assert conn.resp_body =~ "text=\"#{source.custom_name}\""
+    end
+
+    test "returns 401 if the route token is incorrect", %{conn: conn} do
+      conn = get(conn, ~p"/sources/opml.xml?route_token=incorrect")
+
+      assert conn.status == 401
+      assert conn.resp_body == "Unauthorized"
+    end
+
+    test "returns 401 if the route token is missing", %{conn: conn} do
+      conn = get(conn, ~p"/sources/opml.xml")
+
+      assert conn.status == 401
+      assert conn.resp_body == "Unauthorized"
     end
   end
 

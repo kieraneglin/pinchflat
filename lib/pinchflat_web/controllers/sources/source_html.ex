@@ -40,7 +40,7 @@ defmodule PinchflatWeb.Sources.SourceHTML do
   end
 
   def rss_feed_url(conn, source) do
-    # TODO: finally address this. I shouldn't have to use concatination here
+    # NOTE: The reason for this concatenation is to avoid what appears to be a bug in Phoenix
     url(conn, ~p"/sources/#{source.uuid}/feed") <> ".xml"
   end
 
