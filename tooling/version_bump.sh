@@ -12,3 +12,5 @@ sed -i "s/version: \"$VERSION\"/version: \"$DATE\"/g" mix.exs
 
 # Run checks to ensure it's a valid mix.exs file
 mix check
+
+echo "Version bumped successfully to $DATE"
