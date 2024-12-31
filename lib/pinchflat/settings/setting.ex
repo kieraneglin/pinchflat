@@ -31,6 +31,7 @@ defmodule Pinchflat.Settings.Setting do
     field :apprise_version, :string
     field :apprise_server, :string
     field :youtube_api_key, :string
+    field :route_token, :string
 
     field :video_codec_preference, :string
     field :audio_codec_preference, :string

@@ -1,5 +1,6 @@
 defmodule PinchflatWeb.Router do
   use PinchflatWeb, :router
+  import PinchflatWeb.Plugs
   import Phoenix.LiveDashboard.Router
 
   # IMPORTANT: `strip_trailing_extension` in endpoint.ex removes
@@ -19,16 +20,18 @@ defmodule PinchflatWeb.Router do
     plug :accepts, ["json"]
   end
 
-  pipeline :feeds do
-    plug :maybe_basic_auth
+  scope "/", PinchflatWeb do
+    pipe_through [:maybe_basic_auth, :token_protected_route]
+
+    # has to match before /sources/:id
+    get "/sources/opml", Podcasts.PodcastController, :opml_feed
+    get "/sources/:foo/opml", Podcasts.PodcastController, :opml_feed
   end
 
   # Routes in here _may not be_ protected by basic auth. This is necessary for
   # media streaming to work for RSS podcast feeds.
   scope "/", PinchflatWeb do
-    pipe_through :feeds
-    # has to match before /sources/:id
-    get "/sources/opml", Podcasts.PodcastController, :opml_feed
+    pipe_through :maybe_basic_auth
 
     get "/sources/:uuid/feed", Podcasts.PodcastController, :rss_feed
     get "/sources/:uuid/feed_image", Podcasts.PodcastController, :feed_image
@@ -75,32 +78,5 @@ defmodule PinchflatWeb.Router do
     live_dashboard "/dashboard",
       metrics: PinchflatWeb.Telemetry,
       ecto_repos: [Pinchflat.Repo]
-  end
-
-  defp maybe_basic_auth(conn, opts) do
-    if Application.get_env(:pinchflat, :expose_feed_endpoints) do
-      conn
-    else
-      basic_auth(conn, opts)
-    end
-  end
-
-  defp basic_auth(conn, _opts) do
-    username = Application.get_env(:pinchflat, :basic_auth_username)
-    password = Application.get_env(:pinchflat, :basic_auth_password)
-
-    if credential_set?(username) && credential_set?(password) do
-      Plug.BasicAuth.basic_auth(conn, username: username, password: password, realm: "Pinchflat")
-    else
-      conn
-    end
-  end
-
-  defp credential_set?(credential) do
-    credential && credential != ""
-  end
-
-  defp allow_iframe_embed(conn, _opts) do
-    delete_resp_header(conn, "x-frame-options")
   end
 end
