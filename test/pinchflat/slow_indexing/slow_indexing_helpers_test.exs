@@ -14,6 +14,10 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
   alias Pinchflat.SlowIndexing.SlowIndexingHelpers
   alias Pinchflat.SlowIndexing.MediaCollectionIndexingWorker
 
+  setup do
+    {:ok, %{source: source_fixture()}}
+  end
+
   describe "kickoff_indexing_task/3" do
     test "schedules a job" do
       source = source_fixture(index_frequency_minutes: 1)
@@ -47,6 +51,16 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       source = source_fixture(index_frequency_minutes: 30, last_indexed_at: nil)
 
       assert {:ok, _} = SlowIndexingHelpers.kickoff_indexing_task(source)
+
+      [job] = all_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
+
+      assert_in_delta DateTime.diff(job.scheduled_at, DateTime.utc_now(), :second), 0, 1
+    end
+
+    test "schedules a job immediately if the user is forcing an index" do
+      source = source_fixture(index_frequency_minutes: 30, last_indexed_at: now_minus(5, :minutes))
+
+      assert {:ok, _} = SlowIndexingHelpers.kickoff_indexing_task(source, %{force: true})
 
       [job] = all_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
 
@@ -123,12 +137,6 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
   end
 
   describe "delete_indexing_tasks/2" do
-    setup do
-      source = source_fixture()
-
-      {:ok, %{source: source}}
-    end
-
     test "deletes slow indexing tasks for the source", %{source: source} do
       {:ok, job} = Oban.insert(MediaCollectionIndexingWorker.new(%{"id" => source.id}))
       _task = task_fixture(source_id: source.id, job_id: job.id)
@@ -172,13 +180,13 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
     end
   end
 
-  describe "index_and_enqueue_download_for_media_items/1" do
+  describe "index_and_enqueue_download_for_media_items/2" do
     setup do
       stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, _addl_opts ->
         {:ok, source_attributes_return_fixture()}
       end)
 
-      {:ok, [source: source_fixture()]}
+      :ok
     end
 
     test "creates a media_item record for each media ID returned", %{source: source} do
@@ -315,11 +323,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
     end
   end
 
-  describe "index_and_enqueue_download_for_media_items/1 when testing file watcher" do
-    setup do
-      {:ok, [source: source_fixture()]}
-    end
-
+  describe "index_and_enqueue_download_for_media_items/2 when testing file watcher" do
     test "creates a new media item for everything already in the file", %{source: source} do
       watcher_poll_interval = Application.get_env(:pinchflat, :file_watcher_poll_interval)
 
@@ -444,6 +448,64 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       end)
 
       assert [] = SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
+    end
+  end
+
+  describe "index_and_enqueue_download_for_media_items when testing the download archive" do
+    test "a download archive is used if the source is a channel", %{source: source} do
+      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, opts, _ot, _addl_opts ->
+        assert :break_on_existing in opts
+        assert Keyword.has_key?(opts, :download_archive)
+
+        {:ok, source_attributes_return_fixture()}
+      end)
+
+      SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
+    end
+
+    test "a download archive is not used if the source is not a channel" do
+      source = source_fixture(%{collection_type: :playlist})
+
+      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, opts, _ot, _addl_opts ->
+        refute :break_on_existing in opts
+        refute Keyword.has_key?(opts, :download_archive)
+
+        {:ok, source_attributes_return_fixture()}
+      end)
+
+      SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
+    end
+
+    test "a download archive is not used if the index has been forced to run" do
+      source = source_fixture(%{collection_type: :channel})
+
+      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, opts, _ot, _addl_opts ->
+        refute :break_on_existing in opts
+        refute Keyword.has_key?(opts, :download_archive)
+
+        {:ok, source_attributes_return_fixture()}
+      end)
+
+      SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source, was_forced: true)
+    end
+
+    test "the download archive is formatted correctly and contains the right video", %{source: source} do
+      media_items =
+        1..21
+        |> Enum.map(fn n ->
+          media_item_fixture(%{source_id: source.id, uploaded_at: now_minus(n, :days)})
+        end)
+
+      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, opts, _ot, _addl_opts ->
+        archive_file = Keyword.get(opts, :download_archive)
+        last_media_item = List.last(media_items)
+
+        assert File.read!(archive_file) == "youtube #{last_media_item.media_id}"
+
+        {:ok, source_attributes_return_fixture()}
+      end)
+
+      SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
     end
   end
 end

@@ -5,6 +5,8 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   Many of these methods are made to be kickoff or be consumed by workers.
   """
 
+  use Pinchflat.Media.MediaQuery
+
   require Logger
 
   alias Pinchflat.Repo
@@ -14,6 +16,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.YtDlp.MediaCollection
+  alias Pinchflat.Utils.FilesystemUtils
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.SlowIndexing.FileFollowerServer
   alias Pinchflat.Downloading.DownloadOptionBuilder
@@ -22,13 +25,19 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   alias Pinchflat.YtDlp.Media, as: YtDlpMedia
 
   @doc """
-  Starts tasks for indexing a source's media regardless of the source's indexing
-  frequency. It's assumed the caller will check for indexing frequency.
+  Kills old indexing tasks and starts a new task to index the media collection.
+
+  The job is delayed based on the source's `index_frequency_minutes` setting unless
+  one of the following is true:
+    - The `force` option is set to true
+    - The source has never been indexed before
+    - The source has been indexed before, but the last indexing job was more than
+      `index_frequency_minutes` ago
 
   Returns {:ok, %Task{}}
   """
   def kickoff_indexing_task(%Source{} = source, job_args \\ %{}, job_opts \\ []) do
-    job_offset_seconds = calculate_job_offset_seconds(source)
+    job_offset_seconds = if job_args[:force], do: 0, else: calculate_job_offset_seconds(source)
 
     Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
     Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker", include_executing: true)
@@ -52,8 +61,8 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   @doc """
   Given a media source, creates (indexes) the media by creating media_items for each
   media ID in the source. Afterward, kicks off a download task for each pending media
-  item belonging to the source. You can't tell me the method name isn't descriptive!
-  Returns a list of media items or changesets (if the media item couldn't be created).
+  item belonging to the source. Returns a list of media items or changesets
+  (if the media item couldn't be created).
 
   Indexing is slow and usually returns a list of all media data at once for record creation.
   To help with this, we use a file follower to watch the file that yt-dlp writes to
@@ -61,23 +70,33 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   clarity to the user experience. This has a few things to be aware of which are documented
   below in the file watcher setup method.
 
+  Additionally, in the case of a repeat index we create a download archive file that
+  contains some media IDs that we've indexed in the past. Note that this archive doesn't
+  contain the most recent IDs but rather a subset of IDs that are offset by some amount.
+  Practically, this means that we'll re-index a small handful of media that we've recently
+  indexed, but this is a good thing since it'll let us pick up on any recent changes to the
+  most recent media items.
+
+  We don't create a download archive for playlists (only channels), nor do we create one if
+  the indexing was forced by the user.
+
   NOTE: downloads are only enqueued if the source is set to download media. Downloads are
   also enqueued for ALL pending media items, not just the ones that were indexed in this
   job run. This should ensure that any stragglers are caught if, for some reason, they
   weren't enqueued or somehow got de-queued.
 
-  Since indexing returns all media data EVERY TIME, we that that opportunity to update
-  indexing metadata for media items that have already been created.
+  Available options:
+    - `was_forced`: Whether the indexing was forced by the user
 
   Returns [%MediaItem{} | %Ecto.Changeset{}]
   """
-  def index_and_enqueue_download_for_media_items(%Source{} = source) do
+  def index_and_enqueue_download_for_media_items(%Source{} = source, opts \\ []) do
     # The media_profile is needed to determine the quality options to _then_ determine a more
     # accurate predicted filepath
     source = Repo.preload(source, [:media_profile])
     # See the method definition below for more info on how file watchers work
     # (important reading if you're not familiar with it)
-    {:ok, media_attributes} = setup_file_watcher_and_kickoff_indexing(source)
+    {:ok, media_attributes} = setup_file_watcher_and_kickoff_indexing(source, opts)
     # Reload because the source may have been updated during the (long-running) indexing process
     # and important settings like `download_media` may have changed.
     source = Repo.reload!(source)
@@ -109,14 +128,16 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   # It attempts a graceful shutdown of the file follower after the indexing is done,
   # but the FileFollowerServer will also stop itself if it doesn't see any activity
   # for a sufficiently long time.
-  defp setup_file_watcher_and_kickoff_indexing(source) do
+  defp setup_file_watcher_and_kickoff_indexing(source, opts) do
+    was_forced = Keyword.get(opts, :was_forced, false)
     {:ok, pid} = FileFollowerServer.start_link()
 
     handler = fn filepath -> setup_file_follower_watcher(pid, filepath, source) end
 
     command_opts =
       [output: DownloadOptionBuilder.build_output_path_for(source)] ++
-        DownloadOptionBuilder.build_quality_options_for(source)
+        DownloadOptionBuilder.build_quality_options_for(source) ++
+        build_download_archive_options(source, was_forced)
 
     runner_opts = [file_listener_handler: handler, use_cookies: source.use_cookies]
     result = MediaCollection.get_media_attributes_for_collection(source.original_url, command_opts, runner_opts)
@@ -165,5 +186,58 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
     index_frequency_seconds = source.index_frequency_minutes * 60
 
     max(0, index_frequency_seconds - offset_seconds)
+  end
+
+  # The download archive file works in tandem with --break-on-existing to stop
+  # yt-dlp once we've hit media items we've already indexed. But we generate
+  # this list with a bit of an offset so we do intentionally re-scan some media
+  # items to pick up any recent changes (see `get_media_items_for_download_archive`).
+  #
+  # From there, we format the media IDs in the way that yt-dlp expects (ie: "<extractor> <media_id>")
+  # and return the filepath to the caller.
+  defp create_download_archive_file(source) do
+    tmpfile = FilesystemUtils.generate_metadata_tmpfile(:txt)
+
+    archive_contents =
+      source
+      |> get_media_items_for_download_archive()
+      |> Enum.map_join("\n", fn media_item -> "youtube #{media_item.media_id}" end)
+
+    case File.write(tmpfile, archive_contents) do
+      :ok -> tmpfile
+      err -> err
+    end
+  end
+
+  # Sorting by `uploaded_at` is important because we want to re-index the most recent
+  # media items first but there is no guarantee of any correlation between ID and uploaded_at.
+  #
+  # The offset is important because we want to re-index some media items that we've
+  # recently indexed to pick up on any changes. The limit is because we want this mechanism
+  # to work even if, for example, the video we were using as a stopping point was deleted.
+  # It's not a perfect system, but it should do well enough.
+  #
+  # The chosen limit and offset are arbitary, independent, and vibes-based. Feel free to
+  # tweak as-needed
+  defp get_media_items_for_download_archive(source) do
+    MediaQuery.new()
+    |> where(^MediaQuery.for_source(source))
+    |> order_by(desc: :uploaded_at)
+    |> limit(50)
+    |> offset(20)
+    |> Repo.all()
+  end
+
+  # The download archive isn't useful for playlists (since those are ordered arbitrarily)
+  # and we don't want to use it if the indexing was forced by the user. In other words,
+  # only create an archive for channels that are being indexed as part of their regular
+  # indexing schedule
+  defp build_download_archive_options(%Source{collection_type: :playlist}, _was_forced), do: []
+  defp build_download_archive_options(_source, true), do: []
+
+  defp build_download_archive_options(source, _was_forced) do
+    archive_file = create_download_archive_file(source)
+
+    [:break_on_existing, download_archive: archive_file]
   end
 end
