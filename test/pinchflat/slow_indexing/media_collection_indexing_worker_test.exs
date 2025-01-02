@@ -51,13 +51,16 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorkerTest do
   describe "perform/1" do
     setup do
       stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, _addl_opts -> {:ok, ""} end)
+
       stub(AppriseRunnerMock, :run, fn _, _ -> {:ok, ""} end)
 
       :ok
     end
 
     test "indexes the source if it should be indexed" do
-      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, _addl_opts -> {:ok, ""} end)
+      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, _addl_opts ->
+        {:ok, ""}
+      end)
 
       source = source_fixture(index_frequency_minutes: 10)
 
@@ -65,7 +68,9 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorkerTest do
     end
 
     test "indexes the source no matter what if the source has never been indexed before" do
-      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, _addl_opts -> {:ok, ""} end)
+      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, _addl_opts ->
+        {:ok, ""}
+      end)
 
       source = source_fixture(index_frequency_minutes: 0, last_indexed_at: nil)
 
@@ -73,7 +78,9 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorkerTest do
     end
 
     test "indexes the source no matter what if the 'force' arg is passed" do
-      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, _addl_opts -> {:ok, ""} end)
+      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, _addl_opts ->
+        {:ok, ""}
+      end)
 
       source = source_fixture(index_frequency_minutes: 0, last_indexed_at: DateTime.utc_now())
 
@@ -88,7 +95,8 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorkerTest do
         {:ok, ""}
       end)
 
-      source = source_fixture(collection_type: :channel, index_frequency_minutes: 0, last_indexed_at: DateTime.utc_now())
+      source =
+        source_fixture(collection_type: :channel, index_frequency_minutes: 0, last_indexed_at: DateTime.utc_now())
 
       perform_job(MediaCollectionIndexingWorker, %{id: source.id, force: true})
     end

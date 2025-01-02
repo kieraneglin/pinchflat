@@ -201,8 +201,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
     archive_contents =
       source
       |> get_media_items_for_download_archive()
-      |> Enum.map(fn media_item -> "youtube #{media_item.media_id}" end)
-      |> Enum.join("\n")
+      |> Enum.map_join("\n", fn media_item -> "youtube #{media_item.media_id}" end)
 
     case File.write(tmpfile, archive_contents) do
       :ok -> tmpfile
