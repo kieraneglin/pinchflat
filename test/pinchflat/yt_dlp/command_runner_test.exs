@@ -17,6 +17,12 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
       assert {:ok, _output} = Runner.run(@media_url, :foo, [], "")
     end
 
+    test "considers a 101 exit code as being successful" do
+      wrap_executable("/app/test/support/scripts/yt-dlp-mocks/101_exit_code.sh", fn ->
+        assert {:ok, _output} = Runner.run(@media_url, :foo, [], "")
+      end)
+    end
+
     test "includes the media url as the first argument" do
       assert {:ok, output} = Runner.run(@media_url, :foo, [:ignore_errors], "")
 
