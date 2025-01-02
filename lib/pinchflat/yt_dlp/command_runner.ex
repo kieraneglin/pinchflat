@@ -39,9 +39,12 @@ defmodule Pinchflat.YtDlp.CommandRunner do
     formatted_command_opts = [url] ++ CliUtils.parse_options(all_opts)
 
     case CliUtils.wrap_cmd(command, formatted_command_opts, stderr_to_stdout: true) do
-      # TODO: confirm that 101 is unique to these cases
-      # 0 is normal exit, 101 is an intentional exit due to some
-      # break condition (like --break-on-existing)
+      # yt-dlp exit codes:
+      #   0 = Everything is successful
+      #   100 = yt-dlp must restart for update to complete
+      #   101 = Download cancelled by --max-downloads etc
+      #     2 = Error in user-provided options
+      #     1 = Any other error
       {_, status} when status in [0, 101] ->
         # IDEA: consider deleting the file after reading it. It's in the tmp dir, so it's not
         # a huge deal, but it's still a good idea to clean up after ourselves.
