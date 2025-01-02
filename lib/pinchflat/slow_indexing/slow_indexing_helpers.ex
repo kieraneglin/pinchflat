@@ -5,6 +5,8 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   Many of these methods are made to be kickoff or be consumed by workers.
   """
 
+  use Pinchflat.Media.MediaQuery
+
   require Logger
 
   alias Pinchflat.Repo
@@ -14,6 +16,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.YtDlp.MediaCollection
+  alias Pinchflat.Utils.FilesystemUtils
   alias Pinchflat.Downloading.DownloadingHelpers
   alias Pinchflat.SlowIndexing.FileFollowerServer
   alias Pinchflat.Downloading.DownloadOptionBuilder
@@ -96,6 +99,22 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
     result
   end
 
+  # TODO: test
+  def create_download_archive_file(%Source{} = source) do
+    tmpfile = FilesystemUtils.generate_metadata_tmpfile(:txt)
+
+    archive_contents =
+      source
+      |> get_media_items_for_download_archive()
+      |> Enum.map(fn media_item -> "youtube #{media_item.media_id}" end)
+      |> Enum.join("\n")
+
+    case File.write(tmpfile, archive_contents) do
+      :ok -> tmpfile
+      err -> err
+    end
+  end
+
   # The file follower is a GenServer that watches a file for new lines and
   # processes them. This works well, but we have to be resilliant to partially-written
   # lines (ie: you should gracefully fail if you can't parse a line).
@@ -165,5 +184,15 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
     index_frequency_seconds = source.index_frequency_minutes * 60
 
     max(0, index_frequency_seconds - offset_seconds)
+  end
+
+  # TODO: document
+  defp get_media_items_for_download_archive(source) do
+    MediaQuery.new()
+    |> where(^MediaQuery.for_source(source))
+    |> order_by(desc: :uploaded_at)
+    |> limit(20)
+    |> offset(20)
+    |> Repo.all()
   end
 end
