@@ -31,7 +31,8 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   Returns {:ok, %Task{}}
   """
   def kickoff_indexing_task(%Source{} = source, job_args \\ %{}, job_opts \\ []) do
-    job_offset_seconds = calculate_job_offset_seconds(source)
+    # TODO: test
+    job_offset_seconds = if job_args[:force], do: 0, else: calculate_job_offset_seconds(source)
 
     Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
     Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker", include_executing: true)
@@ -74,13 +75,15 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
 
   Returns [%MediaItem{} | %Ecto.Changeset{}]
   """
-  def index_and_enqueue_download_for_media_items(%Source{} = source) do
+  def index_and_enqueue_download_for_media_items(%Source{} = source, opts \\ []) do
+    # TODO: test
+    should_force = Keyword.get(opts, :force, false)
     # The media_profile is needed to determine the quality options to _then_ determine a more
     # accurate predicted filepath
     source = Repo.preload(source, [:media_profile])
     # See the method definition below for more info on how file watchers work
     # (important reading if you're not familiar with it)
-    {:ok, media_attributes} = setup_file_watcher_and_kickoff_indexing(source)
+    {:ok, media_attributes} = setup_file_watcher_and_kickoff_indexing(source, should_force)
     # Reload because the source may have been updated during the (long-running) indexing process
     # and important settings like `download_media` may have changed.
     source = Repo.reload!(source)
@@ -99,22 +102,6 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
     result
   end
 
-  # TODO: test
-  def create_download_archive_file(%Source{} = source) do
-    tmpfile = FilesystemUtils.generate_metadata_tmpfile(:txt)
-
-    archive_contents =
-      source
-      |> get_media_items_for_download_archive()
-      |> Enum.map(fn media_item -> "youtube #{media_item.media_id}" end)
-      |> Enum.join("\n")
-
-    case File.write(tmpfile, archive_contents) do
-      :ok -> tmpfile
-      err -> err
-    end
-  end
-
   # The file follower is a GenServer that watches a file for new lines and
   # processes them. This works well, but we have to be resilliant to partially-written
   # lines (ie: you should gracefully fail if you can't parse a line).
@@ -128,14 +115,15 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   # It attempts a graceful shutdown of the file follower after the indexing is done,
   # but the FileFollowerServer will also stop itself if it doesn't see any activity
   # for a sufficiently long time.
-  defp setup_file_watcher_and_kickoff_indexing(source) do
+  defp setup_file_watcher_and_kickoff_indexing(source, should_force) do
     {:ok, pid} = FileFollowerServer.start_link()
 
     handler = fn filepath -> setup_file_follower_watcher(pid, filepath, source) end
 
     command_opts =
       [output: DownloadOptionBuilder.build_output_path_for(source)] ++
-        DownloadOptionBuilder.build_quality_options_for(source)
+        DownloadOptionBuilder.build_quality_options_for(source) ++
+        build_download_archive_options(source, should_force)
 
     runner_opts = [file_listener_handler: handler, use_cookies: source.use_cookies]
     result = MediaCollection.get_media_attributes_for_collection(source.original_url, command_opts, runner_opts)
@@ -186,6 +174,22 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
     max(0, index_frequency_seconds - offset_seconds)
   end
 
+  # TODO: test and doc
+  defp create_download_archive_file(source) do
+    tmpfile = FilesystemUtils.generate_metadata_tmpfile(:txt)
+
+    archive_contents =
+      source
+      |> get_media_items_for_download_archive()
+      |> Enum.map(fn media_item -> "youtube #{media_item.media_id}" end)
+      |> Enum.join("\n")
+
+    case File.write(tmpfile, archive_contents) do
+      :ok -> tmpfile
+      err -> err
+    end
+  end
+
   # TODO: document
   defp get_media_items_for_download_archive(source) do
     MediaQuery.new()
@@ -194,5 +198,15 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
     |> limit(20)
     |> offset(20)
     |> Repo.all()
+  end
+
+  # TODO: document
+  defp build_download_archive_options(%Source{collection_type: :playlist}, _should_force), do: []
+  defp build_download_archive_options(_source, true), do: []
+
+  defp build_download_archive_options(source, _should_force) do
+    archive_file = create_download_archive_file(source)
+
+    [:break_on_existing, download_archive: archive_file]
   end
 end

@@ -44,6 +44,7 @@ defmodule Pinchflat.Utils.FilesystemUtils do
 
   Returns binary()
   """
+  # TODO: consider namespacing these folders like they do in activestorage
   def generate_metadata_tmpfile(type) do
     tmpfile_directory = Application.get_env(:pinchflat, :tmpfile_directory)
     filepath = Path.join([tmpfile_directory, "#{StringUtils.random_string(64)}.#{type}"])

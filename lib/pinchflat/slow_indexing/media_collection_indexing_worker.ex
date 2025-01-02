@@ -79,21 +79,21 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorker do
     case {source.index_frequency_minutes, source.last_indexed_at} do
       {index_freq, _} when index_freq > 0 ->
         # If the indexing is on a schedule simply run indexing and reschedule
-        perform_indexing_and_notification(source)
+        perform_indexing_and_notification(source, [force: args["force"]])
         maybe_enqueue_fast_indexing_task(source)
         reschedule_indexing(source)
 
       {_, nil} ->
         # If the source has never been indexed, index it once
         # even if it's not meant to reschedule
-        perform_indexing_and_notification(source)
+        perform_indexing_and_notification(source, [force: args["force"]])
         :ok
 
       _ ->
         # If the source HAS been indexed and is not meant to reschedule,
         # perform a no-op (unless forced)
         if args["force"] do
-          perform_indexing_and_notification(source)
+          perform_indexing_and_notification(source, [force: true])
         end
 
         :ok
@@ -103,11 +103,12 @@ defmodule Pinchflat.SlowIndexing.MediaCollectionIndexingWorker do
     Ecto.StaleEntryError -> Logger.info("#{__MODULE__} discarded: source #{source_id} stale")
   end
 
-  defp perform_indexing_and_notification(source) do
+  # TODO: test
+  defp perform_indexing_and_notification(source, indexing_opts) do
     apprise_server = Settings.get!(:apprise_server)
 
     SourceNotifications.wrap_new_media_notification(apprise_server, source, fn ->
-      SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
+      SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source, indexing_opts)
     end)
   end
 
