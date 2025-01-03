@@ -55,7 +55,7 @@ defmodule Pinchflat.Profiles.MediaProfile do
     field :embed_metadata, :boolean, default: false
 
     field :download_nfo, :boolean, default: false
-    field :sponsorblock_behaviour, Ecto.Enum, values: [:disabled, :remove], default: :disabled
+    field :sponsorblock_behaviour, Ecto.Enum, values: [:disabled, :mark, :remove], default: :disabled
     field :sponsorblock_categories, {:array, :string}, default: []
     # NOTE: these do NOT speed up indexing - the indexer still has to go
     # through the entire collection to determine if a media is a short or

@@ -287,7 +287,19 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
       assert {:sponsorblock_remove, "sponsor,intro"} in res
     end
 
-    test "does not include :sponsorblock_remove option without categories", %{media_item: media_item} do
+    test "includes :sponsorblock_mark option when specified", %{media_item: media_item} do
+      media_item =
+        update_media_profile_attribute(media_item, %{
+          sponsorblock_behaviour: :mark,
+          sponsorblock_categories: ["sponsor", "intro"]
+        })
+
+      assert {:ok, res} = DownloadOptionBuilder.build(media_item)
+
+      assert {:sponsorblock_mark, "sponsor,intro"} in res
+    end
+
+    test "does not include any sponsorblock option without categories", %{media_item: media_item} do
       media_item =
         update_media_profile_attribute(media_item, %{
           sponsorblock_behaviour: :remove,
@@ -296,9 +308,10 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
 
       assert {:ok, res} = DownloadOptionBuilder.build(media_item)
 
-      refute {:sponsorblock_remove, ""} in res
-      refute {:sponsorblock_remove, []} in res
+      refute Keyword.has_key?(res, :sponsorblock_remove)
+      refute Keyword.has_key?(res, :sponsorblock_mark)
       refute :sponsorblock_remove in res
+      refute :sponsorblock_mark in res
     end
 
     test "does not include any sponsorblock options when disabled", %{media_item: media_item} do
@@ -307,9 +320,10 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilderTest do
 
       assert {:ok, res} = DownloadOptionBuilder.build(media_item)
 
-      refute {:sponsorblock_remove, ""} in res
-      refute {:sponsorblock_remove, []} in res
+      refute Keyword.has_key?(res, :sponsorblock_remove)
+      refute Keyword.has_key?(res, :sponsorblock_mark)
       refute :sponsorblock_remove in res
+      refute :sponsorblock_mark in res
     end
   end
 
