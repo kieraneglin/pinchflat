@@ -152,6 +152,7 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
     case {behaviour, categories} do
       {_, []} -> []
       {:remove, _} -> [sponsorblock_remove: Enum.join(categories, ",")]
+      {:mark, _} -> [sponsorblock_mark: Enum.join(categories, ",")]
       {:disabled, _} -> []
     end
   end

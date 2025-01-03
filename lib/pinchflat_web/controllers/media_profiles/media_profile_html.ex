@@ -38,6 +38,7 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
   def friendly_sponsorblock_options do
     [
       {"Disabled (default)", "disabled"},
+      {"Mark Segments as Chapters", "mark"},
       {"Remove Segments", "remove"}
     ]
   end
