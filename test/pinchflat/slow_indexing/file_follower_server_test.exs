@@ -1,7 +1,7 @@
 defmodule Pinchflat.SlowIndexing.FileFollowerServerTest do
   use Pinchflat.DataCase
 
-  alias alias Pinchflat.Utils.FilesystemUtils
+  alias Pinchflat.Utils.FilesystemUtils
   alias Pinchflat.SlowIndexing.FileFollowerServer
 
   setup do
