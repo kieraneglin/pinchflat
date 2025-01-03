@@ -11,6 +11,7 @@ defmodule Pinchflat.Application do
     check_and_update_timezone()
 
     children = [
+      Pinchflat.PromEx,
       PinchflatWeb.Telemetry,
       Pinchflat.Repo,
       # Must be before startup tasks

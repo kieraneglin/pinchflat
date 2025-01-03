@@ -99,6 +99,20 @@ config :logger, :default_formatter,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config :pinchflat, Pinchflat.PromEx,
+  disabled: false,
+  manual_metrics_start_delay: :no_delay,
+  drop_metrics_groups: [],
+  metrics_server: :disabled,
+  grafana: [
+    host: System.get_env("GRAFANA_CLOUD_URL", "http://192.168.1.170:3033"),
+    username: System.get_env("GRAFANA_USERNAME", "admin"),
+    password: System.get_env("GRAFANA_PASSWORD", "admin"),
+    # This is an optional setting and will default to `true`
+    folder_name: "zero-to-graphql-using-elixir",
+    upload_dashboards_on_start: true
+  ]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
