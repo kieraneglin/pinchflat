@@ -201,6 +201,9 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
     source = media_item_with_preloads.source
 
     %{
+      "media_item_id" => to_string(media_item_with_preloads.id),
+      "source_id" => to_string(source.id),
+      "media_profile_id" => to_string(source.media_profile_id),
       "source_custom_name" => source.custom_name,
       "source_collection_id" => source.collection_id,
       "source_collection_name" => source.collection_name,
