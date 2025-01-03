@@ -57,7 +57,7 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
   end
 
   def media_center_custom_output_template_options do
-    %{
+    [
       season_by_year__episode_by_date: "<code>Season YYYY/sYYYYeMMDD</code>",
       season_by_year__episode_by_date_and_index:
         "same as the above but it handles dates better. <strong>This is the recommended option</strong>",
@@ -65,11 +65,11 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
         "<code>Season 1/s01eXX</code> where <code>XX</code> is the video's position in the playlist. Only recommended for playlists (not channels) that don't change",
       static_season__episode_by_date:
         "<code>Season 1/s01eYYMMDD</code>. Recommended for playlists that might change or where order isn't important"
-    }
+    ]
   end
 
   def other_custom_output_template_options do
-    %{
+    [
       upload_day: nil,
       upload_month: nil,
       upload_year: nil,
@@ -85,8 +85,11 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
       season_episode_index_from_date:
         "the upload date formatted as <code>sYYYYeMMDDII</code> where <code>II</code> is an index to prevent date collisions",
       media_playlist_index:
-        "the place of the media item in the playlist. Do not use with channels. May not work if the playlist is updated"
-    }
+        "the place of the media item in the playlist. Do not use with channels. May not work if the playlist is updated",
+      media_item_id: "the ID of the media item in Pinchflat's database",
+      source_id: "the ID of the source in Pinchflat's database",
+      media_profile_id: "the ID of the media profile in Pinchflat's database"
+    ]
   end
 
   def common_output_template_options do
