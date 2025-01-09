@@ -72,6 +72,7 @@ if config_env() == :prod do
   # For running PF in a subdirectory via a reverse proxy
   base_route_path = System.get_env("BASE_ROUTE_PATH", "/")
   enable_ipv6 = String.length(System.get_env("ENABLE_IPV6", "")) > 0
+  enable_prometheus = String.length(System.get_env("ENABLE_PROMETHEUS", "")) > 0
 
   config :logger, level: String.to_existing_atom(System.get_env("LOG_LEVEL", "debug"))
 
@@ -94,6 +95,8 @@ if config_env() == :prod do
   config :pinchflat, Pinchflat.Repo,
     database: db_path,
     journal_mode: journal_mode
+
+  config :pinchflat, Pinchflat.PromEx, disabled: !enable_prometheus
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
