@@ -21,7 +21,7 @@ defmodule Pinchflat.PromEx do
      ```
      def start(_type, _args) do
        children = [
-         Pinchflat.PromEx,
+         Pinchflat.PromEx,P
 
          ...
        ]
@@ -71,7 +71,7 @@ defmodule Pinchflat.PromEx do
   @impl true
   def dashboard_assigns do
     [
-      datasource_id: "prometheus",
+      # datasource_id: "prometheus",
       default_selected_interval: "30s"
     ]
   end
