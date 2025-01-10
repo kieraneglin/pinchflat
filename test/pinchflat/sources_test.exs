@@ -354,7 +354,56 @@ defmodule Pinchflat.SourcesTest do
     end
   end
 
-  describe "create_source/2 when testing options" do
+  describe "create_source/2 when testing yt-dlp options" do
+    test "sets use_cookies to true if the source has been set to use cookies" do
+      expect(YtDlpRunnerMock, :run, fn _url, :get_source_details, _opts, _ot, addl ->
+        assert Keyword.get(addl, :use_cookies)
+
+        {:ok, playlist_return()}
+      end)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123",
+        use_cookies: true
+      }
+
+      assert {:ok, %Source{}} = Sources.create_source(valid_attrs)
+    end
+
+    test "does not set use_cookies to false if the source has not been set to use cookies" do
+      expect(YtDlpRunnerMock, :run, fn _url, :get_source_details, _opts, _ot, addl ->
+        refute Keyword.get(addl, :use_cookies)
+
+        {:ok, playlist_return()}
+      end)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123",
+        use_cookies: false
+      }
+
+      assert {:ok, %Source{}} = Sources.create_source(valid_attrs)
+    end
+
+    test "skips sleep interval" do
+      expect(YtDlpRunnerMock, :run, fn _url, :get_source_details, _opts, _ot, addl ->
+        assert Keyword.get(addl, :skip_sleep_interval)
+
+        {:ok, playlist_return()}
+      end)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123"
+      }
+
+      assert {:ok, %Source{}} = Sources.create_source(valid_attrs)
+    end
+  end
+
+  describe "create_source/2 when testing its options" do
     test "run_post_commit_tasks: false won't enqueue post-commit tasks" do
       expect(YtDlpRunnerMock, :run, &channel_mock/5)
 
@@ -902,28 +951,30 @@ defmodule Pinchflat.SourcesTest do
   end
 
   defp playlist_mock(_url, :get_source_details, _opts, _ot, _addl) do
-    {
-      :ok,
-      Phoenix.json_library().encode!(%{
-        channel: nil,
-        channel_id: nil,
-        playlist_id: "some_playlist_id_#{:rand.uniform(1_000_000)}",
-        playlist_title: "some playlist name"
-      })
-    }
+    {:ok, playlist_return()}
   end
 
   defp channel_mock(_url, :get_source_details, _opts, _ot, _addl) do
+    {:ok, channel_return()}
+  end
+
+  defp playlist_return do
+    Phoenix.json_library().encode!(%{
+      channel: nil,
+      channel_id: nil,
+      playlist_id: "some_playlist_id_#{:rand.uniform(1_000_000)}",
+      playlist_title: "some playlist name"
+    })
+  end
+
+  defp channel_return do
     channel_id = "some_channel_id_#{:rand.uniform(1_000_000)}"
 
-    {
-      :ok,
-      Phoenix.json_library().encode!(%{
-        channel: "some channel name",
-        channel_id: channel_id,
-        playlist_id: channel_id,
-        playlist_title: "some channel name - videos"
-      })
-    }
+    Phoenix.json_library().encode!(%{
+      channel: "some channel name",
+      channel_id: channel_id,
+      playlist_id: channel_id,
+      playlist_title: "some channel name - videos"
+    })
   end
 end

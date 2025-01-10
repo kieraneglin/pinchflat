@@ -45,5 +45,6 @@ defmodule Pinchflat.Settings.Setting do
     setting
     |> cast(attrs, @allowed_fields)
     |> validate_required(@required_fields)
+    |> validate_number(:extractor_sleep_interval, greater_than: 0)
   end
 end

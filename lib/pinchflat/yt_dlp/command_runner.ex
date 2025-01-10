@@ -5,7 +5,9 @@ defmodule Pinchflat.YtDlp.CommandRunner do
 
   require Logger
 
+  alias Pinchflat.Settings
   alias Pinchflat.Utils.CliUtils
+  alias Pinchflat.Utils.NumberUtils
   alias Pinchflat.YtDlp.YtDlpCommandRunner
   alias Pinchflat.Utils.FilesystemUtils, as: FSUtils
 
@@ -22,23 +24,23 @@ defmodule Pinchflat.YtDlp.CommandRunner do
       for a file watcher.
     - :use_cookies - if true, will add a cookie file to the command options. Will not
       attach a cookie file if the user hasn't set one up.
+    - :skip_sleep_interval - if true, will not add the sleep interval options to the command.
+      Usually only used for commands that would be UI-blocking
 
   Returns {:ok, binary()} | {:error, output, status}.
   """
   @impl YtDlpCommandRunner
   def run(url, action_name, command_opts, output_template, addl_opts \\ []) do
     Logger.debug("Running yt-dlp command for action: #{action_name}")
-    # This approach lets us mock the command for testing
-    command = backend_executable()
 
     output_filepath = generate_output_filepath(addl_opts)
     print_to_file_opts = [{:print_to_file, output_template}, output_filepath]
-    user_configured_opts = cookie_file_options(addl_opts)
+    user_configured_opts = cookie_file_options(addl_opts) ++ sleep_interval_opts(addl_opts)
     # These must stay in exactly this order, hence why I'm giving it its own variable.
     all_opts = command_opts ++ print_to_file_opts ++ user_configured_opts ++ global_options()
     formatted_command_opts = [url] ++ CliUtils.parse_options(all_opts)
 
-    case CliUtils.wrap_cmd(command, formatted_command_opts, stderr_to_stdout: true) do
+    case CliUtils.wrap_cmd(backend_executable(), formatted_command_opts, stderr_to_stdout: true) do
       # yt-dlp exit codes:
       #   0 = Everything is successful
       #   100 = yt-dlp must restart for update to complete
@@ -93,6 +95,20 @@ defmodule Pinchflat.YtDlp.CommandRunner do
     case Keyword.get(addl_opts, :use_cookies) do
       true -> add_cookie_file()
       _ -> []
+    end
+  end
+
+  defp sleep_interval_opts(addl_opts) do
+    sleep_interval = Settings.get!(:extractor_sleep_interval)
+
+    if sleep_interval <= 0 || Keyword.get(addl_opts, :skip_sleep_interval) do
+      []
+    else
+      [
+        sleep_requests: NumberUtils.add_jitter(sleep_interval),
+        sleep_interval: NumberUtils.add_jitter(sleep_interval),
+        sleep_subtitles: NumberUtils.add_jitter(sleep_interval)
+      ]
     end
   end
 
