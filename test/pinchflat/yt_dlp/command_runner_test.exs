@@ -98,7 +98,7 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
 
   describe "run/4 when testing sleep interval options" do
     test "includes sleep interval options by default" do
-      Settings.set(extractor_sleep_interval: 5)
+      Settings.set(extractor_sleep_interval_seconds: 5)
 
       assert {:ok, output} = Runner.run(@media_url, :foo, [], "")
 
@@ -115,8 +115,8 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
       refute String.contains?(output, "--sleep-subtitles")
     end
 
-    test "doesn't include sleep interval options when extractor_sleep_interval is 0" do
-      Settings.set(extractor_sleep_interval: 0)
+    test "doesn't include sleep interval options when extractor_sleep_interval_seconds is 0" do
+      Settings.set(extractor_sleep_interval_seconds: 0)
 
       assert {:ok, output} = Runner.run(@media_url, :foo, [], "")
 

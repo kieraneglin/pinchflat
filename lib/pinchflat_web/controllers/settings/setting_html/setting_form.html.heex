@@ -29,7 +29,7 @@
   <section class="mt-8">
     <section>
       <h3 class="text-2xl text-black dark:text-white">
-        Indexing Settings
+        Extractor Settings
       </h3>
 
       <.input
@@ -40,6 +40,14 @@
         help={youtube_api_help()}
         html_help={true}
         inputclass="font-mono text-sm mr-4"
+      />
+
+      <.input
+        field={f[:extractor_sleep_interval_seconds]}
+        placeholder="0"
+        type="number"
+        label="Sleep Interval"
+        help="Sleep interval in seconds between each extractor request. Must be a positive whole number (or set to 0 to disable)"
       />
     </section>
   </section>

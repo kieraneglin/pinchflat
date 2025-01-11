@@ -81,9 +81,9 @@ defmodule Pinchflat.SettingsTest do
     test "ensures the extractor sleep interval is positive" do
       setting = Settings.record()
 
-      assert %Ecto.Changeset{valid?: true} = Settings.change_setting(setting, %{extractor_sleep_interval: 1})
-      assert %Ecto.Changeset{valid?: true} = Settings.change_setting(setting, %{extractor_sleep_interval: 0})
-      assert %Ecto.Changeset{valid?: false} = Settings.change_setting(setting, %{extractor_sleep_interval: -1})
+      assert %Ecto.Changeset{valid?: true} = Settings.change_setting(setting, %{extractor_sleep_interval_seconds: 1})
+      assert %Ecto.Changeset{valid?: true} = Settings.change_setting(setting, %{extractor_sleep_interval_seconds: 0})
+      assert %Ecto.Changeset{valid?: false} = Settings.change_setting(setting, %{extractor_sleep_interval_seconds: -1})
     end
   end
 end

@@ -3,7 +3,7 @@ defmodule Pinchflat.Repo.Migrations.AddExtractorSleepIntervalToSettings do
 
   def change do
     alter table(:settings) do
-      add :extractor_sleep_interval, :number, null: false, default: 0
+      add :extractor_sleep_interval_seconds, :number, null: false, default: 0
     end
   end
 end
