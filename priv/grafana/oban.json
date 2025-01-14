@@ -18,11 +18,7 @@
         "limit": 100,
         "name": "PromEx service start",
         "showIn": 0,
-        "tags": [
-          "prom_ex",
-          "pinchflat",
-          "start"
-        ],
+        "tags": ["prom_ex", "pinchflat", "start"],
         "type": "tags"
       },
       {
@@ -33,11 +29,7 @@
         "limit": 100,
         "name": "PromEx service stop",
         "showIn": 0,
-        "tags": [
-          "prom_ex",
-          "pinchflat",
-          "stop"
-        ],
+        "tags": ["prom_ex", "pinchflat", "stop"],
         "type": "tags"
       }
     ]
@@ -236,9 +228,7 @@
         "displayMode": "lcd",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -433,9 +423,7 @@
         "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -490,9 +478,7 @@
         "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -547,9 +533,7 @@
         "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -2351,9 +2335,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -2411,9 +2393,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -2471,9 +2451,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -2531,9 +2509,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -2881,17 +2857,10 @@
     "to": "now"
   },
   "timepicker": {
-    "refresh_intervals": [
-      "5s",
-      "10s",
-      "30s",
-      "1m",
-      "5m"
-    ]
+    "refresh_intervals": ["5s", "10s", "30s", "1m", "5m"]
   },
   "timezone": "",
   "title": "Pinchflat - PromEx Oban Dashboard",
   "uid": "AF9058A0496CA7FF8D4FA747EEDC7AF3",
   "version": 1
 }
-

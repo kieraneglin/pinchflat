@@ -18,11 +18,7 @@
         "limit": 100,
         "name": "PromEx service start",
         "showIn": 0,
-        "tags": [
-          "prom_ex",
-          "pinchflat",
-          "start"
-        ],
+        "tags": ["prom_ex", "pinchflat", "start"],
         "type": "tags"
       },
       {
@@ -33,11 +29,7 @@
         "limit": 100,
         "name": "PromEx service stop",
         "showIn": 0,
-        "tags": [
-          "prom_ex",
-          "pinchflat",
-          "stop"
-        ],
+        "tags": ["prom_ex", "pinchflat", "stop"],
         "type": "tags"
       }
     ]
@@ -121,9 +113,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
+          "calcs": ["last"],
           "fields": "/^endpoint$/",
           "values": false
         },
@@ -183,9 +173,7 @@
         "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
+          "calcs": ["last"],
           "fields": "/^port$/",
           "values": false
         },
@@ -246,9 +234,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "/^url$/",
           "values": false
         },
@@ -316,9 +302,7 @@
         "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -380,9 +364,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -436,9 +418,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -492,9 +472,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -561,9 +539,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -626,9 +602,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -682,9 +656,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -738,9 +710,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -1999,17 +1969,10 @@
     "to": "now"
   },
   "timepicker": {
-    "refresh_intervals": [
-      "5s",
-      "10s",
-      "30s",
-      "1m",
-      "5m"
-    ]
+    "refresh_intervals": ["5s", "10s", "30s", "1m", "5m"]
   },
   "timezone": "",
   "title": "Pinchflat - PromEx Phoenix Dashboard",
   "uid": "970297EC2ACFCF6777A4D3444B63C036",
   "version": 1
 }
-

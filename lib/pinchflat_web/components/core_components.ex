@@ -700,7 +700,7 @@ defmodule PinchflatWeb.CoreComponents do
   attr :class, :string, default: nil
   attr :rest, :global
 
-  def icon(%{name: "hero-" <> _} = assigns) do
+  def icon(assigns) do
     ~H"""
     <span class={[@name, @class]} {@rest} />
     """
