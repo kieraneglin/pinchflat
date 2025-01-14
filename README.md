@@ -33,6 +33,7 @@
   - [Portainer](#portainer)
   - [Docker](#docker)
   - [Environment Variables](#environment-variables)
+  - [A note on reverse proxies](#reverse-proxies)
 - [Username and Password (authentication)](https://github.com/kieraneglin/pinchflat/wiki/Username-and-Password)
 - [Frequently asked questions](https://github.com/kieraneglin/pinchflat/wiki/Frequently-Asked-Questions)
 - [Documentation](https://github.com/kieraneglin/pinchflat/wiki)
@@ -155,6 +156,10 @@ If you change this setting and it works well for you, please leave a comment on 
 | `BASE_ROUTE_PATH`           | No        | `/`                       | The base path for route generation. Useful when running behind certain reverse proxies - prefixes must be stripped.                       |
 | `YT_DLP_WORKER_CONCURRENCY` | No        | `2`                       | The number of concurrent workers that use `yt-dlp` _per queue_. Set to 1 if you're getting IP limited, otherwise don't touch it           |
 | `ENABLE_PROMETHEUS`         | No        | `false`                   | Setting to _any_ non-blank value will enable Prometheus. See [docs](https://github.com/kieraneglin/pinchflat/wiki/Prometheus-and-Grafana) |
+
+### Reverse Proxies
+
+Pinchflat makes heavy use of websockets for real-time updates. If you're running Pinchflat behind a reverse proxy then you'll need to make sure it's configured to support websockets.
 
 ## EFF donations
 
