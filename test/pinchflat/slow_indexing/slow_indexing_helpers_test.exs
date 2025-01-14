@@ -295,7 +295,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
         response =
           Phoenix.json_library().encode!(%{
             id: "video1",
-            # This is a disallowed title - set MediaItem changeset or issue #549
+            # This is a disallowed title - see MediaItem changeset or issue #549
             title: "youtube video #123",
             original_url: "https://example.com/video1",
             live_status: "not_live",
