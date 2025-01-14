@@ -47,4 +47,21 @@ defmodule Pinchflat.Utils.NumberUtilsTest do
       assert NumberUtils.human_byte_size(nil) == {0, "B"}
     end
   end
+
+  describe "add_jitter/2" do
+    test "returns 0 when the number is less than or equal to 0" do
+      assert NumberUtils.add_jitter(0) == 0
+      assert NumberUtils.add_jitter(-1) == 0
+    end
+
+    test "returns the number with jitter added" do
+      assert NumberUtils.add_jitter(100) in 100..150
+    end
+
+    test "optionally takes a jitter percentage" do
+      assert NumberUtils.add_jitter(100, 0.1) in 90..110
+      assert NumberUtils.add_jitter(100, 0.5) in 50..150
+      assert NumberUtils.add_jitter(100, 1) in 0..200
+    end
+  end
 end

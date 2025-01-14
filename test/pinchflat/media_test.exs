@@ -921,6 +921,14 @@ defmodule Pinchflat.MediaTest do
       media_item = media_item_fixture()
       assert %Ecto.Changeset{} = Media.change_media_item(media_item)
     end
+
+    test "validates the title doesn't start with 'youtube video #'" do
+      # This is to account for youtube restricting indexing. See issue #549 for more
+      media_item = media_item_fixture()
+
+      assert %Ecto.Changeset{valid?: false} = Media.change_media_item(media_item, %{title: "youtube video #123"})
+      assert %Ecto.Changeset{valid?: true} = Media.change_media_item(media_item, %{title: "any other title"})
+    end
   end
 
   describe "change_media_item/1 when testing upload_date_index and source is a channel" do

@@ -180,9 +180,12 @@ defmodule Pinchflat.Sources do
   end
 
   defp add_source_details_to_changeset(source, changeset) do
+    original_url = changeset.changes.original_url
     use_cookies = Ecto.Changeset.get_field(changeset, :use_cookies)
+    # Skipping sleep interval since this is UI blocking and we want to keep this as fast as possible
+    addl_opts = [use_cookies: use_cookies, skip_sleep_interval: true]
 
-    case MediaCollection.get_source_details(changeset.changes.original_url, [], use_cookies: use_cookies) do
+    case MediaCollection.get_source_details(original_url, [], addl_opts) do
       {:ok, source_details} ->
         add_source_details_by_collection_type(source, changeset, source_details)
 

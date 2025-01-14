@@ -1,6 +1,7 @@
 defmodule Pinchflat.YtDlp.CommandRunnerTest do
   use Pinchflat.DataCase
 
+  alias Pinchflat.Settings
   alias Pinchflat.Utils.FilesystemUtils
 
   alias Pinchflat.YtDlp.CommandRunner, as: Runner
@@ -92,6 +93,36 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
 
       # Cleanup
       FilesystemUtils.write_p!(cookie_file, "")
+    end
+  end
+
+  describe "run/4 when testing sleep interval options" do
+    test "includes sleep interval options by default" do
+      Settings.set(extractor_sleep_interval_seconds: 5)
+
+      assert {:ok, output} = Runner.run(@media_url, :foo, [], "")
+
+      assert String.contains?(output, "--sleep-interval")
+      assert String.contains?(output, "--sleep-requests")
+      assert String.contains?(output, "--sleep-subtitles")
+    end
+
+    test "doesn't include sleep interval options when skip_sleep_interval is true" do
+      assert {:ok, output} = Runner.run(@media_url, :foo, [], "", skip_sleep_interval: true)
+
+      refute String.contains?(output, "--sleep-interval")
+      refute String.contains?(output, "--sleep-requests")
+      refute String.contains?(output, "--sleep-subtitles")
+    end
+
+    test "doesn't include sleep interval options when extractor_sleep_interval_seconds is 0" do
+      Settings.set(extractor_sleep_interval_seconds: 0)
+
+      assert {:ok, output} = Runner.run(@media_url, :foo, [], "")
+
+      refute String.contains?(output, "--sleep-interval")
+      refute String.contains?(output, "--sleep-requests")
+      refute String.contains?(output, "--sleep-subtitles")
     end
   end
 

@@ -290,6 +290,29 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       assert %Ecto.Changeset{} = changeset
     end
 
+    test "doesn't blow up if the media item cannot be saved", %{source: source} do
+      stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, _addl_opts ->
+        response =
+          Phoenix.json_library().encode!(%{
+            id: "video1",
+            # This is a disallowed title - see MediaItem changeset or issue #549
+            title: "youtube video #123",
+            original_url: "https://example.com/video1",
+            live_status: "not_live",
+            description: "desc1",
+            aspect_ratio: 1.67,
+            duration: 12.34,
+            upload_date: "20210101"
+          })
+
+        {:ok, response}
+      end)
+
+      assert [changeset] = SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
+
+      assert %Ecto.Changeset{} = changeset
+    end
+
     test "passes the source's download options to the yt-dlp runner", %{source: source} do
       expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, opts, _ot, _addl_opts ->
         assert {:output, "/tmp/test/media/%(title)S.%(ext)S"} in opts

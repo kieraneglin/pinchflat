@@ -115,7 +115,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
   defp action_on_error(message) do
     # This will attempt re-download at the next indexing, but it won't be retried
     # immediately as part of job failure logic
-    non_retryable_errors = ["Video unavailable"]
+    non_retryable_errors = ["Video unavailable", "Sign in to confirm"]
 
     if String.contains?(to_string(message), non_retryable_errors) do
       Logger.error("yt-dlp download will not be retried: #{inspect(message)}")

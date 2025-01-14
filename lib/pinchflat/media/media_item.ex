@@ -112,6 +112,9 @@ defmodule Pinchflat.Media.MediaItem do
     |> dynamic_default(:uuid, fn _ -> Ecto.UUID.generate() end)
     |> update_upload_date_index()
     |> validate_required(@required_fields)
+    # Validate that the title does NOT start with "youtube video #" since that indicates a restriction by YouTube.
+    # See issue #549 for more information.
+    |> validate_format(:title, ~r/^(?!youtube video #)/)
     |> unique_constraint([:media_id, :source_id])
   end
 
