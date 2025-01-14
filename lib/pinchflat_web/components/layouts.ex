@@ -15,11 +15,12 @@ defmodule PinchflatWeb.Layouts do
   attr :text, :string, required: true
   attr :href, :any, required: true
   attr :target, :any, default: "_self"
+  attr :icon_class, :string, default: ""
 
   def sidebar_item(assigns) do
     ~H"""
     <li class="text-bodydark1">
-      <.sidebar_link icon={@icon} text={@text} href={@href} target={@target} />
+      <.sidebar_link icon={@icon} text={@text} href={@href} target={@target} icon_class={@icon_class} />
     </li>
     """
   end
@@ -89,6 +90,7 @@ defmodule PinchflatWeb.Layouts do
   attr :href, :any, required: true
   attr :target, :any, default: "_self"
   attr :class, :string, default: ""
+  attr :icon_class, :string, default: ""
 
   def sidebar_link(assigns) do
     ~H"""
@@ -103,7 +105,7 @@ defmodule PinchflatWeb.Layouts do
         @class
       ]}
     >
-      <.icon :if={@icon} name={@icon} /> {@text}
+      <.icon :if={@icon} name={@icon} class={@icon_class} /> {@text}
     </.link>
     """
   end

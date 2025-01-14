@@ -18,11 +18,7 @@
         "limit": 100,
         "name": "PromEx service start",
         "showIn": 0,
-        "tags": [
-          "prom_ex",
-          "pinchflat",
-          "start"
-        ],
+        "tags": ["prom_ex", "pinchflat", "start"],
         "type": "tags"
       },
       {
@@ -33,11 +29,7 @@
         "limit": 100,
         "name": "PromEx service stop",
         "showIn": 0,
-        "tags": [
-          "prom_ex",
-          "pinchflat",
-          "stop"
-        ],
+        "tags": ["prom_ex", "pinchflat", "stop"],
         "type": "tags"
       }
     ]
@@ -121,9 +113,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -177,9 +167,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -233,9 +221,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -289,9 +275,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -345,9 +329,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
+          "calcs": ["last"],
           "fields": "/^repo$/",
           "values": false
         },
@@ -407,9 +389,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
+          "calcs": ["last"],
           "fields": "/^database_host$/",
           "values": false
         },
@@ -469,9 +449,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
+          "calcs": ["last"],
           "fields": "/^database_name$/",
           "values": false
         },
@@ -531,9 +509,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
+          "calcs": ["last"],
           "fields": "/init_pool_size/",
           "values": false
         },
@@ -593,9 +569,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
+          "calcs": ["last"],
           "fields": "/init_timeout_duration/",
           "values": false
         },
@@ -1264,17 +1238,10 @@
     "to": "now"
   },
   "timepicker": {
-    "refresh_intervals": [
-      "5s",
-      "10s",
-      "30s",
-      "1m",
-      "5m"
-    ]
+    "refresh_intervals": ["5s", "10s", "30s", "1m", "5m"]
   },
   "timezone": "",
   "title": "Pinchflat - PromEx Ecto Dashboard",
   "uid": "449823C137E6C016E4480ADDA42E94EE",
   "version": 1
 }
-
