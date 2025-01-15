@@ -49,8 +49,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
 
     media_item = fetch_and_run_prevent_download_user_script(media_item_id)
 
-    # If the source or media item is set to not download media, perform a no-op unless forced
-    if (media_item.source.download_media && !media_item.prevent_download) || should_force do
+    if should_download_media?(media_item, should_force, is_quality_upgrade) do
       download_media_and_schedule_jobs(media_item, is_quality_upgrade, should_force)
     else
       :ok
@@ -58,6 +57,20 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
   rescue
     Ecto.NoResultsError -> Logger.info("#{__MODULE__} discarded: media item #{media_item_id} not found")
     Ecto.StaleEntryError -> Logger.info("#{__MODULE__} discarded: media item #{media_item_id} stale")
+  end
+
+  # If this is a quality upgrade, only check if the source is set to download media
+  # or that the media item's download hasn't been prevented
+  defp should_download_media?(media_item, should_force, true = _is_quality_upgrade) do
+    (media_item.source.download_media && !media_item.prevent_download) || should_force
+  end
+
+  # If it's not a quality upgrade, additionally check if the media item is pending download
+  defp should_download_media?(media_item, should_force, _is_quality_upgrade) do
+    source = media_item.source
+    is_pending = Media.pending_download?(media_item)
+
+    (is_pending && source.download_media && !media_item.prevent_download) || should_force
   end
 
   # If a user script exists and, when run, returns a non-zero exit code, prevent this and all future downloads
