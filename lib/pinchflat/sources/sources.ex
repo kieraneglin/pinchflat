@@ -300,6 +300,10 @@ defmodule Pinchflat.Sources do
       %{__meta__: %{state: :built}} ->
         SlowIndexingHelpers.kickoff_indexing_task(source)
 
+        if Ecto.Changeset.get_field(changeset, :fast_index) do
+          FastIndexingHelpers.kickoff_indexing_task(source)
+        end
+
       # If the record has been persisted, only run indexing if the
       # indexing frequency has been changed and is now greater than 0
       %{__meta__: %{state: :loaded}} ->

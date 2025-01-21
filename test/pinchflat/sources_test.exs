@@ -294,6 +294,34 @@ defmodule Pinchflat.SourcesTest do
       assert_enqueued(worker: MediaCollectionIndexingWorker, args: %{"id" => source.id})
     end
 
+    test "creation will schedule a fast indexing job if the fast_index option is set" do
+      expect(YtDlpRunnerMock, :run, &channel_mock/5)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123",
+        fast_index: true
+      }
+
+      assert {:ok, %Source{} = source} = Sources.create_source(valid_attrs)
+
+      assert_enqueued(worker: FastIndexingWorker, args: %{"id" => source.id})
+    end
+
+    test "creation will not schedule a fast indexing job if the fast_index option is not set" do
+      expect(YtDlpRunnerMock, :run, &channel_mock/5)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123",
+        fast_index: false
+      }
+
+      assert {:ok, %Source{}} = Sources.create_source(valid_attrs)
+
+      refute_enqueued(worker: FastIndexingWorker)
+    end
+
     test "creation schedules an index test even if the index frequency is 0" do
       expect(YtDlpRunnerMock, :run, &channel_mock/5)
 

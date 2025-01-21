@@ -39,7 +39,6 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   def kickoff_indexing_task(%Source{} = source, job_args \\ %{}, job_opts \\ []) do
     job_offset_seconds = if job_args[:force], do: 0, else: calculate_job_offset_seconds(source)
 
-    Tasks.delete_pending_tasks_for(source, "FastIndexingWorker")
     Tasks.delete_pending_tasks_for(source, "MediaCollectionIndexingWorker", include_executing: true)
 
     MediaCollectionIndexingWorker.kickoff_with_task(source, job_args, job_opts ++ [schedule_in: job_offset_seconds])
