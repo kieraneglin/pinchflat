@@ -47,7 +47,7 @@ config :pinchflat, Pinchflat.Repo,
 config :pinchflat, Oban,
   queues: [
     default: 10,
-    fast_indexing: 6,
+    fast_indexing: yt_dlp_worker_count,
     media_collection_indexing: yt_dlp_worker_count,
     media_fetching: yt_dlp_worker_count,
     remote_metadata: yt_dlp_worker_count,
