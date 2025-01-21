@@ -231,8 +231,9 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
   # The download archive isn't useful for playlists (since those are ordered arbitrarily)
   # and we don't want to use it if the indexing was forced by the user. In other words,
   # only create an archive for channels that are being indexed as part of their regular
-  # indexing schedule
+  # indexing schedule. The first indexing pass should also not create an archive.
   defp build_download_archive_options(%Source{collection_type: :playlist}, _was_forced), do: []
+  defp build_download_archive_options(%Source{last_indexed_at: nil}, _was_forced), do: []
   defp build_download_archive_options(_source, true), do: []
 
   defp build_download_archive_options(source, _was_forced) do

@@ -475,7 +475,9 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
   end
 
   describe "index_and_enqueue_download_for_media_items when testing the download archive" do
-    test "a download archive is used if the source is a channel", %{source: source} do
+    test "a download archive is used if the source is a channel that has been indexed before" do
+      source = source_fixture(%{collection_type: :channel, last_indexed_at: now()})
+
       expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, opts, _ot, _addl_opts ->
         assert :break_on_existing in opts
         assert Keyword.has_key?(opts, :download_archive)
@@ -488,6 +490,19 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
 
     test "a download archive is not used if the source is not a channel" do
       source = source_fixture(%{collection_type: :playlist})
+
+      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, opts, _ot, _addl_opts ->
+        refute :break_on_existing in opts
+        refute Keyword.has_key?(opts, :download_archive)
+
+        {:ok, source_attributes_return_fixture()}
+      end)
+
+      SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
+    end
+
+    test "a download archive is not used if the source has never been indexed before" do
+      source = source_fixture(%{collection_type: :channel, last_indexed_at: nil})
 
       expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, opts, _ot, _addl_opts ->
         refute :break_on_existing in opts
@@ -512,7 +527,9 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source, was_forced: true)
     end
 
-    test "the download archive is formatted correctly and contains the right video", %{source: source} do
+    test "the download archive is formatted correctly and contains the right video" do
+      source = source_fixture(%{collection_type: :channel, last_indexed_at: now()})
+
       media_items =
         1..21
         |> Enum.map(fn n ->
