@@ -6,6 +6,9 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+echo "Setting umask to ${UMASK}"
+umask ${UMASK}
+
 /app/bin/migrate
 
 cd -P -- "$(dirname -- "$0")"
