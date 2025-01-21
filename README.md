@@ -148,6 +148,7 @@ If you change this setting and it works well for you, please leave a comment on 
 | --------------------------- | --------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | `TZ`                        | No        | `UTC`                     | Must follow IANA TZ format                                                                                                                |
 | `LOG_LEVEL`                 | No        | `debug`                   | Can be set to `info` but `debug` is strongly recommended                                                                                  |
+| `UMASK`                     | No        | `022`                     | Unraid users may want to set this to `000`                                                                                                |
 | `BASIC_AUTH_USERNAME`       | No        |                           | See [authentication docs](https://github.com/kieraneglin/pinchflat/wiki/Username-and-Password)                                            |
 | `BASIC_AUTH_PASSWORD`       | No        |                           | See [authentication docs](https://github.com/kieraneglin/pinchflat/wiki/Username-and-Password)                                            |
 | `EXPOSE_FEED_ENDPOINTS`     | No        | `false`                   | See [RSS feed docs](https://github.com/kieraneglin/pinchflat/wiki/Podcast-RSS-Feeds)                                                      |
