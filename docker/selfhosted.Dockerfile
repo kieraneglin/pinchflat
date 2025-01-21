@@ -7,7 +7,7 @@ ARG DEBIAN_VERSION=bookworm-20240612-slim
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 
-FROM ${BUILDER_IMAGE} as builder
+FROM ${BUILDER_IMAGE} AS builder
 
 ARG TARGETPLATFORM
 RUN echo "Building for ${TARGETPLATFORM:?}"
@@ -110,9 +110,9 @@ RUN apt-get update -y && \
     rm -rf /var/lib/apt/lists/*
 
 # More locale setup
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 
 WORKDIR "/app"
 
@@ -124,6 +124,7 @@ RUN mkdir -p /config /downloads /etc/elixir_tzdata_data /etc/yt-dlp/plugins && \
 ENV MIX_ENV="prod"
 ENV PORT=${PORT}
 ENV RUN_CONTEXT="selfhosted"
+ENV UMASK=022
 EXPOSE ${PORT}
 
 # Only copy the final release from the build stage
