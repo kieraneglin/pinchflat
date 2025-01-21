@@ -6,6 +6,8 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+umask 000
+
 /app/bin/migrate
 
 cd -P -- "$(dirname -- "$0")"
