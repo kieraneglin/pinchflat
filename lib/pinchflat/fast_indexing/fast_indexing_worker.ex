@@ -38,8 +38,8 @@ defmodule Pinchflat.FastIndexing.FastIndexingWorker do
 
   Order of operations:
     1. FastIndexingWorker (this module) periodically checks the YouTube RSS feed for new media.
-       with `FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed`
-    2. If the above `kickoff_download_tasks_from_youtube_rss_feed` finds new media items in the RSS feed,
+       with `FastIndexingHelpers.index_and_kickoff_downloads`
+    2. If the above `index_and_kickoff_downloads` finds new media items in the RSS feed,
        it indexes them with a yt-dlp call to create the media item records then kicks off downloading
        tasks (MediaDownloadWorker) for any new media items _that should be downloaded_.
     3. Once downloads are kicked off, this worker sends a notification to the apprise server if applicable
@@ -67,7 +67,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingWorker do
 
     new_media_items =
       source
-      |> FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed()
+      |> FastIndexingHelpers.index_and_kickoff_downloads()
       |> Enum.filter(&Media.pending_download?(&1))
 
     if source.download_media do

@@ -27,13 +27,15 @@ defmodule Pinchflat.Downloading.DownloadingHelpers do
 
   Returns :ok
   """
-  def enqueue_pending_download_tasks(%Source{download_media: true} = source) do
+  def enqueue_pending_download_tasks(source, job_opts \\ [])
+
+  def enqueue_pending_download_tasks(%Source{download_media: true} = source, job_opts) do
     source
     |> Media.list_pending_media_items_for()
-    |> Enum.each(&MediaDownloadWorker.kickoff_with_task/1)
+    |> Enum.each(&MediaDownloadWorker.kickoff_with_task(&1, %{}, job_opts))
   end
 
-  def enqueue_pending_download_tasks(%Source{download_media: false}) do
+  def enqueue_pending_download_tasks(%Source{download_media: false}, _job_opts) do
     :ok
   end
 
@@ -55,13 +57,13 @@ defmodule Pinchflat.Downloading.DownloadingHelpers do
 
   Returns {:ok, %Task{}} | {:error, :should_not_download} | {:error, any()}
   """
-  def kickoff_download_if_pending(%MediaItem{} = media_item) do
+  def kickoff_download_if_pending(%MediaItem{} = media_item, job_opts \\ []) do
     media_item = Repo.preload(media_item, :source)
 
     if media_item.source.download_media && Media.pending_download?(media_item) do
       Logger.info("Kicking off download for media item ##{media_item.id} (#{media_item.media_id})")
 
-      MediaDownloadWorker.kickoff_with_task(media_item)
+      MediaDownloadWorker.kickoff_with_task(media_item, %{}, job_opts)
     else
       {:error, :should_not_download}
     end

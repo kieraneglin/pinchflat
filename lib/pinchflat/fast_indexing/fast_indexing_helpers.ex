@@ -40,7 +40,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
   Returns [%MediaItem{}] where each item is a new media item that was created _but not necessarily
   downloaded_.
   """
-  def kickoff_download_tasks_from_youtube_rss_feed(%Source{} = source) do
+  def index_and_kickoff_downloads(%Source{} = source) do
     # The media_profile is needed to determine the quality options to _then_ determine a more
     # accurate predicted filepath
     source = Repo.preload(source, [:media_profile])
@@ -53,6 +53,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
       Enum.map(new_media_ids, fn media_id ->
         case create_media_item_from_media_id(source, media_id) do
           {:ok, media_item} ->
+            DownloadingHelpers.kickoff_download_if_pending(media_item, priority: 0)
             media_item
 
           err ->
@@ -61,7 +62,9 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
         end
       end)
 
-    DownloadingHelpers.enqueue_pending_download_tasks(source)
+    # Pick up any stragglers. Intentionally has a lower priority than the per-media item
+    # kickoff above
+    DownloadingHelpers.enqueue_pending_download_tasks(source, priority: 1)
 
     Enum.filter(maybe_new_media_items, & &1)
   end

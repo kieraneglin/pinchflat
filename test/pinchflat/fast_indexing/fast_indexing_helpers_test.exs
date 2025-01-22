@@ -38,36 +38,48 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
     end
   end
 
-  describe "kickoff_download_tasks_from_youtube_rss_feed/1" do
-    test "enqueues a new worker for each new media_id in the source's RSS feed", %{source: source} do
+  describe "index_and_kickoff_downloads/1" do
+    test "enqueues a worker for each new media_id in the source's RSS feed", %{source: source} do
       expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
 
-      assert [media_item] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+      assert [media_item] = FastIndexingHelpers.index_and_kickoff_downloads(source)
 
       assert [worker] = all_enqueued(worker: MediaDownloadWorker)
       assert worker.args["id"] == media_item.id
+      assert worker.priority == 0
     end
 
     test "does not enqueue a new worker for the source's media IDs we already know about", %{source: source} do
       expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
       media_item_fixture(source_id: source.id, media_id: "test_1")
 
-      assert [] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+      assert [] = FastIndexingHelpers.index_and_kickoff_downloads(source)
 
       refute_enqueued(worker: MediaDownloadWorker)
+    end
+
+    test "kicks off a download task for all pending media but at a lower priority", %{source: source} do
+      pending_item = media_item_fixture(source_id: source.id, media_filepath: nil)
+      expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
+
+      assert [%MediaItem{}] = FastIndexingHelpers.index_and_kickoff_downloads(source)
+
+      assert [worker_1, _worker_2] = all_enqueued(worker: MediaDownloadWorker)
+      assert worker_1.args["id"] == pending_item.id
+      assert worker_1.priority == 1
     end
 
     test "returns the found media items", %{source: source} do
       expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
 
-      assert [%MediaItem{}] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+      assert [%MediaItem{}] = FastIndexingHelpers.index_and_kickoff_downloads(source)
     end
 
     test "does not enqueue a download job if the source does not allow it" do
       expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
       source = source_fixture(%{download_media: false})
 
-      assert [%MediaItem{}] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+      assert [%MediaItem{}] = FastIndexingHelpers.index_and_kickoff_downloads(source)
 
       refute_enqueued(worker: MediaDownloadWorker)
     end
@@ -75,7 +87,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
     test "creates a download task record", %{source: source} do
       expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
 
-      assert [media_item] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+      assert [media_item] = FastIndexingHelpers.index_and_kickoff_downloads(source)
 
       assert [_] = Tasks.list_tasks_for(media_item, "MediaDownloadWorker")
     end
@@ -89,7 +101,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
         {:ok, media_attributes_return_fixture()}
       end)
 
-      FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+      FastIndexingHelpers.index_and_kickoff_downloads(source)
     end
 
     test "sets use_cookies if the source uses cookies" do
@@ -103,7 +115,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
 
       source = source_fixture(%{use_cookies: true})
 
-      assert [%MediaItem{}] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+      assert [%MediaItem{}] = FastIndexingHelpers.index_and_kickoff_downloads(source)
     end
 
     test "does not set use_cookies if the source does not use cookies" do
@@ -117,7 +129,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
 
       source = source_fixture(%{use_cookies: false})
 
-      assert [%MediaItem{}] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+      assert [%MediaItem{}] = FastIndexingHelpers.index_and_kickoff_downloads(source)
     end
 
     test "does not enqueue a download job if the media item does not match the format rules" do
@@ -142,7 +154,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
         {:ok, output}
       end)
 
-      assert [%MediaItem{}] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+      assert [%MediaItem{}] = FastIndexingHelpers.index_and_kickoff_downloads(source)
 
       refute_enqueued(worker: MediaDownloadWorker)
     end
@@ -154,7 +166,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
         {:ok, "{}"}
       end)
 
-      assert [] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+      assert [] = FastIndexingHelpers.index_and_kickoff_downloads(source)
     end
 
     test "does not blow up if a media item causes a yt-dlp error", %{source: source} do
@@ -164,11 +176,11 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
         {:error, "message", 1}
       end)
 
-      assert [] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+      assert [] = FastIndexingHelpers.index_and_kickoff_downloads(source)
     end
   end
 
-  describe "kickoff_download_tasks_from_youtube_rss_feed/1 when testing backends" do
+  describe "index_and_kickoff_downloads/1 when testing backends" do
     test "uses the YouTube API if it is enabled", %{source: source} do
       expect(HTTPClientMock, :get, fn url, _headers ->
         assert url =~ "https://youtube.googleapis.com/youtube/v3/playlistItems"
@@ -178,7 +190,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
 
       Settings.set(youtube_api_key: "test_key")
 
-      assert [] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+      assert [] = FastIndexingHelpers.index_and_kickoff_downloads(source)
     end
 
     test "the YouTube API creates records as expected", %{source: source} do
@@ -188,7 +200,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
 
       Settings.set(youtube_api_key: "test_key")
 
-      assert [%MediaItem{}] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+      assert [%MediaItem{}] = FastIndexingHelpers.index_and_kickoff_downloads(source)
     end
 
     test "RSS is used as a backup if the API fails", %{source: source} do
@@ -197,7 +209,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
 
       Settings.set(youtube_api_key: "test_key")
 
-      assert [%MediaItem{}] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+      assert [%MediaItem{}] = FastIndexingHelpers.index_and_kickoff_downloads(source)
     end
 
     test "RSS is used if the API is not enabled", %{source: source} do
@@ -209,7 +221,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
 
       Settings.set(youtube_api_key: nil)
 
-      assert [%MediaItem{}] = FastIndexingHelpers.kickoff_download_tasks_from_youtube_rss_feed(source)
+      assert [%MediaItem{}] = FastIndexingHelpers.index_and_kickoff_downloads(source)
     end
   end
 end

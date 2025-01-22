@@ -3,6 +3,7 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
 
   use Oban.Worker,
     queue: :media_fetching,
+    priority: 5,
     unique: [period: :infinity, states: [:available, :scheduled, :retryable, :executing]],
     tags: ["media_item", "media_fetching", "show_in_dashboard"]
 

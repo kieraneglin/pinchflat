@@ -96,26 +96,6 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
       assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
     end
 
-    test "deletes any pending media tasks for the source" do
-      source = source_fixture()
-      {:ok, job} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
-      task = task_fixture(source_id: source.id, job_id: job.id)
-
-      assert {:ok, _} = SlowIndexingHelpers.kickoff_indexing_task(source)
-
-      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
-    end
-
-    test "deletes any fast indexing tasks for the source" do
-      source = source_fixture()
-      {:ok, job} = Oban.insert(FastIndexingWorker.new(%{"id" => source.id}))
-      task = task_fixture(source_id: source.id, job_id: job.id)
-
-      assert {:ok, _} = SlowIndexingHelpers.kickoff_indexing_task(source)
-
-      assert_raise Ecto.NoResultsError, fn -> Repo.reload!(task) end
-    end
-
     test "can be called with additional job arguments" do
       source = source_fixture(index_frequency_minutes: 1)
       job_args = %{"force" => true}

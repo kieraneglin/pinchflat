@@ -46,13 +46,20 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
       assert_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id, "force" => true})
     end
 
-    test "can be called with additional job options", %{media_item: media_item} do
-      job_opts = [max_attempts: 5]
-
-      assert {:ok, _} = MediaDownloadWorker.kickoff_with_task(media_item, %{}, job_opts)
+    test "has a priority of 5 by default", %{media_item: media_item} do
+      assert {:ok, _} = MediaDownloadWorker.kickoff_with_task(media_item)
 
       [job] = all_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
-      assert job.max_attempts == 5
+
+      assert job.priority == 5
+    end
+
+    test "priority can be set", %{media_item: media_item} do
+      assert {:ok, _} = MediaDownloadWorker.kickoff_with_task(media_item, %{}, priority: 0)
+
+      [job] = all_enqueued(worker: MediaDownloadWorker, args: %{"id" => media_item.id})
+
+      assert job.priority == 0
     end
   end
 
