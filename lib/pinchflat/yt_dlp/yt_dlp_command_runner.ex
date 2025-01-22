@@ -9,4 +9,5 @@ defmodule Pinchflat.YtDlp.YtDlpCommandRunner do
   @callback run(binary(), atom(), keyword(), binary()) :: {:ok, binary()} | {:error, binary(), integer()}
   @callback run(binary(), atom(), keyword(), binary(), keyword()) :: {:ok, binary()} | {:error, binary(), integer()}
   @callback version() :: {:ok, binary()} | {:error, binary()}
+  @callback update() :: {:ok, binary()} | {:error, binary()}
 end

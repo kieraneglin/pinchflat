@@ -76,6 +76,24 @@ defmodule Pinchflat.YtDlp.CommandRunner do
     end
   end
 
+  @doc """
+  Updates yt-dlp to the latest version
+
+  Returns {:ok, binary()} | {:error, binary()}
+  """
+  @impl YtDlpCommandRunner
+  def update do
+    command = backend_executable()
+
+    case CliUtils.wrap_cmd(command, ["--update"]) do
+      {output, 0} ->
+        {:ok, String.trim(output)}
+
+      {output, _} ->
+        {:error, output}
+    end
+  end
+
   defp generate_output_filepath(addl_opts) do
     case Keyword.get(addl_opts, :output_filepath) do
       nil -> FSUtils.generate_metadata_tmpfile(:json)
