@@ -10,6 +10,7 @@ import Config
 config :pinchflat,
   ecto_repos: [Pinchflat.Repo],
   generators: [timestamp_type: :utc_datetime],
+  env: config_env(),
   # Specifying backend data here makes mocking and local testing SUPER easy
   yt_dlp_executable: System.find_executable("yt-dlp"),
   apprise_executable: System.find_executable("apprise"),
@@ -49,16 +50,7 @@ config :pinchflat, PinchflatWeb.Endpoint,
 
 config :pinchflat, Oban,
   engine: Oban.Engines.Lite,
-  repo: Pinchflat.Repo,
-  # Keep old jobs for 30 days for display in the UI
-  plugins: [
-    {Oban.Plugins.Pruner, max_age: 30 * 24 * 60 * 60},
-    {Oban.Plugins.Cron,
-     crontab: [
-       {"0 1 * * *", Pinchflat.Downloading.MediaRetentionWorker},
-       {"0 2 * * *", Pinchflat.Downloading.MediaQualityUpgradeWorker}
-     ]}
-  ]
+  repo: Pinchflat.Repo
 
 # Configures the mailer
 #

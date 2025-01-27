@@ -1,11 +1,13 @@
-defmodule Pinchflat.Boot.PostJobStartupTasks do
+defmodule Pinchflat.Boot.PostBootStartupTasks do
   @moduledoc """
   This module is responsible for running startup tasks on app boot
-  AFTER the job runner has initialized.
+  AFTER all other boot steps have taken place and the app is ready to serve requests.
 
   It's a GenServer because that plays REALLY nicely with the existing
   Phoenix supervision tree.
   """
+
+  alias Pinchflat.YtDlp.UpdateWorker, as: YtDlpUpdateWorker
 
   # restart: :temporary means that this process will never be restarted (ie: will run once and then die)
   use GenServer, restart: :temporary
@@ -16,7 +18,7 @@ defmodule Pinchflat.Boot.PostJobStartupTasks do
   end
 
   @doc """
-  Runs application startup tasks.
+  Runs post-boot application startup tasks.
 
   Any code defined here will run every time the application starts. You must
   make sure that the code is idempotent and safe to run multiple times.
@@ -33,8 +35,12 @@ defmodule Pinchflat.Boot.PostJobStartupTasks do
   end
 
   def init(state) do
-    # Nothing at the moment!
+    update_yt_dlp()
 
     {:ok, state}
+  end
+
+  defp update_yt_dlp do
+    YtDlpUpdateWorker.kickoff()
   end
 end

@@ -154,6 +154,14 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
     end
   end
 
+  describe "update/0" do
+    test "adds the update arg" do
+      assert {:ok, output} = Runner.update()
+
+      assert String.contains?(output, "--update")
+    end
+  end
+
   defp wrap_executable(new_executable, fun) do
     Application.put_env(:pinchflat, :yt_dlp_executable, new_executable)
     fun.()

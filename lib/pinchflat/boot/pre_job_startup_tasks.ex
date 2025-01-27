@@ -19,7 +19,7 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
   alias Pinchflat.Lifecycle.UserScripts.CommandRunner, as: UserScriptRunner
 
   def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, %{}, opts)
+    GenServer.start_link(__MODULE__, %{env: Application.get_env(:pinchflat, :env)}, opts)
   end
 
   @doc """
@@ -32,6 +32,13 @@ defmodule Pinchflat.Boot.PreJobStartupTasks do
   Should be fast - anything with the potential to be slow should be kicked off as a job instead.
   """
   @impl true
+  def init(%{env: :test} = state) do
+    # Do nothing _as part of the app bootup process_.
+    # Since bootup calls `start_link` and that's where the `env` state is injected,
+    # you can still call `.init()` manually to run these tasks for testing purposes
+    {:ok, state}
+  end
+
   def init(state) do
     ensure_tmpfile_directory()
     reset_executing_jobs()
