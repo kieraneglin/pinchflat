@@ -9,8 +9,12 @@ defmodule Pinchflat.Application do
   @impl true
   def start(_type, _args) do
     check_and_update_timezone()
+    attach_oban_telemetry()
+    Logger.add_handlers(:pinchflat)
 
-    children = [
+    # See https://hexdocs.pm/elixir/Supervisor.html
+    # for other strategies and supported options
+    [
       Pinchflat.PromEx,
       PinchflatWeb.Telemetry,
       Pinchflat.Repo,
@@ -24,17 +28,11 @@ defmodule Pinchflat.Application do
       {Finch, name: Pinchflat.Finch},
       # Start a worker by calling: Pinchflat.Worker.start_link(arg)
       # {Pinchflat.Worker, arg},
-      # Start to serve requests, typically the last entry
-      PinchflatWeb.Endpoint
+      # Start to serve requests, typically the last entry (except for the post-boot tasks)
+      PinchflatWeb.Endpoint,
+      Pinchflat.Boot.PostBootStartupTasks
     ]
-
-    attach_oban_telemetry()
-    Logger.add_handlers(:pinchflat)
-
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Pinchflat.Supervisor]
-    Supervisor.start_link(children, opts)
+    |> Supervisor.start_link(strategy: :one_for_one, name: Pinchflat.Supervisor)
   end
 
   # Tell Phoenix to update the endpoint configuration
