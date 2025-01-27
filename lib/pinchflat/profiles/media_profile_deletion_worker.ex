@@ -14,7 +14,7 @@ defmodule Pinchflat.Profiles.MediaProfileDeletionWorker do
   Starts the profile deletion worker. Does not attach it to a task like `kickoff_with_task/2`
   since deletion also cancels all tasks for the profile
 
-  Returns {:ok, %Task{}} | {:error, %Ecto.Changeset{}}
+  Returns {:ok, %Oban.Job{}} | {:error, %Ecto.Changeset{}}
   """
   def kickoff(profile, job_args \\ %{}, job_opts \\ []) do
     %{id: profile.id}

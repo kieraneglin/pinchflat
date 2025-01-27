@@ -20,7 +20,7 @@ defmodule PinchflatWeb.Endpoint do
   plug Plug.Static,
     at: "/",
     from: :pinchflat,
-    gzip: Mix.env() == :prod,
+    gzip: Application.compile_env(:pinchflat, :env) == :prod,
     only: PinchflatWeb.static_paths()
 
   # Code reloading can be explicitly enabled under the

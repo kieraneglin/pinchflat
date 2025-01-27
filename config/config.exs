@@ -10,6 +10,7 @@ import Config
 config :pinchflat,
   ecto_repos: [Pinchflat.Repo],
   generators: [timestamp_type: :utc_datetime],
+  env: config_env(),
   # Specifying backend data here makes mocking and local testing SUPER easy
   yt_dlp_executable: System.find_executable("yt-dlp"),
   apprise_executable: System.find_executable("apprise"),
