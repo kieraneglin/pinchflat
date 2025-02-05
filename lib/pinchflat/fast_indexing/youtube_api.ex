@@ -12,6 +12,8 @@ defmodule Pinchflat.FastIndexing.YoutubeApi do
 
   @behaviour YoutubeBehaviour
 
+  @agent_name {:global, __MODULE__.KeyIndex}
+
   @doc """
   Determines if the YouTube API is enabled for fast indexing by checking
   if the user has an API key set
@@ -19,7 +21,13 @@ defmodule Pinchflat.FastIndexing.YoutubeApi do
   Returns boolean()
   """
   @impl YoutubeBehaviour
-  def enabled?(), do: is_binary(api_key())
+  def enabled?() do
+    try do
+      not Enum.empty?(api_keys())
+    rescue
+      _ -> false
+    end
+  end
 
   @doc """
   Fetches the recent media IDs from the YouTube API for a given source.
@@ -74,8 +82,33 @@ defmodule Pinchflat.FastIndexing.YoutubeApi do
     |> FunctionUtils.wrap_ok()
   end
 
-  defp api_key do
+  defp api_keys do
     Settings.get!(:youtube_api_key)
+    |> String.trim()
+    |> String.split(",")
+    |> Enum.map(&String.trim/1)
+    |> Enum.reject(&(&1 == ""))
+  end
+
+  # Gets the next API key in round-robin fashion
+  defp next_api_key do
+    keys = api_keys()
+    case keys do
+      [] -> nil
+      keys ->
+        case Agent.start(fn -> 0 end, name: @agent_name) do
+          {:ok, _pid} -> :ok
+          {:error, {:already_started, _pid}} -> :ok
+        end
+
+        current_index = Agent.get_and_update(@agent_name, fn current ->
+          next = rem(current + 1, length(keys))
+          {current, next}
+        end)
+
+        Logger.debug("Using YouTube API key: #{Enum.at(keys, current_index)}")
+        Enum.at(keys, current_index)
+    end
   end
 
   defp construct_api_endpoint(playlist_id) do
@@ -83,7 +116,7 @@ defmodule Pinchflat.FastIndexing.YoutubeApi do
     property_type = "contentDetails"
     max_results = 50
 
-    "#{api_base}?part=#{property_type}&maxResults=#{max_results}&playlistId=#{playlist_id}&key=#{api_key()}"
+    "#{api_base}?part=#{property_type}&maxResults=#{max_results}&playlistId=#{playlist_id}&key=#{next_api_key()}"
   end
 
   defp http_client do
