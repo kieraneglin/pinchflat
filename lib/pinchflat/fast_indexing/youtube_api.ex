@@ -21,13 +21,7 @@ defmodule Pinchflat.FastIndexing.YoutubeApi do
   Returns boolean()
   """
   @impl YoutubeBehaviour
-  def enabled?() do
-    try do
-      not Enum.empty?(api_keys())
-    rescue
-      _ -> false
-    end
-  end
+  def enabled?, do: Enum.any?(api_keys())
 
   @doc """
   Fetches the recent media IDs from the YouTube API for a given source.
@@ -83,28 +77,40 @@ defmodule Pinchflat.FastIndexing.YoutubeApi do
   end
 
   defp api_keys do
-    Settings.get!(:youtube_api_key)
-    |> String.trim()
-    |> String.split(",")
-    |> Enum.map(&String.trim/1)
-    |> Enum.reject(&(&1 == ""))
+    case Settings.get!(:youtube_api_key) do
+      nil ->
+        []
+
+      keys ->
+        keys
+        |> String.split(",")
+        |> Enum.map(&String.trim/1)
+        |> Enum.reject(&(&1 == ""))
+    end
+  end
+
+  defp get_or_start_api_key_agent do
+    case Agent.start(fn -> 0 end, name: @agent_name) do
+      {:ok, pid} -> pid
+      {:error, {:already_started, pid}} -> pid
+    end
   end
 
   # Gets the next API key in round-robin fashion
   defp next_api_key do
     keys = api_keys()
-    case keys do
-      [] -> nil
-      keys ->
-        case Agent.start(fn -> 0 end, name: @agent_name) do
-          {:ok, _pid} -> :ok
-          {:error, {:already_started, _pid}} -> :ok
-        end
 
-        current_index = Agent.get_and_update(@agent_name, fn current ->
-          next = rem(current + 1, length(keys))
-          {current, next}
-        end)
+    case keys do
+      [] ->
+        nil
+
+      keys ->
+        pid = get_or_start_api_key_agent()
+
+        current_index =
+          Agent.get_and_update(pid, fn current ->
+            {current, rem(current + 1, length(keys))}
+          end)
 
         Logger.debug("Using YouTube API key: #{Enum.at(keys, current_index)}")
         Enum.at(keys, current_index)
