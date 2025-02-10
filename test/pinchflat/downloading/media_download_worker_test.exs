@@ -147,6 +147,22 @@ defmodule Pinchflat.Downloading.MediaDownloadWorkerTest do
       end)
     end
 
+    test "does not set the job to retryable you aren't a member", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, 2, fn
+        _url, :get_downloadable_status, _opts, _ot, _addl ->
+          {:ok, "{}"}
+
+        _url, :download, _opts, _ot, _addl ->
+          {:error, "This video is available to this channel's members on level: foo", 1}
+      end)
+
+      Oban.Testing.with_testing_mode(:inline, fn ->
+        {:ok, job} = Oban.insert(MediaDownloadWorker.new(%{id: media_item.id, quality_upgrade?: true}))
+
+        assert job.state == "completed"
+      end)
+    end
+
     test "ensures error are returned in a 2-item tuple", %{media_item: media_item} do
       expect(YtDlpRunnerMock, :run, 2, fn
         _url, :get_downloadable_status, _opts, _ot, _addl -> {:ok, "{}"}
