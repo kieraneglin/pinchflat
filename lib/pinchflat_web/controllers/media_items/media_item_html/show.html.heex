@@ -16,7 +16,7 @@
     </.link>
   </nav>
 </div>
-<div class="rounded-sm border border-stroke bg-white py-5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark px-7.5">
+<div class="rounded-sm border py-5 pt-6 shadow-default border-strokedark bg-boxdark px-7.5">
   <div class="max-w-full">
     <.tabbed_layout>
       <:tab_append>
@@ -54,19 +54,29 @@
             </section>
           <% end %>
 
-          <h3 class="font-bold text-xl mt-6">Raw Attributes</h3>
+          <section :if={@media_item.last_error} class="mt-6">
+            <div class="flex items-center gap-1 mb-2">
+              <.icon name="hero-exclamation-circle-solid" class="text-red-500" />
+              <h3 class="font-bold text-xl">Last Error</h3>
+            </div>
+            <span>{@media_item.last_error}</span>
+          </section>
+
           <section>
-            <strong>Source:</strong>
-            <.subtle_link href={~p"/sources/#{@media_item.source_id}"}>
-              {@media_item.source.custom_name}
-            </.subtle_link>
-            <.list_items_from_map map={Map.from_struct(@media_item)} />
+            <h3 class="font-bold text-xl mb-2">Raw Attributes</h3>
+            <section>
+              <strong>Source:</strong>
+              <.subtle_link href={~p"/sources/#{@media_item.source_id}"}>
+                {@media_item.source.custom_name}
+              </.subtle_link>
+              <.list_items_from_map map={Map.from_struct(@media_item)} />
+            </section>
           </section>
         </div>
       </:tab>
       <:tab title="Tasks" id="tasks">
         <%= if match?([_|_], @media_item.tasks) do %>
-          <.table rows={@media_item.tasks} table_class="text-black dark:text-white">
+          <.table rows={@media_item.tasks} table_class="text-white">
             <:col :let={task} label="Worker">
               {task.job.worker}
             </:col>
