@@ -35,4 +35,13 @@ defmodule Pinchflat.Utils.StringUtils do
   def double_brace(string) do
     "{{ #{string} }}"
   end
+
+  @doc """
+  Wraps a string in quotes if it's not already a string. Useful for working with
+  error messages whose types can vary.
+
+  Returns binary()
+  """
+  def wrap_string(message) when is_binary(message), do: message
+  def wrap_string(message), do: "#{inspect(message)}"
 end

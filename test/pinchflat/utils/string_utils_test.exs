@@ -33,4 +33,14 @@ defmodule Pinchflat.Utils.StringUtilsTest do
       assert StringUtils.double_brace("hello") == "{{ hello }}"
     end
   end
+
+  describe "wrap_string/1" do
+    test "returns strings as-is" do
+      assert StringUtils.wrap_string("hello") == "hello"
+    end
+
+    test "returns other values as inspected strings" do
+      assert StringUtils.wrap_string(1) == "1"
+    end
+  end
 end

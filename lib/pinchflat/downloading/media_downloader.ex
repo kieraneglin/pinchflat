@@ -10,6 +10,7 @@ defmodule Pinchflat.Downloading.MediaDownloader do
   alias Pinchflat.Repo
   alias Pinchflat.Media
   alias Pinchflat.Media.MediaItem
+  alias Pinchflat.Utils.StringUtils
   alias Pinchflat.Metadata.NfoBuilder
   alias Pinchflat.Metadata.MetadataParser
   alias Pinchflat.Metadata.MetadataFileHelpers
@@ -20,16 +21,53 @@ defmodule Pinchflat.Downloading.MediaDownloader do
 
   @doc """
   Downloads media for a media item, updating the media item based on the metadata
-  returned by yt-dlp. Also saves the entire metadata response to the associated
-  media_metadata record.
+  returned by yt-dlp. Encountered errors are saved to the Media Item record. Saves
+  the entire metadata response to the associated media_metadata record.
 
-  NOTE: related methods (like the download worker) won't download if the media item's source
+  NOTE: related methods (like the download worker) won't download if Pthe media item's source
   is set to not download media. However, I'm not enforcing that here since I need this for testing.
   This may change in the future but I'm not stressed.
 
-  Returns {:ok, %MediaItem{}} | {:error, any, ...any}
+  Returns {:ok, %MediaItem{}} | {:error, atom(), String.t()} | {:recovered, %MediaItem{}, String.t()}
   """
   def download_for_media_item(%MediaItem{} = media_item, override_opts \\ []) do
+    case attempt_download_and_update_for_media_item(media_item, override_opts) do
+      {:ok, media_item} ->
+        # Returns {:ok, %MediaItem{}}
+        Media.update_media_item(media_item, %{last_error: nil})
+
+      {:error, error_atom, message} ->
+        Media.update_media_item(media_item, %{last_error: StringUtils.wrap_string(message)})
+
+        {:error, error_atom, message}
+
+      {:recovered, media_item, message} ->
+        {:ok, updated_media_item} = Media.update_media_item(media_item, %{last_error: StringUtils.wrap_string(message)})
+
+        {:recovered, updated_media_item, message}
+    end
+  end
+
+  # Looks complicated, but here's the key points:
+  # - download_with_options runs a pre-check to see if the media item is suitable for download.
+  # - If the media item fails the precheck, it returns {:error, :unsuitable_for_download, message}
+  # - If the precheck passes but the download fails, it normally returns {:error, :download_failed, message}
+  #   - However, there are some errors we can recover from (eg: failure to communicate with SponsorBlock).
+  #     In this case, we attempt the download anyway and update the media item with what details we do have.
+  #     This case returns {:recovered, updated_media_item, message}
+  #   - If we attempt a retry but it fails, we return {:error, :unrecoverable, message}
+  # - If there is an unknown error unrelated to the above, we return {:error, :unknown, message}
+  # - Finally, if there is no error, we update the media item with the parsed JSON and return {:ok, updated_media_item}
+  #
+  # Restated, here are the return values for each case:
+  # - On success: {:ok, updated_media_item}
+  # - On initial failure but successfully recovered: {:recovered, updated_media_item, message}
+  # - On error: {:error, error_atom, message} where error_atom is one of:
+  #   - `:unsuitable_for_download` if the media item fails the precheck
+  #   - `:unrecoverable` if there was an initial failure and the recovery attempt failed
+  #   - `:download_failed` for all other yt-dlp-related downloading errors
+  #   - `:unknown` for any other errors, including those not related to yt-dlp
+  defp attempt_download_and_update_for_media_item(media_item, override_opts) do
     output_filepath = FilesystemUtils.generate_metadata_tmpfile(:json)
     media_with_preloads = Repo.preload(media_item, [:metadata, source: :media_profile])
 
@@ -38,31 +76,30 @@ defmodule Pinchflat.Downloading.MediaDownloader do
         update_media_item_from_parsed_json(media_with_preloads, parsed_json)
 
       {:error, :unsuitable_for_download} ->
-        Logger.warning(
+        message =
           "Media item ##{media_with_preloads.id} isn't suitable for download yet. May be an active or processing live stream"
-        )
 
-        {:error, :unsuitable_for_download}
+        Logger.warning(message)
+
+        {:error, :unsuitable_for_download, message}
 
       {:error, message, _exit_code} ->
         Logger.error("yt-dlp download error for media item ##{media_with_preloads.id}: #{inspect(message)}")
 
         if String.contains?(to_string(message), recoverable_errors()) do
-          attempt_update_media_item(media_with_preloads, output_filepath)
-
-          {:recovered, message}
+          attempt_recovery_from_error(media_with_preloads, output_filepath, message)
         else
-          {:error, message}
+          {:error, :download_failed, message}
         end
 
       err ->
         Logger.error("Unknown error downloading media item ##{media_with_preloads.id}: #{inspect(err)}")
 
-        {:error, "Unknown error: #{inspect(err)}"}
+        {:error, :unknown, "Unknown error: #{inspect(err)}"}
     end
   end
 
-  defp attempt_update_media_item(media_with_preloads, output_filepath) do
+  defp attempt_recovery_from_error(media_with_preloads, output_filepath, error_message) do
     with {:ok, contents} <- File.read(output_filepath),
          {:ok, parsed_json} <- Phoenix.json_library().decode(contents) do
       Logger.info("""
@@ -71,12 +108,13 @@ defmodule Pinchflat.Downloading.MediaDownloader do
       anyway
       """)
 
-      update_media_item_from_parsed_json(media_with_preloads, parsed_json)
+      {:ok, updated_media_item} = update_media_item_from_parsed_json(media_with_preloads, parsed_json)
+      {:recovered, updated_media_item, error_message}
     else
       err ->
         Logger.error("Unable to recover error for media item ##{media_with_preloads.id}: #{inspect(err)}")
 
-        {:error, :retry_failed}
+        {:error, :unrecoverable, error_message}
     end
   end
 
