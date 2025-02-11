@@ -28,10 +28,22 @@ defmodule Pinchflat.Pages.HistoryTableLive do
       </span>
       <div class="max-w-full overflow-x-auto">
         <.table rows={@records} table_class="text-white">
-          <:col :let={media_item} label="Title" class="truncate max-w-xs">
-            <.subtle_link href={~p"/sources/#{media_item.source_id}/media/#{media_item}"}>
-              {media_item.title}
-            </.subtle_link>
+          <:col :let={media_item} label="Title" class="max-w-xs">
+            <section class="flex items-center space-x-1">
+              <.tooltip
+                :if={media_item.last_error}
+                tooltip={media_item.last_error}
+                position="bottom-right"
+                tooltip_class="w-64"
+              >
+                <.icon name="hero-exclamation-circle-solid" class="text-red-500" />
+              </.tooltip>
+              <span class="truncate">
+                <.subtle_link href={~p"/sources/#{media_item.source_id}/media/#{media_item.id}"}>
+                  {media_item.title}
+                </.subtle_link>
+              </span>
+            </section>
           </:col>
           <:col :let={media_item} label="Upload Date">
             {DateTime.to_date(media_item.uploaded_at)}
