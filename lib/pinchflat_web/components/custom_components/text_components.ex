@@ -147,6 +147,10 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
     """
   end
 
+  @doc """
+  Renders a tooltip with the given content
+  """
+
   attr :tooltip, :string, required: true
   attr :position, :string, default: ""
   attr :tooltip_class, :any, default: ""
