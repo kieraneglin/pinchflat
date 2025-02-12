@@ -60,7 +60,8 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
         {:ok, Phoenix.json_library().encode!(%{"live_status" => "is_live"})}
       end)
 
-      assert {:error, :unsuitable_for_download} = MediaDownloader.download_for_media_item(media_item)
+      assert {:error, :unsuitable_for_download, message} = MediaDownloader.download_for_media_item(media_item)
+      assert message =~ "Media item ##{media_item.id} isn't suitable for download yet."
     end
 
     test "non-recoverable errors are passed through", %{media_item: media_item} do
@@ -69,7 +70,7 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
         _url, :download, _opts, _ot, _addl -> {:error, :some_error, 1}
       end)
 
-      assert {:error, :some_error} = MediaDownloader.download_for_media_item(media_item)
+      assert {:error, :download_failed, :some_error} = MediaDownloader.download_for_media_item(media_item)
     end
 
     test "unknown errors are passed through", %{media_item: media_item} do
@@ -78,7 +79,7 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
         _url, :download, _opts, _ot, _addl -> {:error, :some_error}
       end)
 
-      assert {:error, message} = MediaDownloader.download_for_media_item(media_item)
+      assert {:error, :unknown, message} = MediaDownloader.download_for_media_item(media_item)
       assert message == "Unknown error: {:error, :some_error}"
     end
   end
@@ -107,13 +108,15 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
 
       expect(YtDlpRunnerMock, :run, 0, fn _url, :download, _opts, _ot, _addl -> {:ok, ""} end)
 
-      assert {:error, :unsuitable_for_download} = MediaDownloader.download_for_media_item(media_item)
+      assert {:error, :unsuitable_for_download, message} = MediaDownloader.download_for_media_item(media_item)
+      assert message =~ "Media item ##{media_item.id} isn't suitable for download yet."
     end
 
     test "returns unexpected errors from the download status determination method", %{media_item: media_item} do
       expect(YtDlpRunnerMock, :run, fn _url, :get_downloadable_status, _opts, _ot, _addl -> {:error, :what_tha} end)
 
-      assert {:error, "Unknown error: {:error, :what_tha}"} = MediaDownloader.download_for_media_item(media_item)
+      assert {:error, :unknown, "Unknown error: {:error, :what_tha}"} =
+               MediaDownloader.download_for_media_item(media_item)
     end
   end
 
@@ -184,15 +187,21 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
     test "returns a recovered tuple on recoverable errors", %{media_item: media_item} do
       message = "Unable to communicate with SponsorBlock"
 
-      expect(YtDlpRunnerMock, :run, 2, fn
+      expect(YtDlpRunnerMock, :run, 3, fn
         _url, :get_downloadable_status, _opts, _ot, _addl ->
           {:ok, "{}"}
 
-        _url, :download, _opts, _ot, _addl ->
+        _url, :download, _opts, _ot, addl ->
+          [{:output_filepath, filepath} | _] = addl
+          File.write(filepath, render_metadata(:media_metadata))
+
           {:error, message, 1}
+
+        _url, :download_thumbnail, _opts, _ot, _addl ->
+          {:ok, ""}
       end)
 
-      assert {:recovered, ^message} = MediaDownloader.download_for_media_item(media_item)
+      assert {:recovered, _media_item, ^message} = MediaDownloader.download_for_media_item(media_item)
     end
 
     test "attempts to update the media item on recoverable errors", %{media_item: media_item} do
@@ -212,11 +221,59 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
           {:ok, ""}
       end)
 
-      assert {:recovered, ^message} = MediaDownloader.download_for_media_item(media_item)
+      assert {:recovered, updated_media_item, ^message} = MediaDownloader.download_for_media_item(media_item)
+
+      assert DateTime.diff(DateTime.utc_now(), updated_media_item.media_downloaded_at) < 2
+      assert String.ends_with?(updated_media_item.media_filepath, ".mkv")
+    end
+
+    test "returns an unrecoverable tuple if recovery fails", %{media_item: media_item} do
+      message = "Unable to communicate with SponsorBlock"
+
+      expect(YtDlpRunnerMock, :run, 2, fn
+        _url, :get_downloadable_status, _opts, _ot, _addl ->
+          {:ok, "{}"}
+
+        _url, :download, _opts, _ot, _addl ->
+          # This errors because the metadata is not written to the file so JSON parsing fails
+          {:error, message, 1}
+      end)
+
+      assert {:error, :unrecoverable, ^message} = MediaDownloader.download_for_media_item(media_item)
+    end
+
+    test "sets the last_error appropriately when recovered", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, 3, fn
+        _url, :download, _opts, _ot, addl ->
+          [{:output_filepath, filepath} | _] = addl
+          File.write(filepath, render_metadata(:media_metadata))
+
+          {:error, "Unable to communicate with SponsorBlock", 1}
+
+        _url, :get_downloadable_status, _opts, _ot, _addl ->
+          {:ok, "{}"}
+
+        _url, :download_thumbnail, _opts, _ot, _addl ->
+          {:ok, ""}
+      end)
+
+      assert {:recovered, updated_media_item, _message} = MediaDownloader.download_for_media_item(media_item)
+      assert updated_media_item.last_error == "Unable to communicate with SponsorBlock"
+    end
+
+    test "sets the last_error appropriately when unrecoverable", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, 2, fn
+        _url, :get_downloadable_status, _opts, _ot, _addl ->
+          {:ok, "{}"}
+
+        _url, :download, _opts, _ot, _addl ->
+          {:error, "Unable to communicate with SponsorBlock", 1}
+      end)
+
+      assert {:error, :unrecoverable, _message} = MediaDownloader.download_for_media_item(media_item)
       media_item = Repo.reload(media_item)
 
-      assert DateTime.diff(DateTime.utc_now(), media_item.media_downloaded_at) < 2
-      assert String.ends_with?(media_item.media_filepath, ".mkv")
+      assert media_item.last_error == "Unable to communicate with SponsorBlock"
     end
   end
 
@@ -323,6 +380,25 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
       assert String.ends_with?(updated_media_item.metadata_filepath, ".info.json")
 
       File.rm(updated_media_item.metadata_filepath)
+    end
+
+    test "sets the last_error to nil on success" do
+      media_item = media_item_fixture(%{last_error: "Some error"})
+
+      assert {:ok, updated_media_item} = MediaDownloader.download_for_media_item(media_item)
+      assert updated_media_item.last_error == nil
+    end
+
+    test "sets the last_error to the error message on failure", %{media_item: media_item} do
+      expect(YtDlpRunnerMock, :run, 2, fn
+        _url, :get_downloadable_status, _opts, _ot, _addl -> {:ok, "{}"}
+        _url, :download, _opts, _ot, _addl -> {:error, :some_error}
+      end)
+
+      assert {:error, :unknown, _message} = MediaDownloader.download_for_media_item(media_item)
+      media_item = Repo.reload(media_item)
+
+      assert media_item.last_error == "Unknown error: {:error, :some_error}"
     end
   end
 

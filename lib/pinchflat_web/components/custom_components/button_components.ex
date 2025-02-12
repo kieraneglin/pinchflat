@@ -3,6 +3,7 @@ defmodule PinchflatWeb.CustomComponents.ButtonComponents do
   use Phoenix.Component, global_prefixes: ~w(x-)
 
   alias PinchflatWeb.CoreComponents
+  alias PinchflatWeb.CustomComponents.TextComponents
 
   @doc """
   Render a button
@@ -104,7 +105,7 @@ defmodule PinchflatWeb.CustomComponents.ButtonComponents do
 
   def icon_button(assigns) do
     ~H"""
-    <div class="group relative inline-block">
+    <TextComponents.tooltip position="bottom" tooltip={@tooltip} tooltip_class="text-nowrap">
       <button
         class={[
           "flex justify-center items-center rounded-lg ",
@@ -117,18 +118,7 @@ defmodule PinchflatWeb.CustomComponents.ButtonComponents do
       >
         <CoreComponents.icon name={@icon_name} class="text-stroke" />
       </button>
-      <div
-        :if={@tooltip}
-        class={[
-          "hidden absolute left-1/2 top-full z-20 mt-3 -translate-x-1/2 whitespace-nowrap rounded-md",
-          "px-4.5 py-1.5 text-sm font-medium opacity-0 drop-shadow-4 group-hover:opacity-100 group-hover:block bg-meta-4"
-        ]}
-      >
-        <span class="border-light absolute -top-1 left-1/2 -z-10 h-2 w-2 -translate-x-1/2 rotate-45 rounded-sm bg-meta-4">
-        </span>
-        <span>{@tooltip}</span>
-      </div>
-    </div>
+    </TextComponents.tooltip>
     """
   end
 end

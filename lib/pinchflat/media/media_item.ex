@@ -40,6 +40,7 @@ defmodule Pinchflat.Media.MediaItem do
     :thumbnail_filepath,
     :metadata_filepath,
     :nfo_filepath,
+    :last_error,
     # These are user or system controlled fields
     :prevent_download,
     :prevent_culling,
@@ -88,6 +89,7 @@ defmodule Pinchflat.Media.MediaItem do
     # Will very likely revisit because I can't leave well-enough alone.
     field :subtitle_filepaths, {:array, {:array, :string}}, default: []
 
+    field :last_error, :string
     field :prevent_download, :boolean, default: false
     field :prevent_culling, :boolean, default: false
     field :culled_at, :utc_datetime

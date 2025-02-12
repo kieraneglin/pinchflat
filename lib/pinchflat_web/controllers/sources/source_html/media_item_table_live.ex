@@ -46,10 +46,22 @@ defmodule PinchflatWeb.Sources.MediaItemTableLive do
         </div>
       </header>
       <.table rows={@records} table_class="text-white">
-        <:col :let={media_item} label="Title" class="truncate max-w-xs">
-          <.subtle_link href={~p"/sources/#{@source.id}/media/#{media_item.id}"}>
-            {media_item.title}
-          </.subtle_link>
+        <:col :let={media_item} label="Title" class="max-w-xs">
+          <section class="flex items-center space-x-1">
+            <.tooltip
+              :if={media_item.last_error}
+              tooltip={media_item.last_error}
+              position="bottom-right"
+              tooltip_class="w-64"
+            >
+              <.icon name="hero-exclamation-circle-solid" class="text-red-500" />
+            </.tooltip>
+            <span class="truncate">
+              <.subtle_link href={~p"/sources/#{@source.id}/media/#{media_item.id}"}>
+                {media_item.title}
+              </.subtle_link>
+            </span>
+          </section>
         </:col>
         <:col :let={media_item} :if={@media_state == "other"} label="Manually Ignored?">
           <.icon name={if media_item.prevent_download, do: "hero-check", else: "hero-x-mark"} />
@@ -205,6 +217,6 @@ defmodule PinchflatWeb.Sources.MediaItemTableLive do
 
   # Selecting only what we need GREATLY speeds up queries on large tables
   defp select_fields do
-    [:id, :title, :uploaded_at, :prevent_download]
+    [:id, :title, :uploaded_at, :prevent_download, :last_error]
   end
 end

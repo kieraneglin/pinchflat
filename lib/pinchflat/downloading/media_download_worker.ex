@@ -105,13 +105,13 @@ defmodule Pinchflat.Downloading.MediaDownloadWorker do
 
         :ok
 
-      {:recovered, _} ->
+      {:recovered, _media_item, _message} ->
         {:error, :retry}
 
-      {:error, :unsuitable_for_download} ->
+      {:error, :unsuitable_for_download, _message} ->
         {:ok, :non_retry}
 
-      {:error, message} ->
+      {:error, _error_atom, message} ->
         action_on_error(message)
     end
   end

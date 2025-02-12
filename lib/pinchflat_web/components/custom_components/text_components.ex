@@ -146,4 +146,60 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
     <.localized_number number={@num} /> {@suffix}
     """
   end
+
+  @doc """
+  Renders a tooltip with the given content
+  """
+
+  attr :tooltip, :string, required: true
+  attr :position, :string, default: ""
+  attr :tooltip_class, :any, default: ""
+  attr :tooltip_arrow_class, :any, default: ""
+  slot :inner_block
+
+  def tooltip(%{position: "bottom-right"} = assigns) do
+    ~H"""
+    <.tooltip tooltip={@tooltip} tooltip_class={@tooltip_class} tooltip_arrow_class={["-top-1", @tooltip_arrow_class]}>
+      {render_slot(@inner_block)}
+    </.tooltip>
+    """
+  end
+
+  def tooltip(%{position: "bottom"} = assigns) do
+    ~H"""
+    <.tooltip
+      tooltip={@tooltip}
+      tooltip_class={["left-1/2 -translate-x-1/2", @tooltip_class]}
+      tooltip_arrow_class={["-top-1 left-1/2 -translate-x-1/2", @tooltip_arrow_class]}
+    >
+      {render_slot(@inner_block)}
+    </.tooltip>
+    """
+  end
+
+  def tooltip(assigns) do
+    ~H"""
+    <div class="group relative inline-block cursor-pointer">
+      <div>
+        {render_slot(@inner_block)}
+      </div>
+      <div
+        :if={@tooltip}
+        class={[
+          "hidden absolute top-full z-20 mt-3 whitespace-nowrap rounded-md",
+          "p-1.5 text-sm font-medium opacity-0 drop-shadow-4 group-hover:opacity-100 group-hover:block bg-meta-4",
+          "border border-form-strokedark text-wrap",
+          @tooltip_class
+        ]}
+      >
+        <span class={[
+          "border-t border-l border-form-strokedark absolute -z-10 h-2 w-2 rotate-45 rounded-sm bg-meta-4",
+          @tooltip_arrow_class
+        ]}>
+        </span>
+        <div class="px-3">{@tooltip}</div>
+      </div>
+    </div>
+    """
+  end
 end
