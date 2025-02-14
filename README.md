@@ -1,5 +1,5 @@
-> [!NOTE]  
-> (2025-02-14) [zakkarry](https://github.com/sponsors/zakkarry), who is a collaborator on [cross-seed](https://github.com/cross-seed/cross-seed) and an extremely helpful community member in general, is facing hard times due to medical debt and family illness. If you're able, please consider [sponsoring him on GitHub](https://github.com/sponsors/zakkarry) or via [buymeacoffee](https://tip.ary.dev). Tell him I sent you!
+> [!IMPORTANT]  
+> (2025-02-14) [zakkarry](https://github.com/sponsors/zakkarry), who is a collaborator on [cross-seed](https://github.com/cross-seed/cross-seed) and an extremely helpful community member in general, is facing hard times due to medical debt and family illness. If you're able, please consider [sponsoring him on GitHub](https://github.com/sponsors/zakkarry) or donating via [buymeacoffee](https://tip.ary.dev). Tell him I sent you!
 
 <p align="center">  
   <img 
