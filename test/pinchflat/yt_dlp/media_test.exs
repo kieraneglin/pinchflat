@@ -269,7 +269,7 @@ defmodule Pinchflat.YtDlp.MediaTest do
       response = %{
         "original_url" => "https://www.youtube.com/watch?v=TiZPUDkDYbk",
         "aspect_ratio" => 0.5,
-        "duration" => 59,
+        "duration" => 150,
         "upload_date" => "20210101"
       }
 
