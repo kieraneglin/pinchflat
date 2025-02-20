@@ -151,7 +151,7 @@ defmodule Pinchflat.YtDlp.Media do
       #
       # These don't fail if duration or aspect_ratio are missing
       # due to Elixir's comparison semantics
-      response["duration"] <= 60 && response["aspect_ratio"] <= 0.85
+      response["duration"] <= 180 && response["aspect_ratio"] <= 0.85
     end
   end
 
