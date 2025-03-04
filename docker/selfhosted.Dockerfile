@@ -118,7 +118,7 @@ WORKDIR "/app"
 
 # Set up data volumes
 RUN mkdir -p /config /downloads /etc/elixir_tzdata_data /etc/yt-dlp/plugins && \ 
-  chmod ugo+rw /etc/elixir_tzdata_data /etc/yt-dlp /etc/yt-dlp/plugins /usr/local/bin/yt-dlp
+  chmod ugo+rw /etc/elixir_tzdata_data /etc/yt-dlp /etc/yt-dlp/plugins /usr/local/bin /usr/local/bin/yt-dlp
 
 # set runner ENV
 ENV MIX_ENV="prod"
