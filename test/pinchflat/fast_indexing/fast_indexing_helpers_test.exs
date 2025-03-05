@@ -167,7 +167,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
       assert [%MediaItem{}] = FastIndexingHelpers.index_and_kickoff_downloads(source)
     end
 
-    test "does not set use_cookies if the source only uses cookies when indexing" do
+    test "does not set use_cookies if the source uses cookies when needed" do
       expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
 
       stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes, _opts, _ot, addl ->
@@ -176,7 +176,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
         {:ok, media_attributes_return_fixture()}
       end)
 
-      source = source_fixture(%{cookie_behaviour: :indexing_only})
+      source = source_fixture(%{cookie_behaviour: :when_needed})
 
       assert [%MediaItem{}] = FastIndexingHelpers.index_and_kickoff_downloads(source)
     end

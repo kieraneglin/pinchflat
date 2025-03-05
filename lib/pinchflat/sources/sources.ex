@@ -41,7 +41,7 @@ defmodule Pinchflat.Sources do
     case source.cookie_behaviour do
       :disabled -> false
       :all_operations -> true
-      :indexing_only -> operation == :indexing
+      :when_needed -> operation == :indexing
     end
   end
 

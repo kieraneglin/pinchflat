@@ -71,13 +71,13 @@ defmodule Pinchflat.SourcesTest do
       refute Sources.use_cookies?(source, :downloading)
     end
 
-    test "returns true if the action is indexing and the source is set to :indexing_only" do
-      source = source_fixture(%{cookie_behaviour: :indexing_only})
+    test "returns true if the action is indexing and the source is set to :when_needed" do
+      source = source_fixture(%{cookie_behaviour: :when_needed})
       assert Sources.use_cookies?(source, :indexing)
     end
 
-    test "returns false if the action is downloading and the source is set to :indexing_only" do
-      source = source_fixture(%{cookie_behaviour: :indexing_only})
+    test "returns false if the action is downloading and the source is set to :when_needed" do
+      source = source_fixture(%{cookie_behaviour: :when_needed})
       refute Sources.use_cookies?(source, :downloading)
     end
   end
@@ -421,7 +421,7 @@ defmodule Pinchflat.SourcesTest do
       assert {:ok, %Source{}} = Sources.create_source(valid_attrs)
     end
 
-    test "does not set use_cookies if the source only uses cookies when indexing" do
+    test "does not set use_cookies if the source uses cookies when needed" do
       expect(YtDlpRunnerMock, :run, fn _url, :get_source_details, _opts, _ot, addl ->
         refute Keyword.get(addl, :use_cookies)
 
@@ -431,7 +431,7 @@ defmodule Pinchflat.SourcesTest do
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
         original_url: "https://www.youtube.com/channel/abc123",
-        cookie_behaviour: :indexing_only
+        cookie_behaviour: :when_needed
       }
 
       assert {:ok, %Source{}} = Sources.create_source(valid_attrs)
