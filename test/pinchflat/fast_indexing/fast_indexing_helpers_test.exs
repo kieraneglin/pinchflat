@@ -104,34 +104,6 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
       FastIndexingHelpers.index_and_kickoff_downloads(source)
     end
 
-    test "sets use_cookies if the source uses cookies" do
-      expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
-
-      stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes, _opts, _ot, addl ->
-        assert {:use_cookies, true} in addl
-
-        {:ok, media_attributes_return_fixture()}
-      end)
-
-      source = source_fixture(%{use_cookies: true})
-
-      assert [%MediaItem{}] = FastIndexingHelpers.index_and_kickoff_downloads(source)
-    end
-
-    test "does not set use_cookies if the source does not use cookies" do
-      expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
-
-      stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes, _opts, _ot, addl ->
-        assert {:use_cookies, false} in addl
-
-        {:ok, media_attributes_return_fixture()}
-      end)
-
-      source = source_fixture(%{use_cookies: false})
-
-      assert [%MediaItem{}] = FastIndexingHelpers.index_and_kickoff_downloads(source)
-    end
-
     test "does not enqueue a download job if the media item does not match the format rules" do
       expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
 
@@ -177,6 +149,50 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpersTest do
       end)
 
       assert [] = FastIndexingHelpers.index_and_kickoff_downloads(source)
+    end
+  end
+
+  describe "index_and_kickoff_downloads/1 when testing cookies" do
+    test "sets use_cookies if the source uses cookies" do
+      expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
+
+      stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes, _opts, _ot, addl ->
+        assert {:use_cookies, true} in addl
+
+        {:ok, media_attributes_return_fixture()}
+      end)
+
+      source = source_fixture(%{cookie_behaviour: :all_operations})
+
+      assert [%MediaItem{}] = FastIndexingHelpers.index_and_kickoff_downloads(source)
+    end
+
+    test "does not set use_cookies if the source uses cookies when needed" do
+      expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
+
+      stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes, _opts, _ot, addl ->
+        assert {:use_cookies, false} in addl
+
+        {:ok, media_attributes_return_fixture()}
+      end)
+
+      source = source_fixture(%{cookie_behaviour: :when_needed})
+
+      assert [%MediaItem{}] = FastIndexingHelpers.index_and_kickoff_downloads(source)
+    end
+
+    test "does not set use_cookies if the source does not use cookies" do
+      expect(HTTPClientMock, :get, fn _url -> {:ok, "<yt:videoId>test_1</yt:videoId>"} end)
+
+      stub(YtDlpRunnerMock, :run, fn _url, :get_media_attributes, _opts, _ot, addl ->
+        assert {:use_cookies, false} in addl
+
+        {:ok, media_attributes_return_fixture()}
+      end)
+
+      source = source_fixture(%{cookie_behaviour: :disabled})
+
+      assert [%MediaItem{}] = FastIndexingHelpers.index_and_kickoff_downloads(source)
     end
   end
 

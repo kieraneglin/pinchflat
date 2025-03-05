@@ -27,6 +27,14 @@ defmodule PinchflatWeb.Sources.SourceHTML do
     ]
   end
 
+  def friendly_cookie_behaviours do
+    [
+      {"Disabled", :disabled},
+      {"When Needed", :when_needed},
+      {"All Operations", :all_operations}
+    ]
+  end
+
   def cutoff_date_presets do
     [
       {"7 days", compute_date_offset(7)},

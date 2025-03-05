@@ -93,7 +93,7 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
   defp determine_series_directory(source) do
     output_path = DownloadOptionBuilder.build_output_path_for(source)
     runner_opts = [output: output_path]
-    addl_opts = [use_cookies: source.use_cookies]
+    addl_opts = [use_cookies: Sources.use_cookies?(source, :metadata)]
     {:ok, %{filepath: filepath}} = MediaCollection.get_source_details(source.original_url, runner_opts, addl_opts)
 
     case MetadataFileHelpers.series_directory_from_media_filepath(filepath) do
@@ -113,6 +113,7 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
   defp fetch_metadata_for_source(source) do
     tmp_output_path = "#{tmp_directory()}/#{StringUtils.random_string(16)}/source_image.%(ext)S"
     base_opts = [convert_thumbnails: "jpg", output: tmp_output_path]
+    should_use_cookies = Sources.use_cookies?(source, :metadata)
 
     opts =
       if source.collection_type == :channel do
@@ -121,7 +122,7 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
         base_opts ++ [:write_thumbnail, playlist_items: 1]
       end
 
-    MediaCollection.get_source_metadata(source.original_url, opts, use_cookies: source.use_cookies)
+    MediaCollection.get_source_metadata(source.original_url, opts, use_cookies: should_use_cookies)
   end
 
   defp tmp_directory do

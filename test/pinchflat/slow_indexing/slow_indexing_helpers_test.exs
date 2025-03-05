@@ -302,14 +302,27 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
 
       SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
     end
+  end
 
+  describe "index_and_enqueue_download_for_media_items/2 when testing cookies" do
     test "sets use_cookies if the source uses cookies" do
       expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, addl_opts ->
         assert {:use_cookies, true} in addl_opts
         {:ok, source_attributes_return_fixture()}
       end)
 
-      source = source_fixture(%{use_cookies: true})
+      source = source_fixture(%{cookie_behaviour: :all_operations})
+
+      SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
+    end
+
+    test "sets use_cookies if the source uses cookies when needed" do
+      expect(YtDlpRunnerMock, :run, fn _url, :get_media_attributes_for_collection, _opts, _ot, addl_opts ->
+        assert {:use_cookies, true} in addl_opts
+        {:ok, source_attributes_return_fixture()}
+      end)
+
+      source = source_fixture(%{cookie_behaviour: :when_needed})
 
       SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
     end
@@ -320,7 +333,7 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpersTest do
         {:ok, source_attributes_return_fixture()}
       end)
 
-      source = source_fixture(%{use_cookies: false})
+      source = source_fixture(%{cookie_behaviour: :disabled})
 
       SlowIndexingHelpers.index_and_enqueue_download_for_media_items(source)
     end

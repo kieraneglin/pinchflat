@@ -33,6 +33,19 @@ defmodule Pinchflat.Sources do
   end
 
   @doc """
+  Returns a boolean indicating whether or not cookies should be used for a given operation.
+
+  Returns boolean()
+  """
+  def use_cookies?(source, operation) when operation in [:indexing, :downloading, :metadata] do
+    case source.cookie_behaviour do
+      :disabled -> false
+      :all_operations -> true
+      :when_needed -> operation == :indexing
+    end
+  end
+
+  @doc """
   Returns the list of sources. Returns [%Source{}, ...]
   """
   def list_sources do
@@ -181,9 +194,9 @@ defmodule Pinchflat.Sources do
 
   defp add_source_details_to_changeset(source, changeset) do
     original_url = changeset.changes.original_url
-    use_cookies = Ecto.Changeset.get_field(changeset, :use_cookies)
+    should_use_cookies = Ecto.Changeset.get_field(changeset, :cookie_behaviour) == :all_operations
     # Skipping sleep interval since this is UI blocking and we want to keep this as fast as possible
-    addl_opts = [use_cookies: use_cookies, skip_sleep_interval: true]
+    addl_opts = [use_cookies: should_use_cookies, skip_sleep_interval: true]
 
     case MediaCollection.get_source_details(original_url, [], addl_opts) do
       {:ok, source_details} ->

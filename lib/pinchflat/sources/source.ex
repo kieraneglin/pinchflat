@@ -28,7 +28,7 @@ defmodule Pinchflat.Sources.Source do
     series_directory
     index_frequency_minutes
     fast_index
-    use_cookies
+    cookie_behaviour
     download_media
     last_indexed_at
     original_url
@@ -78,7 +78,7 @@ defmodule Pinchflat.Sources.Source do
     field :collection_type, Ecto.Enum, values: [:channel, :playlist]
     field :index_frequency_minutes, :integer, default: 60 * 24
     field :fast_index, :boolean, default: false
-    field :use_cookies, :boolean, default: false
+    field :cookie_behaviour, Ecto.Enum, values: [:disabled, :when_needed, :all_operations], default: :disabled
     field :download_media, :boolean, default: true
     field :last_indexed_at, :utc_datetime
     # Only download media items that were published after this date

@@ -9,6 +9,7 @@ defmodule Pinchflat.Downloading.MediaDownloader do
 
   alias Pinchflat.Repo
   alias Pinchflat.Media
+  alias Pinchflat.Sources
   alias Pinchflat.Media.MediaItem
   alias Pinchflat.Utils.StringUtils
   alias Pinchflat.Metadata.NfoBuilder
@@ -151,7 +152,8 @@ defmodule Pinchflat.Downloading.MediaDownloader do
 
   defp download_with_options(url, item_with_preloads, output_filepath, override_opts) do
     {:ok, options} = DownloadOptionBuilder.build(item_with_preloads, override_opts)
-    use_cookies = item_with_preloads.source.use_cookies
+
+    use_cookies = Sources.use_cookies?(item_with_preloads.source, :downloading)
     runner_opts = [output_filepath: output_filepath, use_cookies: use_cookies]
 
     case YtDlpMedia.get_downloadable_status(url, use_cookies: use_cookies) do

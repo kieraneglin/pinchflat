@@ -254,7 +254,23 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
       end)
 
       profile = media_profile_fixture(%{download_source_images: true})
-      source = source_fixture(media_profile_id: profile.id, use_cookies: true)
+      source = source_fixture(media_profile_id: profile.id, cookie_behaviour: :all_operations)
+
+      perform_job(SourceMetadataStorageWorker, %{id: source.id})
+    end
+
+    test "does not set use_cookies if the source uses cookies when needed" do
+      expect(YtDlpRunnerMock, :run, 2, fn
+        _url, :get_source_details, _opts, _ot, _addl ->
+          {:ok, source_details_return_fixture()}
+
+        _url, :get_source_metadata, _opts, _ot, addl ->
+          assert {:use_cookies, false} in addl
+          {:ok, render_metadata(:channel_source_metadata)}
+      end)
+
+      profile = media_profile_fixture(%{download_source_images: true})
+      source = source_fixture(media_profile_id: profile.id, cookie_behaviour: :when_needed)
 
       perform_job(SourceMetadataStorageWorker, %{id: source.id})
     end
@@ -270,7 +286,7 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
       end)
 
       profile = media_profile_fixture(%{download_source_images: true})
-      source = source_fixture(media_profile_id: profile.id, use_cookies: false)
+      source = source_fixture(media_profile_id: profile.id, cookie_behaviour: :disabled)
 
       perform_job(SourceMetadataStorageWorker, %{id: source.id})
     end
@@ -323,7 +339,21 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
           {:ok, "{}"}
       end)
 
-      source = source_fixture(%{series_directory: nil, use_cookies: true})
+      source = source_fixture(%{series_directory: nil, cookie_behaviour: :all_operations})
+      perform_job(SourceMetadataStorageWorker, %{id: source.id})
+    end
+
+    test "does not set use_cookies if the source uses cookies when needed" do
+      expect(YtDlpRunnerMock, :run, 2, fn
+        _url, :get_source_details, _opts, _ot, addl ->
+          assert {:use_cookies, false} in addl
+          {:ok, source_details_return_fixture()}
+
+        _url, :get_source_metadata, _opts, _ot, _addl ->
+          {:ok, "{}"}
+      end)
+
+      source = source_fixture(%{series_directory: nil, cookie_behaviour: :when_needed})
       perform_job(SourceMetadataStorageWorker, %{id: source.id})
     end
 
@@ -337,7 +367,7 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorkerTest do
           {:ok, "{}"}
       end)
 
-      source = source_fixture(%{series_directory: nil, use_cookies: false})
+      source = source_fixture(%{series_directory: nil, cookie_behaviour: :disabled})
       perform_job(SourceMetadataStorageWorker, %{id: source.id})
     end
   end

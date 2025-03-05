@@ -88,13 +88,35 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
       Helpers.download_and_store_thumbnail_for(media_item)
     end
 
+    test "returns nil if yt-dlp fails", %{media_item: media_item} do
+      stub(YtDlpRunnerMock, :run, fn _url, :download_thumbnail, _opts, _ot, _addl -> {:error, "error"} end)
+
+      filepath = Helpers.download_and_store_thumbnail_for(media_item)
+
+      assert filepath == nil
+    end
+  end
+
+  describe "download_and_store_thumbnail_for/2 when testing cookie usage" do
     test "sets use_cookies if the source uses cookies" do
       expect(YtDlpRunnerMock, :run, fn _url, :download_thumbnail, _opts, _ot, addl ->
         assert {:use_cookies, true} in addl
         {:ok, ""}
       end)
 
-      source = source_fixture(%{use_cookies: true})
+      source = source_fixture(%{cookie_behaviour: :all_operations})
+      media_item = Repo.preload(media_item_fixture(%{source_id: source.id}), :source)
+
+      Helpers.download_and_store_thumbnail_for(media_item)
+    end
+
+    test "does not set use_cookies if the source uses cookies when needed" do
+      expect(YtDlpRunnerMock, :run, fn _url, :download_thumbnail, _opts, _ot, addl ->
+        assert {:use_cookies, false} in addl
+        {:ok, ""}
+      end)
+
+      source = source_fixture(%{cookie_behaviour: :when_needed})
       media_item = Repo.preload(media_item_fixture(%{source_id: source.id}), :source)
 
       Helpers.download_and_store_thumbnail_for(media_item)
@@ -106,18 +128,10 @@ defmodule Pinchflat.Metadata.MetadataFileHelpersTest do
         {:ok, ""}
       end)
 
-      source = source_fixture(%{use_cookies: false})
+      source = source_fixture(%{cookie_behaviour: :disabled})
       media_item = Repo.preload(media_item_fixture(%{source_id: source.id}), :source)
 
       Helpers.download_and_store_thumbnail_for(media_item)
-    end
-
-    test "returns nil if yt-dlp fails", %{media_item: media_item} do
-      stub(YtDlpRunnerMock, :run, fn _url, :download_thumbnail, _opts, _ot, _addl -> {:error, "error"} end)
-
-      filepath = Helpers.download_and_store_thumbnail_for(media_item)
-
-      assert filepath == nil
     end
   end
 
