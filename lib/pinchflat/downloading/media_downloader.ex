@@ -152,7 +152,7 @@ defmodule Pinchflat.Downloading.MediaDownloader do
 
   defp download_with_options(url, item_with_preloads, output_filepath, override_opts) do
     {:ok, options} = DownloadOptionBuilder.build(item_with_preloads, override_opts)
-    # TODO: test
+
     use_cookies = Sources.use_cookies?(item_with_preloads.source, :downloading)
     runner_opts = [output_filepath: output_filepath, use_cookies: use_cookies]
 

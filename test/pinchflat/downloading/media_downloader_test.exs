@@ -157,15 +157,16 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
           {:ok, ""}
       end)
 
-      source = source_fixture(%{use_cookies: true})
+      source = source_fixture(%{cookie_behaviour: :all_operations})
       media_item = media_item_fixture(%{source_id: source.id})
 
       assert {:ok, _} = MediaDownloader.download_for_media_item(media_item)
     end
 
-    test "does not set use_cookies if the source does not use cookies" do
+    test "does not set use_cookies if the source only uses cookies when indexing" do
       expect(YtDlpRunnerMock, :run, 3, fn
-        _url, :get_downloadable_status, _opts, _ot, _addl ->
+        _url, :get_downloadable_status, _opts, _ot, addl ->
+          assert {:use_cookies, false} in addl
           {:ok, "{}"}
 
         _url, :download, _opts, _ot, addl ->
@@ -176,7 +177,27 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
           {:ok, ""}
       end)
 
-      source = source_fixture(%{use_cookies: false})
+      source = source_fixture(%{cookie_behaviour: :indexing_only})
+      media_item = media_item_fixture(%{source_id: source.id})
+
+      assert {:ok, _} = MediaDownloader.download_for_media_item(media_item)
+    end
+
+    test "does not set use_cookies if the source does not use cookies" do
+      expect(YtDlpRunnerMock, :run, 3, fn
+        _url, :get_downloadable_status, _opts, _ot, addl ->
+          assert {:use_cookies, false} in addl
+          {:ok, "{}"}
+
+        _url, :download, _opts, _ot, addl ->
+          assert {:use_cookies, false} in addl
+          {:ok, render_metadata(:media_metadata)}
+
+        _url, :download_thumbnail, _opts, _ot, _addl ->
+          {:ok, ""}
+      end)
+
+      source = source_fixture(%{cookie_behaviour: :disabled})
       media_item = media_item_fixture(%{source_id: source.id})
 
       assert {:ok, _} = MediaDownloader.download_for_media_item(media_item)

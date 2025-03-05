@@ -132,7 +132,6 @@ defmodule Pinchflat.SlowIndexing.SlowIndexingHelpers do
     {:ok, pid} = FileFollowerServer.start_link()
 
     handler = fn filepath -> setup_file_follower_watcher(pid, filepath, source) end
-    # TODO: test
     should_use_cookies = Sources.use_cookies?(source, :indexing)
 
     command_opts =

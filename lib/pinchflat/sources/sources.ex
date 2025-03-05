@@ -32,7 +32,11 @@ defmodule Pinchflat.Sources do
     source.output_path_template_override || media_profile.output_path_template
   end
 
-  # TODO: test
+  @doc """
+  Returns a boolean indicating whether or not cookies should be used for a given operation.
+
+  Returns boolean()
+  """
   def use_cookies?(source, operation) when operation in [:indexing, :downloading, :metadata] do
     case source.cookie_behaviour do
       :disabled -> false
@@ -190,7 +194,6 @@ defmodule Pinchflat.Sources do
 
   defp add_source_details_to_changeset(source, changeset) do
     original_url = changeset.changes.original_url
-    # TODO: test
     should_use_cookies = Ecto.Changeset.get_field(changeset, :cookie_behaviour) == :all_operations
     # Skipping sleep interval since this is UI blocking and we want to keep this as fast as possible
     addl_opts = [use_cookies: should_use_cookies, skip_sleep_interval: true]

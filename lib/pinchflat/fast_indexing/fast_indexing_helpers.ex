@@ -89,13 +89,15 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
 
   defp create_media_item_from_media_id(source, media_id) do
     url = "https://www.youtube.com/watch?v=#{media_id}"
+    # This is set to :metadata instead of :indexing since this happens _after_ the
+    # actual indexing process. In reality, slow indexing is the only thing that
+    # should be using :indexing.
     should_use_cookies = Sources.use_cookies?(source, :metadata)
 
     command_opts =
       [output: DownloadOptionBuilder.build_output_path_for(source)] ++
         DownloadOptionBuilder.build_quality_options_for(source)
 
-    # TODO: test
     case YtDlpMedia.get_media_attributes(url, command_opts, use_cookies: should_use_cookies) do
       {:ok, media_attrs} ->
         Media.create_media_item_from_backend_attrs(source, media_attrs)

@@ -60,6 +60,28 @@ defmodule Pinchflat.SourcesTest do
     end
   end
 
+  describe "use_cookies?/2" do
+    test "returns true if the source has been set to use cookies" do
+      source = source_fixture(%{cookie_behaviour: :all_operations})
+      assert Sources.use_cookies?(source, :downloading)
+    end
+
+    test "returns false if the source has not been set to use cookies" do
+      source = source_fixture(%{cookie_behaviour: :disabled})
+      refute Sources.use_cookies?(source, :downloading)
+    end
+
+    test "returns true if the action is indexing and the source is set to :indexing_only" do
+      source = source_fixture(%{cookie_behaviour: :indexing_only})
+      assert Sources.use_cookies?(source, :indexing)
+    end
+
+    test "returns false if the action is downloading and the source is set to :indexing_only" do
+      source = source_fixture(%{cookie_behaviour: :indexing_only})
+      refute Sources.use_cookies?(source, :downloading)
+    end
+  end
+
   describe "list_sources/0" do
     test "it returns all sources" do
       source = source_fixture()
@@ -393,13 +415,13 @@ defmodule Pinchflat.SourcesTest do
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
         original_url: "https://www.youtube.com/channel/abc123",
-        use_cookies: true
+        cookie_behaviour: :all_operations
       }
 
       assert {:ok, %Source{}} = Sources.create_source(valid_attrs)
     end
 
-    test "does not set use_cookies to false if the source has not been set to use cookies" do
+    test "does not set use_cookies if the source only uses cookies when indexing" do
       expect(YtDlpRunnerMock, :run, fn _url, :get_source_details, _opts, _ot, addl ->
         refute Keyword.get(addl, :use_cookies)
 
@@ -409,7 +431,23 @@ defmodule Pinchflat.SourcesTest do
       valid_attrs = %{
         media_profile_id: media_profile_fixture().id,
         original_url: "https://www.youtube.com/channel/abc123",
-        use_cookies: false
+        cookie_behaviour: :indexing_only
+      }
+
+      assert {:ok, %Source{}} = Sources.create_source(valid_attrs)
+    end
+
+    test "does not set use_cookies if the source has not been set to use cookies" do
+      expect(YtDlpRunnerMock, :run, fn _url, :get_source_details, _opts, _ot, addl ->
+        refute Keyword.get(addl, :use_cookies)
+
+        {:ok, playlist_return()}
+      end)
+
+      valid_attrs = %{
+        media_profile_id: media_profile_fixture().id,
+        original_url: "https://www.youtube.com/channel/abc123",
+        cookie_behaviour: :disabled
       }
 
       assert {:ok, %Source{}} = Sources.create_source(valid_attrs)

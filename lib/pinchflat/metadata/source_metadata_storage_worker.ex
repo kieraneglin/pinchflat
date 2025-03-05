@@ -113,7 +113,6 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
   defp fetch_metadata_for_source(source) do
     tmp_output_path = "#{tmp_directory()}/#{StringUtils.random_string(16)}/source_image.%(ext)S"
     base_opts = [convert_thumbnails: "jpg", output: tmp_output_path]
-    # TODO: test
     should_use_cookies = Sources.use_cookies?(source, :metadata)
 
     opts =
@@ -123,7 +122,6 @@ defmodule Pinchflat.Metadata.SourceMetadataStorageWorker do
         base_opts ++ [:write_thumbnail, playlist_items: 1]
       end
 
-    # TODO: test
     MediaCollection.get_source_metadata(source.original_url, opts, use_cookies: should_use_cookies)
   end
 
