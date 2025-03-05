@@ -12,6 +12,7 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
   alias Pinchflat.Repo
   alias Pinchflat.Media
   alias Pinchflat.Tasks
+  alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
   alias Pinchflat.FastIndexing.YoutubeRss
   alias Pinchflat.FastIndexing.YoutubeApi
@@ -88,12 +89,14 @@ defmodule Pinchflat.FastIndexing.FastIndexingHelpers do
 
   defp create_media_item_from_media_id(source, media_id) do
     url = "https://www.youtube.com/watch?v=#{media_id}"
+    should_use_cookies = Sources.use_cookies?(source, :metadata)
 
     command_opts =
       [output: DownloadOptionBuilder.build_output_path_for(source)] ++
         DownloadOptionBuilder.build_quality_options_for(source)
 
-    case YtDlpMedia.get_media_attributes(url, command_opts, use_cookies: source.use_cookies) do
+    # TODO: test
+    case YtDlpMedia.get_media_attributes(url, command_opts, use_cookies: should_use_cookies) do
       {:ok, media_attrs} ->
         Media.create_media_item_from_backend_attrs(source, media_attrs)
 
