@@ -86,12 +86,13 @@
       help="Unchecking still indexes media but it won't be downloaded until you enable this option"
     />
 
-    <.input
-      field={f[:use_cookies]}
-      type="toggle"
-      label="Use Cookies for Downloading"
-      help="Uses your YouTube cookies for this source (if configured). Used for downloading private playlists and videos. See docs for important details"
-    />
+     <.input
+        field={f[:cookie_behaviour]}
+        options={friendly_cookie_behaviours()}
+        type="select"
+        label="Cookie Behaviour"
+        help="Uses your YouTube cookies for this source (if configured). 'When Needed' tries to minimize cookie usage except for certain indexing and downloading tasks. See docs"
+      />
 
     <section x-show="advancedMode">
       <.input

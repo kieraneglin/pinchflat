@@ -78,8 +78,7 @@ defmodule Pinchflat.Sources.Source do
     field :collection_type, Ecto.Enum, values: [:channel, :playlist]
     field :index_frequency_minutes, :integer, default: 60 * 24
     field :fast_index, :boolean, default: false
-    # TODO: consider renaming `indexing_only` to something like `when_needed` (but better)
-    field :cookie_behaviour, Ecto.Enum, values: [:disabled, :indexing_only, :all_operations], default: :disabled
+    field :cookie_behaviour, Ecto.Enum, values: [:disabled, :when_needed, :all_operations], default: :disabled
     field :download_media, :boolean, default: true
     field :last_indexed_at, :utc_datetime
     # Only download media items that were published after this date
