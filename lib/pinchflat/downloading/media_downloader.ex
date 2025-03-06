@@ -52,6 +52,8 @@ defmodule Pinchflat.Downloading.MediaDownloader do
   # Looks complicated, but here's the key points:
   # - download_with_options runs a pre-check to see if the media item is suitable for download.
   # - If the media item fails the precheck, it returns {:error, :unsuitable_for_download, message}
+  #   - However, if the precheck fails in a way that we think can be fixed by using cookies, we retry with cookies
+  #     and return the result of that
   # - If the precheck passes but the download fails, it normally returns {:error, :download_failed, message}
   #   - However, there are some errors we can recover from (eg: failure to communicate with SponsorBlock).
   #     In this case, we attempt the download anyway and update the media item with what details we do have.
@@ -68,6 +70,8 @@ defmodule Pinchflat.Downloading.MediaDownloader do
   #   - `:unrecoverable` if there was an initial failure and the recovery attempt failed
   #   - `:download_failed` for all other yt-dlp-related downloading errors
   #   - `:unknown` for any other errors, including those not related to yt-dlp
+  # - If we retry using cookies, all of the above return values apply. The cookie retry
+  #   logic is handled transparently as far as the caller is concerned
   defp attempt_download_and_update_for_media_item(media_item, override_opts) do
     output_filepath = FilesystemUtils.generate_metadata_tmpfile(:json)
     media_with_preloads = Repo.preload(media_item, [:metadata, source: :media_profile])
@@ -152,20 +156,61 @@ defmodule Pinchflat.Downloading.MediaDownloader do
 
   defp download_with_options(url, item_with_preloads, output_filepath, override_opts) do
     {:ok, options} = DownloadOptionBuilder.build(item_with_preloads, override_opts)
+    force_use_cookies = Keyword.get(override_opts, :force_use_cookies, false)
+    source_uses_cookies = Sources.use_cookies?(item_with_preloads.source, :downloading)
+    should_use_cookies = force_use_cookies || source_uses_cookies
 
-    use_cookies = Sources.use_cookies?(item_with_preloads.source, :downloading)
-    runner_opts = [output_filepath: output_filepath, use_cookies: use_cookies]
+    runner_opts = [output_filepath: output_filepath, use_cookies: should_use_cookies]
 
-    case YtDlpMedia.get_downloadable_status(url, use_cookies: use_cookies) do
-      {:ok, :downloadable} -> YtDlpMedia.download(url, options, runner_opts)
-      {:ok, :ignorable} -> {:error, :unsuitable_for_download}
-      err -> err
+    case {YtDlpMedia.get_downloadable_status(url, use_cookies: should_use_cookies), should_use_cookies} do
+      {{:ok, :downloadable}, _} ->
+        YtDlpMedia.download(url, options, runner_opts)
+
+      {{:ok, :ignorable}, _} ->
+        {:error, :unsuitable_for_download}
+
+      {{:error, _message, _exit_code} = err, false} ->
+        # If there was an error and we don't have cookies, this method will retry with cookies
+        # if doing so would help AND the source allows. Otherwise, it will return the error as-is
+        maybe_retry_with_cookies(url, item_with_preloads, output_filepath, override_opts, err)
+
+      # This gets hit if cookies are enabled which, importantly, also covers the case where we
+      # retry a download with cookies and it fails again
+      {{:error, message, exit_code}, true} ->
+        {:error, message, exit_code}
+
+      {err, _} ->
+        err
+    end
+  end
+
+  defp maybe_retry_with_cookies(url, item_with_preloads, output_filepath, override_opts, err) do
+    {:error, message, _} = err
+    source = item_with_preloads.source
+    message_contains_cookie_error = String.contains?(to_string(message), recoverable_cookie_errors())
+
+    if Sources.use_cookies?(source, :error_recovery) && message_contains_cookie_error do
+      download_with_options(
+        url,
+        item_with_preloads,
+        output_filepath,
+        Keyword.put(override_opts, :force_use_cookies, true)
+      )
+    else
+      err
     end
   end
 
   defp recoverable_errors do
     [
       "Unable to communicate with SponsorBlock"
+    ]
+  end
+
+  defp recoverable_cookie_errors do
+    [
+      "Sign in to confirm",
+      "This video is available to this channel's members"
     ]
   end
 end

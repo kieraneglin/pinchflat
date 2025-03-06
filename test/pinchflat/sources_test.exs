@@ -80,6 +80,11 @@ defmodule Pinchflat.SourcesTest do
       source = source_fixture(%{cookie_behaviour: :when_needed})
       refute Sources.use_cookies?(source, :downloading)
     end
+
+    test "returns true if the action is error_recovery and the source is set to :when_needed" do
+      source = source_fixture(%{cookie_behaviour: :when_needed})
+      assert Sources.use_cookies?(source, :error_recovery)
+    end
   end
 
   describe "list_sources/0" do

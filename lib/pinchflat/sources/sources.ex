@@ -37,11 +37,11 @@ defmodule Pinchflat.Sources do
 
   Returns boolean()
   """
-  def use_cookies?(source, operation) when operation in [:indexing, :downloading, :metadata] do
+  def use_cookies?(source, operation) when operation in [:indexing, :downloading, :metadata, :error_recovery] do
     case source.cookie_behaviour do
       :disabled -> false
       :all_operations -> true
-      :when_needed -> operation == :indexing
+      :when_needed -> operation in [:indexing, :error_recovery]
     end
   end
 
