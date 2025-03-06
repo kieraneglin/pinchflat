@@ -209,7 +209,7 @@ defmodule Pinchflat.Downloading.MediaDownloader do
 
   defp recoverable_cookie_errors do
     [
-      "Sign in to confirm your age",
+      "Sign in to confirm",
       "This video is available to this channel's members"
     ]
   end
