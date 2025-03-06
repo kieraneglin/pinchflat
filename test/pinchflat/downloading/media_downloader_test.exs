@@ -204,7 +204,7 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
     end
   end
 
-  describe "download_for_media_item/3 when testing retries" do
+  describe "download_for_media_item/3 when testing non-cookie retries" do
     test "returns a recovered tuple on recoverable errors", %{media_item: media_item} do
       message = "Unable to communicate with SponsorBlock"
 
@@ -295,6 +295,68 @@ defmodule Pinchflat.Downloading.MediaDownloaderTest do
       media_item = Repo.reload(media_item)
 
       assert media_item.last_error == "Unable to communicate with SponsorBlock"
+    end
+  end
+
+  describe "download_for_media_item/3 when testing cookie retries" do
+    test "retries with cookies if we think it would help and the source allows" do
+      expect(YtDlpRunnerMock, :run, 4, fn
+        _url, :get_downloadable_status, _opts, _ot, [use_cookies: false] ->
+          {:error, "Sign in to confirm your age", 1}
+
+        _url, :get_downloadable_status, _opts, _ot, [use_cookies: true] ->
+          {:ok, "{}"}
+
+        _url, :download, _opts, _ot, addl ->
+          assert {:use_cookies, true} in addl
+          {:ok, render_metadata(:media_metadata)}
+
+        _url, :download_thumbnail, _opts, _ot, _addl ->
+          {:ok, ""}
+      end)
+
+      source = source_fixture(%{cookie_behaviour: :when_needed})
+      media_item = media_item_fixture(%{source_id: source.id})
+
+      assert {:ok, _} = MediaDownloader.download_for_media_item(media_item)
+    end
+
+    test "does not retry with cookies if we don't think it would help even the source allows" do
+      expect(YtDlpRunnerMock, :run, 1, fn
+        _url, :get_downloadable_status, _opts, _ot, [use_cookies: false] ->
+          {:error, "Some other error", 1}
+      end)
+
+      source = source_fixture(%{cookie_behaviour: :when_needed})
+      media_item = media_item_fixture(%{source_id: source.id})
+
+      assert {:error, :download_failed, "Some other error"} = MediaDownloader.download_for_media_item(media_item)
+    end
+
+    test "does not retry with cookies even if we think it would help but source doesn't allow" do
+      expect(YtDlpRunnerMock, :run, 1, fn
+        _url, :get_downloadable_status, _opts, _ot, [use_cookies: false] ->
+          {:error, "Sign in to confirm your age", 1}
+      end)
+
+      source = source_fixture(%{cookie_behaviour: :disabled})
+      media_item = media_item_fixture(%{source_id: source.id})
+
+      assert {:error, :download_failed, "Sign in to confirm your age"} =
+               MediaDownloader.download_for_media_item(media_item)
+    end
+
+    test "does not retry with cookies if cookies were already used" do
+      expect(YtDlpRunnerMock, :run, 1, fn
+        _url, :get_downloadable_status, _opts, _ot, [use_cookies: true] ->
+          {:error, "This video is available to this channel's members", 1}
+      end)
+
+      source = source_fixture(%{cookie_behaviour: :all_operations})
+      media_item = media_item_fixture(%{source_id: source.id})
+
+      assert {:error, :download_failed, "This video is available to this channel's members"} =
+               MediaDownloader.download_for_media_item(media_item)
     end
   end
 
