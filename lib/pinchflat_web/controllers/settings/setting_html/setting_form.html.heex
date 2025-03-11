@@ -47,7 +47,14 @@
         placeholder="0"
         type="number"
         label="Sleep Interval (seconds)"
-        help="Sleep interval in seconds between each extractor request. Must be a positive whole number (or set to 0 to disable)"
+        help="Sleep interval in seconds between each extractor request. Must be a positive whole number. Set to 0 to disable"
+      />
+
+      <.input
+        field={f[:download_throughput_limit]}
+        placeholder="4.2M"
+        label="Download Throughput"
+        help="Sets the max throughput when downloading media. Examples: '50K' or '4.2M'. Leave blank to disable"
       />
     </section>
   </section>
