@@ -96,7 +96,7 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
     end
   end
 
-  describe "run/4 when testing sleep interval options" do
+  describe "run/4 when testing rate limit options" do
     test "includes sleep interval options by default" do
       Settings.set(extractor_sleep_interval_seconds: 5)
 
@@ -123,6 +123,22 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
       refute String.contains?(output, "--sleep-interval")
       refute String.contains?(output, "--sleep-requests")
       refute String.contains?(output, "--sleep-subtitles")
+    end
+
+    test "includes limit_rate option when specified" do
+      Settings.set(download_throughput_limit: "100K")
+
+      assert {:ok, output} = Runner.run(@media_url, :foo, [], "")
+
+      assert String.contains?(output, "--limit-rate 100K")
+    end
+
+    test "doesn't include limit_rate option when download_throughput_limit is nil" do
+      Settings.set(download_throughput_limit: nil)
+
+      assert {:ok, output} = Runner.run(@media_url, :foo, [], "")
+
+      refute String.contains?(output, "--limit-rate")
     end
   end
 
