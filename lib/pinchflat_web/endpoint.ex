@@ -39,7 +39,10 @@ defmodule PinchflatWeb.Endpoint do
     cookie_key: "request_logger"
 
   plug Plug.RequestId
-  plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
+
+  plug Plug.Telemetry,
+    event_prefix: [:phoenix, :endpoint],
+    log: {__MODULE__, :log_level, []}
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
@@ -54,6 +57,10 @@ defmodule PinchflatWeb.Endpoint do
   plug :strip_trailing_extension
 
   plug PinchflatWeb.Router
+
+  # Disables logging in Plug.Telemetry for healthcheck requests
+  def log_level(%Plug.Conn{path_info: ["healthcheck"]}), do: false
+  def log_level(_), do: :info
 
   # URLs need to be generated using the host of the current page being accessed
   # for things like Podcast RSS feeds to contain links to the right location.

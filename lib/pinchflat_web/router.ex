@@ -68,7 +68,7 @@ defmodule PinchflatWeb.Router do
   scope "/", PinchflatWeb do
     pipe_through :api
 
-    get "/healthcheck", HealthController, :check
+    get "/healthcheck", HealthController, :check, log: false
   end
 
   scope "/dev" do
