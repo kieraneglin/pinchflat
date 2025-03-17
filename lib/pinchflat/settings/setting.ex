@@ -16,7 +16,8 @@ defmodule Pinchflat.Settings.Setting do
     :audio_codec_preference,
     :youtube_api_key,
     :extractor_sleep_interval_seconds,
-    :download_throughput_limit
+    :download_throughput_limit,
+    :restrict_filenames
   ]
 
   @required_fields [
@@ -38,6 +39,7 @@ defmodule Pinchflat.Settings.Setting do
     field :extractor_sleep_interval_seconds, :integer, default: 0
     # This is a string because it accepts values like "100K" or "4.2M"
     field :download_throughput_limit, :string
+    field :restrict_filenames, :boolean, default: false
 
     field :video_codec_preference, :string
     field :audio_codec_preference, :string
