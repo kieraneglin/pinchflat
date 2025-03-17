@@ -35,7 +35,7 @@ defmodule Pinchflat.YtDlp.CommandRunner do
 
     output_filepath = generate_output_filepath(addl_opts)
     print_to_file_opts = [{:print_to_file, output_template}, output_filepath]
-    user_configured_opts = cookie_file_options(addl_opts) ++ rate_limit_opts(addl_opts)
+    user_configured_opts = cookie_file_options(addl_opts) ++ rate_limit_options(addl_opts) ++ misc_options()
     # These must stay in exactly this order, hence why I'm giving it its own variable.
     all_opts = command_opts ++ print_to_file_opts ++ user_configured_opts ++ global_options()
     formatted_command_opts = [url] ++ CliUtils.parse_options(all_opts)
@@ -116,7 +116,22 @@ defmodule Pinchflat.YtDlp.CommandRunner do
     end
   end
 
-  defp rate_limit_opts(addl_opts) do
+  defp add_cookie_file do
+    base_dir = Application.get_env(:pinchflat, :extras_directory)
+    filename_options_map = %{cookies: "cookies.txt"}
+
+    Enum.reduce(filename_options_map, [], fn {opt_name, filename}, acc ->
+      filepath = Path.join(base_dir, filename)
+
+      if FSUtils.exists_and_nonempty?(filepath) do
+        [{opt_name, filepath} | acc]
+      else
+        acc
+      end
+    end)
+  end
+
+  defp rate_limit_options(addl_opts) do
     throughput_limit = Settings.get!(:download_throughput_limit)
     sleep_interval_opts = sleep_interval_opts(addl_opts)
     throughput_option = if throughput_limit, do: [limit_rate: throughput_limit], else: []
@@ -138,19 +153,8 @@ defmodule Pinchflat.YtDlp.CommandRunner do
     end
   end
 
-  defp add_cookie_file do
-    base_dir = Application.get_env(:pinchflat, :extras_directory)
-    filename_options_map = %{cookies: "cookies.txt"}
-
-    Enum.reduce(filename_options_map, [], fn {opt_name, filename}, acc ->
-      filepath = Path.join(base_dir, filename)
-
-      if FSUtils.exists_and_nonempty?(filepath) do
-        [{opt_name, filepath} | acc]
-      else
-        acc
-      end
-    end)
+  defp misc_options do
+    if Settings.get!(:restrict_filenames), do: [:restrict_filenames], else: []
   end
 
   defp backend_executable do

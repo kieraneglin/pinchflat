@@ -162,6 +162,24 @@ defmodule Pinchflat.YtDlp.CommandRunnerTest do
     end
   end
 
+  describe "run/4 when testing misc options" do
+    test "includes --restrict-filenames when enabled" do
+      Settings.set(restrict_filenames: true)
+
+      assert {:ok, output} = Runner.run(@media_url, :foo, [], "")
+
+      assert String.contains?(output, "--restrict-filenames")
+    end
+
+    test "doesn't include --restrict-filenames when disabled" do
+      Settings.set(restrict_filenames: false)
+
+      assert {:ok, output} = Runner.run(@media_url, :foo, [], "")
+
+      refute String.contains?(output, "--restrict-filenames")
+    end
+  end
+
   describe "version/0" do
     test "adds the version arg" do
       assert {:ok, output} = Runner.version()
