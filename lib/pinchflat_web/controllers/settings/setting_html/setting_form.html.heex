@@ -54,7 +54,14 @@
         field={f[:download_throughput_limit]}
         placeholder="4.2M"
         label="Download Throughput"
-        help="Sets the max throughput when downloading media. Examples: '50K' or '4.2M'. Leave blank to disable"
+        help="Sets the max bytes-per-second throughput when downloading media. Examples: '50K' or '4.2M'. Leave blank to disable"
+      />
+
+      <.input
+        field={f[:restrict_filenames]}
+        type="toggle"
+        label="Restrict Filenames"
+        help="Restrict filenames to only ASCII characters and avoid ampersands/spaces in filenames"
       />
     </section>
   </section>
