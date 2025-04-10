@@ -129,6 +129,23 @@ docker run \
   ghcr.io/kieraneglin/pinchflat:latest
 ```
 
+### Podman
+
+The Podman setup is similar to Docker but changes a few flags to run under a User Namespace instead of root. To run Pinchflat under Podman and use the current user's UID/GID for file access run this:
+
+```
+podman run \
+  --security-opt label=disable \
+  --userns=keep-id --user=$UID \
+  -e TZ=America/Los_Angeles \
+  -p 8945:8945 \
+  -v /host/path/to/config:/config:rw \
+  -v /host/path/to/downloads/:/downloads:rw \
+  ghcr.io/kieraneglin/pinchflat:latest
+```
+
+Using this setup consider creating a new `pinchflat` user and giving that user ownership to the config and download directory. See [Podman --userns](https://docs.podman.io/en/v4.6.1/markdown/options/userns.container.html) docs.
+
 ### IMPORTANT: File permissions
 
 You _must_ ensure the host directories you've mounted are writable by the user running the Docker container. If you get a permission error follow the steps it suggests. See [#106](https://github.com/kieraneglin/pinchflat/issues/106) for more.
