@@ -134,7 +134,7 @@ docker run \
 The Podman setup is similar to Docker but changes a few flags to run under a User Namespace instead of root. To run Pinchflat under Podman and use the current user's UID/GID for file access run this:
 
 ```
-podman run \ 
+podman run \
   --security-opt label=disable \
   --userns=keep-id --user=$UID \
   -e TZ=America/Los_Angeles \
