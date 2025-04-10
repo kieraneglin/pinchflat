@@ -106,7 +106,7 @@ defmodule Pinchflat.SlowIndexing.FileFollowerServer do
         {:noreply, %{state | last_activity: DateTime.utc_now()}}
 
       :eof ->
-        Logger.debug("EOF reached, waiting before trying to read new lines")
+        Logger.debug("Current batch of media processed. Will check again in #{@poll_interval_ms}ms")
         Process.send_after(self(), :read_new_lines, @poll_interval_ms)
 
         {:noreply, state}
