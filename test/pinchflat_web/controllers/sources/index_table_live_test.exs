@@ -75,6 +75,16 @@ defmodule PinchflatWeb.Sources.SourceLive.IndexTableLiveTest do
       assert render_element(view, "tbody tr:first-child") =~ source1.custom_name
       assert render_element(view, "tbody tr:last-child") =~ source2.custom_name
     end
+
+    test "name is sorted without case sensitivity", %{conn: conn} do
+      source1 = source_fixture(custom_name: "Source_B")
+      source2 = source_fixture(custom_name: "source_a")
+
+      {:ok, view, _html} = live_isolated(conn, IndexTableLive, session: create_session())
+
+      assert render_element(view, "tbody tr:first-child") =~ source2.custom_name
+      assert render_element(view, "tbody tr:last-child") =~ source1.custom_name
+    end
   end
 
   describe "when testing pagination" do
