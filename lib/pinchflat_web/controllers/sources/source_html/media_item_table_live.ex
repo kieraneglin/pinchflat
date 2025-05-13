@@ -56,6 +56,17 @@ defmodule PinchflatWeb.Sources.MediaItemTableLive do
             >
               <.icon name="hero-exclamation-circle-solid" class="text-red-500" />
             </.tooltip>
+
+            <.link
+              href={~p"/sources/#{@source.id}/media/#{media_item.id}/force_download"}
+              :if={!media_item.prevent_download}
+              method="post"
+              target="_blank"
+              data-confirm="Are you sure you force a download of this media?"
+            >
+              <.icon name="hero-arrow-down-tray" />
+            </.link>
+
             <span class="truncate">
               <.subtle_link href={~p"/sources/#{@source.id}/media/#{media_item.id}"}>
                 {media_item.title}
