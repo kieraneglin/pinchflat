@@ -15,8 +15,7 @@ defmodule PinchflatWeb.CoreComponents do
   Icons are provided by [heroicons](https://heroicons.com). See `icon/1` for usage.
   """
   use Phoenix.Component, global_prefixes: ~w(x-)
-
-  import PinchflatWeb.Gettext
+  use Gettext, backend: PinchflatWeb.Gettext
 
   alias Phoenix.LiveView.JS
   alias PinchflatWeb.CustomComponents.TextComponents

@@ -43,7 +43,7 @@ defmodule PinchflatWeb do
         layouts: [html: PinchflatWeb.Layouts]
 
       import Plug.Conn
-      import PinchflatWeb.Gettext
+      use Gettext, backend: PinchflatWeb.Gettext
 
       alias Pinchflat.Settings
       alias PinchflatWeb.Layouts
@@ -94,7 +94,7 @@ defmodule PinchflatWeb do
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components and translation
-      import PinchflatWeb.Gettext
+      use Gettext, backend: PinchflatWeb.Gettext
       import PinchflatWeb.CoreComponents
       import PinchflatWeb.CustomComponents.TabComponents
       import PinchflatWeb.CustomComponents.TextComponents

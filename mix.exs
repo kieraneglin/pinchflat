@@ -7,6 +7,7 @@ defmodule Pinchflat.MixProject do
       version: "2025.3.17",
       elixir: "~> 1.17",
       elixirc_paths: elixirc_paths(Mix.env()),
+      elixirc_options: [warnings_as_errors: System.get_env("EX_CHECK") == "1"],
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
@@ -69,7 +70,8 @@ defmodule Pinchflat.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:oban, "~> 2.17"},
       {:nimble_parsec, "~> 1.4"},
-      {:timex, "~> 3.0"},
+      # See: https://github.com/bitwalker/timex/issues/778
+      {:timex, git: "https://github.com/bitwalker/timex.git", ref: "cc649c7a586f1266b17d57aff3c6eb1a56116ca2"},
       {:prom_ex, "~> 1.11.0"},
       {:mox, "~> 1.0", only: :test},
       {:credo, "~> 1.7.7", only: [:dev, :test], runtime: false},
