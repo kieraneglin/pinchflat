@@ -7,6 +7,7 @@ defmodule Pinchflat.MixProject do
       version: "2025.3.17",
       elixir: "~> 1.17",
       elixirc_paths: elixirc_paths(Mix.env()),
+      elixirc_options: [warnings_as_errors: System.get_env("EX_CHECK") == "1"],
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
@@ -46,13 +47,13 @@ defmodule Pinchflat.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.7.14"},
+      {:phoenix, "~> 1.7.21"},
       {:phoenix_ecto, "~> 4.4"},
       {:ecto, "~> 3.12.3"},
       {:ecto_sql, "~> 3.12"},
       {:ecto_sqlite3, ">= 0.0.0"},
       {:ecto_sqlite3_extras, "~> 1.2.0"},
-      {:phoenix_html, "~> 3.3"},
+      {:phoenix_html, "~> 4.2"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 1.0.0"},
       {:floki, ">= 0.36.0", only: :test},
@@ -65,16 +66,17 @@ defmodule Pinchflat.MixProject do
       {:telemetry_poller, "~> 1.1"},
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
-      {:dns_cluster, "~> 0.1.1"},
+      {:dns_cluster, "~> 0.2"},
       {:plug_cowboy, "~> 2.5"},
       {:oban, "~> 2.17"},
       {:nimble_parsec, "~> 1.4"},
-      {:timex, "~> 3.0"},
+      # See: https://github.com/bitwalker/timex/issues/778
+      {:timex, git: "https://github.com/bitwalker/timex.git", ref: "cc649c7a586f1266b17d57aff3c6eb1a56116ca2"},
       {:prom_ex, "~> 1.11.0"},
       {:mox, "~> 1.0", only: :test},
       {:credo, "~> 1.7.7", only: [:dev, :test], runtime: false},
       {:credo_naming, "~> 2.1", only: [:dev, :test], runtime: false},
-      {:ex_check, "~> 0.14.0", only: [:dev, :test], runtime: false},
+      {:ex_check, "~> 0.16.0", only: [:dev, :test], runtime: false},
       {:faker, "~> 0.17", only: :test},
       {:sobelow, "~> 0.13", only: [:dev, :test], runtime: false}
     ]

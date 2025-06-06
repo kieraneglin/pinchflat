@@ -5,7 +5,7 @@ defmodule PinchflatWeb.Gettext do
   By using [Gettext](https://hexdocs.pm/gettext),
   your module gains a set of macros for translations, for example:
 
-      import PinchflatWeb.Gettext
+      use Gettext, backend: PinchflatWeb.Gettext
 
       # Simple translation
       gettext("Here is the string to translate")
@@ -20,5 +20,5 @@ defmodule PinchflatWeb.Gettext do
 
   See the [Gettext Docs](https://hexdocs.pm/gettext) for detailed usage.
   """
-  use Gettext, otp_app: :pinchflat
+  use Gettext.Backend, otp_app: :pinchflat
 end
