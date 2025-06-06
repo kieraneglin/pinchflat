@@ -71,19 +71,39 @@ defmodule PinchflatWeb.CustomComponents.TextComponents do
     formatted_text =
       Regex.split(~r{https?://\S+}, assigns.text, include_captures: true)
       |> Enum.map(fn
-        "http" <> _ = url ->
-          Phoenix.HTML.Tag.content_tag(:a, url, class: "text-blue-500 hover:text-blue-300", href: url, target: "_blank")
-
-        text ->
-          text
-          |> String.split("\n", trim: false)
-          |> Enum.intersperse(Phoenix.HTML.Tag.tag(:span, class: "inline-block mt-2"))
+        "http" <> _ = url -> {:url, url}
+        text -> Regex.split(~r{\n}, text, include_captures: true, trim: true)
       end)
 
     assigns = Map.put(assigns, :text, formatted_text)
 
     ~H"""
-    <span>{@text}</span>
+    <span>
+      <.rendered_description_line :for={line <- @text} content={line} />
+    </span>
+    """
+  end
+
+  defp rendered_description_line(%{content: {:url, url}} = assigns) do
+    assigns = Map.put(assigns, :url, url)
+
+    ~H"""
+    <a href={@url} target="_blank" class="text-blue-500 hover:text-blue-300">
+      {@url}
+    </a>
+    """
+  end
+
+  defp rendered_description_line(%{content: list_of_content} = assigns) do
+    assigns = Map.put(assigns, :list_of_content, list_of_content)
+
+    ~H"""
+    <span
+      :for={inner_content <- @list_of_content}
+      class={[if(inner_content == "\n", do: "block", else: "mt-2 inline-block")]}
+    >
+      {inner_content}
+    </span>
     """
   end
 
