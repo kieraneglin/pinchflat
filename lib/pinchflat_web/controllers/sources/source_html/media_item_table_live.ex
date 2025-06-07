@@ -132,8 +132,6 @@ defmodule PinchflatWeb.Sources.MediaItemTableLive do
   end
 
   def handle_event("force_download", %{ "source-id" => source_id, "media-id" => media_id }, socket) do
-    IO.puts("source_id: #{source_id}, media_id: #{media_id}")
-
     media_item = Media.get_media_item!(media_id)
     MediaDownloadWorker.kickoff_with_task(media_item, %{force: true})
 
