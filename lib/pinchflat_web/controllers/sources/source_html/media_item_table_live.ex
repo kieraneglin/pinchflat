@@ -59,7 +59,7 @@ defmodule PinchflatWeb.Sources.MediaItemTableLive do
 
             <.link
               href={~p"/sources/#{@source.id}/media/#{media_item.id}/force_download"}
-              :if={!media_item.prevent_download}
+              :if={@media_state !== "downloaded"}
               method="post"
               target="_blank"
               data-confirm="Are you sure you force a download of this media?"
