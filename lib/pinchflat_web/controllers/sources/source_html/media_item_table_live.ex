@@ -62,7 +62,7 @@ defmodule PinchflatWeb.Sources.MediaItemTableLive do
 
             <.icon_button
               icon_name="hero-arrow-down-tray"
-              class="h-10 w-10"
+              class="p-1"
               phx-click="force_download"
               phx-value-source-id={@source.id}
               phx-value-media-id={media_item.id}
