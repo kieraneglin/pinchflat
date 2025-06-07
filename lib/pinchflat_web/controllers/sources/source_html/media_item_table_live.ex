@@ -6,6 +6,9 @@ defmodule PinchflatWeb.Sources.MediaItemTableLive do
   alias Pinchflat.Sources
   alias Pinchflat.Utils.NumberUtils
 
+  alias Pinchflat.Media
+  alias Pinchflat.Downloading.MediaDownloadWorker
+
   @limit 10
 
   def render(%{total_record_count: 0} = assigns) do
@@ -47,7 +50,7 @@ defmodule PinchflatWeb.Sources.MediaItemTableLive do
       </header>
       <.table rows={@records} table_class="text-white">
         <:col :let={media_item} label="Title" class="max-w-xs">
-          <section class="flex items-center space-x-1">
+          <section class="flex items-center space-x-1 gap-2">
             <.tooltip
               :if={media_item.last_error}
               tooltip={media_item.last_error}
@@ -57,15 +60,15 @@ defmodule PinchflatWeb.Sources.MediaItemTableLive do
               <.icon name="hero-exclamation-circle-solid" class="text-red-500" />
             </.tooltip>
 
-            <.link
-              href={~p"/sources/#{@source.id}/media/#{media_item.id}/force_download"}
-              :if={@media_state !== "downloaded"}
-              method="post"
-              target="_blank"
+            <.icon_button
+              icon_name="hero-arrow-down-tray"
+              class="h-10 w-10"
+              phx-click="force_download"
+              phx-value-source-id={@source.id}
+              phx-value-media-id={media_item.id}
               data-confirm="Are you sure you force a download of this media?"
-            >
-              <.icon name="hero-arrow-down-tray" />
-            </.link>
+              :if={@media_state !== "downloaded"}
+            />
 
             <span class="truncate">
               <.subtle_link href={~p"/sources/#{@source.id}/media/#{media_item.id}"}>
@@ -126,6 +129,15 @@ defmodule PinchflatWeb.Sources.MediaItemTableLive do
     new_assigns = fetch_pagination_attributes(socket.assigns.base_query, 1, search_term)
 
     {:noreply, assign(socket, new_assigns)}
+  end
+
+  def handle_event("force_download", %{ "source-id" => source_id, "media-id" => media_id }, socket) do
+    IO.puts("source_id: #{source_id}, media_id: #{media_id}")
+
+    media_item = Media.get_media_item!(media_id)
+    MediaDownloadWorker.kickoff_with_task(media_item, %{force: true})
+
+    {:noreply, socket}
   end
 
   # This, along with the handle_info below, is a pattern to reload _all_
