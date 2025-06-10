@@ -1,15 +1,15 @@
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > (2025-02-14) [zakkarry](https://github.com/sponsors/zakkarry), who is a collaborator on [cross-seed](https://github.com/cross-seed/cross-seed) and an extremely helpful community member in general, is facing hard times due to medical debt and family illness. If you're able, please consider [sponsoring him on GitHub](https://github.com/sponsors/zakkarry) or donating via [buymeacoffee](https://tip.ary.dev). Tell him I sent you!
 
-<p align="center">  
-  <img 
-    src="priv/static/images/originals/logo-white-wordmark-with-background.png" 
+<p align="center">
+  <img
+    src="priv/static/images/originals/logo-white-wordmark-with-background.png"
     alt="Pinchflat Logo by @hernandito"
-    width="700" 
+    width="700"
   />
 </p>
 
-<p align="center">  
+<p align="center">
   <sup>
     <em>logo by <a href="https://github.com/hernandito" target="_blank">@hernandito</a></em>
   </sup>
@@ -88,7 +88,7 @@ Simply search for Pinchflat in the Community Apps store!
 
 ### Portainer
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > See the note below about storing config on a network file share. It's preferred to store the config on a local disk if at all possible.
 
 Docker Compose file:
@@ -178,6 +178,9 @@ If you change this setting and it works well for you, please leave a comment on 
 | `BASE_ROUTE_PATH`           | No        | `/`                       | The base path for route generation. Useful when running behind certain reverse proxies - prefixes must be stripped.                       |
 | `YT_DLP_WORKER_CONCURRENCY` | No        | `2`                       | The number of concurrent workers that use `yt-dlp` _per queue_. Set to 1 if you're getting IP limited, otherwise don't touch it           |
 | `ENABLE_PROMETHEUS`         | No        | `false`                   | Setting to _any_ non-blank value will enable Prometheus. See [docs](https://github.com/kieraneglin/pinchflat/wiki/Prometheus-and-Grafana) |
+| `PAGINATION_LIMIT`          | No        | `10`                      | How many items are displayed on a media item source                                                                                       |
+| `PAGINATION_HISTORY_LIMIT`  | No        | `PAGINATION_LIMIT` or `5` | How many items are displayed on home's media history                                                                                      |
+
 
 ### Reverse Proxies
 
