@@ -68,6 +68,16 @@ defmodule Pinchflat.Media.MediaQuery do
     )
   end
 
+  def format_matching_source_profile_preference do
+     dynamic(
+      [mi, source],
+      # TODO: this isn't actually correct when not public it could also be unlisted,
+      # there may be other cases but the exclude case should be correct
+      source.members_content_behaviour == "only" and mi.public == false or
+        source.members_content_behaviour == "exclude" and mi.public == true or
+    )
+  end
+
   def matches_source_title_regex do
     dynamic(
       [mi, source],
@@ -131,6 +141,7 @@ defmodule Pinchflat.Media.MediaQuery do
         not (^download_prevented()) and
         ^upload_date_after_source_cutoff() and
         ^format_matching_profile_preference() and
+        ^format_matching_source_profile_preference() and
         ^matches_source_title_regex() and
         ^meets_min_and_max_duration()
     )
