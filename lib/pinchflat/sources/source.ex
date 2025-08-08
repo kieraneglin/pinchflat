@@ -40,6 +40,7 @@ defmodule Pinchflat.Sources.Source do
     marked_for_deletion_at
     min_duration_seconds
     max_duration_seconds
+    members_content_behaviour
   )a
 
   # Expensive API calls are made when a source is inserted/updated so
@@ -80,6 +81,8 @@ defmodule Pinchflat.Sources.Source do
     field :fast_index, :boolean, default: false
     field :cookie_behaviour, Ecto.Enum, values: [:disabled, :when_needed, :all_operations], default: :disabled
     field :download_media, :boolean, default: true
+    field :members_content_behaviour, Ecto.Enum, values: ~w(include exclude only)a, default: :include
+
     field :last_indexed_at, :utc_datetime
     # Only download media items that were published after this date
     field :download_cutoff_date, :date
