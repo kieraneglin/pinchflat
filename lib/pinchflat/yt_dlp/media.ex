@@ -12,7 +12,8 @@ defmodule Pinchflat.YtDlp.Media do
     :short_form_content,
     :uploaded_at,
     :duration_seconds,
-    :predicted_media_filepath
+    :predicted_media_filepath,
+    :public
   ]
 
   defstruct [
@@ -25,7 +26,8 @@ defmodule Pinchflat.YtDlp.Media do
     :uploaded_at,
     :duration_seconds,
     :playlist_index,
-    :predicted_media_filepath
+    :predicted_media_filepath,
+    :public
   ]
 
   alias __MODULE__
