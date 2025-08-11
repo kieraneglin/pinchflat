@@ -73,8 +73,8 @@ defmodule Pinchflat.Media.MediaQuery do
       [mi, source],
       # TODO: this isn't actually correct when not public it could also be unlisted,
       # there may be other cases but the exclude case should be correct
-      source.members_content_behaviour == "only" and mi.public == false or
-        source.members_content_behaviour == "exclude" and mi.public == true
+      (source.members_content_behaviour == :only and mi.public == false) or
+        (source.members_content_behaviour == :exclude and mi.public == true)
     )
   end
 
