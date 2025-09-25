@@ -1,15 +1,60 @@
-#!/bin/sh
-/app/bin/check_file_permissions
+#!/bin/bash
+set -e
 
-if [ $? -ne 0 ]; then
-  echo "Filesystem error. Exiting."
-  exit 1
+echo "--- Docker Entrypoint ---"
+
+# --- PART 0: Wait for Internet Connectivity (optional, but good for VPN) ---
+# Keeping this here as it's a runtime check that needs to happen before app starts.
+echo "Waiting for internet connectivity..."
+MAX_RETRIES=60
+RETRY_COUNT=0
+PING_HOST="deno.land"
+
+while ! curl -s --head "${PING_HOST}" > /dev/null; do
+    echo "No internet connection (pinging ${PING_HOST}). Retrying in 5 seconds..."
+    sleep 5
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    if [ ${RETRY_COUNT} -ge ${MAX_RETRIES} ]; then
+        echo "Max retries reached. Internet connection not established. Exiting."
+    # We exit here, so the command won't be passed to gosu, making `exec` below robust.
+        exit 1
+    fi
+done
+echo "Internet connection established!"
+
+
+# --- PART 1: Apply PUID/PGID and Chown if necessary ---
+echo "Applying ownership for PUID=${PUID}, PGID=${PGID}..."
+
+# Create the group if it doesn't exist (important if PGID isn't default)
+if ! getent group "${PGID}" >/dev/null; then
+    groupadd -g "${PGID}" pinchflat_group
+    echo "Created group with GID ${PGID}."
 fi
 
-echo "Setting umask to ${UMASK}"
-umask ${UMASK}
+# Create the user if it doesn't exist (important if PUID isn't default)
+if ! getent passwd "${PUID}" >/dev/null; then
+    useradd -u "${PUID}" -g "${PGID}" -s /bin/bash -d /config pinchflat_user
+    echo "Created user with UID ${PUID} and GID ${PGID}."
+fi
 
-/app/bin/migrate
+# Re-chown the Deno cache directory with the correct runtime PUID/PGID
+# This is crucial because the build-time PUID/PGID (1000:100) might differ from runtime.
+echo "Adjusting permissions for Deno cache directory: ${DENO_DIR}"
+chown -R "${PUID}:${PGID}" "${DENO_DIR}" || true # Allow failure if directory is empty or not created yet
 
-cd -P -- "$(dirname -- "$0")"
-PHX_SERVER=true exec ./pinchflat start
+# Chown the /config and /downloads directories to the target user
+echo "Adjusting permissions for /config and /downloads volumes..."
+chown -R "${PUID}:${PGID}" /config || true
+chown -R "${PUID}:${PGID}" /downloads || true
+
+# --- PART 2: Execute the main command as the non-root user ---
+# The original docker_start script should be executed by the non-root user.
+
+echo "Switching to user ${PUID}:${PGID} using gosu and launching application..."
+# Set HOME to a writable directory for the target user.
+# DENO_DIR is already set as an ENV var in the Dockerfile.
+export HOME="/config" # A more appropriate HOME for the app user
+
+# Execute the original docker_start script (which then runs the Elixir app)
+exec gosu "${PUID}:${PGID}" /app/bin/docker_start "$@"
