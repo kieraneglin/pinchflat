@@ -95,6 +95,8 @@ RUN apt-get update -y && \
       pipx \
       jq \
       procps && \
+    # Install Deno - required for YouTube downloads (See yt-dlp#14404)
+    curl -fsSL https://deno.land/install.sh | sh && \
     # Apprise
     export PIPX_HOME=/opt/pipx && \
     export PIPX_BIN_DIR=/usr/local/bin && \
