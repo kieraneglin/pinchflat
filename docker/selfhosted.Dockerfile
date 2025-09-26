@@ -94,6 +94,8 @@ RUN apt-get update -y && \
       python3 \
       pipx \
       jq \
+      # unzip is needed for Deno
+      unzip \
       procps && \
     # Install Deno - required for YouTube downloads (See yt-dlp#14404)
     curl -fsSL https://deno.land/install.sh | sh && \
