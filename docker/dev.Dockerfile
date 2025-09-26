@@ -13,7 +13,7 @@ RUN echo "Building for ${TARGETPLATFORM:?}"
 RUN apt-get update -qq && \
   apt-get install -y inotify-tools curl git openssh-client jq \
     python3 python3-setuptools python3-wheel python3-dev pipx \
-    python3-mutagen locales procps build-essential graphviz zsh
+    python3-mutagen locales procps build-essential graphviz zsh unzip
 
 # Install ffmpeg
 RUN export FFMPEG_DOWNLOAD=$(case ${TARGETPLATFORM:-linux/amd64} in \
@@ -32,8 +32,10 @@ RUN curl -sL https://deb.nodesource.com/setup_20.x -o nodesource_setup.sh && \
   # Install baseline Elixir packages
   mix local.hex --force && \
   mix local.rebar --force && \
+  # Install Deno - required for YouTube downloads (See yt-dlp#14404)
+  curl -fsSL https://deno.land/install.sh | DENO_INSTALL=/usr/local sh -s -- -y --no-modify-path && \
   # Download and update YT-DLP
-  curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && \
+  curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux -o /usr/local/bin/yt-dlp && \
   chmod a+rx /usr/local/bin/yt-dlp && \
   yt-dlp -U && \
   # Install Apprise
