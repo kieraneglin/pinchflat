@@ -102,7 +102,7 @@ RUN apt-get update -y && \
     export PIPX_BIN_DIR=/usr/local/bin && \
     pipx install apprise && \
     # yt-dlp
-    curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && \
+    curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux -o /usr/local/bin/yt-dlp && \
     chmod a+rx /usr/local/bin/yt-dlp && \
     yt-dlp -U && \
     # Set the locale
