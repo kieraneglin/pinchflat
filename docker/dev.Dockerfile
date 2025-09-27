@@ -35,7 +35,11 @@ RUN curl -sL https://deb.nodesource.com/setup_20.x -o nodesource_setup.sh && \
   # Install Deno - required for YouTube downloads (See yt-dlp#14404)
   curl -fsSL https://deno.land/install.sh | DENO_INSTALL=/usr/local sh -s -- -y --no-modify-path && \
   # Download and update YT-DLP
-  curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux -o /usr/local/bin/yt-dlp && \
+  export YT_DLP_DOWNLOAD=$(case ${TARGETPLATFORM:-linux/amd64} in \
+  "linux/amd64")   echo "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux"   ;; \
+  "linux/arm64")   echo "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux_aarch64" ;; \
+  *)               echo "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux"        ;; esac) && \
+  curl -L ${YT_DLP_DOWNLOAD} -o /usr/local/bin/yt-dlp && \
   chmod a+rx /usr/local/bin/yt-dlp && \
   yt-dlp -U && \
   # Install Apprise
