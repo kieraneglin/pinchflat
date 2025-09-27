@@ -12,7 +12,8 @@ defmodule Pinchflat.YtDlp.Media do
     :short_form_content,
     :uploaded_at,
     :duration_seconds,
-    :predicted_media_filepath
+    :predicted_media_filepath,
+    :public
   ]
 
   defstruct [
@@ -25,7 +26,8 @@ defmodule Pinchflat.YtDlp.Media do
     :uploaded_at,
     :duration_seconds,
     :playlist_index,
-    :predicted_media_filepath
+    :predicted_media_filepath,
+    :public
   ]
 
   alias __MODULE__
@@ -115,7 +117,7 @@ defmodule Pinchflat.YtDlp.Media do
         if something is a short via the URL again
   """
   def indexing_output_template do
-    "%(.{id,title,live_status,original_url,description,aspect_ratio,duration,upload_date,timestamp,playlist_index,filename})j"
+    "%(.{id,title,live_status,original_url,description,aspect_ratio,duration,upload_date,timestamp,playlist_index,filename,availability})j"
   end
 
   @doc """
@@ -135,7 +137,8 @@ defmodule Pinchflat.YtDlp.Media do
       short_form_content: response["original_url"] && short_form_content?(response),
       uploaded_at: response["upload_date"] && parse_uploaded_at(response),
       playlist_index: response["playlist_index"] || 0,
-      predicted_media_filepath: response["filename"]
+      predicted_media_filepath: response["filename"],
+      public: response["availability"] == "public"
     }
   end
 

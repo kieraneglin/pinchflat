@@ -27,6 +27,14 @@ defmodule PinchflatWeb.Sources.SourceHTML do
     ]
   end
 
+  def friendly_format_type_options do
+    [
+      {"Include (default)", :include},
+      {"Exclude", :exclude},
+      {"Only", :only}
+    ]
+  end
+
   def friendly_cookie_behaviours do
     [
       {"Disabled", :disabled},
