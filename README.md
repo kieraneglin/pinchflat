@@ -183,6 +183,22 @@ If you change this setting and it works well for you, please leave a comment on 
 
 Pinchflat makes heavy use of websockets for real-time updates. If you're running Pinchflat behind a reverse proxy then you'll need to make sure it's configured to support websockets.
 
+### Caddy Proxy Example
+
+To configure Pinchflat behind Caddy set the `BASE_ROUTE_PATH` environment variable to `/pinchflat/` then add a stanza like this to the `Caddyfile`:
+
+```
+home.example.com:443 {
+	redir /pinchflat /pinchflat/
+
+	handle_path /pinchflat/* {
+	  reverse_proxy localhost:8945
+	}
+}
+```
+
+Now you can access Pinchflat from http://home.example.com/pinchflat
+
 ## EFF donations
 
 Prior to 2024-05-10, a portion of all donations were given to the [Electronic Frontier Foundation](https://www.eff.org/). Now, the app doesn't accept donations that go to me personally and instead directs you straight to the EFF. [Here](https://github.com/kieraneglin/pinchflat/issues/234) are some people that have generously donated.
