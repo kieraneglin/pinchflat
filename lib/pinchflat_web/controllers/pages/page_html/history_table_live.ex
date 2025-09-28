@@ -6,7 +6,7 @@ defmodule Pinchflat.Pages.HistoryTableLive do
   alias Pinchflat.Utils.NumberUtils
   alias PinchflatWeb.CustomComponents.TextComponents
 
-  @limit 5
+  @limit System.get_env("PAGINATION_HISTORY_LIMIT", System.get_env("PAGINATION_LIMIT", "5")) |> String.to_integer()
 
   def render(%{records: []} = assigns) do
     ~H"""
