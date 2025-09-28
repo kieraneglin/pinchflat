@@ -73,6 +73,7 @@ RUN mix release
 
 FROM ${RUNNER_IMAGE}
 
+ARG TARGETPLATFORM
 ARG PORT=8945
 
 COPY --from=builder ./usr/local/bin/ffmpeg /usr/bin/ffmpeg
