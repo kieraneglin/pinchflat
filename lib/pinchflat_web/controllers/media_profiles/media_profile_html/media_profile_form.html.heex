@@ -100,7 +100,7 @@
         field={f[:embed_subs]}
         type="toggle"
         label="Embed Subtitles"
-        help="Downloads and embeds subtitles in the media file itself, if supported. Uneffected by 'Download Subtitles'"
+        help="Downloads and embeds subtitles in the media file itself, if supported. Unaffected by 'Download Subtitles'"
         x-init="$watch('selectedPreset', p => p && (enabled = presets[p]))"
       />
     </section>
@@ -154,7 +154,7 @@
         field={f[:embed_thumbnail]}
         type="toggle"
         label="Embed Thumbnail"
-        help="Downloads and embeds thumbnail in the media file itself, if supported. Uneffected by 'Download Thumbnail' (recommended)"
+        help="Downloads and embeds thumbnail in the media file itself, if supported. Unaffected by 'Download Thumbnail' (recommended)"
         x-init="$watch('selectedPreset', p => p && (enabled = presets[p]))"
       />
     </section>
@@ -178,7 +178,7 @@
         field={f[:embed_metadata]}
         type="toggle"
         label="Embed Metadata"
-        help="Downloads and embeds metadata in the media file itself, if supported. Uneffected by 'Download Metadata' (recommended)"
+        help="Downloads and embeds metadata in the media file itself, if supported. Unaffected by 'Download Metadata' (recommended)"
         x-init="$watch('selectedPreset', p => p && (enabled = presets[p]))"
       />
     </section>
