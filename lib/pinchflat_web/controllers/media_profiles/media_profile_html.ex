@@ -63,6 +63,8 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
         "same as the above but it handles dates better. <strong>This is the recommended option</strong>",
       static_season__episode_by_index:
         "<code>Season 1/s01eXX</code> where <code>XX</code> is the video's position in the playlist. Only recommended for playlists (not channels) that don't change",
+      static_season__episode_by_index_reversed:
+        "<code>Season 1/s01eXX</code> where <code>XX</code> is the video's position in the playlist in reversed order (last video is episode 1).",
       static_season__episode_by_date:
         "<code>Season 1/s01eYYMMDD</code>. Recommended for playlists that might change or where order isn't important"
     ]
@@ -86,6 +88,8 @@ defmodule PinchflatWeb.MediaProfiles.MediaProfileHTML do
         "the upload date formatted as <code>sYYYYeMMDDII</code> where <code>II</code> is an index to prevent date collisions",
       media_playlist_index:
         "the place of the media item in the playlist. Do not use with channels. May not work if the playlist is updated",
+      media_playlist_index_reversed:
+        "the place of the media item in the playlist in reversed order (last video is 1). Do not use with channels. May not work if the playlist is updated",
       media_item_id: "the ID of the media item in Pinchflat's database",
       source_id: "the ID of the source in Pinchflat's database",
       media_profile_id: "the ID of the media profile in Pinchflat's database"

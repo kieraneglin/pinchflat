@@ -6,8 +6,10 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
   alias Pinchflat.Sources
   alias Pinchflat.Sources.Source
   alias Pinchflat.Media.MediaItem
+  alias Pinchflat.Media.MediaQuery
   alias Pinchflat.Downloading.OutputPathBuilder
   alias Pinchflat.Downloading.QualityOptionBuilder
+  alias Pinchflat.Repo
 
   alias Pinchflat.Utils.FilesystemUtils, as: FSUtils
 
@@ -209,8 +211,26 @@ defmodule Pinchflat.Downloading.DownloadOptionBuilder do
       "source_collection_name" => source.collection_name,
       "source_collection_type" => to_string(source.collection_type),
       "media_playlist_index" => pad_int(media_item_with_preloads.playlist_index),
+      "media_playlist_index_reversed" => pad_int(calculate_reversed_playlist_index(media_item_with_preloads)),
       "media_upload_date_index" => pad_int(media_item_with_preloads.upload_date_index)
     }
+  end
+
+  defp calculate_reversed_playlist_index(media_item_with_preloads) do
+    source = media_item_with_preloads.source
+    current_index = media_item_with_preloads.playlist_index || 0
+
+    max_index =
+      MediaQuery.new()
+      |> where(^MediaQuery.for_source(source))
+      |> Repo.aggregate(:max, :playlist_index)
+
+    case {max_index, current_index} do
+      {nil, _} -> 0
+      {max, _} when max <= 0 -> 0
+      {max, current} when current > 0 -> max - current + 1
+      _ -> 0
+    end
   end
 
   # I don't love the string manipulation here, but what can ya' do.
