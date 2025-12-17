@@ -79,6 +79,17 @@
       Downloading Options
     </h3>
 
+    <section x-data="{ presets: { default: 'include' } }">
+      <.input
+        field={f[:members_content_behaviour]}
+        options={friendly_format_type_options()}
+        type="select"
+        label="Include Member Videos"
+        help="Experimental. Please report any issues on GitHub"
+        x-init="$watch('selectedPreset', p => p && ($el.value = presets[p]))"
+      />
+    </section>
+
     <.input
       field={f[:download_media]}
       type="toggle"
