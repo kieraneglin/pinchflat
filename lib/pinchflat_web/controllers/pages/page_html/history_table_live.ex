@@ -6,6 +6,9 @@ defmodule Pinchflat.Pages.HistoryTableLive do
   alias Pinchflat.Utils.NumberUtils
   alias PinchflatWeb.CustomComponents.TextComponents
 
+  alias Pinchflat.Media
+  alias Pinchflat.Downloading.MediaDownloadWorker
+
   @limit 5
 
   def render(%{records: []} = assigns) do
@@ -29,7 +32,7 @@ defmodule Pinchflat.Pages.HistoryTableLive do
       <div class="max-w-full overflow-x-auto">
         <.table rows={@records} table_class="text-white">
           <:col :let={media_item} label="Title" class="max-w-xs">
-            <section class="flex items-center space-x-1">
+            <section class="flex items-center space-x-1 gap-2">
               <.tooltip
                 :if={media_item.last_error}
                 tooltip={media_item.last_error}
@@ -38,6 +41,17 @@ defmodule Pinchflat.Pages.HistoryTableLive do
               >
                 <.icon name="hero-exclamation-circle-solid" class="text-red-500" />
               </.tooltip>
+
+              <.icon_button
+                icon_name="hero-arrow-down-tray"
+                class="p-1"
+                phx-click="force_download"
+                phx-value-source-id={media_item.source_id}
+                phx-value-media-id={media_item.id}
+                data-confirm="Are you sure you force a download of this media?"
+                :if={media_item.media_downloaded_at === nil}
+              />
+
               <span class="truncate">
                 <.subtle_link href={~p"/sources/#{media_item.source_id}/media/#{media_item.id}"}>
                   {media_item.title}
@@ -88,6 +102,13 @@ defmodule Pinchflat.Pages.HistoryTableLive do
     new_assigns = fetch_pagination_attributes(assigns.base_query, assigns.page)
 
     {:noreply, assign(socket, new_assigns)}
+  end
+
+  def handle_event("force_download", %{ "source-id" => source_id, "media-id" => media_id }, socket) do
+    media_item = Media.get_media_item!(media_id)
+    MediaDownloadWorker.kickoff_with_task(media_item, %{force: true})
+
+    {:noreply, socket}
   end
 
   defp fetch_pagination_attributes(base_query, page) do
