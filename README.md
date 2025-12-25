@@ -94,7 +94,6 @@ Simply search for Pinchflat in the Community Apps store!
 Docker Compose file:
 
 ```yaml
-version: '3'
 services:
   pinchflat:
     image: ghcr.io/kieraneglin/pinchflat:latest
