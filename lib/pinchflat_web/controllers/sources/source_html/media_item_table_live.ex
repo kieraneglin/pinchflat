@@ -6,7 +6,7 @@ defmodule PinchflatWeb.Sources.MediaItemTableLive do
   alias Pinchflat.Sources
   alias Pinchflat.Utils.NumberUtils
 
-  @limit 10
+  @limit System.get_env("PAGINATION_LIMIT", "10") |> String.to_integer()
 
   def render(%{total_record_count: 0} = assigns) do
     ~H"""
