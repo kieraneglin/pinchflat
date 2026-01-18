@@ -177,6 +177,7 @@ If you change this setting and it works well for you, please leave a comment on 
 | `TZ_DATA_DIR`               | No        | `/etc/elixir_tzdata_data` | The container path where the timezone database is stored                                                                                  |
 | `BASE_ROUTE_PATH`           | No        | `/`                       | The base path for route generation. Useful when running behind certain reverse proxies - prefixes must be stripped.                       |
 | `YT_DLP_WORKER_CONCURRENCY` | No        | `2`                       | The number of concurrent workers that use `yt-dlp` _per queue_. Set to 1 if you're getting IP limited, otherwise don't touch it           |
+| `YT_DLP_VERSION`            | No        | `stable`                  | Controls yt-dlp updates: `stable`, `nightly`, `master`, `pinned`/`none` (disable), or a specific version like `2025.12.08`                |
 | `ENABLE_PROMETHEUS`         | No        | `false`                   | Setting to _any_ non-blank value will enable Prometheus. See [docs](https://github.com/kieraneglin/pinchflat/wiki/Prometheus-and-Grafana) |
 
 ### Reverse Proxies

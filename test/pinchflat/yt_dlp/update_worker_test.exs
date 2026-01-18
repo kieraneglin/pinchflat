@@ -6,14 +6,14 @@ defmodule Pinchflat.YtDlp.UpdateWorkerTest do
 
   describe "perform/1" do
     test "calls the yt-dlp runner to update yt-dlp" do
-      expect(YtDlpRunnerMock, :update, fn -> {:ok, ""} end)
+      expect(YtDlpRunnerMock, :update, fn _version -> {:ok, ""} end)
       expect(YtDlpRunnerMock, :version, fn -> {:ok, ""} end)
 
       perform_job(UpdateWorker, %{})
     end
 
     test "saves the new version to the database" do
-      expect(YtDlpRunnerMock, :update, fn -> {:ok, ""} end)
+      expect(YtDlpRunnerMock, :update, fn _version -> {:ok, ""} end)
       expect(YtDlpRunnerMock, :version, fn -> {:ok, "1.2.3"} end)
 
       perform_job(UpdateWorker, %{})
