@@ -32,15 +32,11 @@
         Extractor Settings
       </h3>
 
-      <.input
-        field={f[:youtube_api_key]}
-        placeholder="ABC123,DEF456"
-        type="text"
-        label="YouTube API Key(s)"
-        help={youtube_api_help()}
-        html_help={true}
-        inputclass="font-mono text-sm mr-4"
-      />
+      {live_render(
+        @conn,
+        Pinchflat.Settings.YoutubeApiKeyLive,
+        session: %{"value" => f[:youtube_api_key].value}
+      )}
 
       <.input
         field={f[:extractor_sleep_interval_seconds]}

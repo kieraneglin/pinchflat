@@ -24,6 +24,41 @@ defmodule Pinchflat.FastIndexing.YoutubeApi do
   def enabled?, do: Enum.any?(api_keys())
 
   @doc """
+  Tests if a YouTube API key is valid by making a simple API request.
+
+  Returns :ok | {:error, binary()}
+  """
+  @impl YoutubeBehaviour
+  def test_api_key(api_key) when is_binary(api_key) do
+    # Use a well-known public playlist (YouTube's "Popular Right Now" uploads playlist)
+    # to test if the API key is valid
+    test_playlist_id = "PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf"
+
+    url =
+      "https://youtube.googleapis.com/youtube/v3/playlistItems?part=id&maxResults=1&playlistId=#{test_playlist_id}&key=#{api_key}"
+
+    case http_client().get(url, accept: "application/json") do
+      {:ok, response} ->
+        case Phoenix.json_library().decode(response) do
+          {:ok, %{"error" => %{"message" => message}}} ->
+            {:error, message}
+
+          {:ok, %{"items" => _}} ->
+            :ok
+
+          {:ok, _} ->
+            :ok
+
+          {:error, _} ->
+            {:error, "Invalid JSON response"}
+        end
+
+      {:error, reason} ->
+        {:error, "Request failed: #{inspect(reason)}"}
+    end
+  end
+
+  @doc """
   Fetches the recent media IDs from the YouTube API for a given source.
 
   Returns {:ok, [binary()]} | {:error, binary()}

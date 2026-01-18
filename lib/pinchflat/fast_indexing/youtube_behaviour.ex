@@ -8,4 +8,5 @@ defmodule Pinchflat.FastIndexing.YoutubeBehaviour do
 
   @callback enabled?() :: boolean()
   @callback get_recent_media_ids(%Source{}) :: {:ok, [String.t()]} | {:error, String.t()}
+  @callback test_api_key(String.t()) :: :ok | {:error, String.t()}
 end

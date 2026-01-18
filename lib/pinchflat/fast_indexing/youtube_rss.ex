@@ -20,6 +20,15 @@ defmodule Pinchflat.FastIndexing.YoutubeRss do
   def enabled?(), do: true
 
   @doc """
+  RSS feeds don't use API keys, so this always returns :ok.
+  Used to satisfy the `YoutubeBehaviour` behaviour.
+
+  Returns :ok
+  """
+  @impl YoutubeBehaviour
+  def test_api_key(_api_key), do: :ok
+
+  @doc """
   Fetches the recent media IDs from a YouTube RSS feed for a given source.
 
   Returns {:ok, [binary()]} | {:error, binary()}
