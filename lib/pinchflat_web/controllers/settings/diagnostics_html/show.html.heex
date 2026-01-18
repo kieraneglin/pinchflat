@@ -1,0 +1,212 @@
+<div class="mb-6 flex gap-3 flex-row items-center justify-between">
+  <div class="flex gap-3 items-center">
+    <h2 class="text-title-md2 font-bold text-white ml-4">
+      Queue Diagnostics
+    </h2>
+  </div>
+</div>
+
+<!-- System Stats -->
+<div class="rounded-sm border border-stroke bg-white px-5 py-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 mb-6">
+  <h3 class="text-lg font-semibold text-white mb-4">System Overview</h3>
+  <% stats = system_stats() %>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="bg-meta-4 rounded-lg p-4">
+      <p class="text-sm text-bodydark">Pending Downloads</p>
+      <p class="text-2xl font-bold text-white">{stats.total_pending_downloads}</p>
+    </div>
+    <div class="bg-meta-4 rounded-lg p-4">
+      <p class="text-sm text-bodydark">Downloaded Media</p>
+      <p class="text-2xl font-bold text-white">{stats.total_downloaded}</p>
+    </div>
+    <div class="bg-meta-4 rounded-lg p-4">
+      <p class="text-sm text-bodydark">Total Sources</p>
+      <p class="text-2xl font-bold text-white">{stats.total_sources}</p>
+    </div>
+    <div class="bg-meta-4 rounded-lg p-4">
+      <p class="text-sm text-bodydark">Database Size</p>
+      <p class="text-2xl font-bold text-white">{stats.database_size}</p>
+    </div>
+  </div>
+</div>
+
+<!-- Queue Health -->
+<div class="rounded-sm border border-stroke bg-white px-5 py-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 mb-6">
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="text-lg font-semibold text-white">Queue Health</h3>
+    <.link href={~p"/diagnostics"}>
+      <.button color="bg-bodydark" rounding="rounded-lg" class="text-sm">
+        <.icon name="hero-arrow-path" class="h-4 w-4 mr-1" /> Refresh
+      </.button>
+    </.link>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <%= for stats <- queue_stats() do %>
+      <div class={"rounded-lg border-2 p-4 #{queue_health_class(stats)}"}>
+        <div class="flex justify-between items-start mb-2">
+          <h4 class="font-semibold text-white">{format_queue_name(stats.name)}</h4>
+          <span class={"text-xs px-2 py-1 rounded #{if stats.paused, do: "bg-yellow-500", else: "bg-meta-4"}"}>
+            {queue_status_text(stats)}
+          </span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-sm">
+          <div>
+            <span class="text-bodydark">Running:</span>
+            <span class="text-white ml-1">{stats.running}/{stats.limit}</span>
+          </div>
+          <div>
+            <span class="text-bodydark">Available:</span>
+            <span class="text-white ml-1">{stats.available}</span>
+          </div>
+          <div>
+            <span class="text-bodydark">Scheduled:</span>
+            <span class="text-white ml-1">{stats.scheduled}</span>
+          </div>
+          <div>
+            <span class={"#{if stats.retryable > 0, do: "text-red-400", else: "text-bodydark"}"}>Retryable:</span>
+            <span class={"ml-1 #{if stats.retryable > 0, do: "text-red-400 font-bold", else: "text-white"}"}>
+              {stats.retryable}
+            </span>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Stuck Jobs -->
+<% stuck = stuck_jobs() %>
+<%= if length(stuck) > 0 do %>
+  <div class="rounded-sm border border-stroke bg-white px-5 py-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 mb-6">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold text-white">
+        <.icon name="hero-exclamation-triangle" class="h-5 w-5 text-yellow-500 mr-2" /> Stuck Jobs ({length(stuck)})
+      </h3>
+      <.link
+        href={~p"/diagnostics/reset_stuck_jobs"}
+        method="post"
+        data-confirm="This will reset all stuck jobs. They will be retried. Continue?"
+      >
+        <.button color="bg-yellow-600" rounding="rounded-lg" class="text-sm">
+          <.icon name="hero-arrow-path" class="h-4 w-4 mr-1" /> Reset All Stuck Jobs
+        </.button>
+      </.link>
+    </div>
+    <p class="text-bodydark text-sm mb-4">
+      These jobs have been executing for more than 30 minutes and may be orphaned. This can happen after a container restart.
+    </p>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-strokedark">
+            <th class="text-left py-2 text-bodydark">ID</th>
+            <th class="text-left py-2 text-bodydark">Queue</th>
+            <th class="text-left py-2 text-bodydark">Worker</th>
+            <th class="text-left py-2 text-bodydark">Started At</th>
+            <th class="text-left py-2 text-bodydark">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= for job <- stuck do %>
+            <tr class="border-b border-strokedark/50">
+              <td class="py-2 text-white">#{job.id}</td>
+              <td class="py-2 text-white">{job.queue}</td>
+              <td class="py-2 text-white">{format_worker_name(job.worker)}</td>
+              <td class="py-2 text-white">{format_datetime(job.attempted_at)}</td>
+              <td class="py-2">
+                <.link
+                  href={~p"/diagnostics/reset_job/#{job.id}"}
+                  method="post"
+                  class="text-primary hover:underline mr-3"
+                >
+                  Reset
+                </.link>
+                <.link
+                  href={~p"/diagnostics/cancel_job/#{job.id}"}
+                  method="post"
+                  class="text-red-400 hover:underline"
+                  data-confirm="Cancel this job?"
+                >
+                  Cancel
+                </.link>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>
+
+<!-- Retryable Jobs -->
+<% retryable = retryable_jobs() %>
+<div class="rounded-sm border border-stroke bg-white px-5 py-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5">
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="text-lg font-semibold text-white">
+      <.icon name="hero-exclamation-circle" class="h-5 w-5 text-red-500 mr-2" /> Failed Jobs ({length(retryable)})
+    </h3>
+    <%= if length(retryable) > 0 do %>
+      <.link
+        href={~p"/diagnostics/reset_retryable_jobs"}
+        method="post"
+        data-confirm="This will reset all failed jobs and clear their error history. They will be retried from scratch. Continue?"
+      >
+        <.button color="bg-red-600" rounding="rounded-lg" class="text-sm">
+          <.icon name="hero-arrow-path" class="h-4 w-4 mr-1" /> Reset All Failed Jobs
+        </.button>
+      </.link>
+    <% end %>
+  </div>
+
+  <%= if length(retryable) == 0 do %>
+    <p class="text-bodydark">No failed jobs. Everything is running smoothly!</p>
+  <% else %>
+    <p class="text-bodydark text-sm mb-4">
+      These jobs have failed and are waiting to be retried. You can reset them to retry immediately or cancel them.
+    </p>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-strokedark">
+            <th class="text-left py-2 text-bodydark">ID</th>
+            <th class="text-left py-2 text-bodydark">Queue</th>
+            <th class="text-left py-2 text-bodydark">Worker</th>
+            <th class="text-left py-2 text-bodydark">Attempts</th>
+            <th class="text-left py-2 text-bodydark">Last Error</th>
+            <th class="text-left py-2 text-bodydark">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= for job <- retryable do %>
+            <tr class="border-b border-strokedark/50">
+              <td class="py-2 text-white">#{job.id}</td>
+              <td class="py-2 text-white">{job.queue}</td>
+              <td class="py-2 text-white">{format_worker_name(job.worker)}</td>
+              <td class="py-2 text-white">{job.attempt}/{job.max_attempts}</td>
+              <td class="py-2 text-red-400 max-w-xs truncate" title={extract_last_error(job.errors)}>
+                {extract_last_error(job.errors)}
+              </td>
+              <td class="py-2">
+                <.link
+                  href={~p"/diagnostics/reset_job/#{job.id}"}
+                  method="post"
+                  class="text-primary hover:underline mr-3"
+                >
+                  Reset
+                </.link>
+                <.link
+                  href={~p"/diagnostics/cancel_job/#{job.id}"}
+                  method="post"
+                  class="text-red-400 hover:underline"
+                  data-confirm="Cancel this job?"
+                >
+                  Cancel
+                </.link>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>

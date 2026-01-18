@@ -51,6 +51,12 @@ defmodule PinchflatWeb.Router do
     get "/app_info", Settings.SettingController, :app_info
     get "/download_logs", Settings.SettingController, :download_logs
 
+    get "/diagnostics", Settings.DiagnosticsController, :show
+    post "/diagnostics/reset_stuck_jobs", Settings.DiagnosticsController, :reset_stuck_jobs
+    post "/diagnostics/reset_retryable_jobs", Settings.DiagnosticsController, :reset_retryable_jobs
+    post "/diagnostics/reset_job/:id", Settings.DiagnosticsController, :reset_job
+    post "/diagnostics/cancel_job/:id", Settings.DiagnosticsController, :cancel_job
+
     resources "/sources", Sources.SourceController do
       post "/force_download_pending", Sources.SourceController, :force_download_pending
       post "/force_redownload", Sources.SourceController, :force_redownload
