@@ -61,6 +61,8 @@ config :pinchflat, Oban,
   plugins: [
     # Keep old jobs for 30 days for display in the UI
     {Oban.Plugins.Pruner, max_age: 30 * 24 * 60 * 60},
+    # Rescue orphaned jobs stuck in "executing" state after crash/restart
+    {Oban.Plugins.Lifeline, rescue_after: :timer.minutes(30)},
     {Oban.Plugins.Cron,
      crontab: [
        {"#{current_minute} #{current_hour} * * *", Pinchflat.YtDlp.UpdateWorker},
