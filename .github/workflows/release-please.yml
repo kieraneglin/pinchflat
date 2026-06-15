@@ -63,9 +63,6 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
-  # After a release is published: update mix.exs to "semver (calver)" so the
-  # running app displays both (e.g. "1.0.0 (2026.06.14)").
-  # Mix will warn that this isn't strict semver, which is fine for a Docker app.
   update-mix-version:
     name: Update mix.exs version string
     runs-on: ubuntu-latest
@@ -80,21 +77,18 @@ jobs:
           ref: master
           ssh-key: ${{ secrets.RELEASE_DEPLOY_KEY }}
 
-      - name: Set combined version in mix.exs
+      - name: Set version in mix.exs
         run: |
           SEMVER=$(echo '${{ needs.release-please.outputs.tag_name }}' | sed 's/^v//')
-          DATE=$(date +"%Y.%-m.%-d")
-          DISPLAY="${SEMVER} (${DATE})"
-          sed -i "s|^      version: \".*\",|      version: \"${DISPLAY}\",|" mix.exs
+          sed -i "s|^      version: \".*\",|      version: \"${SEMVER}\",|" mix.exs
 
       - name: Commit and push
         run: |
           SEMVER=$(echo '${{ needs.release-please.outputs.tag_name }}' | sed 's/^v//')
-          DATE=$(date +"%Y.%-m.%-d")
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add mix.exs
-          git diff --cached --quiet || git commit -m "chore: set app version to ${SEMVER} (${DATE}) [skip ci]"
+          git diff --cached --quiet || git commit -m "chore: set app version to ${SEMVER} [skip ci]"
           git push
 
   docker:
