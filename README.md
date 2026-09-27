@@ -174,6 +174,7 @@ If you change this setting and it works well for you, please leave a comment on 
 | `EXPOSE_FEED_ENDPOINTS`     | No        | `false`                   | See [RSS feed docs](https://github.com/kieraneglin/pinchflat/wiki/Podcast-RSS-Feeds)                                                      |
 | `ENABLE_IPV6`               | No        | `false`                   | Setting to _any_ non-blank value will enable IPv6                                                                                         |
 | `JOURNAL_MODE`              | No        | `wal`                     | Set to `delete` if your config directory is stored on a network share (not recommended)                                                   |
+| `DATABASE_TIMEOUT_MS`       | No        | `15000`                   | Raise (e.g. to `60000`) if logs show `timed out because it queued and checked out the connection`                                         |
 | `TZ_DATA_DIR`               | No        | `/etc/elixir_tzdata_data` | The container path where the timezone database is stored                                                                                  |
 | `BASE_ROUTE_PATH`           | No        | `/`                       | The base path for route generation. Useful when running behind certain reverse proxies - prefixes must be stripped.                       |
 | `YT_DLP_WORKER_CONCURRENCY` | No        | `2`                       | The number of concurrent workers that use `yt-dlp` _per queue_. Set to 1 if you're getting IP limited, otherwise don't touch it           |

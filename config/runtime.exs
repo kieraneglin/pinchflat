@@ -84,6 +84,9 @@ if config_env() == :prod do
   expose_feed_endpoints = String.length(System.get_env("EXPOSE_FEED_ENDPOINTS", "")) > 0
   # For testing alternate journal modes (see issue #137)
   journal_mode = String.to_existing_atom(System.get_env("JOURNAL_MODE", "wal"))
+  # How long a DB query may hold a connection before it's killed. Slow storage (e.g. HDD
+  # arrays or FUSE-backed paths) plus concurrent indexing can exceed the 15s default
+  {database_timeout, _} = Integer.parse(System.get_env("DATABASE_TIMEOUT_MS", "15000"))
   # For running PF in a subdirectory via a reverse proxy
   base_route_path = System.get_env("BASE_ROUTE_PATH", "/")
   enable_ipv6 = String.length(System.get_env("ENABLE_IPV6", "")) > 0
@@ -109,7 +112,8 @@ if config_env() == :prod do
 
   config :pinchflat, Pinchflat.Repo,
     database: db_path,
-    journal_mode: journal_mode
+    journal_mode: journal_mode,
+    timeout: database_timeout
 
   config :pinchflat, Pinchflat.PromEx, disabled: !enable_prometheus
 
