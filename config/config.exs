@@ -32,7 +32,15 @@ config :pinchflat,
 
 config :pinchflat, Pinchflat.Repo,
   journal_mode: :wal,
-  pool_size: 5
+  # SQLite allows exactly one writer at a time no matter how many connections ask for
+  # one. With pool_size 5, up to 5 BEAM connections independently fight over that one
+  # OS-level file lock; on slower/virtualized storage each hold is long enough that the
+  # others pile up and blow through the busy_timeout, producing crashes (#832/#873/#903/
+  # #762) and 20-34s stalls. A single connection removes the contention at its source:
+  # Ecto/DBConnection queues requests cheaply in-memory instead of SQLite retrying a disk
+  # lock. Reads lose some parallelism, but this app is CPU-idle and I/O-bound, so there's
+  # nothing being traded away.
+  pool_size: 1
 
 # Configures the endpoint
 config :pinchflat, PinchflatWeb.Endpoint,
