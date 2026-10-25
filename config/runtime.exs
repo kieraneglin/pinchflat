@@ -65,7 +65,8 @@ config :pinchflat, Oban,
      crontab: [
        {"#{current_minute} #{current_hour} * * *", Pinchflat.YtDlp.UpdateWorker},
        {"0 1 * * *", Pinchflat.Downloading.MediaRetentionWorker},
-       {"0 2 * * *", Pinchflat.Downloading.MediaQualityUpgradeWorker}
+       {"0 2 * * *", Pinchflat.Downloading.MediaQualityUpgradeWorker},
+       {"*/15 * * * *", Pinchflat.Repo.WalCheckpointWorker}
      ]}
   ]
 
