@@ -86,7 +86,7 @@ defmodule PinchflatWeb.Sources.SourceHTML do
     timezone = Application.get_env(:pinchflat, :timezone)
 
     timezone
-    |> Timex.now()
+    |> Timex.today()
     |> Timex.shift(days: -days)
     |> Timex.format!("{YYYY}-{0M}-{0D}")
   end
